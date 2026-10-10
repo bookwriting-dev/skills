@@ -3,7 +3,7 @@ name: fiction-style
 description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "7.0.0"
+  version: "7.0.1"
   category: fiction-writing
   output-format: markdown
   workflow-position: 2

@@ -20,6 +20,8 @@ These patterns mark amateur or AI-generated prose. Never use:
 - "with a knowing [noun]"
 - "seemed to [verb]" when you mean they did the verb
 - "symphony of [action]" / "dance of [action]" / "ballet of [action]"
+- "In today's ..." openers (e.g., "in today's rapidly evolving world")
+- "delve into [abstract noun]" / "navigate the [abstract noun] of"
 
 ---
 
@@ -57,6 +59,12 @@ Young characters (under 30) should not move or act like trained operatives unles
 - literally (filler word)
 - quite (softener - commit or cut)
 - rather (softener - commit or cut)
+- delve
+- seamlessly
+- unlock / unleash (metaphorical)
+- elevate (metaphorical)
+- journey (metaphorical - a literal trip is fine)
+- beacon (metaphorical - a literal signal light is fine)
 
 ---
 

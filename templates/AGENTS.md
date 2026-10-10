@@ -75,7 +75,7 @@ When a skill must invent a proper name, use `name-generator` (people) or `town-g
 
 ## Editing
 
-Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Do not run a kill pass or full edit unless the user asked for revision.
+Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Do not run a kill pass or full edit unless the user asked for revision. Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
 
 ## Skill index
 

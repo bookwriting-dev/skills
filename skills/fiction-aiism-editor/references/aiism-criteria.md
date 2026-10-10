@@ -18,6 +18,11 @@ Flag these words unless the exception applies:
 - undeniable
 - visceral
 - primal
+- delve
+- seamlessly
+- unlock / unleash / elevate (metaphorical use only)
+- journey (metaphorical use only)
+- beacon (metaphorical use only - literal signal lights are fine)
 
 Also check the review guide for any project-specific forbidden words.
 
@@ -31,6 +36,8 @@ Also check the review guide for any project-specific forbidden words.
 - "the kind of [X] that [verb] more than [Y]"
 - "the [noun] of someone who [clause]" (e.g., "with the composure of someone who had spent decades...")
 - "all [adjective noun] and [adjective noun]" (e.g., "all sharp angles and quiet authority")
+- "In today's ..." openers (e.g., "in today's rapidly evolving landscape")
+- "delve into" / "navigate the [abstract noun] of"
 
 ### Paradiastole Patterns
 These rhetorical inversions are an AI tell:

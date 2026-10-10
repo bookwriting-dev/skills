@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing."
 metadata:
   author: Fiction Toolkit
-  version: "2.2.0"
+  version: "2.3.0"
   category: fiction-writing
   workflow-position: 8
   requires: fiction-writechapter
@@ -174,7 +174,11 @@ Output this section in the review report using the following format:
 **Resolution Trajectory:** [flag if contract breach, or "on track" or "not yet applicable"]
 ```
 
-### Step 5: Verify Every Claim on the Page
+### Step 5: Audit the chapter's canon assertions
+
+Extract every specific canon fact the chapter asserts: proper nouns (people, places, organizations, items, events), dates and durations, counts and distances, injuries and physical states, possessions, and relationship or knowledge facts new to this chapter. For each assertion, search the book Wiki and the scene plan for the source that establishes it. An unsupported assertion is a finding, not texture: flag it with the line reference, the missing source, and a fix — name the canonical fact, replace the specific with an accurate generic description, or mark it for canonization. The draft itself, a previous chapter, and general memory are not evidence. Report unsupported assertions among the Proposed Edits tagged `[Canon]`.
+
+### Step 6: Verify Every Claim on the Page
 
 Before an issue may be listed as actionable, verify it against the chapter's text: quote the exact offending line from the file and confirm the quote is really there, word for word. Drop any finding whose premise cannot be verified on the page — a device the chapter does not contain, a line that does not exist, a fact recorded in a prior review but absent from the current text. Reviews inherit each other's false premises; an unverified finding costs a triage pass and can send the revision the wrong way.
 
@@ -182,7 +186,7 @@ When the project keeps a record of prior rulings and fixes, let the record gover
 
 Separate compliance from craft. A line that violates the style guide is a compliance finding. A line that complies with the guide but would genuinely read better changed is a craft proposal: report it with before/after text and a recommendation, clearly marked as a proposal, and leave the decision to the author. Do not dismiss a craft proposal just because the guide permits the line, and do not apply one unilaterally.
 
-### Step 6: Generate Actionable Output
+### Step 7: Generate Actionable Output
 
 This is an EDITING PASS. For each issue found:
 

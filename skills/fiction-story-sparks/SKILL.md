@@ -3,7 +3,7 @@ name: fiction-story-sparks
 description: "Generate compact fiction prompts from a character, location, object or creature, disruptive event, optional twist, and optional ending. Use only when the user explicitly asks for a story spark, random prompt, card-style story idea, writing exercise, or invokes fiction-story-sparks. Do not activate for ordinary outlining or ongoing-book work."
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -50,6 +50,8 @@ Optional cards, included only when requested or when the user asks for a full sp
 - **How it ends:** a directional ending image or consequence, not a complete synopsis and not necessarily a happy ending.
 
 Keep components generative rather than exhaustive. The combination should contain a decision: someone wants or must protect something, the event changes their available choices, and the location makes the response harder.
+
+When a draft combination reads generic — it could headline any book in the genre — force a collision before presenting it: pair the premise with one unrelated, high-specificity domain (a trade, era, toolset, or material culture) and let that domain's concrete vocabulary reshape at least one core component. The collision is a seed, not decoration: it must be explainable inside the story, and it should make the premise harder to summarize in one stock phrase.
 
 ## Proper names
 
@@ -105,6 +107,7 @@ Do not turn the result into a synopsis, outline, character sheet, or world packa
 Verify that:
 
 - the components fit one genre or intentionally explained collision;
+- any forced domain collision is load-bearing — it changes what the story asks or costs, not just its surface flavor;
 - the event forces a decision rather than merely decorating the situation;
 - the premise is concrete and unstable rather than a setting description;
 - the reader promise names an experience and payoff the ending can deliver;

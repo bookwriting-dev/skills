@@ -7,7 +7,7 @@ description: Fast, focused scan for AI-generated patterns in fiction prose. Dete
   AI patterns", "clean AI tells", or invokes fiction-aiism-editor with a chapter reference.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: 1.1.0
   category: fiction-editing
 ---
 
