@@ -3,7 +3,7 @@ name: fiction-promises
 description: "Track and audit the Chekhov ledger: every setup the text has made and whether it has paid off. Maintains the per-book ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when user says 'check promises', 'loose ends', 'unresolved setups', 'what have I forgotten to pay off', 'chekhov', or before closing a book. Runs alongside fiction-reviewchapter, which audits the ledger during chapter review."
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: fiction-writing
   output-format: yaml
   workflow-position: 8.5
@@ -51,6 +51,11 @@ Ask, as a reader: *what did this chapter tell me to remember?*
 - A threat, a debt, a vow, a prophecy
 - A stranger named with weight
 - Any rule of the world demonstrated in a way that begs a later exception
+- An explicit forward reference — "that was the last quiet morning," "before the
+  harvest festival," "when we reach the capital." The text has gone on the record that
+  this moment will matter; that is the loudest promise there is, and readers audit
+  forward references with due dates in mind. Weight: `loud`. The `payoff_by_ch` should
+  not be far off whatever deadline the text itself named.
 
 Record each in the ledger with:
 

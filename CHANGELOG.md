@@ -2,6 +2,24 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-10 — Persona-panel harvest (Click Next to Continue)
+
+Rationale: read the twelve-persona review panel built for *Click Next to Continue* (nonfiction) and all twelve verified persona reports, and harvested what transfers to fiction. Three findings shaped this release: (1) the machine tell that survives a clean lint is **house style executed at superhuman uniformity** — dies, not sentences; (2) **quality drifts monotonically toward the back of long manuscripts** while per-chapter gates stay green (rising construction density, concentrating pet words, thinning specifics — four of twelve personas found the same gradient independently); (3) **the book mis-quoting itself** (false callbacks, un-anchored coined terms) is the highest-yield continuity finding in long works.
+
+### Added
+
+- **`fiction-review-panel` 1.0.0** — builds and runs the persona review panel the AGENTS.md layout already promised (`Wiki/Review/panel.md` + `personas/`) but no skill ever built. Encodes the panel design rules the *Click Next* run validated: a persona is a stake + a way of being wrong about THIS book + fixed output flags; never blend; count, don't gesture; **grep-verify every quoted line before filing** (persona passes hallucinate — multiple quote corrections per report in the source run); positive ledger required; lane discipline; cross-persona synthesis for contradictions and gradients. Eight fiction-tuned archetype seats plus an optional hostile advocate.
+- **`drift-check` 1.0.0** — diagnostic-only book-level drift audit with `references/drift.py` (tested): pet-word ledger (hot-in-one-chapter or back-half concentration), negation-pivot density trend, opener formula clusters, closer die detection including **noun-swapped dies** (same stop-word frame, fresh content words — verified against a planted case token-overlap alone misses), and specifics-density trend. Finds what per-chapter gates cannot: the gradient.
+- **`fiction-reviewchapter/references/panel-harvest-criteria.md`** — eight verified failure modes from the panel run: narrator absolutes ("a true tendency written as a law"), authority without scars, structural problems solved by individual conscience, the quotable line as the risk spot, gloss discipline failing at distance and under compression, the idealized baseline, the sting and its repair grammar, the parable arc.
+
+### Changed
+
+- **`fiction-reviewchapter` 2.4.0 → 2.5.0** — Step 5 now audits the book's internal references: every callback to a specific prior moment is a canon assertion, verified against the chapter where it supposedly happened (false callbacks are worse than unsupported details — the book trained the reader to trust its references). Reads the new criteria file in Step 2.
+- **`fiction-promises` 1.0.0 → 1.1.0** — explicit forward references ("that was the last quiet morning") are the loudest promises there is; harvest them with `loud` weight and a `payoff_by_ch` near the deadline the text itself named.
+- **`fiction-aiism-editor` 1.1.0 → 1.2.0** — two new criteria categories: self-announcing narration (the docent: "little did she know," narration pointing at its own craft) and noun-swapped dies within a chapter.
+- **`templates/AGENTS.md`** — workflow step 15 (panel per act + drift-check at part boundaries), both new skills in the skill index, editing-section routing, and the Wiki/Review panel description now names its builder.
+- **`sync-manifest.txt`** — the five new files registered.
+
 ## 2026-10-10 — Fork declaration + first owned release
 
 **Ownership.** This library is now ours, not a tracked-deltas copy of upstream. Two pre-fork passes (below) were recorded as deltas against the upstream ZIP; from here on, changes are ordinary development recorded in this file.

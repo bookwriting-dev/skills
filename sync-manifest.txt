@@ -16,3 +16,7 @@ skills/fiction-promises/scripts/promises.py
 skills/fiction-divergence/SKILL.md
 skills/fiction-divergence/references/divergence-criteria.md
 skills/fiction-series-outline/SKILL.md
+skills/fiction-review-panel/SKILL.md
+skills/drift-check/SKILL.md
+skills/drift-check/references/drift.py
+skills/fiction-reviewchapter/references/panel-harvest-criteria.md

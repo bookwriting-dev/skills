@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing."
 metadata:
   author: Fiction Toolkit
-  version: "2.4.0"
+  version: "2.5.0"
   category: fiction-writing
   workflow-position: 8
   requires: fiction-writechapter
@@ -105,6 +105,7 @@ If files are missing, note which criteria cannot be fully evaluated.
 Read:
 - [references/review-criteria-detailed.md](references/review-criteria-detailed.md)
 - [references/common-issues.md](references/common-issues.md)
+- [references/panel-harvest-criteria.md](references/panel-harvest-criteria.md) — failure modes harvested from full-panel persona reads; check each against the chapter
 
 ### Step 3: Build Review Context
 
@@ -180,6 +181,8 @@ Output this section in the review report using the following format:
 ### Step 5: Audit the chapter's canon assertions
 
 Extract every specific canon fact the chapter asserts: proper nouns (people, places, organizations, items, events), dates and durations, counts and distances, injuries and physical states, possessions, and relationship or knowledge facts new to this chapter. For each assertion, search the book Wiki and the scene plan for the source that establishes it. An unsupported assertion is a finding, not texture: flag it with the line reference, the missing source, and a fix — name the canonical fact, replace the specific with an accurate generic description, or mark it for canonization. The draft itself, a previous chapter, and general memory are not evidence. Report unsupported assertions among the Proposed Edits tagged `[Canon]`.
+
+References to the book's own past are canon assertions too. Every callback to a specific prior moment — "as she had promised in the tower," "the wound from the river crossing," "what he said at the funeral" — must be verified against the chapter or scene where the moment supposedly happened: the moment exists, and it happened as this chapter describes. A false callback is worse than an unsupported detail. The book trains readers to trust its references; one check that pays out empty dents the trust everywhere else. Flag the false callback with both locations — where the callback claims, and what the claimed source actually says.
 
 ### Step 6: Audit the Chekhov ledger
 

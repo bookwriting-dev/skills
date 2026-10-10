@@ -64,6 +64,7 @@ Run these skills in order unless the user skips a step:
 12. `fiction-style` + `fiction-voiceprompt`
 13. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
 14. `fiction-reviewchapter` (its review audits the `promises.yaml` ledger; then line/prose/kill skills as needed)
+15. `fiction-review-panel` per act and before calling the book done (persona reads, verified findings → `Wiki/Review/`); `drift-check` at part boundaries for book-level drift the per-chapter gates cannot see
 
 `fiction-story-sparks` is only for an explicit prompt, card-style idea, or writing exercise. Do not use it to start or rewrite this book unless asked. For a second book, run `fiction-series-outline` first to refresh `Wiki/Story/series-arc.md` and honor the handoff inventory and inter-book promise map; the already-canonical series-level steps (genre, audience, theme, series synopsis, characters, world, style) are skipped unless the book needs new entries, and the book starts at its own synopsis in `Wiki/Story/Book-N/`.
 
@@ -77,7 +78,7 @@ When a skill must invent a proper name, use `name-generator` (people) or `town-g
 
 ## Editing
 
-Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Loose ends and unpaid setups go to `fiction-promises`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Do not run a kill pass or full edit unless the user asked for revision. Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
+Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Loose ends and unpaid setups go to `fiction-promises`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Book-level drift — pet words, rising construction density, template openers and closers — goes to `drift-check`. Reader-reaction findings come from `fiction-review-panel`. Do not run a kill pass or full edit unless the user asked for revision. Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
 
 ## Skill index
 
@@ -89,10 +90,10 @@ Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Loos
 
 **Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
-**Review the story:** `coldread`, `fiction-dev-editor`, `fiction-reviewchapter`, `fiction-promises`
+**Review the story:** `coldread`, `fiction-dev-editor`, `fiction-reviewchapter`, `fiction-promises`, `fiction-review-panel`
 
 **Edit the prose:** `fiction-line-editor`, `fiction-prose-editor`, `fiction-full-editor`, `levelup`, `fragment-hunter`, `nominalization-hunt`
 
-**Remove the tells:** `fiction-aiism-editor`, `burstiness-check`, `pangram`, `kill-chapter`, `kill-simile`, `kill-crutch`, `kill-soft`, `kill-flat`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`
+**Remove the tells:** `fiction-aiism-editor`, `burstiness-check`, `drift-check`, `pangram`, `kill-chapter`, `kill-simile`, `kill-crutch`, `kill-soft`, `kill-flat`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`
 
 **Make your own:** `skill-builder`

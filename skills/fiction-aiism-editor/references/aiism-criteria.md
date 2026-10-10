@@ -81,6 +81,25 @@ Inanimate things (cities, buildings, rooms, weather, the world) must NOT be give
 - Emotional math: "equal parts [X] and [Y]"
 - The "beat of silence" / "loaded silence" / "heavy silence" cliche cluster
 
+### Self-Announcing Narration (the docent)
+The narration pointing at its own construction — telling the reader how well told the
+telling is. Flag:
+- "Little did she know" and its cousins (the narrator winking at withheld information)
+- "It was, in retrospect, the moment everything changed" / "That was the last quiet morning" (when used as announcement rather than as the character's own retrospective thought)
+- "To understand what happened next, you need to know..." (tour-guide staging)
+- Lines that narrate the narration's craft: "The sentence landed like a verdict" when nothing in-scene lands anything
+Rare legitimate use: an established intrusive narrator whose voice does this on every
+page by contract. Check the voice rules before flagging a deliberate storyteller voice.
+
+### Noun-Swapped Dies (within this chapter)
+The same sentence template re-fired with fresh nouns — individually fine sentences
+whose repetition is the tell: "The forge does not rest. The hammer does not forgive."
+two pages after "The road does not end. The map does not lie." Flag the *second and
+later* instances of a construction whose frame (small function words) matches an
+earlier one while the content words were swapped. One instance is style; the refill is
+a die. (Book-level repetition across chapters is `drift-check`'s job — this category is
+within the chunk you were assigned.)
+
 ### Math / Analytical Language (AI Tell)
 AI defaults to quantitative framing when it can't render the actual feeling. Flag whenever mathematical or analytical vocabulary is used metaphorically or to describe emotional/situational judgment.
 
