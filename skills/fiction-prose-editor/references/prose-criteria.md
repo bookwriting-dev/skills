@@ -25,6 +25,12 @@ Check every line in your assigned chunk against ALL of the following categories.
   - Absolute construction: "Rifle raised, Rowan moved forward."
   - Participial lead: "Crossing the deck, she paused."
 
+### Cadence Flatline (Consecutive Same-Length Sentences)
+- Flag runs of 3 or more consecutive narrative sentences within a few words of the same length (e.g., 18, 20, 19, 21 words in a row) — an isochronous machine cadence the reader stops hearing
+- Two near-identical sentences in a row is normal human prose; three or more is the tell
+- **Exception:** deliberate parallelism (anaphora, a rhythmic triple in dialogue or a stylized beat) — flag it and note the exception rather than auto-fixing
+- **Fix:** break the run — shorten one sentence hard, expand another, or combine two
+
 ### Simile Overuse
 - Flag any paragraph with 2+ similes
 - Flag chapters with more than 3 total similes

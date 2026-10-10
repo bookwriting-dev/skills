@@ -8,7 +8,7 @@ description: Prose craft mechanics check for fiction. Scans for narrative fragme
   fiction-prose-editor with a chapter reference.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: 1.1.0
   category: fiction-editing
 ---
 
