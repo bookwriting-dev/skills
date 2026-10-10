@@ -8,8 +8,8 @@ Canon lives in `Wiki/`. Prose lives in `Chapters/`. Skills live in `.agents/skil
 
 This repo holds a series, so everything is either **shared series canon** or **per-book**. Shared canon never moves into a book folder; per-book work never sits loose at a root.
 
-- **Shared (Wiki root):** `Wiki/Characters/`, `Wiki/World/`, `Wiki/Style/`, `Wiki/Story/theme.md`, `Wiki/Story/synopsis.md` (the series synopsis), `Wiki/Story/active-context.md` (the working log for the whole series), and `Wiki/Review/` (the series review panel — build it when Book 1 reaches review).
-- **Per-book (`Book-N/` subfolders):** every book gets the same five slots, whether or not they are filled yet — `Wiki/Story/Book-N/` (book synopsis, revision plans), `Wiki/Outline/Book-N/` (outline + `Chapter_NN_Scene.md` beats), `Wiki/Psych/Book-N/`, `Chapters/Book-N/`, `_Edits/Book-N/`.
+- **Shared (Wiki root):** `Wiki/Characters/`, `Wiki/World/`, `Wiki/Style/`, `Wiki/Story/theme.md`, `Wiki/Story/synopsis.md` (the series synopsis), `Wiki/Story/series-arc.md` (the series-level plan maintained by `fiction-series-outline`), `Wiki/Story/active-context.md` (the working log for the whole series), and `Wiki/Review/` (the series review panel — build it when Book 1 reaches review).
+- **Per-book (`Book-N/` subfolders):** every book gets the same five slots, whether or not they are filled yet — `Wiki/Story/Book-N/` (book synopsis, revision plans, `promises.yaml` — the Chekhov ledger), `Wiki/Outline/Book-N/` (outline + `Chapter_NN_Scene.md` beats + `surprise-ledger.md`), `Wiki/Psych/Book-N/`, `Chapters/Book-N/`, `_Edits/Book-N/`.
 - Older entries in `active-context.md` may cite pre-reorg root paths (e.g. `Chapters/Chapter-035.md`); the moved location is under `Book-N/`.
 
 ## Folder layout
@@ -18,13 +18,13 @@ This repo holds a series, so everything is either **shared series canon** or **p
 .
 ├── AGENTS.md                 # this file — project-wide writing rules
 ├── CLAUDE.md                 # one-line import of AGENTS.md
-├── .agents/skills/           # 42 Storycraft skills + companion files
+├── .agents/skills/           # the skill library + companion files
 ├── Wiki/                     # series canon
-│   ├── Story/                # theme, series synopsis, active context
-│   │   └── Book-N/           # per-book: synopsis, revision plans
+│   ├── Story/                # theme, series synopsis, series arc, active context
+│   │   └── Book-N/           # per-book: synopsis, revision plans, promises.yaml
 │   ├── Characters/           # one file per character (series-wide)
 │   ├── Outline/
-│   │   └── Book-N/           # outline.md + Chapter_NN_Scene.md beats
+│   │   └── Book-N/           # outline.md + Chapter_NN_Scene.md beats + surprise-ledger.md
 │   ├── Psych/
 │   │   └── Book-N/           # Chapter_NN_Psych.md
 │   ├── Style/                # genre, audience, style/review/voice guides
@@ -54,16 +54,18 @@ Run these skills in order unless the user skips a step:
 2. `fiction-audience` → `Wiki/Style/audience.md`
 3. `fiction-theme` → `Wiki/Story/theme.md`
 4. `fiction-synopsis` → `Wiki/Story/synopsis.md`
-5. `fiction-characters` → `Wiki/Characters/`
-6. `fiction-world` (and `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
-7. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
-8. `fiction-psych` → `Wiki/Psych/Book-N/`
-9. `fiction-scenes` → chapter beat plans
-10. `fiction-style` + `fiction-voiceprompt`
-11. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-12. `fiction-reviewchapter` (then line/prose/kill skills as needed)
+5. `fiction-series-outline` → `Wiki/Story/series-arc.md` (at series inception; refresh before planning each later book)
+6. `fiction-characters` → `Wiki/Characters/`
+7. `fiction-world` (and `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
+8. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
+9. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
+10. `fiction-psych` → `Wiki/Psych/Book-N/`
+11. `fiction-scenes` → chapter beat plans
+12. `fiction-style` + `fiction-voiceprompt`
+13. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
+14. `fiction-reviewchapter` (its review audits the `promises.yaml` ledger; then line/prose/kill skills as needed)
 
-`fiction-story-sparks` is only for an explicit prompt, card-style idea, or writing exercise. Do not use it to start or rewrite this book unless asked. For a second book, the already-canonical series-level steps (genre, audience, theme, series synopsis, characters, world, style) are skipped unless the book needs new entries; the book starts at its own synopsis in `Wiki/Story/Book-N/`.
+`fiction-story-sparks` is only for an explicit prompt, card-style idea, or writing exercise. Do not use it to start or rewrite this book unless asked. For a second book, run `fiction-series-outline` first to refresh `Wiki/Story/series-arc.md` and honor the handoff inventory and inter-book promise map; the already-canonical series-level steps (genre, audience, theme, series synopsis, characters, world, style) are skipped unless the book needs new entries, and the book starts at its own synopsis in `Wiki/Story/Book-N/`.
 
 ## Chapter files
 
@@ -75,19 +77,19 @@ When a skill must invent a proper name, use `name-generator` (people) or `town-g
 
 ## Editing
 
-Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Do not run a kill pass or full edit unless the user asked for revision. Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
+Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Loose ends and unpaid setups go to `fiction-promises`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Do not run a kill pass or full edit unless the user asked for revision. Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
 
 ## Skill index
 
-**Plan the promise:** `fiction-story-sparks`, `fiction-genre`, `fiction-audience`, `fiction-theme`, `fiction-synopsis`
+**Plan the promise:** `fiction-story-sparks`, `fiction-series-outline`, `fiction-genre`, `fiction-audience`, `fiction-theme`, `fiction-synopsis`
 
 **Build the people:** `fiction-characters`, `fiction-psych`, `fiction-dialogue`, `fiction-voiceprompt`
 
 **Build the world:** `fiction-world`, `fiction-places`, `fiction-factions`, `fiction-polities`, `fiction-religions`, `name-generator`, `town-generator`, `fantasy-settlement`
 
-**Shape the book:** `fiction-outline`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
+**Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
-**Review the story:** `coldread`, `fiction-dev-editor`, `fiction-reviewchapter`
+**Review the story:** `coldread`, `fiction-dev-editor`, `fiction-reviewchapter`, `fiction-promises`
 
 **Edit the prose:** `fiction-line-editor`, `fiction-prose-editor`, `fiction-full-editor`, `levelup`, `fragment-hunter`, `nominalization-hunt`
 

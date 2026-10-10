@@ -78,5 +78,5 @@ fi
 echo
 echo "Done. Next steps (see AGENTS.md):"
 echo "  1. cd $TARGET"
-echo "  2. Planning skills in order: fiction-genre, fiction-audience, fiction-theme, fiction-synopsis"
-echo "  3. Then characters, world, outline, psych, scenes, style + voiceprompt, writechapter, reviewchapter"
+echo "  2. Planning skills in order: fiction-genre, fiction-audience, fiction-theme, fiction-synopsis, fiction-series-outline"
+echo "  3. Then characters, world, outline, divergence, psych, scenes, style + voiceprompt, writechapter, reviewchapter"

@@ -3,7 +3,7 @@ name: fiction-outline
 description: "Generate the chapter-by-chapter outline at Wiki/Outline/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "5.1.0"
+  version: "5.2.0"
   category: fiction-writing
   output-format: markdown
   workflow-position: 5
@@ -88,6 +88,8 @@ Before generating chapters, verify that the synopsis contains a premise, central
 
 **premise_movement**: One sentence naming how this chapter changes the unstable situation, the protagonist's options, or the cost of pursuing the premise. A chapter that does none of these is a merge or cut candidate.
 
+**Setup & consequence binding**: Every chapter's central conflict must bind to something earlier in the outline — an established situation, a promise made, a resource granted, a wound left, a constraint imposed — or, in the opening chapters, to the premise situation itself. Every chapter must also leave a consequence a later chapter can spend: a changed relationship, a new constraint, a debt, knowledge gained or exposed. Name the binding inside `what_must_happen` ("this spends the trust Mara earned in ch 4"), not just in metadata. A chapter whose conflict comes from nowhere, or whose outcome nothing downstream can use, is a merge or cut candidate.
+
 **question_pressure**: One sentence naming how this chapter poses, complicates, reframes, narrows, or answers the central question through action and choice.
 
 **promise_delivery**: One sentence naming the part of the reader experience or satisfaction this chapter actually delivers. Do not repeat the global promise without identifying an on-page event.
@@ -136,6 +138,7 @@ Before saving, run a coverage pass across the complete outline:
 
 - The opening chapters dramatize the premise and pose the central question rather than merely repeating them in frontmatter.
 - Every chapter changes the premise situation or the cost of answering the central question and delivers a concrete part of the reader promise.
+- Every chapter's conflict binds to an earlier setup or the premise situation, and its outcome leaves a consequence a later chapter can spend; flag chapters that generate conflict from nothing or resolve into nothing.
 - The midpoint materially complicates or reframes the central question.
 - The protagonist's climactic choice answers the central question, demonstrates the story answer, and the ending pays the reader promise.
 - Every trope in `genre.md` appears under its exact identifier in the outline. Genre-contract and structural tropes receive setup, development, and payoff; supporting texture recurs with variation; deliberate subversions establish the expected pattern and replace it with equal satisfaction.

@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing."
 metadata:
   author: Fiction Toolkit
-  version: "2.3.0"
+  version: "2.4.0"
   category: fiction-writing
   workflow-position: 8
   requires: fiction-writechapter
@@ -27,6 +27,7 @@ Also locate these project files:
 - **World** (setting, rules): use the book's own world-layout convention when its instructions define one (for example `**/Wiki/World/**/*.md`); otherwise fall back to `**/Wiki/Locations/**/*.md`, `**/Wiki/Systems/**/*.md`, `**/Wiki/Organizations/**/*.md` — capture the Wiki root directory path
 - **Outline** (chapter purposes): `**/Wiki/Outline/outline.md`
 - **Scene plan**: the book's established beat or scene file for the reviewed chapter, when present
+- **Promise ledger** (the Chekhov ledger): `**/Wiki/Story/Book-N/promises.yaml` for the selected book, when present (maintained by `fiction-promises`)
 
 Also find the previous chapter (for continuity checking).
 
@@ -47,6 +48,7 @@ When the host supports isolated workers, start one with the description `Review 
   - `{{WIKI_DIR}}` → Wiki root directory path, or "not found"
   - `{{OUTLINE_PATH}}` → `Wiki/Outline/outline.md` path, or "not found"
   - `{{SCENE_PATH}}` → scene plan or beat source for this chapter, or "not found"
+  - `{{LEDGER_PATH}}` → the book's promises.yaml ledger path, or "not found"
   - `{{GENRE_PATH}}` → `Wiki/Style/genre.md` path, or "not found"
   - `{{SYNOPSIS_PATH}}` → `Wiki/Story/synopsis.md` path, or "not found"
   - `{{WORKING_TITLE}}` → the working title
@@ -81,6 +83,7 @@ You are reviewing the most recently written chapter for revision opportunities.
 - `{{CHARACTERS_DIR}}` and `{{WIKI_DIR}}` - search the entire book Wiki for the proper nouns and canon claims actually present in the chapter or scene plan; read the supporting files, not every file by default
 - `{{OUTLINE_PATH}}` - chapter purposes
 - `{{SCENE_PATH}}` - required choices, consequences, emotional movement, motifs, arc movement, genre beats, and other chapter-specific obligations
+- `{{LEDGER_PATH}}` - the Chekhov ledger: setups awaiting payoff (audit in Step 6)
 
 **Genre contract files** (read if found):
 - `{{GENRE_PATH}}` — if not "not found", read it and extract:
@@ -178,7 +181,15 @@ Output this section in the review report using the following format:
 
 Extract every specific canon fact the chapter asserts: proper nouns (people, places, organizations, items, events), dates and durations, counts and distances, injuries and physical states, possessions, and relationship or knowledge facts new to this chapter. For each assertion, search the book Wiki and the scene plan for the source that establishes it. An unsupported assertion is a finding, not texture: flag it with the line reference, the missing source, and a fix — name the canonical fact, replace the specific with an accurate generic description, or mark it for canonization. The draft itself, a previous chapter, and general memory are not evidence. Report unsupported assertions among the Proposed Edits tagged `[Canon]`.
 
-### Step 6: Verify Every Claim on the Page
+### Step 6: Audit the Chekhov ledger
+
+If `{{LEDGER_PATH}}` is "not found", skip this step and note: "No promise ledger found — run `fiction-promises` to start tracking setups." Otherwise read the whole ledger and:
+
+1. **Harvest new promises.** Read this chapter as a reader, not as the author — what did it tell you to remember? An object introduced with more detail than the scene needs, a question asked and left, a skill mentioned in passing, a threat, a debt, a stranger named with weight. Add each to the ledger with: `promise` (reader-side phrasing, e.g. "the locked drawer in Elena's study"), `introduced_ch`, `kind`, `weight` (whisper/plain/loud), and a required `payoff_by_ch` — an undated promise is one nobody will remember to pay. If the honest answer is "not this book", set `deferred_to_series: true` and confirm it appears in the inter-book promise map in `Wiki/Story/series-arc.md`.
+2. **Record payoffs.** Anything this chapter pays on the page gets `paid_in_ch` and `paid_how` — both fields or neither. A payoff must be on the page: a gun that goes off in the author's head between chapters is still loaded.
+3. **Report what's due.** In the review output, list OVERDUE (payoff_by_ch earlier than the next chapter), DUE NEXT CHAPTER, and undated promises. Overdue means the reader is already owed this: either it is paid in the next chapter or the payoff is deliberately re-planned and the date moved with a note in the ledger. Silently moving a deadline is how a promise stays permanently eighteen chapters away. Report ledger changes among the Proposed Edits tagged `[Ledger]`.
+
+### Step 7: Verify Every Claim on the Page
 
 Before an issue may be listed as actionable, verify it against the chapter's text: quote the exact offending line from the file and confirm the quote is really there, word for word. Drop any finding whose premise cannot be verified on the page — a device the chapter does not contain, a line that does not exist, a fact recorded in a prior review but absent from the current text. Reviews inherit each other's false premises; an unverified finding costs a triage pass and can send the revision the wrong way.
 
@@ -186,7 +197,7 @@ When the project keeps a record of prior rulings and fixes, let the record gover
 
 Separate compliance from craft. A line that violates the style guide is a compliance finding. A line that complies with the guide but would genuinely read better changed is a craft proposal: report it with before/after text and a recommendation, clearly marked as a proposal, and leave the decision to the author. Do not dismiss a craft proposal just because the guide permits the line, and do not apply one unilaterally.
 
-### Step 7: Generate Actionable Output
+### Step 8: Generate Actionable Output
 
 This is an EDITING PASS. For each issue found:
 

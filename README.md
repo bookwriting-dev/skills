@@ -1,14 +1,17 @@
 # storycraft-skills
 
-Canonical copy of the [Open Storycraft](https://storycraft.lanternkey.fyi/) fiction skill library, plus the scaffolding that turns it into a new series project. Each fiction project gets a pinned copy of `skills/` at `.agents/skills/` when scaffolded — skills stay project-local so every repo keeps its own git history and can fork its library freely.
+Our fiction skill library — forked from [Open Storycraft](https://storycraft.lanternkey.fyi/) and independently developed. At the fork point it was the upstream's 42 skills; everything since is ours. See [CHANGELOG.md](CHANGELOG.md) for what we've changed and added, and why.
+
+Each fiction project gets a pinned copy of `skills/` at `.agents/skills/` when scaffolded — skills stay project-local so every repo keeps its own git history and can fork its library freely.
 
 ## Layout
 
 ```
 storycraft-skills/
-├── skills/            # the 42 Storycraft skills (verbatim copies)
+├── skills/            # the skill library (ours since the 2026-10-10 fork)
 ├── templates/         # AGENTS.md + CLAUDE.md skeletons (__SERIES_TITLE__ placeholder)
-└── new-book.sh        # scaffold a new series project
+├── new-book.sh        # scaffold a new series project
+└── sync-check.sh      # diff against upstream to catch drift worth pulling
 ```
 
 ## Usage
@@ -20,9 +23,9 @@ BOOKS_DIR=/some/where ./new-book.sh my-series    # → /some/where/my-series
 
 The script creates the shared Wiki slots (`Characters/`, `World/`, `Style/`, `Review/`, `Story/`), Book 1's five per-book slots (`Story/Book-1/`, `Outline/Book-1/`, `Psych/Book-1/`, `Chapters/Book-1/`, `_Edits/Book-1/`), copies the skill library in, renders the two instruction files, and makes the initial git commit. From there, start the book with the planning skills in AGENTS.md's order (`fiction-genre` first).
 
-## Provenance
+## Lineage
 
-- Vendored from the mermaid project's `.agents/skills/` at its commit dc010ca (2026-09-11, project start).
-- First trilogy-lessons pass applied 2026-10-10: `fiction-writechapter` 4.1.0 (count/date + verbatim-dup completion checks, per-section POV markers, worker-brief rule-binding clause, two-sided word-floor rule), `fiction-reviewchapter` 2.2.0 (book-layout world paths, tolerant genre-contract extraction, page-verification step), `fiction-world` 5.1.0 (defers to the book's world layout), `name-generator` 1.1.0 (canonization collision check).
-- Second confidently-wrong harvest pass applied 2026-10-10: `fiction-reviewchapter` 2.3.0 (canon-assertion audit step — unsupported specifics against the Wiki are findings), `fiction-story-sparks` 1.2.0 (forced domain-collision lever for generic premises), `fiction-style` 7.0.1 + `fiction-aiism-editor` 1.1.0 (marketing-register buzzword additions to critical-donts.md / aiism-criteria.md), `fiction-prose-editor` 1.1.0 (cadence-flatline flag: 3+ consecutive same-length sentences in prose-criteria.md), `templates/AGENTS.md` (scrap-vs-patch rule in Editing). Rationale: 13-chapter cross-walk of *Confidently Wrong* against this library; full ledger in ZCode memory (`confidently-wrong-audit`).
-- If you ever re-sync `skills/` from upstream, re-apply the deltas from both passes — the full rationale is recorded in the mermaid project's memory (`skill-updates-2026-10-10`) and the ZCode memory (`confidently-wrong-audit`).
+- Fork origin: vendored from the mermaid project's `.agents/skills/` at its commit dc010ca (2026-09-11, project start) — at that point a verbatim copy of Open Storycraft.
+- Verified against the upstream ZIP (`open-storycraft-structured.zip`, downloaded 2026-10-10): the only differences from upstream were our own pre-fork passes recorded in the CHANGELOG. Nothing upstream was dropped.
+- Upstream has no public repo or changelog — the ZIP is its only distribution channel. Run `./sync-check.sh` to re-check for upstream drift; any differing file not accounted for in the CHANGELOG is upstream movement to review, not an obligation to take.
+- This repo is the source of truth for our library. Changes are ordinary development: add a CHANGELOG entry, bump the skill's version in its frontmatter, and go. There is no re-apply-the-deltas ritual anymore.
