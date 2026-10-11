@@ -3,7 +3,7 @@ name: kill-acronym
 description: Hunt unexplained initialisms and acronyms on first use across a chapter, flag them, and expand on first occurrence so every reader can follow (flag-first; edits in place when the expansion is unambiguous). Targets first-use of tokens like AI, ML, NLP, GDP, UNESCO without a prior spelling-out. Use when user says "kill-acronym", "flag acronyms", "spell out first use", or "explain initialisms".
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.0"
+  version: "1.0.1"
   category: nonfiction-editing
 ---
 
@@ -24,8 +24,8 @@ paths. Resolve it to a concrete file list before doing anything.
 **KEEP (do not touch):**
 - Initialisms/acronyms that are **universally known to the book's audience** and that
   the project style guide or audience profile already treats as safe to use bare —
-  check `Wiki/Style/voice.md` and the audience assumptions before treating a common
-  one as a violation.
+  check `Wiki/Style/style_guide.md` (and `Wiki/Style/audience.md` for the bracket's
+  assumptions) before treating a common one as a violation.
 - Acronyms whose expansion is **already established earlier** in the file (or an
   earlier chapter the reader has seen) — only the *first* bare use in a reader's
   path is in scope.

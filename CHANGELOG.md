@@ -2,6 +2,14 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 6: kill passes (all 11)
+
+Rationale: per-skill dead-ends audit continued. One dead end in eleven skills: `kill-acronym` sent readers to `Wiki/Style/voice.md`, a file no skill in the library writes. Everything else passed: the five fiction singles carry their rules inline, the orchestrator's seven `references/` rule-sets all exist, and the three non-fiction passes' reference files resolve and contain their documented token lists. The inline-vs-references asymmetry between the fiction and non-fiction singles tracks when each was written and is deliberate.
+
+### Changed
+
+- **`kill-acronym` 1.0.0 → 1.0.1** — the KEEP guidance cited `Wiki/Style/voice.md` (no such convention; the canonical files are `style_guide.md` and `voice_prompt.md`); now cites `Wiki/Style/style_guide.md` and `Wiki/Style/audience.md`.
+
 ## 2026-10-11 — Skill audit, batch 5: edit the prose
 
 Rationale: per-skill dead-ends audit continued (full-editor, revise, the three single-layer editors, levelup, fragment-hunter, nominalization-hunt). One shared defect across six report-writing editors: all saved reports to a pre-reorg `_Edits/` root or a legacy `Reviews/` folder, and none routed fix application through `fiction-revise`. `fiction-revise` itself passed clean.
