@@ -11,14 +11,21 @@ storycraft-skills/
 ├── skills/            # the skill library (ours since the 2026-10-10 fork)
 ├── templates/         # AGENTS.md + CLAUDE.md skeletons (__SERIES_TITLE__ placeholder)
 ├── new-book.sh        # scaffold a new series project
-└── sync-check.sh      # diff against upstream to catch drift worth pulling
+├── sync-check.sh      # diff against upstream to catch drift worth pulling
+└── docs/              # DEVELOPER.md (library internals) · USER.md (workflow + catalog)
 ```
+
+## Documentation
+
+- **[docs/USER.md](docs/USER.md)** — the writing workflow from the outside: project layout, the fiction and non-fiction pipelines, the editing decision tree, all 59 skills with what they do and what to say to trigger them.
+- **[docs/DEVELOPER.md](docs/DEVELOPER.md)** — the library from the inside: skill anatomy and frontmatter contract, worker/orchestrator conventions, the change loop (version bump → CHANGELOG → manifest → template wiring), sync-check policy, and known gaps.
 
 ## Usage
 
 ```bash
-./new-book.sh my-series "My Series Title"        # → ~/Projects/Books/my-series
-BOOKS_DIR=/some/where ./new-book.sh my-series    # → /some/where/my-series
+./new-book.sh my-series "My Series Title"              # → ~/Projects/Books/my-series
+BOOKS_DIR=/some/where ./new-book.sh my-series          # → /some/where/my-series
+./new-book.sh my-thesis "My Thesis" --type nonfiction  # or hybrid — adds Wiki/Concept + Wiki/Research
 ```
 
 The script creates the shared Wiki slots (`Characters/`, `World/`, `Style/`, `Review/`, `Story/`), Book 1's five per-book slots (`Story/Book-1/`, `Outline/Book-1/`, `Psych/Book-1/`, `Chapters/Book-1/`, `_Edits/Book-1/`), copies the skill library in, renders the two instruction files, and makes the initial git commit. From there, start the book with the planning skills in AGENTS.md's order (`fiction-genre` first).

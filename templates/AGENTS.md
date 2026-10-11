@@ -6,7 +6,7 @@ Canon lives in `Wiki/`. Prose lives in `Chapters/`. Skills live in `.agents/skil
 
 ## Project Type
 
-This project is: **FICTION** (change to NONFICTION or HYBRID as appropriate)
+This project is: **__PROJECT_TYPE__** (FICTION, NONFICTION, or HYBRID — set by `new-book.sh --type`; edit here if the project changes).
 
 ## Books and shared canon
 
@@ -68,7 +68,7 @@ Run these skills in order unless the user skips a step:
 12. `fiction-style` + `fiction-voiceprompt`
 13. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
 14. `fiction-reviewchapter` (its review audits the `promises.yaml` ledger; then line/prose/kill skills as needed)
-15. `fiction-review-panel` per act and before calling the book done (persona reads, verified findings → `Wiki/Review/`); `drift-check` at part boundaries for book-level drift the per-chapter gates cannot see
+15. `review-panel` per act and before calling the book done (persona reads, verified findings → `Wiki/Review/`); `drift-check` at part boundaries for book-level drift the per-chapter gates cannot see
 
 `fiction-story-sparks` is only for an explicit prompt, card-style idea, or writing exercise. Do not use it to start or rewrite this book unless asked. For a second book, run `fiction-series-outline` first to refresh `Wiki/Story/series-arc.md` and honor the handoff inventory and inter-book promise map; the already-canonical series-level steps (genre, audience, theme, series synopsis, characters, world, style) are skipped unless the book needs new entries, and the book starts at its own synopsis in `Wiki/Story/Book-N/`.
 
@@ -79,15 +79,13 @@ Run these skills in order unless the user skips a step:
 1. `nonfiction-concept` → `Wiki/Concept/thesis.md`
 2. `nonfiction-audience` → `Wiki/Concept/audience.md`
 3. `nonfiction-structure` → `Wiki/Concept/structure.md`
-4. `nonfiction-research` → `Wiki/Research/sources.yaml` + `Wiki/Research/claims.yaml`
-5. `nonfiction-chapter-plan` → `Wiki/Outline/Book-N/plan.md`
-6. `nonfiction-style` → `Wiki/Style/voice.md`
-7. `nonfiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-8. `nonfiction-factcheck` → `_Edits/Book-N/Chapter-NNN_FactCheck.md`
-9. `nonfiction-clarity-edit` → `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`
-10. `review-panel` (generalized) → `Wiki/Review/`
-11. `drift-check` (generalized) → book-level audit
-12. `promise-tracker` (unified) → `Wiki/Story/Book-N/promises.yaml`
+4. `nonfiction-chapter-plan` → `Wiki/Outline/Book-N/plan.md`
+5. `nonfiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
+6. `nonfiction-factcheck` → `_Edits/Book-N/Chapter-NNN_FactCheck.md`
+7. `nonfiction-clarity-edit` → `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`
+8. `promise-tracker` → `Wiki/Story/Book-N/promises.yaml` (track claims/promises as chapters land)
+9. `review-panel` → `Wiki/Review/` (personas; per part and before calling the book done)
+10. `drift-check` → book-level audit at part boundaries
 
 For a second book, refresh the shared concept/structure/audience in `Wiki/Concept/` as needed; the book starts at its own chapter plan in `Wiki/Outline/Book-N/`.
 
@@ -103,10 +101,7 @@ When inventing proper nouns or locations, route to the specific generator:
 - **Full settlement profiles:** `fantasy-settlement` (complete dossier with population, economy, districts, security).
 - **Scene-bearing sites / landmarks:** `fiction-places` (ruins, rooms, wilderness sites, tactical locations; not full towns).
 
-**Non-fiction equivalents:**
-- **Real people / subjects:** `name-generator` (biographical/name verification mode)
-- **Real places / settings:** `town-generator` (for settlements) or direct research citation
-- **Concepts / terminology:** `nonfiction-terminology` for consistent term definitions in `Wiki/Concept/terms.yaml`
+**Non-fiction:** proper nouns are real — never run the generators. Names, places, and terms come from research with sources, and `nonfiction-factcheck` audits them.
 
 ## Editing
 
@@ -126,19 +121,19 @@ Route editing and review tasks using this decision tree:
 - **Applying approved review/edit fixes:** `fiction-revise`. Applies user-approved items from `_Edits/` reports in place with strict quote verification, minimal perturbation, and a change ledger.
 - **Recurring model crutches (default):** `kill-chapter`. Runs all seven kill passes consecutively in place (similes, person-who, opinion-personification, the-whole, crutch, soft, flat). Use single-kill passes (`kill-crutch WORD`, `kill-simile`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`) only when targeting a specific token.
 - **Book-level drift / back-half flatness / formula openers:** `drift-check` across part boundaries and chapters.
-- **Reader reaction / persona reads:** `fiction-review-panel`. Multi-persona qualitative reads with verified citations.
+- **Reader reaction / persona reads:** `review-panel`. Multi-persona qualitative reads with verified citations.
 
 **Non-Fiction:**
-- **Structural / argument flow / "does this chapter prove?":** `nonfiction-dev-editor`. Diagnose argument structure, evidence chains, and logical flow before touching lines.
-- **Chapter gate (default review):** `nonfiction-reviewchapter`. Full criteria gate checking thesis alignment, evidence support, claim verification, and clarity rules.
-- **Fact / evidence failure:** `nonfiction-factcheck`. Verifies every claim against `Wiki/Research/sources.yaml` and `claims.yaml`.
+- **Structural / argument flow / "does this chapter prove?":** not an editing job — fix the chapter plan (`nonfiction-chapter-plan`) and re-draft with `nonfiction-writechapter`. Editing passes are for localizable problems.
+- **Chapter gate (default review):** `nonfiction-factcheck` + `nonfiction-clarity-edit`. Fact/evidence verification first, then the clarity pass (jargon density, abstraction ladder, cognitive load, signposting).
+- **Fact / evidence failure:** `nonfiction-factcheck`. Verifies every claim against the book's research corpus and cited sources.
 - **Blind clarity / voice test:** `coldread`. Read-only, run in isolation before rule-loaded review so house rules do not prime the reader.
-- **Unsupported claims / missing evidence:** `promise-tracker` (unified). Audits the per-book promise/claim ledger (`promises.yaml`).
-- **Sentence-level revision (default):** `nonfiction-clarity-edit`. Scans micro-level clarity, jargon, passive voice, and line edits in one pass. Use layer-specific scanners only when specifically targeting that single layer.
-- **Applying approved review/edit fixes:** `nonfiction-revise`. Applies user-approved items from `_Edits/` reports in place with strict quote verification, minimal perturbation, and a change ledger.
-- **Recurring clarity crutches (default):** `kill-chapter` (clarity mode). Runs clarity-focused passes (nominalization, passive, hedge, acronym). Use single-kill passes only when targeting a specific pattern.
-- **Book-level drift / argument coherence / thesis alignment:** `drift-check` (generalized) across part boundaries and chapters.
-- **Reader reaction / persona reads:** `review-panel` (generalized). Multi-persona qualitative reads with verified citations.
+- **Unsupported claims / missing evidence:** `promise-tracker`. Audits the per-book promise/claim ledger (`promises.yaml`).
+- **Sentence-level revision (default):** `nonfiction-clarity-edit`. Scans micro-level clarity, jargon, passive voice, and line edits in one pass.
+- **Applying approved review/edit fixes:** `fiction-revise`. Report-driven and book-agnostic — it applies user-approved items from any `_Edits/Chapter-NNN_*.md` report with strict quote verification and a change ledger.
+- **Recurring clarity crutches:** run the targeted passes — `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`. Use a single pass when targeting one pattern.
+- **Book-level drift / argument coherence / thesis alignment:** `drift-check` across part boundaries and chapters.
+- **Reader reaction / persona reads:** `review-panel`. Multi-persona qualitative reads with verified citations.
 
 ## Skill index
 
@@ -157,7 +152,7 @@ Route editing and review tasks using this decision tree:
 - Structural / developmental: `fiction-dev-editor`
 - Comprehensive chapter gate: `fiction-reviewchapter`
 - Chekhov promise ledger: `fiction-promises`
-- Reader persona panel: `fiction-review-panel`
+- Reader persona panel: `review-panel`
 
 **Edit the prose (decision tree):**
 - Default full sentence edit: `fiction-full-editor`
@@ -172,29 +167,26 @@ Route editing and review tasks using this decision tree:
 
 ### Non-Fiction skills
 
-**Plan the thesis:** `nonfiction-concept`, `nonfiction-audience`, `nonfiction-structure`, `nonfiction-research`
+**Plan the thesis:** `nonfiction-concept`, `nonfiction-audience`, `nonfiction-structure`
 
-**Build the evidence:** `nonfiction-sources`, `nonfiction-claims`, `nonfiction-terminology`
-
-**Shape the book:** `nonfiction-chapter-plan`, `nonfiction-style`, `nonfiction-writechapter`
+**Shape the book:** `nonfiction-chapter-plan`, `nonfiction-writechapter`
 
 **Review the argument (decision tree):**
 - Blind clarity read: `coldread`
-- Structural / developmental: `nonfiction-dev-editor`
-- Comprehensive chapter gate: `nonfiction-reviewchapter`
+- Structural / developmental: fix the chapter plan and re-draft (`nonfiction-chapter-plan` → `nonfiction-writechapter`)
+- Comprehensive chapter gate: `nonfiction-factcheck` + `nonfiction-clarity-edit`
 - Fact & evidence verification: `nonfiction-factcheck`
-- Promise / claim ledger: `promise-tracker` (unified)
-- Reader persona panel: `review-panel` (generalized)
+- Promise / claim ledger: `promise-tracker`
+- Reader persona panel: `review-panel`
 
 **Edit the prose (decision tree):**
 - Default full sentence edit: `nonfiction-clarity-edit`
-- Apply approved report edits: `nonfiction-revise`
+- Apply approved report edits: `fiction-revise` (report-driven, book-agnostic)
 - Targeted scans: `levelup`, `fragment-hunter`, `nominalization-hunt`, `kill-hedge`, `kill-passive`, `kill-acronym`
 
 **Remove the tells (decision tree):**
-- Default clarity-pass orchestrator: `kill-chapter` (clarity mode)
-- Targeted clarity passes: `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`
-- Statistical & drift diagnostics: `drift-check` (generalized), `burstiness-check`, `pangram`
+- Recurring clarity crutches: `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`
+- Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
 **Make your own:** `skill-builder`
 

@@ -1,9 +1,9 @@
 ---
 name: coldread
-description: Run a blind, read-only assessment of whether one complete fiction chapter or scene delivers a claimed viewpoint, narrator identity, age register, or voice on the page. Use for cold reads, blind reads, POV checks, or "does this sound like this character?" Do not use for rule-based style audits or automatic revision.
+description: Run a blind, read-only assessment of whether one complete chapter or section (fiction or non-fiction) delivers a claimed voice, viewpoint, narrator identity, age register, or register of authority on the page. Use for cold reads, blind reads, POV checks, or "does this sound like this character?" Do not use for rule-based style audits or automatic revision.
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.0.1"
   category: fiction-editing
 ---
 

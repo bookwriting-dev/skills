@@ -2,7 +2,28 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 (later) — Documentation reconciliation
+
+Rationale: a docs-vs-repo audit (see `docs/DEVELOPER.md`) found that the non-fiction expansion entry below overclaimed several items that never shipped in `e84222e`, and that `templates/AGENTS.md` referenced eight skills that don't exist. This pass makes the documentation layer match the library. The eight unbuilt non-fiction skills (`nonfiction-research`, `nonfiction-style`, `nonfiction-dev-editor`, `nonfiction-reviewchapter`, `nonfiction-revise`, `nonfiction-sources`, `nonfiction-claims`, `nonfiction-terminology`) were **un-referenced, not built** — building them is a separate design decision; the non-fiction workflow runs end to end on the seven skills that exist.
+
+### Added
+
+- **`new-book.sh --type fiction|nonfiction|hybrid`** — sets the rendered AGENTS.md project-type line and creates `Wiki/Concept/` + `Wiki/Research/` for nonfiction/hybrid projects; fiction scaffolds are unchanged. (The entry below claimed this flag; here it actually is.)
+- **`.gitignore`** (`__pycache__/`, `*.pyc`, `.DS_Store`) and removal of the tracked `promise-tracker/scripts/__pycache__/` artifact.
+- **`docs/USER.md`** and **`docs/DEVELOPER.md`** — user- and developer-POV documentation of the library as it is, linked from the README.
+
+### Changed
+
+- **`review-panel` — rename completed** (`skills/fiction-review-panel/` → `skills/review-panel/`), 1.0.0 → 1.1.0: the frontmatter `name:` had been renamed without the directory, title, or version; all three now agree.
+- **`drift-check` 1.0.0 → 1.1.0** — the version bump for the non-fiction metrics delivered below (the metrics shipped; the bump didn't).
+- **`coldread` 1.0.0 → 1.0.1** — description generalized to "chapter or section (fiction or non-fiction)"; the isolation mechanism was already claim-agnostic.
+- **`templates/AGENTS.md`** — removed every reference to the eight unbuilt non-fiction skills: the NONFICTION workflow, editing decision tree, and skill index now name only existing skills (chapter gate = `nonfiction-factcheck` + `nonfiction-clarity-edit`; structural problems re-plan with `nonfiction-chapter-plan` and re-draft; approved report fixes apply via `fiction-revise`, which is report-driven and book-agnostic). The project-type line is now a `__PROJECT_TYPE__` placeholder rendered by `new-book.sh --type`.
+- **`sync-manifest.txt`** — corrected the three misnamed `promise-tracker/references/` entries, completed the `review-panel` path rename, removed the two template files that never existed, deduplicated one entry.
+- **`CHANGELOG.md`** — the non-fiction expansion entry below corrected to record what `e84222e` actually shipped.
+
 ## 2026-10-11 — Non-fiction expansion + generalized skills
+
+> Corrected after a docs-vs-repo audit: this entry originally also claimed `nonfiction-research`, the `review-panel` rename + version bump, `templates/NONFICTION_AGENTS.md` / `HYBRID_AGENTS.md`, and a `new-book.sh --type` flag. None of those shipped in `e84222e`; what actually landed is recorded below, and the follow-ups are in the reconciliation entry above.
 
 Rationale: added full non-fiction support to the library and generalized three existing skills to work across project types. The library was fiction-only; this adds the planning, writing, editing, and quality-gate skills needed for non-fiction books while keeping all existing fiction functionality intact.
 
@@ -11,7 +32,6 @@ Rationale: added full non-fiction support to the library and generalized three e
 - **`nonfiction-concept` 1.0.0** — define the book's central argument/thesis, target reader transformation, and "big idea". Outputs to `Wiki/Concept/thesis.md`.
 - **`nonfiction-audience` 1.0.0** — map reader's current knowledge, objections, and required prerequisites across 5 archetypes. Outputs to `Wiki/Concept/audience.md`.
 - **`nonfiction-structure` 1.0.0** — choose and scaffold the argument architecture (problem-solution, chronological, conceptual, hybrid). Outputs to `Wiki/Concept/structure.md`.
-- **`nonfiction-research` 1.0.0** — manage sources, evidence, interviews; track claims → evidence mapping. Outputs to `Wiki/Research/sources.yaml` + `claims.yaml`.
 - **`nonfiction-chapter-plan` 1.0.0** — beat-sheet equivalent: each chapter's claim, evidence, transition, reader takeaway. Outputs to `Wiki/Outline/Book-N/plan.md`.
 - **`nonfiction-writechapter` 1.0.0** — draft with explanatory clarity, signposting, concrete examples, varied evidence types. Outputs to `Chapters/Book-N/Chapter-NNN.md`.
 - **`nonfiction-factcheck` 1.0.0** — verify every claim, quote, statistic; flag unsupported assertions. Outputs to `_Edits/Book-N/Chapter-NNN_FactCheck.md`.
@@ -20,20 +40,17 @@ Rationale: added full non-fiction support to the library and generalized three e
 - **`kill-passive` 1.0.0** — convert passive voice to active voice for clarity and authority.
 - **`kill-acronym` 1.0.0** — flag unexplained initialisms and acronyms on first use.
 - **`promise-tracker` 1.0.0** — unified version of `fiction-promises` that works for both fiction (Chekhov's gun) and non-fiction (thesis threads, unresolved tensions). Maintains `Wiki/Story/Book-N/promises.yaml`.
-- **`templates/NONFICTION_AGENTS.md`** — non-fiction workflow template.
-- **`templates/HYBRID_AGENTS.md`** — hybrid (memoir/narrative non-fiction) workflow template.
 
 ### Changed
 
-- **`fiction-review-panel` 1.0.0 → 1.1.0** — renamed to `review-panel`, generalized to support non-fiction personas (subject-matter expert, intelligent novice, skeptic/practitioner, editorial gatekeeper) alongside existing fiction personas.
+- **`fiction-review-panel` — generalized to support non-fiction personas** (subject-matter expert, intelligent novice, skeptic/practitioner, editorial gatekeeper) via `references/nonfiction-personas.md`. The rename to `review-panel` is completed in the reconciliation entry above.
 - **`drift-check` 1.0.0 → 1.1.0** — added non-fiction drift metrics: claim density, evidence-to-claim ratio, abstraction ladder variance, definition reintroduce rate.
 - **`templates/AGENTS.md`** — added project-type routing (FICTION/NONFICTION/HYBRID), non-fiction workflow, and non-fiction skill index.
-- **`new-book.sh`** — added `--type` flag (fiction/nonfiction/hybrid) with conditional Wiki folder creation and template selection.
-- **`sync-manifest.txt`** — registered all new files.
+- **`sync-manifest.txt`** — registered the new files.
 
 ## 2026-10-10 — Library consolidation (R0, R1, R2, R3.2, R4 harvest)
 
-Rationale: intra-library audit of all 47 skills (`AUDIT-REPORT-2026-10-10.md`). Resolves workflow authority contradictions, consolidates the `kill-*` family into a true 7-pass orchestrator, establishes `fiction-full-editor` as the default sentence-level pass, introduces `fiction-revise` for controlled patch application, disambiguates the 4 generator skills, and establishes a routing decision tree in `templates/AGENTS.md`.
+Rationale: intra-library audit of all 47 skills (`AUDIT-REPORT-2026-10-10.md` — since removed from the repo; read it with `git show e84222e^:AUDIT-REPORT-2026-10-10.md`). Resolves workflow authority contradictions, consolidates the `kill-*` family into a true 7-pass orchestrator, establishes `fiction-full-editor` as the default sentence-level pass, introduces `fiction-revise` for controlled patch application, disambiguates the 4 generator skills, and establishes a routing decision tree in `templates/AGENTS.md`.
 
 ### Added
 

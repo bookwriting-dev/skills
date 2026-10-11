@@ -3,12 +3,12 @@ name: review-panel
 description: "Build and run a persona review panel for fiction and non-fiction: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review."
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: fiction-writing
   output-format: markdown
 ---
 
-# Fiction Review Panel — readers with different ways of being wrong
+# Review Panel — readers with different ways of being wrong
 
 One reviewer sees one book. A panel sees the friction between reviewers. The value is
 not more opinions — it is opinions that cannot blend: the continuity hawk catches what
