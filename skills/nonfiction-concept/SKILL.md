@@ -1,24 +1,23 @@
 ---
 name: nonfiction-concept
-description: "Define the book's central argument/thesis, target reader transformation, and 'big idea'. Use when user says 'define concept', 'what is this book about', 'central thesis', 'big idea', or after running nonfiction-audience."
+description: "Define the book's central argument/thesis, target reader transformation, and 'big idea'. Use when user says 'define concept', 'what is this book about', 'central thesis', 'big idea', or when starting a non-fiction book."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: nonfiction-writing
   output-format: markdown
 ---
 
 # Nonfiction Concept Definer
 
-**Output:** `Wiki/Concept/concept.md` in the project's `Wiki/` folder. All inputs are read from `Wiki/` Markdown files; all output is written as Markdown. All work stays in the project's Markdown files.
+**Output:** `Wiki/Concept/thesis.md` in the project's `Wiki/` folder. All inputs are read from `Wiki/` Markdown files; all output is written as Markdown. All work stays in the project's Markdown files.
 
 ## Step 1: Locate the Project and Load Context
 
 The project may live in a subfolder of the working directory, so search for the upstream files:
 
-- `**/Wiki/Audience/audience.md`: Required. For: target reader profile, knowledge level, objections, prerequisites. If missing, tell the user: "No audience profile found. Run `nonfiction-audience` first, or tell me your target reader."
-- `**/Wiki/Concept/big-idea.md`: Optional (concept usually runs before big-idea). If it exists, read it for: core promise, unique angle.
-- `**/Wiki/Structure/structure.md`: Optional. If it exists, read it for: chosen architecture, argument shape.
+- `**/Wiki/Concept/audience.md`: Recommended, not required — this skill runs first in the workflow. If it exists, read it for: target reader profile, knowledge level, objections, prerequisites. If missing, proceed; the concept can derive the reader from conversation, and `nonfiction-audience` pressure-tests it afterward.
+- `**/Wiki/Concept/structure.md`: Optional. If it exists, read it for: chosen architecture, argument shape.
 
 Treat the folder containing `Wiki/` as the project root. Read the frontmatter and `##` sections of each file that exists.
 
@@ -63,7 +62,7 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 
 ## Step 5: Save and Confirm
 
-Write the result to `Wiki/Concept/concept.md` under the project root found in Step 1. Create the `Wiki/Concept/` folder if it does not exist. `Wiki/Concept/concept.md` is the single source of truth for concept; downstream skills (audience, structure, outline) read it from that exact path.
+Write the result to `Wiki/Concept/thesis.md` under the project root found in Step 1. Create the `Wiki/Concept/` folder if it does not exist. `Wiki/Concept/thesis.md` is the single source of truth for concept; downstream skills (audience, structure, chapter-plan) read it from that exact path.
 
 File shape:
 
@@ -105,6 +104,6 @@ Frontmatter must be plain, conservative YAML: scalar values only here, strings q
 
 Then present the concept to the user in readable form (do not paste the raw file) and ask: "What should I change?"
 
-If changes are needed, edit `Wiki/Concept/concept.md` in place and re-present until approved.
+If changes are needed, edit `Wiki/Concept/thesis.md` in place and re-present until approved.
 
 When approved: "Next: use `nonfiction-structure` to choose and scaffold your argument architecture."

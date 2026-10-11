@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.0"
+  version: "1.0.1"
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -98,6 +98,8 @@ Use the book's requested length; otherwise aim for roughly 2,500–4,000 words f
 - Close with the **synthesis** — the new understanding, not a summary.
 - Deliver the **reader takeaway** and **forward hook** as the final beats.
 
+For ready-made evidence-presentation templates (narrated study, data-first, integrated quote, and the variety rule), read [references/evidence-presentation.md](references/evidence-presentation.md).
+
 **Clarity mechanics (apply throughout):**
 
 - **Signpost every move:** "We argue X because Y." "This matters because Z." "Having shown A, we now turn to B."
@@ -107,6 +109,8 @@ Use the book's requested length; otherwise aim for roughly 2,500–4,000 words f
 - **Active cognitive stance:** "We find," "The data show," "This implies" — not "It is found that," "It has been shown."
 - **Calibrated certainty:** Match language to evidence strength. "Suggests," "indicates," "is consistent with" for correlational; "demonstrates," "establishes" for causal.
 - **Counter-argument integration:** When the plan includes a counter-argument block, steel-man it fully before the rebuttal. The reader must feel the force of the objection.
+
+For a pattern library of signposting moves (openings, block transitions, complication reversals), read [references/signposting-patterns.md](references/signposting-patterns.md).
 
 **End with forward movement:** The final paragraph must land the synthesis and instantiate the forward hook — the specific question, stakes escalation, or practical imperative that pulls the reader to the next chapter.
 

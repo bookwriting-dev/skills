@@ -3,22 +3,21 @@ name: nonfiction-structure
 description: "Choose and scaffold the argument architecture (problem-solution, chronological, conceptual, hybrid). Use when user says 'structure my book', 'choose architecture', 'organize chapters', 'argument structure', or after running nonfiction-concept."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: nonfiction-writing
   output-format: markdown
 ---
 
 # Nonfiction Structure Architect
 
-**Output:** `Wiki/Structure/structure.md` in the project's `Wiki/` folder. All inputs are read from `Wiki/` Markdown files; all output is written as Markdown. All work stays in the project's Markdown files.
+**Output:** `Wiki/Concept/structure.md` in the project's `Wiki/` folder. All inputs are read from `Wiki/` Markdown files; all output is written as Markdown. All work stays in the project's Markdown files.
 
 ## Step 1: Locate the Project and Load Context
 
 The project may live in a subfolder of the working directory, so search for the upstream files:
 
-- `**/Wiki/Concept/concept.md`: Required. For: thesis, reader_transformation, big_idea, evidence_architecture. If missing, tell the user: "No concept found. Run `nonfiction-concept` first."
-- `**/Wiki/Audience/audience.md`: Required. For: archetype, knowledge_level, structural_expectations, prerequisites. If missing, tell the user: "No audience profile found. Run `nonfiction-audience` first."
-- `**/Wiki/Concept/big-idea.md`: Optional. For: core promise, unique angle.
+- `**/Wiki/Concept/thesis.md`: Required. For: thesis, reader_transformation, big_idea, evidence_architecture. If missing, tell the user: "No concept found. Run `nonfiction-concept` first."
+- `**/Wiki/Concept/audience.md`: Required. For: archetype, knowledge_level, structural_expectations, prerequisites. If missing, tell the user: "No audience profile found. Run `nonfiction-audience` first."
 
 Treat the folder containing `Wiki/` as the project root. Read the frontmatter and `##` sections of each file that exists.
 
@@ -49,7 +48,7 @@ Ask the user for their structural preference using the host's normal question me
 
 ## Step 4: Generate with an Isolated Worker When Available
 
-To keep the main conversation context clean, use an isolated worker when the host supports one. Give it: the user's architecture choice, the resolved paths to `Wiki/Concept/concept.md` and `Wiki/Audience/audience.md`, the project root, and the full instructions in Steps 5 through 7 below. The worker writes the file and returns the full structure text for review.
+To keep the main conversation context clean, use an isolated worker when the host supports one. Give it: the user's architecture choice, the resolved paths to `Wiki/Concept/thesis.md` and `Wiki/Concept/audience.md`, the project root, and the full instructions in Steps 5 through 7 below. The worker writes the file and returns the full structure text for review.
 
 If the host does not support isolated workers, or if you are already running as the dedicated worker for this task, do Steps 5 through 7 directly instead of delegating again.
 
@@ -68,7 +67,7 @@ If the host does not support isolated workers, or if you are already running as 
 
 **Validation Checks (must pass before generating):**
 1. **Thesis Coverage**: Every clause in the thesis maps to at least one chapter/part
-2. **Evidence Fit**: The evidence_architecture types from concept.md are distributable across the chosen architecture
+2. **Evidence Fit**: The evidence_architecture types from thesis.md are distributable across the chosen architecture
 3. **Audience Alignment**: The architecture's cognitive demands match audience.knowledge_level and structural_expectations
 4. **Transformation Path**: The chapter sequence moves the reader from audience.from_state → to_state with measurable milestones
 5. **Prerequisite Ordering**: Prerequisites from audience.md are taught *before* they're needed (or explicitly gated)
@@ -91,7 +90,7 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 - `title`: Working title (evocative, not generic)
 - `chapter_type`: `frame` | `evidence` | `application` | `synthesis` | `transition` (see chapter-design.md)
 - `thesis_clause`: Which thesis clause this chapter advances (primary)
-- `evidence_types`: Which evidence types from concept.md deploy here
+- `evidence_types`: Which evidence types from thesis.md deploy here
 - `reader_milestone`: Micro-transformation — what the reader can now do/think/see
 - `key_frameworks`: Named frameworks/models introduced here (max 2)
 - `exercises_or_artifacts`: What the reader produces/uses (templates, checklists, decisions)
@@ -104,7 +103,7 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 
 **navigation_aids**: Planned: part overviews, chapter summaries, "start here if..." guide, framework index, template index.
 
-Write `Wiki/Structure/structure.md` in this shape (create the `Wiki/Structure/` folder if missing):
+Write `Wiki/Concept/structure.md` in this shape (create the `Wiki/Concept/` folder if missing):
 
 ```markdown
 ---
@@ -156,12 +155,12 @@ thesis_clause_map:
 
 ## Validation Checklist
 - [ ] Every thesis clause mapped to chapters
-- [ ] Every evidence type from concept.md deployed
+- [ ] Every evidence type from thesis.md deployed
 - [ ] Audience prerequisites taught before needed
 - [ ] Reader milestones form coherent transformation arc
 - [ ] Chapter types vary (not all evidence, not all application)
 - [ ] Cognitive load distributed (no 3+ high-load in a row)
-- [ ] Part milestones align with audience.transform milestones
+- [ ] Part milestones align with the concept's reader-transformation milestones
 - [ ] Architecture serves thesis, not vice versa
 ```
 
@@ -169,9 +168,9 @@ Frontmatter must be conservative YAML: block lists only, quote strings with colo
 
 Then present the structure to the user in readable form (show the rationale, part breakdown, and chapter grid) and ask: "What should I change?"
 
-If changes are needed, edit `Wiki/Structure/structure.md` in place and re-present until approved.
+If changes are needed, edit `Wiki/Concept/structure.md` in place and re-present until approved.
 
-When approved: "Next: use `nonfiction-outline` to expand each chapter into detailed writing briefs."
+When approved: "Next: use `nonfiction-chapter-plan` to turn each chapter's entry into a writable chapter plan."
 
 ## Step 7: Detailed Chapter Sections (Below Grid)
 
@@ -183,7 +182,7 @@ After the chapter grid table, write a `## Chapter NN: Title` section for each ch
 - **chapter_number:** 1
 - **chapter_type:** frame | evidence | application | synthesis | transition
 - **thesis_clause:** [Primary clause advanced]
-- **evidence_types:** [List from concept.md]
+- **evidence_types:** [List from thesis.md]
 - **reader_milestone:** [Micro-transformation]
 - **key_frameworks:** [Named frameworks/models, max 2]
 - **exercises_or_artifacts:** [Templates, checklists, decisions, outputs]

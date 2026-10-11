@@ -2,6 +2,20 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 7: non-fiction
+
+Rationale: per-skill dead-ends audit continued. The non-fiction planning trio ran on a folder scheme (`Wiki/Concept/concept.md`, `Wiki/Audience/audience.md`, `Wiki/Structure/structure.md`) that nothing else in the library uses — AGENTS.md, USER.md, the new-book skeleton (`Wiki/Concept/`), and the review skills all expect `Wiki/Concept/thesis.md` / `audience.md` / `structure.md`. Worse, `nonfiction-concept` *required* an audience profile while the documented workflow runs concept first — a circular dead end at step 1 of every new non-fiction project.
+
+### Changed
+
+- **`nonfiction-concept` 1.0.0 → 1.1.0** — output is now `Wiki/Concept/thesis.md` (the path AGENTS.md, USER.md, and the template layout all document); the audience file is recommended-not-required, resolving the concept↔audience ordering cycle (the workflow starts at concept; audience reads the thesis afterward); dropped the optional `Wiki/Concept/big-idea.md` input (no skill produces it); downstream list corrected from "outline" to "chapter-plan"; description no longer says "after running nonfiction-audience".
+- **`nonfiction-audience` 1.0.0 → 1.1.0** — output moved from `Wiki/Audience/audience.md` (a folder the scaffold never creates) to `Wiki/Concept/audience.md`; reads the concept from `Wiki/Concept/thesis.md`; assumptions file and structure input moved to `Wiki/Concept/` accordingly.
+- **`nonfiction-structure` 1.0.0 → 1.1.0** — output moved from `Wiki/Structure/structure.md` to `Wiki/Concept/structure.md`; reads `thesis.md` + `audience.md` from `Wiki/Concept/`; the closing handoff "use `nonfiction-outline`" — a skill that does not exist — now hands to `nonfiction-chapter-plan`; the validation checklist's phantom `audience.transform` field now cites the concept's reader-transformation milestones.
+- **`nonfiction-chapter-plan` 1.0.0 → 1.0.1** — default plan path `Wiki/Outline/Chapter_[NN]_Plan.md` → `Wiki/Outline/Book-N/Chapter_[NN]_Plan.md` when no project convention exists (same pre-reorg fix as fiction-scenes).
+- **`nonfiction-writechapter` 1.0.0 → 1.0.1** — wired in its two orphaned reference files: `evidence-presentation.md` (evidence-variety templates) and `signposting-patterns.md` (signposting pattern library), both of which expand rules the skill already states in prose.
+- **`nonfiction-factcheck` 1.0.0 → 1.1.0** — report saves to `_Edits/Book-N/Chapter-NNN_FactCheck.md` (was `_Edits/` root); the closing "ask if they want fixes applied" now offers `fiction-revise`, which is the documented non-fiction route for report-driven fixes.
+- **`nonfiction-clarity-edit` 1.0.0 → 1.1.0** — report saves to `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`; the chapter-plan lookup glob fixed from `Chapter-[NN]_Plan.md` (hyphen) to `Chapter_[NN]_Plan.md` (underscore), matching the chapter-plan default so the plan is actually found; fix application routed through `fiction-revise`.
+
 ## 2026-10-11 — Skill audit, batch 6: kill passes (all 11)
 
 Rationale: per-skill dead-ends audit continued. One dead end in eleven skills: `kill-acronym` sent readers to `Wiki/Style/voice.md`, a file no skill in the library writes. Everything else passed: the five fiction singles carry their rules inline, the orchestrator's seven `references/` rule-sets all exist, and the three non-fiction passes' reference files resolve and contain their documented token lists. The inline-vs-references asymmetry between the fiction and non-fiction singles tracks when each was written and is deliberate.

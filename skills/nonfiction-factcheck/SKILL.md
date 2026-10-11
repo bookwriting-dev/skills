@@ -1,9 +1,9 @@
 ---
 name: nonfiction-factcheck
-description: "Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/."
+description: "Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/Book-N/."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: nonfiction-editing
   output-format: markdown
 ---
@@ -120,10 +120,10 @@ Skip empty sections.
 
 ## Step 6: Save and Report
 
-1. Look for an `_Edits/` folder near the chapter (search for `**/*_Edits`). If none exists, create one in the chapter's directory.
-2. Save as `Chapter-{N}_FactCheck.md`.
+1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
+2. Save as `Chapter-NNN_FactCheck.md` (three-digit number matching the chapter).
 3. Tell the user: location, assertions checked, finding count, and whether the chapter is publishable, fixable, or requires re-research.
-4. Ask if they want the fixes applied to the chapter.
+4. Offer to apply approved findings with `fiction-revise` (report-driven and book-agnostic; it verifies every quote and keeps a change ledger).
 
 ## Verification rules
 

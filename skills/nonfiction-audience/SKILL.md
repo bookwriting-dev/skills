@@ -3,23 +3,23 @@ name: nonfiction-audience
 description: "Map reader's current knowledge, objections, and required prerequisites. Use when user says 'define audience', 'who is this for', 'target reader', 'reader profile', 'prerequisites', or before running nonfiction-concept."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: nonfiction-writing
   output-format: markdown
 ---
 
 # Nonfiction Audience Definer
 
-**Output:** `Wiki/Audience/audience.md` at the project root. All inputs come from `Wiki/` Markdown files; all output is written back into `Wiki/`.
+**Output:** `Wiki/Concept/audience.md` in the project's `Wiki/` folder. All inputs come from `Wiki/` Markdown files; all output is written back into `Wiki/`.
 
 ## Step 1: Locate the Project and Load Context
 
 The project may live in a subfolder, so search for:
 
-- `**/Wiki/Concept/concept.md`: Optional (audience often runs before concept). For: thesis, reader_transformation, big_idea. If it exists, read it to ensure audience aligns with promised transformation.
-- `**/Wiki/Structure/structure.md`: Optional. For: chosen architecture, which may imply audience sophistication level.
+- `**/Wiki/Concept/thesis.md`: Optional (audience often runs right after concept; it exists by then in the standard workflow). For: thesis, reader_transformation, big_idea. If it exists, read it to ensure audience aligns with promised transformation.
+- `**/Wiki/Concept/structure.md`: Optional. For: chosen architecture, which may imply audience sophistication level.
 
-If no `Wiki/Concept/concept.md` exists, proceed — audience definition often precedes and informs concept.
+If no `Wiki/Concept/thesis.md` exists, proceed — audience definition can precede and inform the concept.
 
 ## Step 2: Gather User Input
 
@@ -79,7 +79,7 @@ Field derivation:
 - **structural_expectations**: `depth_level` (overview / deep-dive / reference), `preferred_format` (narrative / framework / playbook / reference / hybrid), `chapter_length_words` [min, max], `total_word_count` [min, max], `visual_density` (low / medium / high), `actionability_ratio` (theory:practice balance as percentage).
 - **compatibility_assessment**: Explicit compatibility check against concept (if exists) and archetype norms.
 
-Write `Wiki/Audience/audience.md` in this shape (create the `Wiki/Audience/` folder if missing):
+Write `Wiki/Concept/audience.md` in this shape (create the `Wiki/Concept/` folder if missing):
 
 ```markdown
 ---
@@ -164,10 +164,10 @@ Frontmatter must be conservative YAML: block lists one item per line, never inli
 - Knowledge gaps and prerequisites are *specific*, not generic. "Knows Python" → "Can write a list comprehension; has used pandas; has debugged a KeyError."
 - Objections must be in the *reader's voice*, not your interpretation. "This won't work for me" not "They doubt applicability."
 - If prerequisites are substantial, the book must either teach them or explicitly gate the audience.
-- If the audience work surfaces forbidden assumptions (e.g., "assumes US corporate context"), write them to `Wiki/Audience/assumptions.md` (one `- assumption: [context]` bullet per line).
+- If the audience work surfaces forbidden assumptions (e.g., "assumes US corporate context"), write them to `Wiki/Concept/assumptions.md` (one `- assumption: [context]` bullet per line).
 
 ## Step 6: Present and Confirm
 
-Show the full profile to the user and ask: "What should I change?" Apply revisions by editing `Wiki/Audience/audience.md` in place. For large rewrites, use the same isolated-worker mechanism when available. Continue until approved.
+Show the full profile to the user and ask: "What should I change?" Apply revisions by editing `Wiki/Concept/audience.md` in place. For large rewrites, use the same isolated-worker mechanism when available. Continue until approved.
 
 When approved: "Next: use `nonfiction-concept` to define your book's central argument and transformation."
