@@ -85,3 +85,5 @@ skills/review-panel/references/nonfiction-personas.md
 templates/AGENTS.md
 templates/CLAUDE.md
 new-book.sh
+skills/fiction-scenes/SKILL.md
+skills/fiction-synopsis/references/twist-principles.md

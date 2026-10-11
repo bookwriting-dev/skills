@@ -1,16 +1,16 @@
 ---
 name: fiction-outline
-description: "Generate the chapter-by-chapter outline at Wiki/Outline/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
+description: "Generate the chapter-by-chapter outline at Wiki/Outline/Book-N/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "5.2.0"
+  version: "5.3.0"
   category: fiction-writing
   output-format: markdown
 ---
 
 # Outline Generator
 
-**Output:** `Wiki/Outline/outline.md`, one chapter entry per chapter, each carrying a `what_must_happen` directive.
+**Output:** `Wiki/Outline/Book-N/outline.md`, one chapter entry per chapter, each carrying a `what_must_happen` directive. `N` is the book being planned (Book-1 for a first book; ask when the project holds several).
 
 This skill runs its generation in an isolated worker when the host supports one, to keep the main conversation context clean. The coordinator locates the input files and passes their paths; it does not read them itself. If isolated workers are unavailable, follow the same generation instructions directly.
 
@@ -21,7 +21,7 @@ All inputs are Markdown files in the project's `Wiki/` folder. The project may l
 - `**/Wiki/Story/synopsis.md`: required. Contains premise, central_question, reader_promise, story_answer, trope payoff plan, protagonists, mechanism, act_1/2/3, open_threads, locations_in_play, characters_in_play.
 - `**/Wiki/Style/genre.md`: selected tropes and their genre-level commitments. Required when the project was built through `fiction-genre`; if missing, flag that trope coverage cannot be verified.
 - `**/Wiki/Characters/*.md`: one file per character: names, roles, personality, dialogue_style.
-- `**/Wiki/Locations/*.md`, `**/Wiki/Organizations/*.md`, `**/Wiki/Systems/*.md`, `**/Wiki/Events/*.md`: location names and organization constraints (prevents/forces/enables).
+- `**/Wiki/World/**/*.md` (current layout) and the legacy per-type folders (`**/Wiki/Locations/*.md`, `**/Wiki/Organizations/*.md`, `**/Wiki/Systems/*.md`, `**/Wiki/Events/*.md`): location names and organization constraints (prevents/forces/enables).
 - `**/Wiki/Story/theme.md`: central_question, tone, motifs.
 
 **Do NOT read these files in the coordinator.** Just collect their paths. The project root is the folder containing `Wiki/`.
@@ -44,7 +44,7 @@ If isolated workers are unavailable, or if you are already the dedicated worker 
 
 ## Worker Instructions
 
-Generate the chapter-by-chapter outline for this project and save it to `{{PROJECT_ROOT}}/Wiki/Outline/outline.md`.
+Generate the chapter-by-chapter outline for this project and save it to `{{PROJECT_ROOT}}/Wiki/Outline/Book-N/outline.md`, where `Book-N` is the book folder this outline belongs to (create the folder if missing).
 
 **Project root:** `{{PROJECT_ROOT}}`
 **Synopsis:** read `{{SYNOPSIS_PATH}}` fully.
@@ -100,7 +100,7 @@ Spread the act_1 shape across the first ~35% of chapters, act_2 shape across the
 
 ### Save
 
-Write the outline to `{{PROJECT_ROOT}}/Wiki/Outline/outline.md` (create the `Wiki/Outline/` folder if missing). Format:
+Write the outline to `{{PROJECT_ROOT}}/Wiki/Outline/Book-N/outline.md` (create the `Wiki/Outline/Book-N/` folder if missing). Format:
 
 - YAML frontmatter carrying the scalar fields. Plain, conservative YAML: block lists only (one `- item` per line), never inline `[a, b]` lists; quote strings containing colons.
 
@@ -143,7 +143,7 @@ Before saving, run a coverage pass across the complete outline:
 
 If the premise, promise, central question, story answer, or trope payoff plan conflict, stop and report the mismatch instead of forcing contradictory material into chapters. The synopsis is the place to repair that contract.
 
-Return: "Outline written to Wiki/Outline/outline.md" and a one-line summary of total chapter count and act distribution.
+Return: "Outline written to Wiki/Outline/Book-N/outline.md" and a one-line summary of total chapter count and act distribution.
 
 ### Relationship turns (add checkpoints where a bond changes)
 
@@ -167,6 +167,6 @@ When adding the new checkpoint, close the prior open span by setting its `chapte
 
 Show the worker's summary and ask: "What should I change?"
 
-If changes are needed, use the same isolated-worker mechanism when available with the revision instructions plus the existing `Wiki/Outline/outline.md` path, and have it rewrite the file.
+If changes are needed, use the same isolated-worker mechanism when available with the revision instructions plus the existing `Wiki/Outline/Book-N/outline.md` path, and have it rewrite the file.
 
-When approved, confirm the file was saved and suggest: "Next: use `fiction-scenes` to expand each chapter into detailed scene documents at `Wiki/Outline/Chapter_[NN]_Scene.md`."
+When approved, confirm the file was saved and suggest: "Next: use `fiction-divergence` for the beat-the-defaults pass, then `fiction-scenes` to expand each chapter into scene plans at `Wiki/Outline/Book-N/Chapter_[NN]_Scene.md`."

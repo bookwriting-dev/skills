@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled."
 metadata:
   author: Fiction Toolkit
-  version: "4.1.0"
+  version: "4.1.1"
   category: fiction-writing
   output-format: markdown
 ---

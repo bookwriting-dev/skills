@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.0.0"
+  version: "4.0.1"
   category: fiction-writing
   output-format: markdown
 ---
@@ -21,7 +21,7 @@ Use this order of authority:
 3. The project's established source of truth and file conventions.
 4. This skill's generic defaults.
 
-Do not impose Wiki-only storage, integer numbering, or `Chapter_XX_Scene.md` when the project uses decimal or interlude chapters, or a different beats convention. An explicit output path wins. Otherwise, revise the existing assigned file. For a new file, follow neighboring chapter files; use `Wiki/Outline/Chapter_[NN]_Scene.md` only when no project convention exists.
+Do not impose Wiki-only storage, integer numbering, or `Chapter_XX_Scene.md` when the project uses decimal or interlude chapters, or a different beats convention. An explicit output path wins. Otherwise, revise the existing assigned file. For a new file, follow neighboring chapter files; use `Wiki/Outline/Book-N/Chapter_[NN]_Scene.md` only when no project convention exists.
 
 Do not create a diagnostic, receipt, character profile, location file, or organization article unless the user asks or book instructions require it. Record unresolved entity work inside the requested artifact only when it affects drafting.
 

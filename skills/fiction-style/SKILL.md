@@ -1,9 +1,9 @@
 ---
 name: fiction-style
-description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or after running fiction-synopsis."
+description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or when the plan-the-book sequence reaches the style + voice step (after scene plans, alongside fiction-voiceprompt)."
 metadata:
   author: Fiction Toolkit
-  version: "7.0.1"
+  version: "7.1.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -56,7 +56,7 @@ If the theme file exists, read it for motif candidates.
 
 ### POV block
 
-Downstream prompt compilers read POV and tense from this file; without it the voice line defaults to first-person present. Derive POV from the synopsis and record it in the frontmatter.
+Downstream skills read POV and tense from this file — `fiction-writechapter` and `fiction-voiceprompt` while drafting, the review and editing passes while checking voice; without it the voice line defaults to first-person present. Derive POV from the synopsis and record it in the frontmatter.
 
 Write the file with this shape:
 
@@ -174,4 +174,4 @@ tone: "[tone descriptor]"
 1. Confirm both files were written: `Wiki/Style/style_guide.md` and `Wiki/Style/review_guide.md`.
 2. Offer: "Would you like to review the guides and request changes?"
 3. If changes are needed, revise the files (or use the same isolated-worker mechanism when available with revision instructions) and re-enforce the critical constraints from Step 2.
-4. When approved, suggest: "Next: use `fiction-characters` to generate the cast."
+4. When approved, suggest: "Next: use `fiction-voiceprompt` to distill the protagonist's voice prompt (if not already built), then `fiction-writechapter` to draft Chapter 1."

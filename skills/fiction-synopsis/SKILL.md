@@ -3,7 +3,7 @@ name: fiction-synopsis
 description: "Transform a new-story braindump into Wiki/Story/synopsis.md with premise, central question, reader promise, story answer and payoff, protagonists, mechanism, act structure, and open threads. Use when user says 'create synopsis', 'start my story', 'I have a story idea', or 'turn this into a synopsis'."
 metadata:
   author: Fiction Toolkit
-  version: "5.2.0"
+  version: "5.2.1"
   category: fiction-writing
   output-format: markdown
 ---

@@ -2,6 +2,22 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 3: shape the book
+
+Rationale: per-skill dead-ends audit continued (outline, divergence, scenes, style, writechapter). divergence passed clean; the other four carried pre-reorg paths, phantom pipeline references, a backwards handoff, or legacy files from the abandoned JSON pipeline.
+
+### Changed
+
+- **`fiction-outline` 5.2.0 → 5.3.0** — output path `Wiki/Outline/outline.md` → `Wiki/Outline/Book-N/outline.md` (the skill predated the Book-N reorg and was writing every outline outside the layout divergence, psych, writechapter, and reviewchapter all read from); world input now globs `**/Wiki/World/**/*.md` alongside the legacy per-type folders; the next-step handoff includes `fiction-divergence` (which the workflow order places between outline and scenes); removed the orphaned `references/twist-principles.md`.
+- **`fiction-scenes` 4.0.0 → 4.0.1** — default scene-plan path `Wiki/Outline/Chapter_[NN]_Scene.md` → `Wiki/Outline/Book-N/Chapter_[NN]_Scene.md` when no project convention exists. (Project authority already handled the layout; the stale default is what remained.)
+- **`fiction-style` 7.0.1 → 7.1.0** — "downstream prompt compilers" (a pipeline component that does not exist) now names the real consumers (`fiction-writechapter`, `fiction-voiceprompt`, the review/editing passes); the closing handoff "Next: use `fiction-characters`" — which sent the user back to planning step 6 after style runs at step 12 — now points to `fiction-voiceprompt` then `fiction-writechapter`; description's position hint updated from "after running fiction-synopsis" to the style + voice step.
+- **`fiction-synopsis` 5.2.0 → 5.2.1** — `references/twist-principles.md` upgraded to the richer variant that had been sitting unreferenced in `fiction-outline/references/` (adds the weak/strong twist table, the twist-to-character matching, and the external-problem + internal-crisis formula). The canonical, referenced copy keeps the best content; the orphan copy is gone.
+- **`fiction-writechapter` 4.1.0 → 4.1.1** — removed five inherited files from the abandoned JSON pipeline (`references/active-context-guide.md`, `common-pitfalls.md`, `json-active-context-schema.json`, `universal-quality-rules.md`, `assets/active-context-template.md`): they reference `theme.json`/`synopsis.json`/`[WorkingTitle]_characters.csv` artifacts that no longer exist and instruct the writing pass to maintain `motif_register`/`genre_beat_tracker` — exactly what the current skill forbids ("do not recalculate motif cadence, genre architecture… during the writing pass"). The skill's inline minimal active-context spec is the authority.
+
+### Notes
+
+- `sync-manifest.txt`: registered `skills/fiction-scenes/SKILL.md` and `skills/fiction-synopsis/references/twist-principles.md` (now fork-modified).
+
 ## 2026-10-11 — Skill audit, batch 2: build the people + build the world
 
 Rationale: per-skill dead-ends audit (all 59 skills walked, batched by role). This batch: the nine people/world skills. The seven others passed clean; three had dead ends — two inherited file sets still described an output format the library abandoned, and `fiction-psych` still pointed at a pipeline component that does not exist and at pre-reorg paths.
