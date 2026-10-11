@@ -2,6 +2,16 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit: resolve audit ledger follow-ups (synopsis & outline)
+
+Rationale: addresses the remaining observations logged in the 2026-10-11 audit ledger. `fiction-outline` now supports multi-book series workflows by accepting per-book synopses (`Wiki/Story/Book-N/synopsis.md`) with fallback to the root series synopsis, and `fiction-synopsis` points location references to the standard `Wiki/World/Locations/` layout.
+
+### Changed
+
+- **`fiction-outline` 5.3.0 → 5.3.1** — `Step 1` input search accepts `**/Wiki/Story/Book-N/synopsis.md` (for individual books in a series) as well as `**/Wiki/Story/synopsis.md` (root/standalone synopsis), prioritizing the book-specific synopsis when present.
+- **`fiction-synopsis` 5.2.1 → 5.2.2** — updated `locations_in_play` output reference to `Wiki/World/Locations/` (or legacy `Wiki/Locations/`), aligning with the current `fiction-world` layout.
+- **`docs/USER.md`** — synced catalog versions for `fiction-outline` and `fiction-synopsis`.
+
 ## 2026-10-11 — Skill audit, batch 9: wiring layer + final sweep
 
 Rationale: the audit's closing pass over the doc layer, the workflow template, the scaffolder, and the sync gate — plus the verification sweep across all 59 skills. The reference graph is clean: zero broken paths (two `skill-builder/guide.md` hits are tutorial examples inside sample skill layouts), zero dangling skill-name references, and no phantom components anywhere. `templates/AGENTS.md`'s workflow, decision trees, and index already matched the library after the fixes above; no template rewiring was needed beyond one word.

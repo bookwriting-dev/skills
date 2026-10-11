@@ -3,7 +3,7 @@ name: fiction-synopsis
 description: "Transform a new-story braindump into Wiki/Story/synopsis.md with premise, central question, reader promise, story answer and payoff, protagonists, mechanism, act structure, and open threads. Use when user says 'create synopsis', 'start my story', 'I have a story idea', or 'turn this into a synopsis'."
 metadata:
   author: Fiction Toolkit
-  version: "5.2.1"
+  version: "5.2.2"
   category: fiction-writing
   output-format: markdown
 ---
@@ -81,7 +81,7 @@ Extract: the specific quality checks for each field before finalizing the output
 
 **open_threads**: 1-4 unresolved elements that sit at the edge of the story's resolution. Not everything must be tied off. These are the threads that make a standalone feel like it has a world beyond its edges.
 
-**locations_in_play / characters_in_play**: Simple name lists. These seed the fiction-world and fiction-characters skills; the names must match the `Wiki/Locations/` and `Wiki/Characters/` files those skills will create.
+**locations_in_play / characters_in_play**: Simple name lists. These seed the fiction-world and fiction-characters skills; the names must match the `Wiki/World/Locations/` (or legacy `Wiki/Locations/`) and `Wiki/Characters/` files those skills will create.
 
 ### Preserve the braindump
 Every specific element the user gave (names, scenes, relationships, tones) must appear in the output. If you invent something, it must be additive, not a replacement.

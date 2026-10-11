@@ -122,7 +122,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `fiction-genre` 3.2.0 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
 | `fiction-audience` 4.0.0 | Target reader age group, content boundaries, structural norms → `Wiki/Style/audience.md`. |
 | `fiction-theme` 3.1.0 | The thematic engine: central question, tone, motifs → `Wiki/Story/theme.md`. |
-| `fiction-synopsis` 5.2.1 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
+| `fiction-synopsis` 5.2.2 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
 | `fiction-series-outline` 1.0.0 | Series-level plan: per-book dramatic-question stack, inter-book promise map, character arc spans, escalation, handoffs → `Wiki/Story/series-arc.md`. Run at series inception; refresh before each later book. |
 
 ### Fiction — build the people
@@ -148,7 +148,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 | Skill | What it does |
 |---|---|
-| `fiction-outline` 5.3.0 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
+| `fiction-outline` 5.3.1 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
 | `fiction-divergence` 1.0.0 | Anti-convergence pass over the outline: per beat, a default, an inversion, and a cost-shift candidate; keeps the least-expected-but-earned; per-act surprise ledger. |
 | `fiction-scenes` 4.0.1 | Chapter beats and scene plans — turning the outline into writable action (`Chapter_NN_Scene.md`). |
 | `fiction-style` 7.1.0 | `style_guide.md` + `review_guide.md` — the project's prose law. |

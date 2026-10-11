@@ -3,7 +3,7 @@ name: fiction-outline
 description: "Generate the chapter-by-chapter outline at Wiki/Outline/Book-N/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "5.3.0"
+  version: "5.3.1"
   category: fiction-writing
   output-format: markdown
 ---
@@ -18,7 +18,7 @@ This skill runs its generation in an isolated worker when the host supports one,
 
 All inputs are Markdown files in the project's `Wiki/` folder. The project may live in a subfolder, so search for them:
 
-- `**/Wiki/Story/synopsis.md`: required. Contains premise, central_question, reader_promise, story_answer, trope payoff plan, protagonists, mechanism, act_1/2/3, open_threads, locations_in_play, characters_in_play.
+- `**/Wiki/Story/Book-N/synopsis.md` (when outlining a specific book in a series) or `**/Wiki/Story/synopsis.md` (series / standalone synopsis): required. Contains premise, central_question, reader_promise, story_answer, trope payoff plan, protagonists, mechanism, act_1/2/3, open_threads, locations_in_play, characters_in_play. Prefer the target book's synopsis if one exists; otherwise use the root synopsis.
 - `**/Wiki/Style/genre.md`: selected tropes and their genre-level commitments. Required when the project was built through `fiction-genre`; if missing, flag that trope coverage cannot be verified.
 - `**/Wiki/Characters/*.md`: one file per character: names, roles, personality, dialogue_style.
 - `**/Wiki/World/**/*.md` (current layout) and the legacy per-type folders (`**/Wiki/Locations/*.md`, `**/Wiki/Organizations/*.md`, `**/Wiki/Systems/*.md`, `**/Wiki/Events/*.md`): location names and organization constraints (prevents/forces/enables).
@@ -26,7 +26,7 @@ All inputs are Markdown files in the project's `Wiki/` folder. The project may l
 
 **Do NOT read these files in the coordinator.** Just collect their paths. The project root is the folder containing `Wiki/`.
 
-If `Wiki/Story/synopsis.md` does not exist or is empty: tell the user to run `fiction-synopsis` first and stop.
+If neither `Wiki/Story/Book-N/synopsis.md` nor `Wiki/Story/synopsis.md` exists (or the found synopsis is empty): tell the user to run `fiction-synopsis` first and stop.
 
 ## Step 2: Launch the Outline Worker
 
