@@ -8,6 +8,8 @@
 #
 #   ours (expected)    — a file we've changed or added; listed in sync-manifest.txt
 #                        and accounted for in CHANGELOG.md
+#   ours (deleted)     — a file we deliberately removed; the manifest entry stays
+#                        as the tombstone so the upstream leftover classifies here
 #   UPSTREAM DRIFT     — a file changed upstream that we have NOT touched.
 #                        Review it: port the improvement if it's good (add the
 #                        file to sync-manifest.txt + a CHANGELOG entry when you
@@ -72,6 +74,30 @@ while IFS= read -r line; do
       if [[ "$dir" == "$UP_SKILLS" ]]; then
         new_upstream=$((new_upstream+1)); have_findings=1
         echo "  NEW UPSTREAM:      skills/$name"
+      elif [[ -d "$dir/$name" && "$dir/" == "$UP_SKILLS"/* ]]; then
+        # An upstream-only directory: classify file by file, so deletions we
+        # tombstoned in the manifest don't masquerade as new upstream content.
+        while IFS= read -r sub; do
+          rel="skills/${sub#"$UP_SKILLS"/}"
+          if grep -Fqx "$rel" "$MANIFEST"; then
+            ours=$((ours+1))
+            echo "  ours (deleted):    $rel"
+          else
+            new_upstream=$((new_upstream+1)); have_findings=1
+            echo "  NEW UPSTREAM:      $rel"
+          fi
+        done < <(find "$dir/$name" -type f | sort)
+      elif [[ "$dir/" == "$UP_SKILLS"/* ]]; then
+        # An upstream-only file under a subdirectory is either something we
+        # deliberately deleted (manifest tombstone) or a new upstream file.
+        rel="skills/${dir#"$UP_SKILLS"/}/$name"
+        if grep -Fqx "$rel" "$MANIFEST"; then
+          ours=$((ours+1))
+          echo "  ours (deleted):    $rel"
+        else
+          new_upstream=$((new_upstream+1)); have_findings=1
+          echo "  NEW UPSTREAM:      $rel"
+        fi
       else
         rel_dir="${dir#"$LIBRARY_DIR/skills/"}"
         if [[ "$rel_dir" == "$dir" ]]; then rel_dir="."; fi

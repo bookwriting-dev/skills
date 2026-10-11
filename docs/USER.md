@@ -104,7 +104,7 @@ Ask "what's wrong?" and read the row:
 | Apply approved fixes from a report | `fiction-revise` | `fiction-revise` (report-driven, book-agnostic) |
 | Recurring crutches, whole-chapter sweep | `kill-chapter` (7 passes) | `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym` |
 | Back half feels flatter than the front | `drift-check` | `drift-check` |
-| "What would a reader think?" | `fiction-review-panel` | `review-panel` personas |
+| "What would a reader think?" | `review-panel` | `review-panel` personas |
 
 Rule of thumb: **editing passes run only when you ask.** Review is part of the loop;
 revision is your call. And a structural problem is never an editing job — fix the plan,
@@ -122,15 +122,15 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `fiction-genre` 3.2.0 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
 | `fiction-audience` 4.0.0 | Target reader age group, content boundaries, structural norms → `Wiki/Style/audience.md`. |
 | `fiction-theme` 3.1.0 | The thematic engine: central question, tone, motifs → `Wiki/Story/theme.md`. |
-| `fiction-synopsis` 5.2.0 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
+| `fiction-synopsis` 5.2.1 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
 | `fiction-series-outline` 1.0.0 | Series-level plan: per-book dramatic-question stack, inter-book promise map, character arc spans, escalation, handoffs → `Wiki/Story/series-arc.md`. Run at series inception; refresh before each later book. |
 
 ### Fiction — build the people
 
 | Skill | What it does |
 |---|---|
-| `fiction-characters` 3.1.0 | One profile per character in `Wiki/Characters/` — personality and dialogue style written as *instructions*, not descriptions. |
-| `fiction-psych` 2.0.0 | Per-chapter psychological interior pass (what each character believes/fears/wants underneath the scene's external beats) → `Wiki/Psych/Book-N/`. |
+| `fiction-characters` 3.1.1 | One profile per character in `Wiki/Characters/` — personality and dialogue style written as *instructions*, not descriptions. |
+| `fiction-psych` 2.1.0 | Per-chapter psychological interior pass (what each character believes/fears/wants underneath the scene's external beats) → `Wiki/Psych/Book-N/`. |
 | `fiction-dialogue` 1.0.0 | Draft, diagnose, or revise dialogue when speaker fidelity, unequal knowledge, or subtext matters. |
 | `fiction-voiceprompt` 2.0.0 | Compact protagonist `voice_prompt.md` distilled from the character/style/theme/synopsis files. |
 
@@ -138,7 +138,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 | Skill | What it does |
 |---|---|
-| `fiction-world` 5.1.0 | The setting build: locations, organizations, systems, events. |
+| `fiction-world` 5.1.1 | The setting build: locations, organizations, systems, events. |
 | `fiction-places` 1.0.0 | Scene-bearing sites and landmarks (ruins, rooms, tactical locations) — not full towns. |
 | `fiction-factions` 1.0.0 | Factions, institutions, guilds, crews, cults, corporations, rival networks. |
 | `fiction-polities` 1.0.0 | Kingdoms, empires, federations, city-states and their territorial divisions. |
@@ -148,84 +148,84 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 | Skill | What it does |
 |---|---|
-| `fiction-outline` 5.2.0 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
+| `fiction-outline` 5.3.0 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
 | `fiction-divergence` 1.0.0 | Anti-convergence pass over the outline: per beat, a default, an inversion, and a cost-shift candidate; keeps the least-expected-but-earned; per-act surprise ledger. |
-| `fiction-scenes` 4.0.0 | Chapter beats and scene plans — turning the outline into writable action (`Chapter_NN_Scene.md`). |
-| `fiction-style` 7.0.1 | `style_guide.md` + `review_guide.md` — the project's prose law. |
-| `fiction-writechapter` 4.1.0 | Draft or continue a chapter from scene plan + voice + canon; maintains the active-context log. |
+| `fiction-scenes` 4.0.1 | Chapter beats and scene plans — turning the outline into writable action (`Chapter_NN_Scene.md`). |
+| `fiction-style` 7.1.0 | `style_guide.md` + `review_guide.md` — the project's prose law. |
+| `fiction-writechapter` 4.1.1 | Draft or continue a chapter from scene plan + voice + canon; maintains the active-context log. |
 
 ### Fiction — review the story
 
 | Skill | What it does |
 |---|---|
-| `fiction-reviewchapter` 2.5.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
+| `fiction-reviewchapter` 2.6.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
 | `fiction-dev-editor` 2.0.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.1.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. |
-| `review-panel` 1.1.0 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
-| `drift-check` 1.1.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
+| `review-panel` 1.1.1 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
+| `drift-check` 1.2.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
 ### Fiction — edit the prose
 
 | Skill | What it does |
 |---|---|
-| `fiction-full-editor` 1.1.0 | **Default** sentence-level pass: AI-isms + prose mechanics + line edits in one scan. |
+| `fiction-full-editor` 1.2.0 | **Default** sentence-level pass: AI-isms + prose mechanics + line edits in one scan. |
 | `fiction-revise` 1.0.0 | Applies the report items you approve to the chapter in place — exact-quote verification, minimal perturbation, change ledger. |
-| `fiction-line-editor` 5.1.0 | Line craft/voice layer only (clichés, repetition, POV violations) when isolating that layer. |
-| `fiction-prose-editor` 1.2.0 | Prose mechanics only (fragments, choppy S-V-O chains, simile density, rule-of-threes, show-vs-tell). |
-| `fiction-aiism-editor` 1.3.0 | AI fingerprints only (forbidden words, machine constructions, self-announcing narration). |
-| `levelup` 1.0.0 | Filter-word scan ("she saw / he felt") — reader-distance fixes. |
-| `fragment-hunter` 1.0.0 | Mechanically extracts 1–3-word sentences, rebuilds them into performable prose (audiobook prep). |
-| `nominalization-hunt` 1.0.0 | Finds abstract self-explanation ("the realization of…"), restores action and observation. |
+| `fiction-line-editor` 5.2.0 | Line craft/voice layer only (clichés, repetition, POV violations) when isolating that layer. |
+| `fiction-prose-editor` 1.3.0 | Prose mechanics only (fragments, choppy S-V-O chains, simile density, rule-of-threes, show-vs-tell). |
+| `fiction-aiism-editor` 1.4.0 | AI fingerprints only (forbidden words, machine constructions, self-announcing narration). |
+| `levelup` 1.1.0 | Filter-word scan ("she saw / he felt") — reader-distance fixes. |
+| `fragment-hunter` 1.1.0 | Mechanically extracts 1–3-word sentences, rebuilds them into performable prose (audiobook prep). |
+| `nominalization-hunt` 1.1.0 | Finds abstract self-explanation ("the realization of…"), restores action and observation. |
 
 ### Fiction — remove the tells (kill passes)
 
 | Skill | What it does |
 |---|---|
 | `kill-chapter` 2.0.0 | **Default sweep**: runs all seven passes consecutively, in place, with a combined report. |
-| `kill-simile` | Explain-it similes ("the way…"). |
-| `kill-person-who` | Subtext-by-label ("the [quality] of a [person] who [clause]"). |
-| `kill-opinion-personification` | Non-sentient things "having opinions". |
-| `kill-the-whole` | Hollow "the whole of X" intensifiers. |
-| `kill-crutch` | Generalized filler-word pass — `kill-crutch WORD` hunts any word. |
-| `kill-soft` / `kill-flat` | The mood-adjectives "soft" and "flat" (also covered by `kill-crutch`). |
+| `kill-simile` 1.0.0 | Explain-it similes ("the way…"). |
+| `kill-person-who` 1.0.0 | Subtext-by-label ("the [quality] of a [person] who [clause]"). |
+| `kill-opinion-personification` 1.0.0 | Non-sentient things "having opinions". |
+| `kill-the-whole` 1.0.0 | Hollow "the whole of X" intensifiers. |
+| `kill-crutch` 1.0.0 | Generalized filler-word pass — `kill-crutch WORD` hunts any word. |
+| `kill-soft` 1.0.0 / `kill-flat` 1.0.0 | The mood-adjectives "soft" and "flat" (also covered by `kill-crutch`). |
 
 ### Non-fiction
 
 | Skill | What it does |
 |---|---|
-| `nonfiction-concept` 1.0.0 | Central argument/thesis, reader transformation, big idea → `Wiki/Concept/thesis.md`. |
-| `nonfiction-audience` 1.0.0 | Reader knowledge, objections, prerequisites across five archetypes → `Wiki/Concept/audience.md`. |
-| `nonfiction-structure` 1.0.0 | Argument architecture (problem-solution / chronological / conceptual / hybrid) → `Wiki/Concept/structure.md`. |
-| `nonfiction-chapter-plan` 1.0.0 | Per chapter: claim, evidence, transition, reader takeaway → `Wiki/Outline/Book-N/plan.md`. |
-| `nonfiction-writechapter` 1.0.0 | Drafts from the plan: explanatory clarity, signposting, concrete examples, varied evidence. |
-| `nonfiction-factcheck` 1.0.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
-| `nonfiction-clarity-edit` 1.0.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
+| `nonfiction-concept` 1.1.0 | Central argument/thesis, reader transformation, big idea → `Wiki/Concept/thesis.md`. |
+| `nonfiction-audience` 1.1.0 | Reader knowledge, objections, prerequisites across five archetypes → `Wiki/Concept/audience.md`. |
+| `nonfiction-structure` 1.1.0 | Argument architecture (problem-solution / chronological / conceptual / hybrid) → `Wiki/Concept/structure.md`. |
+| `nonfiction-chapter-plan` 1.0.1 | Per chapter: claim, evidence, transition, reader takeaway → `Wiki/Outline/Book-N/plan.md`. |
+| `nonfiction-writechapter` 1.0.1 | Drafts from the plan: explanatory clarity, signposting, concrete examples, varied evidence. |
+| `nonfiction-factcheck` 1.1.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
+| `nonfiction-clarity-edit` 1.1.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
 
 ### Cross-cutting (fiction and non-fiction)
 
 | Skill | What it does |
 |---|---|
-| `promise-tracker` 1.0.0 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
+| `promise-tracker` 1.0.1 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
 | `kill-hedge` 1.0.0 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.0.0 | Converts passive to active for clarity and authority. |
-| `kill-acronym` 1.0.0 | Flags unexplained initialisms/acronyms on first use. |
+| `kill-acronym` 1.0.1 | Flags unexplained initialisms/acronyms on first use. |
 
 ### Diagnostics (never edit — they measure and route)
 
 | Skill | What it does |
 |---|---|
-| `drift-check` 1.0.0 | The gradient across the whole book (see Review). |
-| `burstiness-check` 1.3.0 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — finds chapters likely to read machine-generated. |
-| `pangram` 1.0.0 | Statistical patterns associated with AI-detection risk (predictability, lexical diversity, uniform construction). |
+| `drift-check` 1.2.0 | The gradient across the whole book (see Review). |
+| `burstiness-check` 1.3.1 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — finds chapters likely to read machine-generated. |
+| `pangram` 2.0.0 | Statistical patterns associated with AI-detection risk (predictability, lexical diversity, uniform construction). |
 
 ### Utilities
 
 | Skill | What it does |
 |---|---|
-| `name-generator` 1.1.0 | Character names from 24 culture corpora. Collision-checks against existing fiction/games/brands before a name enters canon. |
-| `town-generator` 1.0.0 | Settlement names (lexical, 11 corpora + epithets). |
-| `fantasy-settlement` 1.0.0 | Full settlement dossier: population, economy, districts, security. |
+| `name-generator` 1.2.0 | Character names from 24 culture corpora. Collision-checks against existing fiction/games/brands before a name enters canon. |
+| `town-generator` 1.1.0 | Settlement names (lexical, 11 corpora + epithets). |
+| `fantasy-settlement` 1.0.1 | Full settlement dossier: population, economy, districts, security. |
 
 ### Meta
 

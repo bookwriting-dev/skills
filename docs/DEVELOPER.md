@@ -211,9 +211,14 @@ difference using `sync-manifest.txt`:
 | Classification | Meaning | Action |
 |---|---|---|
 | `ours (expected)` | changed by us, listed in the manifest | none |
+| `ours (deleted)` | a file we deliberately removed, still listed in the manifest | none (keep the manifest entry as the tombstone) |
 | `fork addition` | only we have it | none (register it in the manifest) |
 | `UPSTREAM DRIFT` | changed upstream, we never touched it | review: port if good (then manifest + CHANGELOG), or record why skipped |
 | `NEW UPSTREAM` | upstream has it, we don't | same review |
+
+When you delete an inherited file, **keep its `sync-manifest.txt` entry** — the entry
+is what lets `sync-check.sh` classify the upstream-only leftover as
+`ours (deleted)` instead of an unexplained finding.
 
 Exit codes: `0` everything accounted for, `1` unexplained findings (so it can gate a
 periodic check), `2` environment/usage error. Policy in one line: **this repo is the
@@ -251,7 +256,9 @@ the next change should preserve:
    commit actually shipped, with a correction note; the deleted audit report is cited
    as git history (`git show e84222e^:AUDIT-REPORT-2026-10-10.md`), not as a file.
 
-Still open, by choice: the eight non-fiction skills above remain unbuilt (the workflow
-routes around them), and the two diagnostics keep their scripts in `references/`
+Still open, by choice: three non-fiction layers remain unbuilt — research/source
+management, a non-fiction developmental editor, and a non-fiction revise skill (the
+seven-skill non-fiction workflow routes around them; see USER.md's non-fiction section
+for how) — and the two diagnostics keep their scripts in `references/`
 instead of `scripts/` — a harmless inconsistency; normalize it if you're touching
 those skills anyway.

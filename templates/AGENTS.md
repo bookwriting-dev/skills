@@ -1,6 +1,6 @@
 # __SERIES_TITLE__
 
-A fiction project using the [Open Storycraft](https://storycraft.lanternkey.fyi/) skill library.
+A book project using the [Open Storycraft](https://storycraft.lanternkey.fyi/) skill library.
 
 Canon lives in `Wiki/`. Prose lives in `Chapters/`. Skills live in `.agents/skills/`. Do not invent a parallel manuscript folder, and do not treat a previous chapter as Wiki canon.
 

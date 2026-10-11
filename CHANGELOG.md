@@ -2,6 +2,23 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 9: wiring layer + final sweep
+
+Rationale: the audit's closing pass over the doc layer, the workflow template, the scaffolder, and the sync gate — plus the verification sweep across all 59 skills. The reference graph is clean: zero broken paths (two `skill-builder/guide.md` hits are tutorial examples inside sample skill layouts), zero dangling skill-name references, and no phantom components anywhere. `templates/AGENTS.md`'s workflow, decision trees, and index already matched the library after the fixes above; no template rewiring was needed beyond one word.
+
+### Changed
+
+- **`docs/USER.md`** — fixed the stale `fiction-review-panel` name in the decision tree's fiction column (the rename completed 2026-10-11 but missed this row); synced every catalog version with frontmatter after this audit's bumps (29 rows); the ten kill-pass singles now carry versions in the catalog like every other skill (they were the only unversioned rows).
+- **`docs/DEVELOPER.md`** — the "still open, by choice" note said eight non-fiction skills remain unbuilt and "the workflow routes around them"; reworded to the current truth: three layers remain unbuilt (research/source management, a non-fiction developmental editor, a non-fiction revise skill) on top of the seven-skill workflow that does exist. Documented the new `ours (deleted)` sync classification.
+- **`templates/AGENTS.md`** — intro line "A fiction project using…" → "A book project using…"; the old wording contradicted itself on every `--type nonfiction` scaffold.
+- **`sync-check.sh` — deletion-aware classification.** An upstream-only path under a subdirectory was classified `fork addition` with a mangled name, so a file we deliberately deleted looked like unexplained noise (and a genuinely new upstream file in a new subdirectory would have been silently swallowed). Upstream-only entries now classify file-by-file: manifest-listed → `ours (deleted)` (the manifest entry is the tombstone; keep it when you delete an inherited file), anything else → `NEW UPSTREAM` with the correct path. Directory-level `Only in` lines expand and classify per file.
+- **`sync-manifest.txt`** — registered 18 previously-unlisted fork-modified files and 10 deletion tombstones. The unregistered files made `sync-check.sh` report 17 lines of phantom "UPSTREAM DRIFT": inspection showed the upstream ZIP is unchanged since the fork — every diff was our own earlier change (R0's removal of the legacy routing fields, the quoted-version normalization, this audit's edits) that had simply never been entered in the manifest. **Zero genuine upstream drift.** The gate now exits 0: everything accounted for.
+
+### Verified
+
+- `new-book.sh` scaffolded both project types into temp dirs (fiction and `--type nonfiction`: type line rendered, `Wiki/Concept/` + `Wiki/Research/` created, 59 skills copied, template rendered) and both were deleted afterward.
+- Programmatic sweep across all 59 skills: every relative path in every SKILL.md, reference file, and backticked invocation resolves; every backticked skill name in SKILL.mds, docs, and the template matches a real skill or is a documented-unbuilt/category mention in DEVELOPER.md's reconciliation record; all 59 frontmatter versions match the USER.md catalog.
+
 ## 2026-10-11 — Skill audit, batch 8: diagnostics, utilities, meta
 
 Rationale: per-skill dead-ends audit continued. The headline change: `pangram` claimed to be a never-edit diagnostic while its body was full of rewrite instructions ("replace common collocations", "inject imperfection intentionally") built on the exact perplexity/burstiness theory of AI detection that the Pangram technical report — cited by our own `burstiness-check` — explicitly debunks. Rewritten as the diagnostic its description always claimed to be.
