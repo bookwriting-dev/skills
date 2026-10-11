@@ -7,7 +7,7 @@ description: Filter word scan for fiction prose. Reads a chapter in 40-line sect
   strengthen immersion.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

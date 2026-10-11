@@ -5,9 +5,6 @@ metadata:
   author: Fiction Toolkit
   version: "4.1.0"
   category: fiction-writing
-  workflow-position: 12
-  requires: fiction-synopsis, fiction-theme, fiction-style, fiction-characters, fiction-world, fiction-outline, fiction-scenes, fiction-voiceprompt
-  next-skill: fiction-reviewchapter
   output-format: markdown
 ---
 

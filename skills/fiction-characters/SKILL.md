@@ -6,9 +6,6 @@ metadata:
   version: "3.1.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 3
-  requires: fiction-synopsis
-  next-skill: fiction-world
 ---
 
 # Character Generator

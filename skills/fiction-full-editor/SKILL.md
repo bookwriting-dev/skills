@@ -1,13 +1,9 @@
 ---
 name: fiction-full-editor
-description: Comprehensive fiction editing pass combining AIism detection, prose craft
-  mechanics, and line editing (voice, cliches, repetition, POV, awkward constructions)
-  into a single scan. Uses focused workers for 40-line chunk scanning with all criteria
-  when supported. Use when user says "full edit", "edit everything", "complete edit
-  pass", or invokes fiction-full-editor with a chapter reference.
+description: Default comprehensive fiction editing pass combining AIism detection, prose craft mechanics, and line editing into a single scan. Preferred over individual single-layer scanners (line-editor, prose-editor, aiism-editor). Uses focused workers for 40-line chunk scanning. Use when user says "full edit", "edit chapter", "line edit", "check prose", "polish writing", or asks for general sentence-level editing.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.1.0"
   category: fiction-editing
 ---
 
@@ -65,7 +61,9 @@ Launch all chunks in parallel when the host supports workers; otherwise process 
 
 ## Step 4: Compile Report
 
-Collect all worker results. Deduplicate any issues flagged by overlapping criteria. Group into these top-level sections:
+Collect all worker results. Deduplicate any issues flagged by overlapping criteria:
+- **Deduplication by line:** If the same line is flagged across multiple criteria (e.g., both an AIism and a prose craft issue), merge into a single finding under the primary category and keep the single best, most actionable fix. Never output contradictory rewrites for the same line.
+- Group into these top-level sections:
 
 ```
 ## Full Edit: [Chapter Title]

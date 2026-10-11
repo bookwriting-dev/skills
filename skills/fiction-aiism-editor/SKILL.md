@@ -1,19 +1,15 @@
 ---
 name: fiction-aiism-editor
-description: Fast, focused scan for AI-generated patterns in fiction prose. Detects
-  forbidden words, machine-sounding constructions, forbidden personification, vague
-  descriptors, and paradiastole patterns. Uses focused workers for 40-line chunk
-  scanning when supported. Use when user says "check for AIisms", "AI scan", "find
-  AI patterns", "clean AI tells", or invokes fiction-aiism-editor with a chapter reference.
+description: Targeted scan specifically for AI-generated fingerprints, forbidden words, and machine-sounding constructions in fiction prose. Use fiction-full-editor for general sentence editing; use this skill only when isolating the AI-tell layer. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: 1.2.0
+  version: "1.3.0"
   category: fiction-editing
 ---
 
 # AIism Editor
 
-Targeted scan for AI fingerprints using focused workers when supported. Each worker reads 40 lines and checks only for AI-tells. Fast and focused.
+Targeted scan for AI fingerprints using focused workers when supported. Each worker reads 40 lines and checks only for AI-tells. Fast and focused. For general sentence editing that also checks voice, POV, and craft mechanics, use `fiction-full-editor`.
 
 ## Arguments
 

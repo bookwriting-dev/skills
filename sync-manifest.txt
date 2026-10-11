@@ -20,3 +20,17 @@ skills/fiction-review-panel/SKILL.md
 skills/drift-check/SKILL.md
 skills/drift-check/references/drift.py
 skills/fiction-reviewchapter/references/panel-harvest-criteria.md
+skills/kill-chapter/SKILL.md
+skills/kill-chapter/references/the-whole.md
+skills/kill-chapter/references/person-who.md
+skills/kill-chapter/references/opinion-personification.md
+skills/kill-soft/SKILL.md
+skills/kill-flat/SKILL.md
+skills/town-generator/SKILL.md
+skills/fantasy-settlement/SKILL.md
+skills/fiction-places/SKILL.md
+skills/coldread/SKILL.md
+skills/fiction-dialogue/SKILL.md
+skills/nominalization-hunt/SKILL.md
+skills/pangram/SKILL.md
+skills/fiction-revise/SKILL.md

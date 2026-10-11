@@ -8,7 +8,7 @@ description: Vicious fragment hunter for fiction prose. Mechanically extracts al
   for audiobook narration.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 
@@ -81,11 +81,11 @@ for line_num, raw_line in enumerate(lines, 1):
         if not sent:
             continue
         # Skip dialogue: starts with a quote mark
-        if sent.startswith('\"') or sent.startswith('\u201c'):
+        if sent.startswith('"') or sent.startswith('\u201c'):
             continue
         # Skip sentences that are PART of dialogue (inside quotes context)
         # Crude check: if the line itself starts with a quote, skip all its sentences
-        if line.startswith('\"') or line.startswith('\u201c'):
+        if line.startswith('"') or line.startswith('\u201c'):
             continue
         # Count words
         words = sent.split()

@@ -72,28 +72,58 @@ Run these skills in order unless the user skips a step:
 
 Default path: `Chapters/Book-N/Chapter-NNN.md` (three-digit). Put the chapter title inside the file, with the POV name(s) beneath the title. Review reports go to `_Edits/Book-N/Chapter-NNN_Review.md` (three-digit, matching the chapter).
 
-## Naming
+## Naming and place generation
 
-When a skill must invent a proper name, use `name-generator` (people) or `town-generator` (settlements). Do not freehand names. Before a generated name enters canon, collision-check it against existing fiction, games, and brands; deliberately anonymous characters stay unnamed.
+When inventing proper nouns or locations, route to the specific generator:
+- **People / character names:** `name-generator`. Do not freehand names. Before a generated name enters canon, collision-check it against existing fiction, games, and brands; deliberately anonymous characters stay unnamed.
+- **Town / settlement names:** `town-generator` (lexical naming only).
+- **Full settlement profiles:** `fantasy-settlement` (complete dossier with population, economy, districts, security).
+- **Scene-bearing sites / landmarks:** `fiction-places` (ruins, rooms, wilderness sites, tactical locations; not full towns).
 
 ## Editing
 
-Story-level problems go to `fiction-dev-editor` or `fiction-reviewchapter`. Loose ends and unpaid setups go to `fiction-promises`. Sentence-level problems go to `fiction-line-editor`, `fiction-prose-editor`, or `fiction-full-editor`. Recurring model crutches go to the `kill-*` skills. Book-level drift — pet words, rising construction density, template openers and closers — goes to `drift-check`. Reader-reaction findings come from `fiction-review-panel`. Do not run a kill pass or full edit unless the user asked for revision. Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
+Do not run a kill pass or full edit unless the user asked for revision.
+
+Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter`. Editing passes are for localizable problems.
+
+Route editing and review tasks using this decision tree:
+- **Story structure / causality / "does this chapter move?":** `fiction-dev-editor`. Diagnose scene beats, pacing, and causality before touching lines.
+- **Chapter gate (default review):** `fiction-reviewchapter`. Full 10-criteria gate checking canon assertions, Chekhov setups, character consistency, and prose rules.
+- **Dialogue-only failure (samey, interview-like, expository):** `fiction-dialogue`. Diagnose conversation architecture and speaker stakes before diction.
+- **Blind POV / voice test:** `coldread`. Read-only, run in isolation before rule-loaded review so house rules do not prime the reader.
+- **Loose ends and unpaid setups:** `fiction-promises`. Audits the per-book Chekhov ledger (`promises.yaml`).
+- **Sentence-level revision (default):** `fiction-full-editor`. Scans micro-level craft, AI-isms, and line edits in one pass. Use layer-specific scanners (`fiction-line-editor`, `fiction-prose-editor`, `fiction-aiism-editor`) only when specifically targeting that single layer.
+- **Applying approved review/edit fixes:** `fiction-revise`. Applies user-approved items from `_Edits/` reports in place with strict quote verification, minimal perturbation, and a change ledger.
+- **Recurring model crutches (default):** `kill-chapter`. Runs all seven kill passes consecutively in place (similes, person-who, opinion-personification, the-whole, crutch, soft, flat). Use single-kill passes (`kill-crutch WORD`, `kill-simile`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`) only when targeting a specific token.
+- **Book-level drift / back-half flatness / formula openers:** `drift-check` across part boundaries and chapters.
+- **Reader reaction / persona reads:** `fiction-review-panel`. Multi-persona qualitative reads with verified citations.
 
 ## Skill index
 
 **Plan the promise:** `fiction-story-sparks`, `fiction-series-outline`, `fiction-genre`, `fiction-audience`, `fiction-theme`, `fiction-synopsis`
 
-**Build the people:** `fiction-characters`, `fiction-psych`, `fiction-dialogue`, `fiction-voiceprompt`
+**Build the people:** `fiction-characters`, `fiction-psych`, `fiction-dialogue`, `fiction-voiceprompt`, `name-generator`
 
-**Build the world:** `fiction-world`, `fiction-places`, `fiction-factions`, `fiction-polities`, `fiction-religions`, `name-generator`, `town-generator`, `fantasy-settlement`
+**Build the world:** `fiction-world`, `fiction-places`, `fiction-factions`, `fiction-polities`, `fiction-religions`, `town-generator`, `fantasy-settlement`
 
 **Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
-**Review the story:** `coldread`, `fiction-dev-editor`, `fiction-reviewchapter`, `fiction-promises`, `fiction-review-panel`
+**Review the story (decision tree):**
+- Blind voice read: `coldread`
+- Structural / developmental: `fiction-dev-editor`
+- Comprehensive chapter gate: `fiction-reviewchapter`
+- Chekhov promise ledger: `fiction-promises`
+- Reader persona panel: `fiction-review-panel`
 
-**Edit the prose:** `fiction-line-editor`, `fiction-prose-editor`, `fiction-full-editor`, `levelup`, `fragment-hunter`, `nominalization-hunt`
+**Edit the prose (decision tree):**
+- Default full sentence edit: `fiction-full-editor`
+- Apply approved report edits: `fiction-revise`
+- Single-layer passes: `fiction-line-editor`, `fiction-prose-editor`, `fiction-aiism-editor`
+- Targeted scans: `levelup`, `fragment-hunter`, `nominalization-hunt`
 
-**Remove the tells:** `fiction-aiism-editor`, `burstiness-check`, `drift-check`, `pangram`, `kill-chapter`, `kill-simile`, `kill-crutch`, `kill-soft`, `kill-flat`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`
+**Remove the tells (decision tree):**
+- Default 7-pass crutch orchestrator: `kill-chapter`
+- Targeted kill passes: `kill-simile`, `kill-person-who`, `kill-opinion-personification`, `kill-the-whole`, `kill-crutch` (covers `kill-soft` and `kill-flat`)
+- Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
 **Make your own:** `skill-builder`

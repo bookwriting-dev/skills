@@ -6,9 +6,6 @@ metadata:
   version: "4.0.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 6
-  requires: fiction-outline
-  next-skill: fiction-psych
 ---
 
 # Fiction Scenes

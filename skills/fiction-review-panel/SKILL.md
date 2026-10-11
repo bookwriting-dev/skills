@@ -6,9 +6,6 @@ metadata:
   version: "1.0.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 9
-  requires: fiction-writechapter
-  next-skill: null
 ---
 
 # Fiction Review Panel — readers with different ways of being wrong

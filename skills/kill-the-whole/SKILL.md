@@ -3,7 +3,7 @@ name: kill-the-whole
 description: Hunt the intensifier phrase "the whole of [me/him/it/attention]" across a chapter and cut the hollow padding while keeping literal quantitative uses and in-voice dialogue idioms (deletion-first, parallel focused workers, edits in place). "the whole of X" is a frequently overused filler intensifier, especially during high-arousal/high-stress beats. Use when user says "kill-the-whole", "kill the whole", or "strip the whole-of crutch".
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

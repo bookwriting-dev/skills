@@ -3,7 +3,7 @@ name: kill-person-who
 description: Hunt the construction "the [exact/elaborate/specific/particular/steady] [noun] of a [person] who [clause]" across a chapter and rewrite it into concrete action/dialogue/detail instead of a labeled abstraction (deletion-first rewrite, parallel focused workers, edits in place). This is a default go-to move for character interiority/subtext that reads as a mechanical tic on a binge read. Use when user says "kill-person-who", "kill the person-who construction", "kill the 'of a man/woman who' tic", or flags repeated "the [quality] of a [person] who [does X]" phrasing.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

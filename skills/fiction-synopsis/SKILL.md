@@ -6,9 +6,6 @@ metadata:
   version: "5.2.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 0.4
-  requires: fiction-theme
-  next-skill: fiction-outline
 ---
 
 # Synopsis Generator

@@ -1,6 +1,6 @@
 ---
 name: fantasy-settlement
-description: "Generate a fantasy settlement profile — population, economy, buildings, security, fun facts. Use when user says 'settlement', 'generate a town', 'town profile', 'what's in this city', or provides a town name and type."
+description: "Generate a complete settlement dossier and profile (population, economy, government, districts, security, key locations) for a town, city, or village given a name and type. Use when user says 'settlement profile', 'town dossier', 'city profile', 'build a town', or 'what's in this city'. Do not use for settlement naming alone (use town-generator) or isolated scene sites (use fiction-places)."
 metadata:
   author: Custom
   version: "1.0.0"

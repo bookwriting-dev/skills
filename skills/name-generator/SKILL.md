@@ -1,9 +1,6 @@
 ---
 name: name-generator
-description: Generate names using a Markov chain model trained on name lists. Use when
-user says "generate names", "create names", "make up names", "fantasy names", or
-"name generator", or when a generated name needs a collision check before it
-enters project canon.
+description: Generate character and people proper names using a Markov chain model trained on culture/style name lists. Use when user says "generate character names", "character names", "people names", "create names", "fantasy names", or "name generator" for characters. Do not use for settlements, towns, or geographic places.
 metadata:
   author: Custom
   version: "1.1.0"

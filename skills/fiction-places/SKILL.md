@@ -1,6 +1,6 @@
 ---
 name: fiction-places
-description: "Create or deepen story-ready places such as wilderness sites, ruins, landmarks, interiors, artificial habitats, uncanny zones, and other locations where scenes can happen. Use when the user asks for a location, destination, landmark, dungeon-like site, environmental obstacle, or place generator. Do not use for full settlement profiles or broad worldbuilding."
+description: "Create or deepen story-ready scene-bearing sites and landmarks (ruins, interiors, wilderness locations, rooms, uncanny zones, tactical obstacles) where dramatic scenes occur. Use when user asks for a scene location, site design, room, dungeon, or landmark. Do not use for character names (name-generator), town naming (town-generator), full settlement dossiers (fantasy-settlement), or global worldbuilding (fiction-world)."
 metadata:
   author: Fiction Toolkit
   version: "1.0.0"

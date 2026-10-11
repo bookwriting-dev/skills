@@ -6,9 +6,6 @@ metadata:
   version: "3.1.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 0.3
-  requires: fiction-audience
-  next-skill: fiction-synopsis
 ---
 
 # Theme Engine

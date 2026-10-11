@@ -1,6 +1,10 @@
 ---
 name: fiction-dialogue
 description: Draft, diagnose, or revise substantial fiction dialogue when speaker fidelity, unequal knowledge, subtext, or conversation architecture matters. Use for dialogue-heavy scenes or speech that feels samey, interview-like, over-clever, expository, or generically AI-written. Do not use for ordinary copyedits.
+metadata:
+  author: Fiction Toolkit
+  version: "1.0.0"
+  category: fiction-writing
 ---
 
 # Fiction Dialogue

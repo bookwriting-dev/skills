@@ -1,9 +1,9 @@
 ---
 name: kill-flat
-description: Hunt the word "flat" across a chapter and cut the figurative mood-adjective uses while keeping the literal flatness ones (deletion-first, parallel focused workers, edits in place). Use when user says "kill-flat", "kill flat", or "strip the flat crutch".
+description: Hunt the word "flat" across a chapter and cut the figurative mood-adjective uses while keeping the literal flatness ones (deletion-first, parallel focused workers, edits in place). Maintained as a dedicated pass; also covered by the generalized kill-crutch pass (kill-crutch flat). Use when user says "kill-flat", "kill flat", or "strip the flat crutch".
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

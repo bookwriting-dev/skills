@@ -6,9 +6,6 @@ metadata:
   version: "1.0.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 0.45
-  requires: fiction-synopsis
-  next-skill: fiction-synopsis
 ---
 
 # Fiction Series Outline — the arc across books

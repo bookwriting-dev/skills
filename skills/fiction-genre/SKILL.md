@@ -6,9 +6,6 @@ metadata:
   version: "3.2.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 0.1
-  requires: null
-  next-skill: fiction-audience
 ---
 
 # Genre Selector

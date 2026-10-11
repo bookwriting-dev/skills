@@ -1,19 +1,15 @@
 ---
 name: fiction-line-editor
-description: Expert line editing for fiction prose at the sentence level. Finds AIisms,
-  cliches, narrative fragments, POV violations, voice issues, show-vs-tell problems,
-  repetition, and awkward constructions. Uses focused workers for thorough 40-line
-  chunk scanning when supported. Use when user says "line edit", "check my prose",
-  "tighten the writing", or invokes fiction-line-editor with a chapter reference.
+description: Focused sentence-level line editing for fiction prose (voice, cliches, repetition, POV violations, awkward constructions). Use fiction-full-editor for general sentence editing; use this skill only when isolating the line-craft and voice layer without running full craft/AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: 5.0.0
+  version: "5.1.0"
   category: fiction-editing
 ---
 
 # Line Editor
 
-Comprehensive sentence-level editing using focused workers when supported. Each worker reads 40 lines, checks against all line-editing criteria, and returns issues. The coordinating agent compiles the full report.
+Focused sentence-level line editing using focused workers when supported. Each worker reads 40 lines and checks against voice and line-craft criteria. For general sentence editing that also catches AI-tells and prose mechanics, use `fiction-full-editor`.
 
 ## Arguments
 

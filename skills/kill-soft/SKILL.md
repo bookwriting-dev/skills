@@ -1,9 +1,9 @@
 ---
 name: kill-soft
-description: Hunt the word "soft" across a chapter and cut the figurative crutch uses while keeping the literal texture and speaking-voice ones (deletion-first, parallel focused workers, edits in place). Use when user says "kill-soft", "kill soft", or "strip the soft crutch".
+description: Hunt the word "soft" across a chapter and cut the figurative crutch uses while keeping the literal texture and speaking-voice ones (deletion-first, parallel focused workers, edits in place). Maintained as a dedicated pass; also covered by the generalized kill-crutch pass (kill-crutch soft). Use when user says "kill-soft", "kill soft", or "strip the soft crutch".
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

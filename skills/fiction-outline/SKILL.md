@@ -6,9 +6,6 @@ metadata:
   version: "5.2.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 5
-  requires: fiction-synopsis, fiction-characters
-  next-skill: fiction-scenes
 ---
 
 # Outline Generator

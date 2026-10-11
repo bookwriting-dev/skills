@@ -5,9 +5,6 @@ metadata:
   author: Fiction Toolkit
   version: "2.0.0"
   category: fiction-writing
-  workflow-position: 2.5
-  requires: fiction-synopsis, fiction-style, fiction-characters
-  next-skill: fiction-writechapter
   output-format: markdown
 ---
 

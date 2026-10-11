@@ -6,9 +6,6 @@ metadata:
   version: "1.0.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 5.5
-  requires: fiction-outline
-  next-skill: fiction-scenes
 ---
 
 # Fiction Divergence — beat the defaults

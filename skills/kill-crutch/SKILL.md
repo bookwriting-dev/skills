@@ -3,7 +3,7 @@ name: kill-crutch
 description: Hunt any crutch/filler word across a chapter and remove the bad uses while keeping literal and in-voice ones (deletion-first, parallel focused workers, edits in place). The generalized kill pass for filler words (just, little, really, almost, slightly, etc.). Use when user says "kill-crutch WORD", "kill the word X", or "strip filler word X".
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

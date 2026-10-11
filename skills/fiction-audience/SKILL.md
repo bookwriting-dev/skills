@@ -6,9 +6,6 @@ metadata:
   version: "4.0.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 0.2
-  requires: fiction-genre
-  next-skill: fiction-theme
 ---
 
 # Audience Definer

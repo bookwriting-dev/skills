@@ -6,9 +6,6 @@ metadata:
   version: "5.1.0"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 4
-  requires: fiction-synopsis, fiction-characters
-  next-skill: fiction-outline
 ---
 
 # World Builder

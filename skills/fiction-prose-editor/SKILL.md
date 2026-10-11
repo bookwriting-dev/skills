@@ -1,20 +1,15 @@
 ---
 name: fiction-prose-editor
-description: Prose craft mechanics check for fiction. Scans for narrative fragments,
-  choppy constructions, S-V-O chains, simile overuse, rule-of-threes, paired adjectives,
-  gerund chains, escalation patterns, show-vs-tell, info dumps, and emotion-body
-  formulas. Uses focused workers for 40-line chunk scanning when supported. Use when
-  user says "check prose", "prose edit", "tighten craft", "check mechanics", or invokes
-  fiction-prose-editor with a chapter reference.
+description: Focused prose craft mechanics check for fiction (narrative fragments, choppy constructions, S-V-O chains, simile density, rule-of-threes, show-vs-tell). Use fiction-full-editor for general sentence editing; use this skill only when specifically isolating structural prose mechanics without voice or AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: 1.1.0
+  version: "1.2.0"
   category: fiction-editing
 ---
 
 # Prose Editor
 
-Prose craft mechanics scan using focused workers when supported. Each worker reads 40 lines and checks for structural prose issues — not voice, not AI tells, just craft.
+Prose craft mechanics scan using focused workers when supported. Each worker reads 40 lines and checks for structural prose issues — not voice, not AI tells, just craft. For general sentence editing that also evaluates voice and AI-tells, use `fiction-full-editor`.
 
 ## Arguments
 

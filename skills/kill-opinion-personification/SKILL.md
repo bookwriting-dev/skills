@@ -3,7 +3,7 @@ name: kill-opinion-personification
 description: Hunt the "opinion" personification tic (pain, wounds, and inanimate objects "having opinions" or "saying their piece") across a chapter range and cut or vary the repeats while keeping one or two founding uses (deletion-first, parallel focused workers, edits in place). Use when user says "kill-opinion-personification", "kill the opinion tic", "kill 'had opinions'", or flags repeated "X had an opinion about Y" / "sent up its opinion" phrasing.
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

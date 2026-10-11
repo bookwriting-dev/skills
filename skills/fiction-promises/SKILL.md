@@ -6,9 +6,6 @@ metadata:
   version: "1.1.0"
   category: fiction-writing
   output-format: yaml
-  workflow-position: 8.5
-  requires: fiction-writechapter
-  next-skill: null
 ---
 
 # Fiction Promises — the Chekhov ledger

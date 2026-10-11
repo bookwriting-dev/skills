@@ -2,6 +2,24 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-10 — Library consolidation (R0, R1, R2, R3.2, R4 harvest)
+
+Rationale: intra-library audit of all 47 skills (`AUDIT-REPORT-2026-10-10.md`). Resolves workflow authority contradictions, consolidates the `kill-*` family into a true 7-pass orchestrator, establishes `fiction-full-editor` as the default sentence-level pass, introduces `fiction-revise` for controlled patch application, disambiguates the 4 generator skills, and establishes a routing decision tree in `templates/AGENTS.md`.
+
+### Added
+
+- **`fiction-revise` 1.0.0** — dedicated in-place revision skill that applies user-approved items from review/edit reports (`_Edits/Chapter-NNN_*.md`) directly to chapter files with exact-quote verification, minimal perturbation, a change ledger, and scrap-vs-patch guards.
+- **`kill-chapter/references/` rule-sets** — added `the-whole.md`, `person-who.md`, and `opinion-personification.md` so the orchestrator runs all 7 pass rule-sets consecutively.
+
+### Changed
+
+- **`kill-chapter` 1.0.0 → 2.0.0** — upgraded orchestrator to execute all seven kill passes in sequence (simile, person-who, opinion-personification, the-whole, crutch, soft, flat) with unified reporting and consecutive-not-parallel safety.
+- **`kill-soft` & `kill-flat`** — descriptions updated to document `kill-crutch WORD` as the generalized single-word pass while retaining dedicated passes for backwards compatibility.
+- **Editing stack triage (R2)** — `fiction-full-editor` 1.0.0 → 1.1.0 established as the default sentence-level editing pass with explicit cross-criteria line deduplication; narrowed scopes of `fiction-line-editor` (5.0.0 → 5.1.0), `fiction-prose-editor` (1.1.0 → 1.2.0), and `fiction-aiism-editor` (1.2.0 → 1.3.0) to isolate specific layers when requested.
+- **Metadata and workflow normalization (R0)** — removed legacy `workflow-position`, `requires`, and `next-skill` frontmatter fields from 16 skills, establishing `templates/AGENTS.md` as the single authoritative workflow order. Added standard `metadata:` blocks to `coldread`, `fiction-dialogue`, `nominalization-hunt`, and `pangram`. Normalized all skill versions to quoted strings.
+- **Generator disambiguation (R4)** — disambiguated trigger descriptions across `name-generator` (people names), `town-generator` (settlement names), `fantasy-settlement` (full settlement dossiers), and `fiction-places` (scene-bearing sites/landmarks).
+- **`templates/AGENTS.md`** — rewritten §"Naming and place generation", §"Editing", and Skill index into an explicit routing decision tree.
+
 ## 2026-10-10 — Persona-panel harvest (Click Next to Continue)
 
 Rationale: read the twelve-persona review panel built for *Click Next to Continue* (nonfiction) and all twelve verified persona reports, and harvested what transfers to fiction. Three findings shaped this release: (1) the machine tell that survives a clean lint is **house style executed at superhuman uniformity** — dies, not sentences; (2) **quality drifts monotonically toward the back of long manuscripts** while per-chapter gates stay green (rising construction density, concentrating pet words, thinning specifics — four of twelve personas found the same gradient independently); (3) **the book mis-quoting itself** (false callbacks, un-anchored coined terms) is the highest-yield continuity finding in long works.

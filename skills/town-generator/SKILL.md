@@ -1,8 +1,6 @@
 ---
 name: town-generator
-description: Generate fantasy town and settlement names using a Markov chain model. Use
-  when user says "generate town names", "fantasy towns", "settlement names", "village
-  names", or "town generator".
+description: Generate fantasy town, city, and settlement proper names using a Markov chain model trained on place name lists. Use when user says "generate town names", "settlement names", "village names", "city names", or "town generator" for naming settlements. Do not use for character names or full settlement dossiers/profiles (use fantasy-settlement).
 metadata:
   author: Custom
   version: "1.0.0"

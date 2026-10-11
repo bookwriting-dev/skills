@@ -1,17 +1,18 @@
 ---
 name: kill-chapter
-description: One-pass cleanup bot that strips the recurring model-generated prose crutches from a chapter by running four kill passes consecutively — similes, generic filler words, "soft", and "flat". Each pass fans out parallel focused workers, edits in place deletion-first, and verifies. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
+description: One-pass cleanup bot that strips the recurring model-generated prose crutches from a chapter by running seven kill passes consecutively — similes, person-who constructions, opinion personification, "the whole of X", generic filler words, "soft", and "flat". Each pass fans out parallel focused workers, edits in place deletion-first, and verifies. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "2.0.0"
   category: fiction-editing
 ---
 
 # Kill-chapter — run every crutch pass over a chapter, one at a time
 
 Language models can insert the same prose crutches into every book regardless of setting:
-explain-it similes, hedging filler words, and the mood-adjectives "soft" and "flat". This
-skill runs each kill pass **consecutively** over the same file(s), then reports a combined
+explain-it similes, the person-who subtext shortcut, opinion personification, hollow "the
+whole of X" intensifiers, hedging filler words, and the mood-adjectives "soft" and "flat".
+This skill runs each kill pass **consecutively** over the same file(s), then reports a combined
 change list.
 
 The request arguments identify the chapter file(s): a path, a file pattern, or several paths (e.g.
@@ -30,9 +31,12 @@ Run these in sequence. Each has a rule-set in `references/`; read it and hand it
 pass's workers verbatim:
 
 1. **simile** — `references/simile.md` (structural rewrites first, while the prose is untouched)
-2. **crutch** — `references/crutch.md` (sweep the common filler set: just, little, really, almost, slightly, seemed)
-3. **soft** — `references/soft.md`
-4. **flat** — `references/flat.md`
+2. **person-who** — `references/person-who.md` (labeling subtext via "the [quality] of a [person] who [clause]")
+3. **opinion-personification** — `references/opinion-personification.md` (non-sentient things "having opinions")
+4. **the-whole** — `references/the-whole.md` (hollow intensifier "the whole of [me/him/attention]")
+5. **crutch** — `references/crutch.md` (sweep the common filler set: just, little, really, almost, slightly, seemed)
+6. **soft** — `references/soft.md`
+7. **flat** — `references/flat.md`
 
 ## Per-pass procedure (identical each time)
 
@@ -52,16 +56,16 @@ pass's workers verbatim:
    any in-context file state stale: reread before any follow-up edit. Record the change
    count, then move to the next pass.
 
-## After all four passes
+## After all seven passes
 
 - Print a consolidated summary: per-pass change counts and the notable before→after edits.
-- Sanity-check that the passes only touched their target tokens (a worker that "helpfully"
+- Sanity-check that the passes only touched their target tokens/constructions (a worker that "helpfully"
   fixed an adjacent word it wasn't asked to is out of scope — revert those).
 - Offer to commit or leave staged. Do not commit unless asked.
 
 ## Notes
 
-- The four `references/*.md` are the single source of each pass's keep/fix rules; edit those
+- The seven `references/*.md` are the single source of each pass's keep/fix rules; edit those
   to tune behavior, not this file.
 - Book-agnostic by design: no character names, settings, or per-book canon. If a specific
   book needs extra KEEP exceptions, note them at invocation and pass them to the workers.

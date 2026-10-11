@@ -5,9 +5,6 @@ metadata:
   author: Fiction Toolkit
   version: "2.5.0"
   category: fiction-writing
-  workflow-position: 8
-  requires: fiction-writechapter
-  next-skill: null
 ---
 
 # Review Chapter — Orchestrator

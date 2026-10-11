@@ -3,7 +3,7 @@ name: kill-simile
 description: Hunt explain-it similes and meta-comparison crutches ("the way", "a way", "the kind", "a kind", "as if", "like") across a chapter and reword or cut them so the reader infers instead of being told (parallel focused workers, edits in place). Use when user says "kill-simile", "kill similes", or "cut the explain-it comparisons".
 metadata:
   author: Fiction Toolkit
-  version: 1.0.0
+  version: "1.0.0"
   category: fiction-editing
 ---
 

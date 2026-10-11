@@ -1,6 +1,10 @@
 ---
 name: pangram
-description: Evaluate fiction for patterns associated with Pangram AI detection, including predictability, statistical uniformity, lexical diversity, burstiness, and choppy construction. Use when the user asks for a Pangram check, Pangram risk assessment, or AI-detection pattern review.
+description: Diagnostic evaluation of fiction for statistical patterns associated with Pangram AI detection (predictability, lexical diversity, uniform sentence construction). Diagnostic only; does not rewrite prose. Use for Pangram risk assessment or statistical uniformity reviews.
+metadata:
+  author: Fiction Toolkit
+  version: "1.0.0"
+  category: fiction-editing
 ---
 
 # Pangram AI Detection Evaluation

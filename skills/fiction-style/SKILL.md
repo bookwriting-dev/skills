@@ -6,9 +6,6 @@ metadata:
   version: "7.0.1"
   category: fiction-writing
   output-format: markdown
-  workflow-position: 2
-  requires: fiction-synopsis
-  next-skill: fiction-characters
 ---
 
 # Style Guide Generator
