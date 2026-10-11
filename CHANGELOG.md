@@ -2,6 +2,23 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 5: edit the prose
+
+Rationale: per-skill dead-ends audit continued (full-editor, revise, the three single-layer editors, levelup, fragment-hunter, nominalization-hunt). One shared defect across six report-writing editors: all saved reports to a pre-reorg `_Edits/` root or a legacy `Reviews/` folder, and none routed fix application through `fiction-revise`. `fiction-revise` itself passed clean.
+
+### Changed
+
+- **`fiction-full-editor` 1.1.0 → 1.2.0, `fiction-line-editor` 5.1.0 → 5.2.0, `fiction-prose-editor` 1.2.0 → 1.3.0, `fiction-aiism-editor` 1.3.0 → 1.4.0, `levelup` 1.0.0 → 1.1.0, `fragment-hunter` 1.0.0 → 1.1.0** — reports now save to `_Edits/Book-N/Chapter-NNN_<Type>.md`, matching the AGENTS.md layout and `fiction-revise`'s default report search; the closing "ask if they want to apply fixes" now offers `fiction-revise` (quote verification, minimal perturbation, change ledger) instead of implying inline edits from a scan pass. fragment-hunter's own apply step keeps its kill-confirmation flow and additionally offers the revise route.
+- **`nominalization-hunt` 1.0.0 → 1.1.0** — removed the phantom "or when fiction-masteragent invokes the nominalization pass" from the description (no such skill or pipeline); scope generalized to "chapters (fiction or non-fiction)", matching the workflow trees that already route it for both; added the missing application path (approved rewrites route through `fiction-revise` or direct per-item confirmation) so the scan's proposals no longer dead-end in conversation.
+
+### Verified
+
+- fragment-hunter's embedded Pass-1 extraction script runs and behaves as documented (catches genuine 1–3-word sentences, overfires on abbreviation splits and italic thought by design — Pass 2 judges).
+
+### Notes
+
+- `sync-manifest.txt`: registered `fiction-full-editor`, `fiction-line-editor`, `levelup`, `fragment-hunter` SKILL.md files (now fork-modified); manifest re-sorted.
+
 ## 2026-10-11 — Skill audit, batch 4: review the story + cross-cutting
 
 Rationale: per-skill dead-ends audit continued. The headline fix: `drift-check` had been promising four non-fiction metrics since the non-fiction expansion — and the 1.1.0 bump recorded them as shipped — but `drift.py` only ever implemented the five fiction metrics. Also: `fiction-reviewchapter` still audited against synopsis tables the synopsis generator stopped producing, and saved reviews to a pre-reorg path.

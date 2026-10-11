@@ -1,9 +1,9 @@
 ---
 name: nominalization-hunt
-description: Find nominalized self-explanation in fiction chapters and propose concrete rewrites that restore observation, bodily response, and action or blunt thought. Use when the user says "nominalization hunt", asks to find abstract self-explanation, or when fiction-masteragent invokes the nominalization pass.
+description: Find nominalized self-explanation in chapters (fiction or non-fiction) and propose concrete rewrites that restore observation, bodily response, and action or blunt thought. Use when the user says "nominalization hunt" or asks to find abstract self-explanation.
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: fiction-editing
 ---
 
@@ -69,3 +69,5 @@ For each flag:
 4. Proposed rewrite
 
 End with a severity table: High / Medium / Low for each flag.
+
+Report in conversation; this scan does not save a file. If the user wants rewrites applied, route the approved items through `fiction-revise` (or apply them directly with per-item confirmation, verifying each quote before editing).

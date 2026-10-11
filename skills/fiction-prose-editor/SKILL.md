@@ -3,7 +3,7 @@ name: fiction-prose-editor
 description: Focused prose craft mechanics check for fiction (narrative fragments, choppy constructions, S-V-O chains, simile density, rule-of-threes, show-vs-tell). Use fiction-full-editor for general sentence editing; use this skill only when specifically isolating structural prose mechanics without voice or AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   category: fiction-editing
 ---
 
@@ -100,7 +100,7 @@ Skip empty categories.
 
 ## Step 5: Save and Report
 
-1. Look for an `_Edits/` folder near the chapter. If none exists, create one.
-2. Save as `Chapter-{N}_Prose.md`.
+1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
+2. Save as `Chapter-NNN_Prose.md` (three-digit number matching the chapter).
 3. Tell the user: location, issue count, worst category.
-4. Ask if they want to apply fixes.
+4. Offer to apply approved items with `fiction-revise`.

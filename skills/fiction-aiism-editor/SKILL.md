@@ -3,7 +3,7 @@ name: fiction-aiism-editor
 description: Targeted scan specifically for AI-generated fingerprints, forbidden words, and machine-sounding constructions in fiction prose. Use fiction-full-editor for general sentence editing; use this skill only when isolating the AI-tell layer. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.4.0"
   category: fiction-editing
 ---
 
@@ -94,7 +94,7 @@ Skip empty categories.
 
 ## Step 5: Save and Report
 
-1. Look for an `_Edits/` folder near the chapter. If none exists, create one.
-2. Save as `Chapter-{N}_AIisms.md`.
+1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
+2. Save as `Chapter-NNN_AIisms.md` (three-digit number matching the chapter).
 3. Tell the user: location, issue count, worst category.
-4. Ask if they want to apply fixes.
+4. Offer to apply approved items with `fiction-revise`.

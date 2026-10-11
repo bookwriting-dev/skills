@@ -3,7 +3,7 @@ name: fiction-full-editor
 description: Default comprehensive fiction editing pass combining AIism detection, prose craft mechanics, and line editing into a single scan. Preferred over individual single-layer scanners (line-editor, prose-editor, aiism-editor). Uses focused workers for 40-line chunk scanning. Use when user says "full edit", "edit chapter", "line edit", "check prose", "polish writing", or asks for general sentence-level editing.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: fiction-editing
 ---
 
@@ -106,7 +106,7 @@ Skip empty categories and sections.
 
 ## Step 5: Save and Report
 
-1. Look for an `_Edits/` folder near the chapter. If none exists, create one.
-2. Save as `Chapter-{N}_FullEdit.md`.
+1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
+2. Save as `Chapter-NNN_FullEdit.md` (three-digit number matching the chapter).
 3. Tell the user: location, total issue count, top 3 categories, and whether it's clean enough to publish or needs another pass.
-4. Ask if they want to apply fixes.
+4. Offer to apply approved items with `fiction-revise`.

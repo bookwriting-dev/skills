@@ -3,7 +3,7 @@ name: fiction-line-editor
 description: Focused sentence-level line editing for fiction prose (voice, cliches, repetition, POV violations, awkward constructions). Use fiction-full-editor for general sentence editing; use this skill only when isolating the line-craft and voice layer without running full craft/AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "5.1.0"
+  version: "5.2.0"
   category: fiction-editing
 ---
 
@@ -105,7 +105,7 @@ Skip any category with zero findings.
 
 ## Step 5: Save and Report
 
-1. Look for an `_Edits/` folder near the chapter (search for `**/*_Edits`). If none exists, create one in the chapter's directory.
-2. Save report as `Chapter-{N}_LineEdit.md`.
+1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
+2. Save report as `Chapter-NNN_LineEdit.md` (three-digit number matching the chapter).
 3. Tell the user: location, issue count, top 3 most common categories.
-4. Ask if they want to apply specific fixes.
+4. Offer to apply approved items with `fiction-revise`.
