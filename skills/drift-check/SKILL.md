@@ -1,6 +1,6 @@
 ---
 name: drift-check
-description: "Diagnostic-only, book-level drift audit: measures across all chapters what per-chapter gates cannot see — pet words concentrating, rhetorical-move density accelerating, chapter openers and closers running on the same formula, and lived specificity thinning toward the back. Quality decays monotonically in long generation runs while per-chapter checks stay green; this skill finds the gradient. Never edits text. Use for drift checks, 'why does the back half feel flatter', 'pet word check', or drift-check with a chapter range."
+description: "Diagnostic-only, book-level drift audit: measures across all chapters what per-chapter gates cannot see — pet words concentrating, rhetorical-move density accelerating, chapter openers and closers running on the same formula, and lived specificity thinning toward the back. Quality decays monotonically in long generation runs while per-chapter checks stay green; this skill finds the gradient. Also measures non-fiction drift: claim density, evidence-to-claim ratio, abstraction ladder variance, and definition reintroduce rate. Never edits text. Use for drift checks, 'why does the back half feel flatter', 'pet word check', or drift-check with a chapter range."
 metadata:
   author: Fiction Toolkit
   version: "1.0.0"
@@ -47,6 +47,8 @@ python3 <skill-dir>/references/drift.py <chapter files in order>
 
 The script reports, per chapter and for the book:
 
+### Fiction metrics
+
 1. **Pet-word ledger** — content words whose frequency per 1,000 words is skewed: a word
    running hot in one chapter (≥3× its book rate) or concentrating in the back half
    (≥70% of its occurrences after the midpoint while the front half reads normal). This
@@ -68,9 +70,18 @@ The script reports, per chapter and for the book:
    thread unresolved since March" toward "some paperwork" — lived texture thinning
    exactly where the stakes peak.
 
+### Non-fiction metrics
+
+6. **Claim density** — claims (assertions, arguments) per 1,000 words, per chapter. Falling claim density means the book is drifting from argument toward summary.
+7. **Evidence-to-claim ratio** — evidence instances (examples, data, quotes, citations) per claim, per chapter. A falling ratio means assertions are going unsupported.
+8. **Abstraction ladder variance** — ratio of abstract to concrete nouns per chapter. A narrowing ladder (fewer concrete anchors) means the book is drifting toward jargon.
+9. **Definition reintroduce rate** — terms defined once then used cold at distance without re-anchoring.
+
 ## Step 3: Interpret and route
 
 The script finds candidates; interpretation decides which are findings:
+
+### Fiction routing
 
 - **Rising negation-pivot density / hot pet words**: real when the word or move is doing
   the chapter's most rhetorical work at that rate. Ration the construction — keep the
@@ -86,6 +97,13 @@ The script finds candidates; interpretation decides which are findings:
 - **All metrics flat**: say so plainly. Flat metrics with a "the back half feels
   flatter" complaint mean the problem is structural, not statistical — route to
   `fiction-dev-editor` or the review panel, not deeper linting.
+
+### Non-fiction routing
+
+- **Falling claim density** → route to `nonfiction-structure`
+- **Falling evidence-to-claim ratio** → route to `nonfiction-factcheck`
+- **Narrowing abstraction ladder** → route to `nonfiction-clarity-edit`
+- **Definition reintroduce rate** → route to `nonfiction-writechapter`
 
 Report: the per-chapter table, the trend flags, the refrain-vs-die ruling for each
 closer cluster, and the routing. Never propose prose rewrites from the statistics

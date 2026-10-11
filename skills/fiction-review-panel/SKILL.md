@@ -1,6 +1,6 @@
 ---
-name: fiction-review-panel
-description: "Build and run a persona review panel for the series: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review."
+name: review-panel
+description: "Build and run a persona review panel for fiction and non-fiction: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review."
 metadata:
   author: Fiction Toolkit
   version: "1.0.0"
@@ -53,8 +53,9 @@ are the difference between a panel and a pile of prompts.
    paths or commit), and the method. Findings attach to a text, not to the book's vibe.
 8. **Repair plans carry guard-rails.** Findings route to the skill that owns the fix
    (`fiction-reviewchapter`, `fiction-line-editor`, `fiction-divergence`,
-   `fiction-promises`, `drift-check`), and every repair plan states what NOT to do —
-   the voice, structure, and choices the panel validated stay untouched.
+   `fiction-promises`, `drift-check`, `nonfiction-factcheck`, `nonfiction-clarity-edit`,
+   `nonfiction-structure`), and every repair plan states what NOT to do — the voice,
+   structure, and choices the panel validated stay untouched.
 
 ## Step 1: Build or load the panel
 
@@ -66,7 +67,7 @@ Seed the roster from the archetypes below, then customize every seat against thi
 book's genre contract and known risks. A seat that would attack something this book
 does not risk is cut; a risk this book has that no archetype covers gets a new seat.
 
-**The archetype seats** (each persona file follows the same skeleton — Who / Cares
+**The fiction archetype seats** (each persona file follows the same skeleton — Who / Cares
 about / Attack vectors / Output flags / Prompt block):
 
 1. **Genre-native reader** — deep in this genre's shelf. Attacks: trope delivery against
@@ -102,6 +103,14 @@ about / Attack vectors / Output flags / Prompt block):
    tension peaked instead of after it, mid-book sag by act. Flags: TOLL /
    STOPPED-READING / READ-ON, plus the one line that kept them up.
 
+**The non-fiction archetype seats** (each persona file follows the same skeleton — Who / Cares
+about / Attack vectors / Output flags / Prompt block):
+
+9. **Subject-matter expert** — deep in the field. Attacks: factual accuracy, evidence quality, counterarguments, overclaiming. Flags: UNSUPPORTED-CLAIM / EVIDENCE-THIN / COUNTERARGUMENT-MISSING / OVERCLAIM
+10. **Intelligent novice** — smart but outside the field. Attacks: jargon walls, unexplained terms, abstraction density. Flags: JARGON-WALL / UNEXPLAINED / LOST-ME / ABSTRACTION-THICK
+11. **Skeptic/practitioner** — reads to find what's wrong. Attacks: cherry-picked evidence, false balance, omitted data, authority without scars. Flags: CHERRY-PICK / FALSE-BALANCE / MISSING-DATA / AUTHORITY-SLIP
+12. **Editorial gatekeeper** — professional editor eye. Attacks: argument flow, chapter structure, signposting, reader payoff. Flags: STRUCTURE / SIGNPOSTING / PAYOFF-THIN / FLOW
+
 **Optional ninth seat — the hostile advocate:** argues the book's opposite on purpose,
 used once per act on the act the author is proudest of, to find where a choice is
 convention defended as conviction. Output: three places where the book takes the easy
@@ -111,6 +120,8 @@ route and calls it a stance.
 
 Add a sequencing table to `panel.md` — which seats run at which stage. The default:
 
+### Fiction sequencing
+
 | Stage | Seats |
 |---|---|
 | Per chapter, after `fiction-reviewchapter` passes | craft editor |
@@ -118,6 +129,14 @@ Add a sequencing table to `panel.md` — which seats run at which stage. The def
 | Book milestones (midpoint, end) | seam hunter, continuity hawk |
 | Late-series or bridge chapters | series newcomer |
 | Whole book, before calling it done | all seats, one unit each, plus the hostile advocate on the strongest act |
+
+### Non-fiction sequencing
+
+| Stage | Seats |
+|---|---|
+| Per chapter, after nonfiction-factcheck passes | editorial gatekeeper |
+| Per part | subject-matter expert, skeptic/practitioner |
+| Whole book, before calling it done | all seats, one unit each |
 
 Domain lanes hold: the seam hunter does not audit canon (continuity hawk's lane); the
 continuity hawk does not judge voice (craft editor's lane). A finding outside a
@@ -159,7 +178,8 @@ vocabulary, and always ends with the discipline clause. Model:
 4. **Report to the user**: the per-seat verdicts, the cross-persona findings, and the
    routing — which findings go to `fiction-reviewchapter`, which to `fiction-line-editor`,
    which are outline-level (`fiction-divergence`), which are ledger entries
-   (`fiction-promises`). The panel proposes; the user disposes.
+   (`fiction-promises`), which go to `nonfiction-factcheck`, which to `nonfiction-clarity-edit`,
+   which to `nonfiction-structure`. The panel proposes; the user disposes.
 
 Return: the panel path (or the existing panel used), seats run, verified flag counts,
 corrections made during verification, and the synthesis.
