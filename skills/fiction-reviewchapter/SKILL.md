@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing."
 metadata:
   author: Fiction Toolkit
-  version: "2.5.0"
+  version: "2.6.0"
   category: fiction-writing
 ---
 
@@ -22,7 +22,8 @@ Also locate these project files:
 - **Style guide** (writing voice, POV): `**/Wiki/Style/style_guide.md` or legacy `**/Wiki/Style/Style Guide.md`
 - **Characters** (voices, relationships): `**/Wiki/Characters/**/*.md` (one file per character)
 - **World** (setting, rules): use the book's own world-layout convention when its instructions define one (for example `**/Wiki/World/**/*.md`); otherwise fall back to `**/Wiki/Locations/**/*.md`, `**/Wiki/Systems/**/*.md`, `**/Wiki/Organizations/**/*.md` — capture the Wiki root directory path
-- **Outline** (chapter purposes): `**/Wiki/Outline/outline.md`
+- **Outline** (chapter purposes and trope obligations): `**/Wiki/Outline/**/outline.md`
+- **Surprise ledger** (planned divergences, when the divergence pass ran): `**/Wiki/Outline/Book-N/surprise-ledger.md` for the selected book, when present
 - **Scene plan**: the book's established beat or scene file for the reviewed chapter, when present
 - **Promise ledger** (the Chekhov ledger): `**/Wiki/Story/Book-N/promises.yaml` for the selected book, when present (maintained by `fiction-promises`)
 
@@ -30,7 +31,7 @@ Also find the previous chapter (for continuity checking).
 
 Also locate these genre contract files:
 - **Genre file**: search for `**/Wiki/Style/genre.md`
-- **Synopsis** (for Genre Architecture): `**/Wiki/Story/synopsis.md`
+- **Synopsis** (for the trope payoff plan): `**/Wiki/Story/synopsis.md` (series) or the per-book `**/Wiki/Story/Book-N/synopsis.md`, whichever exists
 
 **Do NOT read these files.** Just get their paths.
 
@@ -43,7 +44,8 @@ When the host supports isolated workers, start one with the description `Review 
   - `{{STYLE_PATH}}` → `Wiki/Style/style_guide.md` or legacy `Wiki/Style/Style Guide.md` path, or "not found"
   - `{{CHARACTERS_DIR}}` → `Wiki/Characters/` directory path, or "not found"
   - `{{WIKI_DIR}}` → Wiki root directory path, or "not found"
-  - `{{OUTLINE_PATH}}` → `Wiki/Outline/outline.md` path, or "not found"
+  - `{{OUTLINE_PATH}}` → `Wiki/Outline/**/outline.md` path, or "not found"
+  - `{{SURPRISE_LEDGER_PATH}}` → the book's `surprise-ledger.md` path, or "not found"
   - `{{SCENE_PATH}}` → scene plan or beat source for this chapter, or "not found"
   - `{{LEDGER_PATH}}` → the book's promises.yaml ledger path, or "not found"
   - `{{GENRE_PATH}}` → `Wiki/Style/genre.md` path, or "not found"
@@ -56,10 +58,10 @@ If isolated workers are unavailable, or if you are already the dedicated worker 
 ## Step 3: Save and Present Results
 
 When the worker returns:
-1. Save the review to `_Edits/Chapter-{N}_Review.md` (create `_Edits/` if it doesn't exist, using the same directory as the chapter files).
+1. Save the review to `_Edits/Book-N/Chapter-NNN_Review.md` — the same `Book-N` folder level as the chapter's `Chapters/Book-N/` location, three-digit chapter number (create `_Edits/Book-N/` if it doesn't exist). Older projects that keep chapters at `_Edits/` root may keep reviews there.
 2. Display the full review with actionable edits.
-3. Offer: "Would you like me to apply these edits, write the next chapter, or return to the outline?"
-4. If the user wants edits applied, edit the chapter file to make only the approved changes.
+3. Offer: "Would you like me to apply these edits (via `fiction-revise`, which verifies every quote and keeps a change ledger), plan the next chapter, or return to the outline?"
+4. If the user wants edits applied, route to `fiction-revise` with the approved item numbers — do not edit the chapter from the review pass directly.
 
 ---
 
@@ -78,7 +80,8 @@ You are reviewing the most recently written chapter for revision opportunities.
 - `{{REVIEW_PATH}}` - forbidden phrases, AI-tells, mechanical checklist (primary editing reference)
 - `{{STYLE_PATH}}` - POV, voice, character voices (for context only)
 - `{{CHARACTERS_DIR}}` and `{{WIKI_DIR}}` - search the entire book Wiki for the proper nouns and canon claims actually present in the chapter or scene plan; read the supporting files, not every file by default
-- `{{OUTLINE_PATH}}` - chapter purposes
+- `{{OUTLINE_PATH}}` - chapter purposes, and the reviewed chapter's `trope_obligations` entry: which tropes this specific chapter owes and in which treatment
+- `{{SURPRISE_LEDGER_PATH}}` - planned divergences and chosen defaults per act (if found)
 - `{{SCENE_PATH}}` - required choices, consequences, emotional movement, motifs, arc movement, genre beats, and other chapter-specific obligations
 - `{{LEDGER_PATH}}` - the Chekhov ledger: setups awaiting payoff (audit in Step 6)
 
@@ -88,12 +91,10 @@ You are reviewing the most recently written chapter for revision opportunities.
   - `## Genre-Specific Craft Notes` — rules for this genre (what to always do, what to never do)
   - `## Reader Expectations` — especially the Resolution field (HEA/HFN requirement, tragic ending rule, etc.)
   If one of these headings is absent, extract the same content from whatever heading carries it — projects rename these sections (e.g. `## Trope Commitments` for core tropes). A renamed heading is not a missing genre contract.
-- `{{SYNOPSIS_PATH}}` — if not "not found", read it and extract from `## Genre Architecture` (if present; otherwise from whatever section carries the contract tables):
-  - `### Contract Validation` table — what tropes are PASS/FAIL/RISK for this story
-  - `### Mandatory Beat Sequence` table — what genre beats must occur and in which scenes
-  - `### Twist Map` table — what twists are planned and in which scenes
+- `{{SYNOPSIS_PATH}}` — if not "not found", read it and extract `## Trope Payoff Plan` (each trope's role and its setup/development/payoff). Older projects may carry the same contract under `## Genre Architecture` with Contract Validation / Mandatory Beat Sequence / Twist Map tables — read whatever section carries the trope contract.
+- `{{SURPRISE_LEDGER_PATH}}` — if not "not found", read the act entries covering this chapter: planned divergences (and chosen defaults) are this project's twist schedule.
 
-Store everything extracted from these two files as the **genre contract** for this review. If `{{GENRE_PATH}}` is "not found", genre compliance checking is skipped.
+Store everything extracted from these files as the **genre contract** for this review. If `{{GENRE_PATH}}` is "not found", genre compliance checking is skipped.
 
 If files are missing, note which criteria cannot be fully evaluated.
 
@@ -148,13 +149,13 @@ Check each of the following:
 
 **A. Mandatory trope delivery**: For each mandatory trope from the genre contract, determine whether this chapter advances, establishes, or satisfies it. If a mandatory trope has no evidence in this chapter AND the outline position suggests it should have appeared by now, flag it as at risk or falling behind.
 
-**B. Mandatory beat**: Check whether the outline assigns a mandatory genre beat to this specific chapter (from the `### Mandatory Beat Sequence` table in synopsis.md). If yes, determine whether the chapter delivers it fully, partially, or not at all. Flag missing or partial beats.
+**B. Chapter trope obligations**: Check the reviewed chapter's `trope_obligations` entry in the outline (each trope the outline assigns to this chapter, with its treatment — setup / development / payoff / texture / subversion). Determine whether the chapter delivers each assigned obligation fully, partially, or not at all. Flag missing or partial obligations.
 
 **C. Genre craft rule violations**: Check the chapter against every rule in `## Genre-Specific Craft Notes`. Flag each violation specifically — quote the offending passage and name the rule broken.
 
 **D. Resolution trajectory**: If the genre requires HEA or HFN (from `## Reader Expectations`) and this is the final chapter, verify it delivers. If the genre forbids a tragic ending and this chapter ends tragically, flag it as a contract breach.
 
-**E. Scheduled twist**: If the `### Twist Map` table assigns a twist to this chapter, check whether it is present and whether it lands with sufficient setup.
+**E. Scheduled divergence**: If the surprise ledger plans a divergence for this chapter or its act, check whether the chapter delivers it and whether it lands with sufficient setup. Older projects may carry a `### Twist Map` table in the synopsis instead; use whichever exists.
 
 Output this section in the review report using the following format:
 
@@ -162,8 +163,8 @@ Output this section in the review report using the following format:
 ## Genre Compliance
 
 **Genre:** [subgenre from genre.md]
-**Mandatory Beat for This Chapter:** [beat name from beat sequence table, or "none assigned"]
-**Beat Delivered:** Yes / No / Partial — [one sentence explanation]
+**Trope Obligations for This Chapter:** [from the outline entry's trope_obligations, or "none assigned"]
+**Obligation Delivered:** Yes / No / Partial — [one sentence explanation per assigned trope]
 
 **Trope Tracking:**
 | Trope | Status in This Chapter | Cumulative State |
@@ -171,7 +172,7 @@ Output this section in the review report using the following format:
 | [Trope name] | advances / absent / established / at risk | on track / falling behind / complete |
 
 **Craft Rule Violations:** [bulleted list of violations with quoted passage and rule name, or "none found"]
-**Twist Scheduled Here:** [twist name and description from Twist Map, or "none"]
+**Divergence Scheduled Here:** [from the surprise ledger, or "none"]
 **Resolution Trajectory:** [flag if contract breach, or "on track" or "not yet applicable"]
 ```
 

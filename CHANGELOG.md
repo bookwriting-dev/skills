@@ -2,6 +2,21 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 4: review the story + cross-cutting
+
+Rationale: per-skill dead-ends audit continued. The headline fix: `drift-check` had been promising four non-fiction metrics since the non-fiction expansion — and the 1.1.0 bump recorded them as shipped — but `drift.py` only ever implemented the five fiction metrics. Also: `fiction-reviewchapter` still audited against synopsis tables the synopsis generator stopped producing, and saved reviews to a pre-reorg path.
+
+### Changed
+
+- **`drift-check` 1.1.0 → 1.2.0** — `drift.py` now implements the four promised non-fiction proxies: claim density (assertion sentences per 1k, falling = drift toward summary), evidence-to-claim ratio (evidence sentences per claim), abstraction ladder (abstract-noun endings per 1k vs concrete anchors per 1k, narrowing when abstracts rise or anchors fall in the back half), and reintroduced-definition detection (definition patterns applied to a term already defined in an earlier chapter). Also fixed the dead code in the specifics metric — `re.search(r'[.!?]"?$', "")` tested a literal empty string, and word tokens carry no punctuation at all, so sentence-initial capitals were never excluded; capitalization is now judged against the raw text. Verified on synthetic chapters (falling evidence ratio, narrowing ladder, and a ch1→ch2 reintroduction all detected).
+- **`fiction-reviewchapter` 2.5.0 → 2.6.0** — the genre-compliance step extracted `### Contract Validation` / `### Mandatory Beat Sequence` / `### Twist Map` from the synopsis, but the current `fiction-synopsis` emits `## Trope Payoff Plan` and no such tables, so two of the five criterion-10 checks silently no-op'd on every modern project. The chapter's trope obligations now come from the outline's per-chapter `trope_obligations` entry, and scheduled twists come from the divergence pass's `surprise-ledger.md` (old synopsis tables still honored as fallback). Also: the outline glob now matches `Wiki/Outline/Book-N/outline.md`; reviews save to `_Edits/Book-N/Chapter-NNN_Review.md` per the AGENTS.md layout; and the closing offer no longer applies edits inline — it routes to `fiction-revise`, whose quote-verification and change ledger exist precisely for that step.
+- **`review-panel` 1.1.0 → 1.1.1** — wired in the orphaned `references/nonfiction-personas.md`: the four non-fiction seats' full persona files (with copy-ready prompt blocks) were shipped in the non-fiction expansion but never referenced; the SKILL.md summarized the seats inline and said nothing about the file. Step 1 now points to it.
+- **`promise-tracker` 1.0.0 → 1.0.1** — removed `references/promise-criteria.md`, `promise-kinds-fiction.md`, `promise-kinds-nonfiction.md`: three thin summaries fully duplicated by the SKILL.md body, referenced by nothing (manifest entries removed).
+
+### Verified
+
+- `fiction-promises` and `promise-tracker` scripts pass their documented behavior on a test ledger (`--chapter` bucketing with deferred exclusion; `--final` exits 1 on unpaid, undeferred promises). `fiction-promises` 1.1.0 and `fiction-dev-editor` 2.0.0 and `coldread` 1.0.1 audited clean.
+
 ## 2026-10-11 — Skill audit, batch 3: shape the book
 
 Rationale: per-skill dead-ends audit continued (outline, divergence, scenes, style, writechapter). divergence passed clean; the other four carried pre-reorg paths, phantom pipeline references, a backwards handoff, or legacy files from the abandoned JSON pipeline.

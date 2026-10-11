@@ -1,14 +1,23 @@
 #!/usr/bin/env python3
 """Book-level drift audit: what per-chapter gates cannot see.
 
-The average chapter is fine; the trend is not. This script measures five
-proxies across a list of chapter files, in order, and flags trends:
+The average chapter is fine; the trend is not. This script measures nine
+proxies across a list of chapter files, in order, and flags trends.
+
+Fiction:
 
   pet words      content words hot in one chapter or concentrating in the back half
   negation pivot negation constructions per 1k words, first vs second half
   opener formula first-word clusters across chapters (serialized-recap habit)
   closer dies    pairwise similarity of chapter-final sentences (stamped closers)
   specifics      proper-noun-ish tokens per 1k words, as a trend (texture thinning)
+
+Non-fiction (print for any book; interpretation routes by project type):
+
+  claim density    assertion sentences per 1k words (falling = drift to summary)
+  evid/claim       evidence sentences (examples, data, quotes, citations) per claim
+  abstraction      abstract-noun endings per 1k vs concrete anchors per 1k
+  re-definitions   terms whose definition pattern appears again in a later chapter
 
 These are proxies that correlate with the reader-experience problem, not
 measurements of it. The skill that calls this owns interpretation; the script
@@ -33,6 +42,30 @@ above below between because until against itself himself herself themselves myse
 yourself""".split())
 
 WORD = re.compile(r"[A-Za-z][A-Za-z']+")
+
+SENTENCE = re.compile(r"(?<=[.!?])\s+")
+
+ABSTRACT_ENDING = re.compile(
+    r"(?:tion|sion|ment|ness|ity|ance|ence|ism|acy|ship|hood|ology)$", re.I
+)
+
+EVIDENCE_MARK = re.compile(
+    r"""\d|%|["“”]|e\.g\.|i\.e\.|for example|for instance|according to
+    |such as|\(\s*[A-Z][a-zA-Z]+(?:\s+et\s+al\.)?,?\s*\d{4}\s*\)|\[\d+\]
+    |study|studies|survey|census|per\s+cent|percent""",
+    re.I | re.X,
+)
+
+# The defined TERM, not the subject: "X is a thekgi", "X — a thekgi",
+# "known as thekgi", "called thekgi". One capture group per alternative.
+DEFINITION = re.compile(
+    r"""\b[A-Za-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,2}\s+
+        (?:is|are)\s+(?:a|an|the)?\s*([a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,1})\b
+        |\b[a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,2}\s+[—–-]\s+(?:a|an|the)?\s*([A-Za-z][\w-]{2,})\b
+        |\bknown\s+as\s+(?:a|an|the)?\s*([A-Za-z][\w-]{2,})
+        |\b(?:called|termed|named)\s+([A-Za-z][\w-]{2,})""",
+    re.I | re.X,
+)
 
 
 def split_words(text: str) -> list[str]:
@@ -120,25 +153,45 @@ def main() -> None:
         raise SystemExit(2)
 
     chapters = []
-    for path in paths:
+    defined_terms: dict[str, list[int]] = {}
+    for idx, path in enumerate(paths, 1):
         title, lines = body_lines(path)
         text = " ".join(lines)
         words = split_words(text)
         low = [w.lower() for w in words]
         n = max(len(low), 1)
         neg = len(re.findall(r"\b(?:is|are|was|were|does|do|did)\s+not\b|\bn't\b|\bnever\b|\bno one\b|\bnobody\b", text, re.I))
-        caps = sum(
-            1
-            for i, w in enumerate(words)
-            if w[0].isupper()
-            and w.lower() not in STOP
-            and (i == 0 or words[i - 1] not in (".", "!", "?") and not re.search(r'[.!?]"?$', ""))
-        )
+        # Proper-noun-ish = a capitalized, non-stop word that does not start a
+        # sentence. Word tokens carry no punctuation, so check the raw text.
+        caps = 0
+        for m in re.finditer(r"[A-Z][A-Za-z']+", text):
+            if m.group(0).lower() in STOP:
+                continue
+            prev = text[: m.start()].rstrip()
+            if prev and not re.search(r"[.!?][\"”']?$", prev):
+                caps += 1
+        sentences = [s for s in SENTENCE.split(text) if len(split_words(s)) >= 3]
+        claims, evidence = 0, 0
+        for sent in sentences:
+            evid = bool(EVIDENCE_MARK.search(sent))
+            evidence += evid
+            if len(split_words(sent)) >= 6 and not sent.rstrip().endswith("?") and not evid:
+                claims += 1
+        abstract = sum(1 for w in low if ABSTRACT_ENDING.search(w) and w not in STOP)
+        concrete = caps + sum(1 for w in words if w.isdigit())
+        for m in DEFINITION.finditer(text):
+            term = next((g for g in m.groups() if g), None)
+            if term and len(split_words(term)) <= 3 and term.lower() not in STOP:
+                defined_terms.setdefault(term.lower(), []).append(idx)
         chapters.append({
             "title": title,
             "k": n / 1000.0,
             "neg": neg / (n / 1000.0),
             "spec": caps / (n / 1000.0),
+            "claims": claims / (n / 1000.0),
+            "evid": evidence,
+            "abs": abstract / (n / 1000.0),
+            "conc": concrete / (n / 1000.0),
             "open": first_words(lines),
             "close": last_sentence(lines),
             "words": Counter(w for w in low if w not in STOP and len(w) > 3),
@@ -212,6 +265,50 @@ def main() -> None:
             print(f"    {chapters[n]['close'][:90]}")
     if not found:
         print("  none — closers vary")
+
+    half = len(chapters) // 2
+
+    def halves(key: str) -> tuple[float, float]:
+        front = chapters[:half] or chapters[:1]
+        back = chapters[half:] or chapters[-1:]
+        avg = lambda chs: sum(c[key] for c in chs) / len(chs)
+        return avg(front), avg(back)
+
+    print()
+    print("Non-fiction proxies (interpretation routes by project type — see the skill):")
+    print(f"{'ch':>4} {'claims/1k':>10} {'evid':>5} {'evid/claim':>11} {'abs/1k':>7} {'conc/1k':>8}")
+    for i, c in enumerate(chapters, 1):
+        ratio = c["evid"] / max(c["claims"] * c["k"], 0.001)
+        print(f"{i:>4} {c['claims']:>10.1f} {c['evid']:>5.0f} {ratio:>11.2f} {c['abs']:>7.1f} {c['conc']:>8.1f}")
+
+    f_claims, b_claims = halves("claims")
+    flag = "  — FALLING (drifting from argument toward summary)" if b_claims < f_claims * 0.7 else ""
+    print(f"\nClaim density: front half avg {f_claims:.1f}/1k vs back half {b_claims:.1f}/1k{flag}")
+
+    f_evid = sum(c["evid"] for c in chapters[:half] or chapters[:1]) / max(
+        sum(c["claims"] * c["k"] for c in chapters[:half] or chapters[:1]), 0.001)
+    b_evid = sum(c["evid"] for c in chapters[half:] or chapters[-1:]) / max(
+        sum(c["claims"] * c["k"] for c in chapters[half:] or chapters[-1:]), 0.001)
+    flag = "  — FALLING (assertions going unsupported)" if b_evid < f_evid * 0.7 else ""
+    print(f"Evidence-to-claim ratio: front half {f_evid:.2f} vs back half {b_evid:.2f}{flag}")
+
+    f_abs, b_abs = halves("abs")
+    f_conc, b_conc = halves("conc")
+    flags = []
+    if b_abs > f_abs * 1.3:
+        flags.append(f"abstract nouns rising ({f_abs:.1f} → {b_abs:.1f}/1k)")
+    if b_conc < f_conc * 0.7:
+        flags.append(f"concrete anchors falling ({f_conc:.1f} → {b_conc:.1f}/1k)")
+    ladder = "  — NARROWING: " + "; ".join(flags) if flags else ""
+    print(f"Abstraction ladder: abstract/1k {f_abs:.1f} vs {b_abs:.1f}, concrete anchors/1k {f_conc:.1f} vs {b_conc:.1f}{ladder}")
+
+    reintroduced = {t: chs for t, chs in defined_terms.items() if len(chs) >= 2}
+    if reintroduced:
+        print("Reintroduced definitions (term defined again in a later chapter):")
+        for term, chs in sorted(reintroduced.items()):
+            print(f"  {term!r}: defined in ch{', ch'.join(map(str, chs))}")
+    else:
+        print("Reintroduced definitions: none")
 
 
 if __name__ == "__main__":

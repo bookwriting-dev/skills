@@ -3,7 +3,7 @@ name: review-panel
 description: "Build and run a persona review panel for fiction and non-fiction: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review."
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   category: fiction-writing
   output-format: markdown
 ---
@@ -110,6 +110,8 @@ about / Attack vectors / Output flags / Prompt block):
 10. **Intelligent novice** — smart but outside the field. Attacks: jargon walls, unexplained terms, abstraction density. Flags: JARGON-WALL / UNEXPLAINED / LOST-ME / ABSTRACTION-THICK
 11. **Skeptic/practitioner** — reads to find what's wrong. Attacks: cherry-picked evidence, false balance, omitted data, authority without scars. Flags: CHERRY-PICK / FALSE-BALANCE / MISSING-DATA / AUTHORITY-SLIP
 12. **Editorial gatekeeper** — professional editor eye. Attacks: argument flow, chapter structure, signposting, reader payoff. Flags: STRUCTURE / SIGNPOSTING / PAYOFF-THIN / FLOW
+
+The full persona files for the four non-fiction seats — Who / Cares about / Attack vectors / Output flags / a copy-ready Prompt block each — live in [references/nonfiction-personas.md](references/nonfiction-personas.md); copy them into `Wiki/Review/personas/` when building the panel.
 
 **Optional ninth seat — the hostile advocate:** argues the book's opposite on purpose,
 used once per act on the act the author is proudest of, to find where a choice is

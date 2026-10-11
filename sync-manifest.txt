@@ -76,9 +76,6 @@ skills/kill-passive/references/passive.md
 skills/kill-acronym/SKILL.md
 skills/kill-acronym/references/acronym.md
 skills/promise-tracker/SKILL.md
-skills/promise-tracker/references/promise-kinds-fiction.md
-skills/promise-tracker/references/promise-kinds-nonfiction.md
-skills/promise-tracker/references/promise-criteria.md
 skills/promise-tracker/assets/promises.yaml
 skills/promise-tracker/scripts/promises.py
 skills/review-panel/references/nonfiction-personas.md
