@@ -3,7 +3,7 @@ name: fiction-characters
 description: "Generate one Wiki/Characters/[Name].md file per character with full profiles. Personality and dialogue_style are WRITING INSTRUCTIONS, not descriptions. Use when user says 'create characters', 'generate cast', 'build character profiles', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.1.0"
+  version: "3.1.1"
   category: fiction-writing
   output-format: markdown
 ---

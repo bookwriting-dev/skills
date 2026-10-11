@@ -2,6 +2,20 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 2: build the people + build the world
+
+Rationale: per-skill dead-ends audit (all 59 skills walked, batched by role). This batch: the nine people/world skills. The seven others passed clean; three had dead ends — two inherited file sets still described an output format the library abandoned, and `fiction-psych` still pointed at a pipeline component that does not exist and at pre-reorg paths.
+
+### Changed
+
+- **`fiction-psych` 2.0.0 → 2.1.0** — removed the phantom `fiction-masteragent` / "prompt compiler" pipeline references (the real downstream consumer is `fiction-writechapter`, which reads the psych document for interior movement); fixed the project-finding glob to `**/Wiki/Outline/**/outline.md` (the old `**/Wiki/Outline/outline.md` could not match the current `Wiki/Outline/Book-N/` layout); psych output now writes to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md`, matching the AGENTS.md folder layout it silently contradicted; the next-step chain now names the actual workflow order (scenes → style + voiceprompt → writechapter).
+- **`fiction-characters` 3.1.0 → 3.1.1** — removed `references/csv-schema.md` and `assets/character-template.csv`: stale 21-column CSV output contract from a pre-Markdown era whose fields (Items, Abilities, Race, Uniform/Typical Attire) and single `characters.md` summary file contradict the current one-Markdown-file-per-character + `json-schema.json` design. Never referenced by the skill.
+- **`fiction-world` 5.1.0 → 5.1.1** — removed `assets/faction-template.md` and `assets/location-template.md`: hand-fill templates in a `### Who/Want/Method` structure that matches no current output contract (the skill's file format is `frontmatter` + `## snake_case` sections, fully specified inline and in `references/json-schema.json`). Never referenced by the skill; following them would produce files in the wrong format.
+
+### Notes
+
+- All four removed files were inherited from upstream at the vendoring commit and appear in no manifest, template, doc, or SKILL.md. `sync-check.sh` classifies upstream-only paths as fork additions (exit 0), so the deletions cannot false-trigger the drift gate; the "Only in upstream subdir" classification prints a mislabeled line for deleted inherited files — cosmetic script gap, logged for the wiring batch.
+
 ## 2026-10-11 (later) — Documentation reconciliation
 
 Rationale: a docs-vs-repo audit (see `docs/DEVELOPER.md`) found that the non-fiction expansion entry below overclaimed several items that never shipped in `e84222e`, and that `templates/AGENTS.md` referenced eight skills that don't exist. This pass makes the documentation layer match the library. The eight unbuilt non-fiction skills (`nonfiction-research`, `nonfiction-style`, `nonfiction-dev-editor`, `nonfiction-reviewchapter`, `nonfiction-revise`, `nonfiction-sources`, `nonfiction-claims`, `nonfiction-terminology`) were **un-referenced, not built** — building them is a separate design decision; the non-fiction workflow runs end to end on the seven skills that exist.

@@ -1,9 +1,9 @@
 ---
 name: fiction-psych
-description: "Generates a deep psychological interior pass for each chapter in a Wiki-mode fiction project. For each chapter, reads the external beats from Wiki/Outline/outline.md and the POV character's full profile from Wiki/Characters/, then writes a chapter-level interior analysis: start state, beat-by-beat interior cost, end state, and show-don't-tell gaps. Output is saved as Wiki/Psych/Chapter_[NN]_Psych.md, human-reviewable and editable before compilation. Use after fiction-outline and before fiction-scenes/compilation."
+description: "Generates a deep psychological interior pass for each chapter in a Wiki-mode fiction project. For each chapter, reads the external beats from the book outline (Wiki/Outline/Book-N/outline.md) and the POV character's full profile from Wiki/Characters/, then writes a chapter-level interior analysis: start state, beat-by-beat interior cost, end state, and show-don't-tell gaps. Output is saved as Wiki/Psych/Book-N/Chapter_[NN]_Psych.md, human-reviewable and editable before drafting. Use after fiction-outline and fiction-divergence, before fiction-scenes; or to deepen or refresh specific chapters' interior layer."
 metadata:
   author: Fiction Toolkit
-  version: "2.0.0"
+  version: "2.1.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -12,23 +12,23 @@ metadata:
 
 Generates a psychological analysis for each chapter. The analysis maps what the POV character feels underneath every external beat: what they carry in their body, what they refuse to name, where the prose must render through action rather than report.
 
-Output files are human-readable and editable. The user can revise any chapter's psych pass before the prompt compiler runs. The compiler injects the psych content into each chapter's compiled beat prompt.
+Output files are human-readable and editable. The user can revise any chapter's psych pass before drafting: `fiction-writechapter` reads the POV character's psych document for interior movement while drafting the chapter.
 
 ## When to Use
 
-- After the Outline step in the fiction-masteragent pipeline (called automatically)
+- After `fiction-outline` (and the `fiction-divergence` pass) have settled the chapter beats, before `fiction-scenes`
 - Manually, when you want to deepen a specific chapter's interior layer before writing
 - After revising the outline, to refresh the psych pass for changed chapters
 
 ## Step 1: Identify the Project
 
-Find the project's `Wiki/` folder by searching for `**/Wiki/Outline/outline.md`; the project may be a subfolder. If multiple projects exist, ask which one.
+Find the project's `Wiki/` folder by searching for `**/Wiki/Outline/**/outline.md`; the project may be a subfolder. If multiple projects match, ask which one. If the project holds several books (`Book-N` outline folders), ask which book to process.
 
 ## Step 2: Gather Source Files
 
 All inputs come from the project's `Wiki/` folder. Read:
 
-- `Wiki/Outline/outline.md`: all chapter entries with external beats
+- The resolved book outline (`Wiki/Outline/Book-N/outline.md`): all chapter entries with external beats
 - `Wiki/Characters/*.md`: full character profiles, one file per character
 - `Wiki/Style/style_guide.md`: craft rules and emotional vocabulary: how each emotion maps to physical tells for this POV character (also accept the legacy name `Wiki/Style/Style Guide.md` when reading)
 - `Wiki/Story/theme.md`: motifs, central question
@@ -49,7 +49,7 @@ Pass the worker:
 
 Cap at 5 chapters running in sequence. Do not parallelize; each chapter's psych pass benefits from focused attention.
 
-The worker writes each chapter's psych pass to `Wiki/Psych/Chapter_[NN]_Psych.md`, where `[NN]` is the zero-padded two-digit chapter number (e.g. `Wiki/Psych/Chapter_07_Psych.md`). Create parent folders if missing. These files are the canonical output; downstream skills and the prompt compiler read them from this exact path.
+The worker writes each chapter's psych pass to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md`, in the same `Book-N` folder as the outline, where `[NN]` is the zero-padded two-digit chapter number (e.g. `Wiki/Psych/Book-1/Chapter_07_Psych.md`). Create parent folders if missing. These files are the canonical output; `fiction-writechapter` reads them from this exact path.
 
 Update progress after each chapter.
 
@@ -57,10 +57,10 @@ Update progress after each chapter.
 
 Tell the user:
 - How many psych passes were generated
-- That they are stored as `Wiki/Psych/Chapter_[NN]_Psych.md` files
-- "Review and edit any chapter's psych pass before running the compiler. The writing agent will receive this analysis alongside the scene summary."
+- That they are stored as `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` files
+- "Review and edit any chapter's psych pass before drafting; `fiction-writechapter` reads this analysis alongside the scene plan."
 
-Next: run fiction-voiceprompt, or fiction-scenes if scene files do not exist yet, then fiction-writechapter.
+Next: `fiction-scenes` if scene plans do not exist yet; otherwise `fiction-style` + `fiction-voiceprompt` if not yet built; then `fiction-writechapter`.
 
 ---
 
@@ -117,7 +117,7 @@ A table of specific moments where the prose must render interior through body/ac
 
 ### Output Format
 
-Write the file to `Wiki/Psych/Chapter_[NN]_Psych.md` (zero-padded chapter number) with this structure:
+Write the file to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` (same `Book-N` folder as the outline; zero-padded chapter number) with this structure:
 
 ```markdown
 # Chapter [NN]: Psychological Interior Pass

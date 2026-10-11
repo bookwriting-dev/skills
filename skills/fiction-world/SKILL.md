@@ -3,7 +3,7 @@ name: fiction-world
 description: "Build story setting: locations, organizations, systems, events. Use when user says 'build the world', 'create setting', 'world building', or after running fiction-characters."
 metadata:
   author: Fiction Toolkit
-  version: "5.1.0"
+  version: "5.1.1"
   category: fiction-writing
   output-format: markdown
 ---
