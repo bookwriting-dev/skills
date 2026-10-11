@@ -86,5 +86,6 @@ skills/promise-tracker/scripts/promises.py
 skills/review-panel/SKILL.md
 skills/review-panel/references/nonfiction-personas.md
 skills/town-generator/SKILL.md
+skills/town-generator/scripts/urls.txt
 templates/AGENTS.md
 templates/CLAUDE.md

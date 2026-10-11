@@ -13,7 +13,6 @@ import sys
 from pathlib import Path
 
 BASE = Path(__file__).parent
-DATA = BASE.parent / "data"
 GENERATE = BASE / "generate.py"
 
 sys.path.insert(0, str(BASE))

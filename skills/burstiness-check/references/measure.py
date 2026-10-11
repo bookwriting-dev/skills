@@ -107,8 +107,8 @@ def measure(path):
     total_word_count = len(words) or 1
     dialogue_ratio = round(dialogue_word_count / total_word_count, 3)
 
-    # Weighted score, not a strict AND-of-conditions. Cross-book validation (Black
-    # two contrasting projects, including a same-chapter split at the exact
+    # Weighted score, not a strict AND-of-conditions. Cross-book validation (two
+    # contrasting projects, including a same-chapter split at the exact
     # sentence a Pangram verdict flipped from 100% AI to 100% human) showed dialogue
     # ratio alone tracks the AI/human verdict even when a passage is too short or too
     # narration-light to trip paragraph-density/opener-concentration thresholds. Those

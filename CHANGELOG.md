@@ -2,6 +2,22 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-11 — Skill audit, batch 8: diagnostics, utilities, meta
+
+Rationale: per-skill dead-ends audit continued. The headline change: `pangram` claimed to be a never-edit diagnostic while its body was full of rewrite instructions ("replace common collocations", "inject imperfection intentionally") built on the exact perplexity/burstiness theory of AI detection that the Pangram technical report — cited by our own `burstiness-check` — explicitly debunks. Rewritten as the diagnostic its description always claimed to be.
+
+### Changed
+
+- **`pangram` 1.0.0 → 2.0.0** — rewritten from a rewrite-advisory pass into a true diagnostic: all eight measures now report numbers and flagged locations only, with routing to `fiction-aiism-editor` (phrasing tells — the likelier real detector trigger per the paper), `fiction-prose-editor` (mechanics), and `burstiness-check` (cross-chapter baseline); the mechanism caveat now states what Pangram actually is (a learned-tells classifier, not a perplexity/burstiness classifier); the "inject unpredictability" advice is gone, per burstiness-check's own warning about detector-dodging rewrites. Major bump: behavior change.
+- **`burstiness-check` 1.3.0 → 1.3.1** — removed a stray word from a `measure.py` validation comment ("Cross-book validation (Black two contrasting projects…").
+- **`name-generator` 1.1.0 → 1.2.0** — wired in its own orphaned `references/culture-map.md` (previously consumed only cross-skill by the world-building skills, its own SKILL.md never mentioned it) and documented the `scrape.py` corpus-refresh workflow, including `--batch urls.txt`.
+- **`town-generator` 1.0.0 → 1.1.0** — surfaced `generate_town.py`/`epithet.py` (previously invoked only by `fiction-world` and `culture-map.md`, never by the skill itself) with the epithet/prefix invocation; documented the corpus-refresh workflow; added `scripts/urls.txt` (registered in the manifest) so the documented `--batch` mode actually has its input file — the name-generator copy had it, this one didn't.
+- **`fantasy-settlement` 1.0.0 → 1.0.1** — removed an unused `import math`; `generate_town.py` also lost an unused `DATA` variable (no version bump — it's town-generator's file, covered by that skill's bump).
+
+### Verified
+
+- All four scripts smoke-tested: `generate.py` (Markov names), `generate_town.py` (epithet flags accepted), `generate_settlement.py` (dossier renders), `measure.py` (JSON report). `skill-builder` audited clean — its `guide.md` path mentions are generic tutorial examples, not repo references.
+
 ## 2026-10-11 — Skill audit, batch 7: non-fiction
 
 Rationale: per-skill dead-ends audit continued. The non-fiction planning trio ran on a folder scheme (`Wiki/Concept/concept.md`, `Wiki/Audience/audience.md`, `Wiki/Structure/structure.md`) that nothing else in the library uses — AGENTS.md, USER.md, the new-book skeleton (`Wiki/Concept/`), and the review skills all expect `Wiki/Concept/thesis.md` / `audience.md` / `structure.md`. Worse, `nonfiction-concept` *required* an audience profile while the documented workflow runs concept first — a circular dead end at step 1 of every new non-fiction project.
