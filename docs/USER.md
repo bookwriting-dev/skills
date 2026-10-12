@@ -216,6 +216,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `reader-persona-review` 1.0.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `compile-manuscript` 1.0.0 | Stitches chapter drafts into continuous manuscript with front/back matter and clean exports. |
 | `book-packaging` 1.0.0 | Generates marketing kits: back-cover blurbs, query letters, retail keywords, cover art briefs. |
+| `social-media-marketing` 1.0.0 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
 | `promise-tracker` 1.0.1 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
 | `kill-hedge` 1.0.0 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.0.0 | Converts passive to active for clarity and authority. |
@@ -255,6 +256,7 @@ Phrases that map to skills (the agent routes on them):
 - "Run reader persona review on chapter 2" → `reader-persona-review`
 - "Compile manuscript for export" → `compile-manuscript`
 - "Write back-cover blurb and query letter" → `book-packaging`
+- "Plan my launch on TikTok / Instagram / Facebook" / "write a TikTok script" → `social-media-marketing`
 - "Organize research sources" → `nonfiction-research`
 - "Review non-fiction argument flow" → `nonfiction-dev-editor`
 - "Apply fixes 1, 3, and 5" → `fiction-revise`

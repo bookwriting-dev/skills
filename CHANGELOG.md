@@ -2,6 +2,15 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-12 — Social media marketing skill
+
+Rationale: the library covered writing through packaging (`book-packaging` stops at the blurb, metadata, and cover brief) but nothing for promoting a finished book. One skill rather than three, because the workflow (audience, hooks, content pillars, calendar, captions) is shared and only the platform rules differ; those live in per-platform reference files that can be updated without touching the skill. Scale 69 → 70 skills.
+
+### Added
+
+- **`social-media-marketing` 1.0.0** — Facebook, Instagram, and TikTok marketing for launch campaigns (pre-launch, launch week, post-launch) and ongoing content. Organic-first; paid ads (Meta and TikTok) are an opt-in layer. Reads genre, audience, synopsis, and packaging files; writes `Wiki/Marketing/` strategy, calendar, content, optional ads plan, and retrospectives. References: `tiktok.md`, `instagram.md`, `facebook.md`, `launch-phases.md`, `paid-ads.md`, `measurement.md`.
+- **`templates/AGENTS.md`** & **`docs/USER.md`** & **`docs/DEVELOPER.md`** — routed and cataloged the new skill; skill count updated.
+
 ## 2026-10-12 — Workflow Expansion: 10 New Skills Added
  
  Rationale: complete the end-to-end writing, editing, gatekeeping, review, and publishing lifecycle. Incorporates persona-driven reader reviews, automated pipeline orchestration, continuity enforcement, manuscript packaging, and non-fiction research and developmental editing into the library. Scale expanded from 59 to 69 skills.

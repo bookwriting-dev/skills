@@ -171,6 +171,7 @@ Route editing and review tasks using this decision tree:
 **Publish & Package:**
 - Manuscript compile & export: `compile-manuscript`
 - Marketing & publishing kit: `book-packaging`
+- Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 
 ### Non-Fiction skills
 
@@ -198,6 +199,7 @@ Route editing and review tasks using this decision tree:
 **Publish & Package:**
 - Manuscript compile & export: `compile-manuscript`
 - Marketing & publishing kit: `book-packaging`
+- Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 
 **Make your own:** `skill-builder`
 
