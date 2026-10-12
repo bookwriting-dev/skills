@@ -2,7 +2,25 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
-## 2026-10-11 — Skill audit: resolve audit ledger follow-ups (synopsis & outline)
+## 2026-10-12 — Workflow Expansion: 10 New Skills Added
+ 
+ Rationale: complete the end-to-end writing, editing, gatekeeping, review, and publishing lifecycle. Incorporates persona-driven reader reviews, automated pipeline orchestration, continuity enforcement, manuscript packaging, and non-fiction research and developmental editing into the library. Scale expanded from 59 to 69 skills.
+ 
+ ### Added
+ 
+ - **`reader-persona-review` 1.0.0** — multi-perspective reader critiques across 123 archetypes and preset panels (anti-AI sweep, pacing, puzzle fairness) with synthesis.
+ - **`gate-check` 1.0.0** — unified chapter readiness gate checking canon integrity, scene beats, Chekhov promises, and machine cadence.
+ - **`book-status` 1.0.0** — manuscript dashboard for word counts, gate status, open promises, and review health.
+ - **`chapter-pipeline` 1.0.0** — automated scene → draft → gate → polish orchestrator.
+ - **`canon-guard` 1.0.0** — safeguard for locked canon files with chapter impact analysis before intentional updates.
+ - **`series-continuity` 1.0.0** — multi-book continuity scanner checking character state persistence, solved secrets, and chronology.
+ - **`compile-manuscript` 1.0.0** — chapter stitching, scene break standardization, front/back matter compilation, and export generation.
+ - **`book-packaging` 1.0.0** — publishing kit generator: back-cover blurbs, query letters, Amazon retail metadata, and artist cover briefs.
+ - **`nonfiction-research` 1.0.0** — citation vaults, claims matrices, and primary source organization in `Wiki/Research/`.
+ - **`nonfiction-dev-editor` 1.0.0** — non-fiction developmental editor diagnosing argument flow, thesis scaffolding, and cognitive load.
+ 
+- **`templates/AGENTS.md`** & **`docs/USER.md`** — rewired to index and route the 10 new skills across fiction and non-fiction decision trees.
+
 
 Rationale: addresses the remaining observations logged in the 2026-10-11 audit ledger. `fiction-outline` now supports multi-book series workflows by accepting per-book synopses (`Wiki/Story/Book-N/synopsis.md`) with fallback to the root series synopsis, and `fiction-synopsis` points location references to the standard `Wiki/World/Locations/` layout.
 

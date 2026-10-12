@@ -197,8 +197,10 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `nonfiction-concept` 1.1.0 | Central argument/thesis, reader transformation, big idea → `Wiki/Concept/thesis.md`. |
 | `nonfiction-audience` 1.1.0 | Reader knowledge, objections, prerequisites across five archetypes → `Wiki/Concept/audience.md`. |
 | `nonfiction-structure` 1.1.0 | Argument architecture (problem-solution / chronological / conceptual / hybrid) → `Wiki/Concept/structure.md`. |
+| `nonfiction-research` 1.0.0 | Manages citation vaults, claims matrices, and primary evidence in `Wiki/Research/`. |
 | `nonfiction-chapter-plan` 1.0.1 | Per chapter: claim, evidence, transition, reader takeaway → `Wiki/Outline/Book-N/plan.md`. |
 | `nonfiction-writechapter` 1.0.1 | Drafts from the plan: explanatory clarity, signposting, concrete examples, varied evidence. |
+| `nonfiction-dev-editor` 1.0.0 | Developmental review: thesis scaffolding, argument architecture, cognitive load, conceptual progression. |
 | `nonfiction-factcheck` 1.1.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
 | `nonfiction-clarity-edit` 1.1.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
 
@@ -206,6 +208,14 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 | Skill | What it does |
 |---|---|
+| `chapter-pipeline` 1.0.0 | Unified end-to-end runner: scene planning → draft → gate validation → cleanup. |
+| `gate-check` 1.0.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint). |
+| `book-status` 1.0.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
+| `canon-guard` 1.0.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
+| `series-continuity` 1.0.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
+| `reader-persona-review` 1.0.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
+| `compile-manuscript` 1.0.0 | Stitches chapter drafts into continuous manuscript with front/back matter and clean exports. |
+| `book-packaging` 1.0.0 | Generates marketing kits: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `promise-tracker` 1.0.1 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
 | `kill-hedge` 1.0.0 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.0.0 | Converts passive to active for clarity and authority. |
@@ -237,13 +247,22 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 Phrases that map to skills (the agent routes on them):
 
-- "Review chapter 5" → `fiction-reviewchapter` → `_Edits/Book-N/Chapter-005_Review.md`
+- "Review chapter 5" → `fiction-reviewchapter` (or `gate-check`) → `_Edits/Book-N/Chapter-005_Review.md`
+- "Run chapter pipeline on chapter 3" → `chapter-pipeline`
+- "Show book status / dashboard" → `book-status`
+- "Safely update character fact" → `canon-guard`
+- "Audit series continuity" → `series-continuity`
+- "Run reader persona review on chapter 2" → `reader-persona-review`
+- "Compile manuscript for export" → `compile-manuscript`
+- "Write back-cover blurb and query letter" → `book-packaging`
+- "Organize research sources" → `nonfiction-research`
+- "Review non-fiction argument flow" → `nonfiction-dev-editor`
 - "Apply fixes 1, 3, and 5" → `fiction-revise`
 - "Clean this chapter" / "run the kill passes" → `kill-chapter`
 - "Full edit on chapter 7" → `fiction-full-editor`
 - "Check loose ends" / "what have I forgotten to pay off" → `fiction-promises`
 - "Why does the back half feel flatter?" → `drift-check`
-- "What would a romance reader think of the act break?" → `review-panel`
+- "What would a romance reader think of the act break?" → `reader-persona-review` / `review-panel`
 - "Does chapter 12 actually sound like a teenager?" → `coldread`
 - "Kill the word 'just'" → `kill-crutch just`
 - "Name a harbor town" → `town-generator`; "name the antagonist" → `name-generator`

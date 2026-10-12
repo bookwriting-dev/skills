@@ -124,7 +124,7 @@ Route editing and review tasks using this decision tree:
 - **Reader reaction / persona reads:** `review-panel`. Multi-persona qualitative reads with verified citations.
 
 **Non-Fiction:**
-- **Structural / argument flow / "does this chapter prove?":** not an editing job — fix the chapter plan (`nonfiction-chapter-plan`) and re-draft with `nonfiction-writechapter`. Editing passes are for localizable problems.
+- **Structural / argument flow / "does this chapter prove?":** `nonfiction-dev-editor`. Diagnose argument architecture, claim scaffolding, and cognitive load before sentence edits.
 - **Chapter gate (default review):** `nonfiction-factcheck` + `nonfiction-clarity-edit`. Fact/evidence verification first, then the clarity pass (jargon density, abstraction ladder, cognitive load, signposting).
 - **Fact / evidence failure:** `nonfiction-factcheck`. Verifies every claim against the book's research corpus and cited sources.
 - **Blind clarity / voice test:** `coldread`. Read-only, run in isolation before rule-loaded review so house rules do not prime the reader.
@@ -133,7 +133,7 @@ Route editing and review tasks using this decision tree:
 - **Applying approved review/edit fixes:** `fiction-revise`. Report-driven and book-agnostic — it applies user-approved items from any `_Edits/Chapter-NNN_*.md` report with strict quote verification and a change ledger.
 - **Recurring clarity crutches:** run the targeted passes — `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`. Use a single pass when targeting one pattern.
 - **Book-level drift / argument coherence / thesis alignment:** `drift-check` across part boundaries and chapters.
-- **Reader reaction / persona reads:** `review-panel`. Multi-persona qualitative reads with verified citations.
+- **Reader reaction / persona reads:** `reader-persona-review` (or `review-panel`). Multi-persona qualitative reads with verified citations.
 
 ## Skill index
 
@@ -147,12 +147,15 @@ Route editing and review tasks using this decision tree:
 
 **Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
+**Workflow & Orchestration:** `chapter-pipeline`, `gate-check`, `book-status`, `canon-guard`
+
 **Review the story (decision tree):**
 - Blind voice read: `coldread`
 - Structural / developmental: `fiction-dev-editor`
-- Comprehensive chapter gate: `fiction-reviewchapter`
+- Comprehensive chapter gate: `gate-check`, `fiction-reviewchapter`
 - Chekhov promise ledger: `fiction-promises`
-- Reader persona panel: `review-panel`
+- Reader persona panel: `reader-persona-review`, `review-panel`
+- Multi-book consistency: `series-continuity`
 
 **Edit the prose (decision tree):**
 - Default full sentence edit: `fiction-full-editor`
@@ -165,19 +168,23 @@ Route editing and review tasks using this decision tree:
 - Targeted kill passes: `kill-simile`, `kill-person-who`, `kill-opinion-personification`, `kill-the-whole`, `kill-crutch` (covers `kill-soft` and `kill-flat`)
 - Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
+**Publish & Package:**
+- Manuscript compile & export: `compile-manuscript`
+- Marketing & publishing kit: `book-packaging`
+
 ### Non-Fiction skills
 
-**Plan the thesis:** `nonfiction-concept`, `nonfiction-audience`, `nonfiction-structure`
+**Plan the thesis:** `nonfiction-concept`, `nonfiction-audience`, `nonfiction-structure`, `nonfiction-research`
 
 **Shape the book:** `nonfiction-chapter-plan`, `nonfiction-writechapter`
 
 **Review the argument (decision tree):**
 - Blind clarity read: `coldread`
-- Structural / developmental: fix the chapter plan and re-draft (`nonfiction-chapter-plan` → `nonfiction-writechapter`)
+- Structural / developmental: `nonfiction-dev-editor`
 - Comprehensive chapter gate: `nonfiction-factcheck` + `nonfiction-clarity-edit`
 - Fact & evidence verification: `nonfiction-factcheck`
 - Promise / claim ledger: `promise-tracker`
-- Reader persona panel: `review-panel`
+- Reader persona panel: `reader-persona-review`, `review-panel`
 
 **Edit the prose (decision tree):**
 - Default full sentence edit: `nonfiction-clarity-edit`
@@ -188,6 +195,11 @@ Route editing and review tasks using this decision tree:
 - Recurring clarity crutches: `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`
 - Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
+**Publish & Package:**
+- Manuscript compile & export: `compile-manuscript`
+- Marketing & publishing kit: `book-packaging`
+
 **Make your own:** `skill-builder`
 
 (End of file)
+
