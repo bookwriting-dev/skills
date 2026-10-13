@@ -3,17 +3,17 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
   category: fiction-editing
 ---
 
 # Gate Check
 
-The definitive readiness and continuity validator for a drafted chapter. Evaluates chapter prose against canon facts, scene commitments, voice constraints, Chekhov setups, and mechanical prose rules before declaring a chapter cleared for subsequent editing or final compilation.
+The definitive readiness and continuity validator for a drafted chapter. Evaluates chapter prose against canon facts, scene commitments, voice constraints, Chekhov setups, mechanical prose rules, and (for LitRPG/Progression books) mathematical progression continuity before declaring a chapter cleared for subsequent editing or final compilation.
 
 ## Gate Checklist Dimensions
 
-Every gate run systematically evaluates 6 pillars:
+Every gate run systematically evaluates up to 7 pillars:
 
 1. **Canon Integrity (Hard Gate):**
    - Characters: names, physical states, active injuries, relationships match `Wiki/Characters/`.
@@ -36,6 +36,10 @@ Every gate run systematically evaluates 6 pillars:
    - Stock sensory repetitions (dust, paper must, brass warmth, creaking wood).
 6. **Closing Beat & Transition:**
    - Chapter ending leaves a distinct forward momentum or deliberate unresolved hook (avoiding homogeneous quiet-tea reflective resolutions on 100% of chapters).
+7. **LitRPG & Numeric Continuity (Conditional Gate):**
+   - When the project defines a system (`Wiki/World/Systems/`) or is classified as LitRPG / Progression Fantasy:
+   - Run `python3 .agents/skills/litrpg-audit/scripts/stat_audit.py Chapters/Book-N/Chapter-NNN.md`.
+   - Verifies stat arithmetic (points earned vs allocated), level curve milestones, skill unlock prerequisites, derived pool calculations (HP/MP), and status box format.
 
 ---
 
@@ -52,6 +56,7 @@ Gate check produces a timestamped run report saved to:
 - **Canon Violations:** 0
 - **Unfulfilled Scene Beats:** 0
 - **Chekhov Debt (Unregistered setups):** 0
+- **Progression & Stat Inconsistencies:** 0  *(LitRPG only)*
 - **Cadence & Lint Warnings:** [N]
 
 ## Detailed Assessment
@@ -72,8 +77,11 @@ Gate check produces a timestamped run report saved to:
 ### 5. Cadence & Lint Flags: [PASS / WARN]
 - [Flagged sentences with exact quotes and line numbers]
 
+### 6. LitRPG Progression Audit: [PASS / WARN / FAIL / N/A]
+- [Stat math, skill checks, and status box findings from stat_audit.py]
+
 ## Action Verdict & Routing
 - If **PASS**: Cleared for chapter progression or `fiction-full-editor`.
-- If **FAIL (Structural / Canon)**: Route back to scene plan or invoke `canon-guard` if canon needs intentional amendment.
+- If **FAIL (Structural / Canon / Progression)**: Route back to scene plan or `litrpg-audit` to fix mathematical contradictions.
 - If **WARN (Prose / Cadence)**: Route directly to `fiction-revise` or `kill-chapter`.
 ```

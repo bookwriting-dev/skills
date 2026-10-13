@@ -33,7 +33,21 @@ def bucket(cv):
 
 def measure(path):
     with open(path, encoding="utf-8") as f:
-        text = f.read()
+        raw_text = f.read()
+
+    # Filter out code fences (``` ... ```) and callouts/system boxes (> ...)
+    # so non-prose UI elements (LitRPG status boxes, tables) do not distort prose metrics.
+    prose_lines = []
+    in_fence = False
+    for line in raw_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("```"):
+            in_fence = not in_fence
+            continue
+        if in_fence or stripped.startswith(">"):
+            continue
+        prose_lines.append(line)
+    text = "\n".join(prose_lines)
 
     paragraphs = [
         p.strip()

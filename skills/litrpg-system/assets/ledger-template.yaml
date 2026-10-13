@@ -1,0 +1,63 @@
+# Progression Ledger
+# Tracks chapter-by-chapter character state in and state out for numeric continuity.
+
+system_rules:
+  xp_model: quadratic # quadratic | tiered | exponential
+  xp_base: 100
+  stat_points_per_level: 5
+  skill_points_per_level: 1
+
+characters:
+  Zachary_Cross:
+    current_level: 1
+    total_xp: 0
+    next_level_xp: 100
+    unspent_stat_points: 0
+    unspent_skill_points: 0
+    attributes:
+      STR: 10
+      AGI: 10
+      CON: 10
+      INT: 10
+      WIS: 10
+      CHA: 10
+    pools:
+      max_hp: 205
+      max_mp: 200
+      max_sp: 150
+    skills:
+      - name: "Mana Dart"
+        rank: 1
+        cost_type: "MP"
+        cost: 15
+        cooldown_sec: 1.2
+        unlocked_chapter: 1
+    inventory:
+      - item: "Iron Shortsword"
+        equipped: true
+        rarity: "Common"
+      - item: "Lesser Health Potion"
+        quantity: 2
+        equipped: false
+    currency:
+      gold: 0
+      silver: 15
+      copper: 40
+
+chapters:
+  Chapter-001:
+    character: "Zachary_Cross"
+    state_in:
+      level: 1
+      xp: 0
+      unspent_stats: 0
+    events:
+      - kill: "Horned Rabbit (Level 1)"
+        xp_gain: 25
+      - kill: "Horned Rabbit (Level 1)"
+        xp_gain: 25
+      - loot: "Horned Rabbit Pelt x2"
+    state_out:
+      level: 1
+      xp: 50
+      unspent_stats: 0

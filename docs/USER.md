@@ -68,6 +68,14 @@ writes a Wiki file; the next skill reads them.
 skill that can see the back half getting flatter while every chapter gate stays green);
 `fiction-promises` before closing (overdue/due/undated setups).
 
+### LitRPG and Progression Fantasy series
+
+If your series has game mechanics, stat systems, or cultivation/progression tiers:
+
+1. **System Design:** Run `litrpg-system` right after `fiction-genre` and `fiction-world`. It populates `Wiki/World/Systems/` (`system-rules.md`, `classes-skills.md`, `encounters-loot.md`), seeds protagonist character sheets in `Wiki/Characters/<Name>_sheet.md`, and initializes the progression ledger (`Wiki/World/Systems/ledger.yaml`).
+2. **Notification Standards:** Format system notifications and blue boxes using Markdown callouts (`> [!SYSTEM]`, `> [!ALERT]`, `> [!SKILL]`) following `stat-box-guide.md`. The burstiness diagnostic (`burstiness-check`) and prose linters automatically recognize and ignore these blocks so stat sheets never false-flag as choppy prose or repetition hotspots.
+3. **Deterministic Progression Audits:** Run `litrpg-audit` (or `gate-check`) on every chapter. It mechanically calculates whether stat point allocations match level gains, verifies that invoked skills have been unlocked in canon, checks resource limits, and catches stat-dump paralysis.
+
 ## The non-fiction workflow
 
 As the library stands today, seven skills exist and work end to end:
@@ -96,7 +104,8 @@ Ask "what's wrong?" and read the row:
 | Symptom | Fiction | Non-fiction |
 |---|---|---|
 | "Does this chapter move / prove?" — structure, causality | `fiction-dev-editor` | (not yet built — re-plan + re-draft) |
-| Default chapter review (the gate) | `fiction-reviewchapter` | `nonfiction-factcheck` + `nonfiction-clarity-edit` |
+| Default chapter review (the gate) | `fiction-reviewchapter` / `gate-check` | `nonfiction-factcheck` + `nonfiction-clarity-edit` |
+| LitRPG stat math / progression contradictions | `litrpg-audit` (also in `gate-check`) | — |
 | One claim sounds machine-written | `coldread` (blind, read-only) | `coldread` |
 | Dialogue samey / interview-like | `fiction-dialogue` | — |
 | Loose ends, unpaid setups | `fiction-promises` | `promise-tracker` |
@@ -112,14 +121,14 @@ re-draft the chapter.
 
 ## Skill catalog
 
-All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
+All 72 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
 
 ### Fiction — plan the promise
 
 | Skill | What it does |
 |---|---|
 | `fiction-story-sparks` 1.2.0 | Compact story prompts from character + location + object/creature + event + twist + ending. Only on explicit request — never auto-starts your book. |
-| `fiction-genre` 3.2.0 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
+| `fiction-genre` 3.2.1 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
 | `fiction-audience` 4.0.0 | Target reader age group, content boundaries, structural norms → `Wiki/Style/audience.md`. |
 | `fiction-theme` 3.1.0 | The thematic engine: central question, tone, motifs → `Wiki/Story/theme.md`. |
 | `fiction-synopsis` 5.2.2 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
@@ -143,6 +152,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `fiction-factions` 1.0.0 | Factions, institutions, guilds, crews, cults, corporations, rival networks. |
 | `fiction-polities` 1.0.0 | Kingdoms, empires, federations, city-states and their territorial divisions. |
 | `fiction-religions` 1.0.0 | Religions, philosophies, ancestor traditions, civic faiths, machine creeds. |
+| `litrpg-system` 1.0.0 | System rules, attribute formulas, progression curves, class trees, and character sheets for LitRPG/Progression → `Wiki/World/Systems/`. |
 
 ### Fiction — shape the book
 
@@ -159,6 +169,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | Skill | What it does |
 |---|---|
 | `fiction-reviewchapter` 2.6.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
+| `litrpg-audit` 1.0.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.0.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.1.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. |
@@ -173,7 +184,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `fiction-revise` 1.0.0 | Applies the report items you approve to the chapter in place — exact-quote verification, minimal perturbation, change ledger. |
 | `fiction-line-editor` 5.2.0 | Line craft/voice layer only (clichés, repetition, POV violations) when isolating that layer. |
 | `fiction-prose-editor` 1.3.0 | Prose mechanics only (fragments, choppy S-V-O chains, simile density, rule-of-threes, show-vs-tell). |
-| `fiction-aiism-editor` 1.4.0 | AI fingerprints only (forbidden words, machine constructions, self-announcing narration). |
+| `fiction-aiism-editor` 1.4.1 | AI fingerprints only (forbidden words, machine constructions, self-announcing narration; with LitRPG system exceptions). |
 | `levelup` 1.1.0 | Filter-word scan ("she saw / he felt") — reader-distance fixes. |
 | `fragment-hunter` 1.1.0 | Mechanically extracts 1–3-word sentences, rebuilds them into performable prose (audiobook prep). |
 | `nominalization-hunt` 1.1.0 | Finds abstract self-explanation ("the realization of…"), restores action and observation. |
@@ -209,7 +220,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | Skill | What it does |
 |---|---|
 | `chapter-pipeline` 1.0.0 | Unified end-to-end runner: scene planning → draft → gate validation → cleanup. |
-| `gate-check` 1.0.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint). |
+| `gate-check` 1.1.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
 | `book-status` 1.0.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
 | `canon-guard` 1.0.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.0.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
@@ -227,7 +238,7 @@ All 59 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | Skill | What it does |
 |---|---|
 | `drift-check` 1.2.0 | The gradient across the whole book (see Review). |
-| `burstiness-check` 1.3.1 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — finds chapters likely to read machine-generated. |
+| `burstiness-check` 1.4.0 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — excludes system callout blocks from prose variance. |
 | `pangram` 2.0.0 | Statistical patterns associated with AI-detection risk (predictability, lexical diversity, uniform construction). |
 
 ### Utilities

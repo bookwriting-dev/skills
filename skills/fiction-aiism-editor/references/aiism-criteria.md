@@ -137,6 +137,8 @@ AI defaults to quantitative framing when it can't render the actual feeling. Fla
 - "the formula for [noun]" (e.g., "the formula for success")
 - "exponentially [adjective]" when not literally exponential
 - "on a trajectory toward" / "trajectory of [abstract thing]"
-- "optimize for [abstract thing]" (e.g., "optimizing for survival")
-
 **Why:** These phrases are how AI describes situations it doesn't want to render concretely. "The math worked out" means nothing. What actually happened? Write that instead.
+
+**LitRPG / Progression Fantasy Exception:**
+In LitRPG and Progression Fantasy projects, quantitative analysis is often literal and diegetic rather than metaphorical evasion. System notifications (`> [!SYSTEM]`, `> [!ALERT]`), status screens, level/stat allocation debates, concrete numerical damage/mana ratios, and build optimization discussions are permitted when they describe explicit game mechanics and numerical systems. Do not flag literal system math, attribute bonuses, or character optimization of class skills in a LitRPG context.
+

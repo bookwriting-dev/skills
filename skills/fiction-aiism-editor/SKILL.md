@@ -3,7 +3,7 @@ name: fiction-aiism-editor
 description: Targeted scan specifically for AI-generated fingerprints, forbidden words, and machine-sounding constructions in fiction prose. Use fiction-full-editor for general sentence editing; use this skill only when isolating the AI-tell layer. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "1.4.0"
+  version: "1.4.1"
   category: fiction-editing
 ---
 

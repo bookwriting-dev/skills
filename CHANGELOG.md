@@ -2,7 +2,25 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
-## 2026-10-12 — Social media marketing skill
+## 2026-10-13 — LitRPG & Progression Fantasy Suite: Mechanics, Ledger & Audits
+
+Rationale: The library provided comprehensive craft, editing, and pipeline orchestration for general fiction, but lacked support for the core requirements of LitRPG and Progression Fantasy: power system design, mathematical sanity, deterministic numeric tracking, and audiobook/e-reader safe status box conventions. Furthermore, standard prose linters and sentence burstiness metrics penalized in-game status notifications and stat-analysis vocabulary. This release adds dedicated system design and progression audit skills, wires numeric checks into `gate-check`, teaches prose linters to respect system callouts, and establishes `Wiki/World/Systems/` as the canonical home for game rules and character ledgers. Scale expands from 70 to 72 skills.
+
+### Added
+
+- **`litrpg-system` 1.0.0** — Designs and balances RPG/magic systems, power curves, class trees, and character sheets. Populates `Wiki/World/Systems/` (`system-rules.md`, `classes-skills.md`, `encounters-loot.md`), seeds character sheets in `Wiki/Characters/<Name>_sheet.md`, and initializes `Wiki/World/Systems/ledger.yaml`. References: `system-design-principles.md` (no-free-lunch rule, dopamine cadence), `stat-box-guide.md` (UI callout standards), `progression-curves.md` (quadratic/tiered/exponential formulas), `encounter-and-dungeon-guide.md` (threat tiers, boss phases). Assets: `system-rules-template.md`, `character-sheet-template.md`, `ledger-template.yaml`.
+- **`litrpg-audit` 1.0.0** — Deterministic numeric continuity auditor for LitRPG chapters. Runs `scripts/stat_audit.py` (zero-dependency Python stdlib) to verify stat point arithmetic (earned vs allocated), level curve milestones, skill unlock legality, derived pool math (HP/MP vs CON/INT), and status box brevity. References: `audit-rules.md`.
+- **`skills/litrpg-audit/scripts/stat_audit.py`** — Host-neutral script parsing chapter text and validating numbers against `ledger.yaml` with JSON and Markdown reporting.
+
+### Changed
+
+- **`gate-check` 1.0.0 → 1.1.0** — Added Pillar 7 (LitRPG & Numeric Continuity). Automatically invokes `stat_audit.py` when system rules or `ledger.yaml` exist, blocking gate passage on mathematical contradictions or unearned abilities.
+- **`burstiness-check` 1.3.1 → 1.4.0** — Updated `references/measure.py` to filter out Markdown callout blocks (`> ...`) and code fences (` ``` ... ``` `) so in-game status screens and stat tables do not distort narrative sentence-length variance or trigger false-positive repetition hotspots.
+- **`fiction-aiism-editor` 1.4.0 → 1.4.1** — Updated `references/aiism-criteria.md` with an explicit LitRPG/Progression exception for diegetic quantitative analysis, stat allocation debates, and build optimization inside system callouts.
+- **`fiction-genre` 3.2.0 → 3.2.1** — Updated `references/fantasy-litrpg.md` with direct references to the new `litrpg-system`, `litrpg-audit`, and status box formatting guide.
+- **`templates/AGENTS.md`** & **`docs/USER.md`** & **`docs/DEVELOPER.md`** — Documented the LitRPG workflow, updated editing decision trees, cataloged both new skills, and bumped library scale from 70 to 72 skills.
+- **`sync-manifest.txt`** — Registered `skills/fiction-genre/references/fantasy-litrpg.md` and verified zero upstream drift (`sync-check.sh` passes with exit code 0).
+
 
 Rationale: the library covered writing through packaging (`book-packaging` stops at the blurb, metadata, and cover brief) but nothing for promoting a finished book. One skill rather than three, because the workflow (audience, hooks, content pillars, calendar, captions) is shared and only the platform rules differ; those live in per-platform reference files that can be updated without touching the skill. Scale 69 → 70 skills.
 

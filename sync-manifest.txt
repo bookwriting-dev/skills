@@ -18,6 +18,7 @@ skills/fiction-divergence/SKILL.md
 skills/fiction-divergence/references/divergence-criteria.md
 skills/fiction-full-editor/SKILL.md
 skills/fiction-genre/SKILL.md
+skills/fiction-genre/references/fantasy-litrpg.md
 skills/fiction-line-editor/SKILL.md
 skills/fiction-outline/SKILL.md
 skills/fiction-outline/references/twist-principles.md

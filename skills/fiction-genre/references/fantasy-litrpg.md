@@ -60,3 +60,9 @@
 - **Stat-dump paralysis**: Pages of numbers with no narrative context. Stats must serve the story, not replace it.
 - **Power without cost**: If the protagonist levels up without sacrifice, tension evaporates. Growth must cost something.
 - **Protagonist has no personality**: So focused on the system that the character is just a vessel for optimization. Readers need someone to root for, not a spreadsheet.
+
+## Tooling in This Library
+- **System Design:** Run `litrpg-system` to establish canonical mechanics, attribute formulas, level-up curves, class trees, and character sheets in `Wiki/World/Systems/`.
+- **Progression Audit:** Run `litrpg-audit` (and `gate-check`) to verify mathematical continuity, stat point allocations, and skill unlock timing.
+- **UI & Formatting Guide:** Follow `skills/litrpg-system/references/stat-box-guide.md` for callout formatting (`> [!SYSTEM]`) to prevent stat dumps and protect prose cadence.
+

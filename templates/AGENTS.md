@@ -12,7 +12,7 @@ This project is: **__PROJECT_TYPE__** (FICTION, NONFICTION, or HYBRID — set by
 
 This repo holds a series, so everything is either **shared series canon** or **per-book**. Shared canon never moves into a book folder; per-book work never sits loose at a root.
 
-- **Shared (Wiki root):** `Wiki/Characters/`, `Wiki/World/`, `Wiki/Style/`, `Wiki/Story/theme.md`, `Wiki/Story/synopsis.md` (the series synopsis), `Wiki/Story/series-arc.md` (the series-level plan maintained by `fiction-series-outline`), `Wiki/Story/active-context.md` (the working log for the whole series), and `Wiki/Review/` (the series review panel — build it when Book 1 reaches review).
+- **Shared (Wiki root):** `Wiki/Characters/`, `Wiki/World/` (including `Wiki/World/Systems/` for LitRPG mechanics and `ledger.yaml`), `Wiki/Style/`, `Wiki/Story/theme.md`, `Wiki/Story/synopsis.md` (the series synopsis), `Wiki/Story/series-arc.md` (the series-level plan maintained by `fiction-series-outline`), `Wiki/Story/active-context.md` (the working log for the whole series), and `Wiki/Review/` (the series review panel — build it when Book 1 reaches review).
 - **Per-book (`Book-N/` subfolders):** every book gets the same five slots, whether or not they are filled yet — `Wiki/Story/Book-N/` (book synopsis, revision plans, `promises.yaml` — the Chekhov ledger), `Wiki/Outline/Book-N/` (outline + `Chapter_NN_Scene.md` beats + `surprise-ledger.md`), `Wiki/Psych/Book-N/`, `Chapters/Book-N/`, `_Edits/Book-N/`.
 - Older entries in `active-context.md` may cite pre-reorg root paths (e.g. `Chapters/Chapter-035.md`); the moved location is under `Book-N/`.
 
@@ -26,18 +26,18 @@ This repo holds a series, so everything is either **shared series canon** or **p
 ├── Wiki/                     # series canon
 │   ├── Story/                # theme, series synopsis, series arc, active context
 │   │   └── Book-N/           # per-book: synopsis, revision plans, promises.yaml
-│   ├── Characters/           # one file per character (series-wide)
+│   ├── Characters/           # one file per character (series-wide) + character sheets
 │   ├── Outline/
 │   │   └── Book-N/           # outline.md + Chapter_NN_Scene.md beats + surprise-ledger.md
 │   ├── Psych/
 │   │   └── Book-N/           # Chapter_NN_Psych.md
 │   ├── Style/                # genre, audience, style/review/voice guides
 │   ├── Review/               # series review panel: panel.md + personas
-│   └── World/                # setting, places, factions, polities, religions
+│   └── World/                # setting, places, factions, polities, religions, systems
 ├── Chapters/
 │   └── Book-N/               # Chapter-001.md …
 └── _Edits/
-    └── Book-N/               # Chapter-NNN_Review.md, sanity checks
+    └── Book-N/               # Chapter-NNN_Review.md, sanity checks, gate reports
 ```
 
 ## Authority
@@ -61,14 +61,15 @@ Run these skills in order unless the user skips a step:
 5. `fiction-series-outline` → `Wiki/Story/series-arc.md` (at series inception; refresh before planning each later book)
 6. `fiction-characters` → `Wiki/Characters/`
 7. `fiction-world` (and `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
-8. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
-9. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
-10. `fiction-psych` → `Wiki/Psych/Book-N/`
-11. `fiction-scenes` → chapter beat plans
-12. `fiction-style` + `fiction-voiceprompt`
-13. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-14. `fiction-reviewchapter` (its review audits the `promises.yaml` ledger; then line/prose/kill skills as needed)
-15. `review-panel` per act and before calling the book done (persona reads, verified findings → `Wiki/Review/`); `drift-check` at part boundaries for book-level drift the per-chapter gates cannot see
+8. `litrpg-system` → `Wiki/World/Systems/` + character sheets + `ledger.yaml` (if writing LitRPG or Progression Fantasy)
+9. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
+10. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
+11. `fiction-psych` → `Wiki/Psych/Book-N/`
+12. `fiction-scenes` → chapter beat plans
+13. `fiction-style` + `fiction-voiceprompt`
+14. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
+15. `fiction-reviewchapter` / `gate-check` (runs continuity, Chekhov ledger audit, and `litrpg-audit` for system books)
+16. `review-panel` per act and before calling the book done; `drift-check` at part boundaries
 
 `fiction-story-sparks` is only for an explicit prompt, card-style idea, or writing exercise. Do not use it to start or rewrite this book unless asked. For a second book, run `fiction-series-outline` first to refresh `Wiki/Story/series-arc.md` and honor the handoff inventory and inter-book promise map; the already-canonical series-level steps (genre, audience, theme, series synopsis, characters, world, style) are skipped unless the book needs new entries, and the book starts at its own synopsis in `Wiki/Story/Book-N/`.
 
@@ -113,7 +114,8 @@ Route editing and review tasks using this decision tree:
 
 **Fiction:**
 - **Story structure / causality / "does this chapter move?":** `fiction-dev-editor`. Diagnose scene beats, pacing, and causality before touching lines.
-- **Chapter gate (default review):** `fiction-reviewchapter`. Full 10-criteria gate checking canon assertions, Chekhov setups, character consistency, and prose rules.
+- **Chapter gate (default review):** `fiction-reviewchapter` / `gate-check`. Comprehensive readiness check including canon assertions, Chekhov setups, character consistency, prose rules, and (for LitRPG) progression continuity.
+- **LitRPG progression / stat continuity:** `litrpg-audit`. Deterministic mechanical check of stat point math, level curves, and skill unlocks against `ledger.yaml`. Also runs inside `gate-check`.
 - **Dialogue-only failure (samey, interview-like, expository):** `fiction-dialogue`. Diagnose conversation architecture and speaker stakes before diction.
 - **Blind POV / voice test:** `coldread`. Read-only, run in isolation before rule-loaded review so house rules do not prime the reader.
 - **Loose ends and unpaid setups:** `fiction-promises`. Audits the per-book Chekhov ledger (`promises.yaml`).
@@ -143,7 +145,7 @@ Route editing and review tasks using this decision tree:
 
 **Build the people:** `fiction-characters`, `fiction-psych`, `fiction-dialogue`, `fiction-voiceprompt`, `name-generator`
 
-**Build the world:** `fiction-world`, `fiction-places`, `fiction-factions`, `fiction-polities`, `fiction-religions`, `town-generator`, `fantasy-settlement`
+**Build the world:** `fiction-world`, `fiction-places`, `fiction-factions`, `fiction-polities`, `fiction-religions`, `litrpg-system`, `town-generator`, `fantasy-settlement`
 
 **Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
@@ -153,6 +155,7 @@ Route editing and review tasks using this decision tree:
 - Blind voice read: `coldread`
 - Structural / developmental: `fiction-dev-editor`
 - Comprehensive chapter gate: `gate-check`, `fiction-reviewchapter`
+- LitRPG numeric & stat audit: `litrpg-audit` (also runs in `gate-check`)
 - Chekhov promise ledger: `fiction-promises`
 - Reader persona panel: `reader-persona-review`, `review-panel`
 - Multi-book consistency: `series-continuity`

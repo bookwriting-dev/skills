@@ -11,7 +11,7 @@ description: Diagnostic-only mechanical proxy for finding chapters or scenes lik
   burstiness-check with chapter references.
 metadata:
   author: Fiction Toolkit
-  version: "1.3.1"
+  version: "1.4.0"
   category: fiction-editing
 ---
 

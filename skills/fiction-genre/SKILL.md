@@ -3,7 +3,7 @@ name: fiction-genre
 description: "Select genre, subgenre, flavor, tone, and tropes for a new fiction project. Use when user says 'pick a genre', 'what genre', 'start a new book', 'genre selection', or before running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.2.0"
+  version: "3.2.1"
   category: fiction-writing
   output-format: markdown
 ---
