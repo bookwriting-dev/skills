@@ -3,7 +3,7 @@ name: fiction-synopsis
 description: "Transform a new-story braindump into Wiki/Story/synopsis.md with premise, central question, reader promise, story answer and payoff, protagonists, mechanism, act structure, and open threads. Use when user says 'create synopsis', 'start my story', 'I have a story idea', or 'turn this into a synopsis'."
 metadata:
   author: Fiction Toolkit
-  version: "5.2.2"
+  version: "5.2.3"
   category: fiction-writing
   output-format: markdown
 ---
@@ -14,8 +14,9 @@ metadata:
 
 ## Step 1: Load Context
 
-All inputs come from the project's `Wiki/` folder. The project may live in a subfolder, so search for each file before reading:
+Inputs come from the project's `_Intake/` and `Wiki/` folders. Search for each file before reading:
 
+- `**/_Intake/series-brief.md`, `**/_Intake/braindump.md`, `**/_Intake/Book-*/premise.md` for raw braindumps, hooks, comps, and author intent
 - `**/Wiki/Style/genre.md`, for: genre, subgenre, flavor, tone_notes, tropes, trope commitments
 - `**/Wiki/Story/theme.md`, for: central_question, tone, motifs
 - `**/Wiki/Style/audience.md`, for: protagonist_ages, structural_norms
@@ -24,7 +25,9 @@ Each of these is optional. The synopsis works without them but gains depth from 
 
 ## Step 2: Gather User Input
 
-Ask the user for these two pieces of information using the host's normal question mechanism:
+Check if `_Intake/` provided an initial premise or braindump.
+- If an intake brief exists with ideas/notes, present a quick summary of what was found and ask: "I've loaded your notes from `_Intake/`. Any fresh fragments, scenes, or specifics to add before drafting the synopsis?"
+- If no intake materials exist, ask the user for these two pieces of information:
 
 **Question 1 (Working Title):** "Do you have a working title? Leave blank if not."
 

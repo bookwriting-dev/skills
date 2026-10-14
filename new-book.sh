@@ -2,14 +2,16 @@
 # Scaffold a new book/series project from this skill library.
 #
 # Usage:
-#   ./new-book.sh <folder-slug> ["Series Title"] [--type fiction|nonfiction|hybrid]
+#   ./new-book.sh <folder-slug> ["Series Title"] [--type fiction|nonfiction|hybrid] [--import <path>]
 #   BOOKS_DIR=/some/parent ./new-book.sh my-series --type nonfiction
+#   ./new-book.sh my-series "Series Title" --import /path/to/manuscript.md
 #
 # Creates the project folder with the shared Wiki slots, Book 1's five
-# per-book slots, a pinned copy of skills/ at .agents/skills/, and the
-# AGENTS.md + CLAUDE.md instruction files. --type sets the rendered
-# project-type line and adds the non-fiction Wiki slots (Wiki/Concept/,
-# Wiki/Research/) for nonfiction and hybrid projects.
+# per-book slots, the _Intake staging area, a pinned copy of skills/ at
+# .agents/skills/, and the AGENTS.md + CLAUDE.md instruction files.
+# --type sets the rendered project-type line and adds the non-fiction Wiki
+# slots. --import copies an existing manuscript into _Intake/Book-1/raw-manuscript/
+# for reverse-engineering.
 set -euo pipefail
 
 LIBRARY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -18,6 +20,7 @@ BOOKS_DIR="${BOOKS_DIR:-$HOME/Projects/Books}"
 SLUG=""
 TITLE=""
 PROJECT_TYPE="fiction"
+IMPORT_SOURCE=""
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -26,6 +29,11 @@ while [[ $# -gt 0 ]]; do
       PROJECT_TYPE="$2"; shift 2 ;;
     --type=*)
       PROJECT_TYPE="${1#--type=}"; shift ;;
+    --import)
+      [[ $# -ge 2 ]] || { echo "error: --import needs a path to an existing manuscript" >&2; exit 1; }
+      IMPORT_SOURCE="$2"; shift 2 ;;
+    --import=*)
+      IMPORT_SOURCE="${1#--import=}"; shift ;;
     -*)
       echo "error: unknown flag: $1" >&2; exit 1 ;;
     *)
@@ -38,7 +46,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 if [[ -z "$SLUG" ]]; then
-  echo "usage: new-book.sh <folder-slug> [\"Series Title\"] [--type fiction|nonfiction|hybrid]" >&2
+  echo "usage: new-book.sh <folder-slug> [\"Series Title\"] [--type fiction|nonfiction|hybrid] [--import <path>]" >&2
   exit 1
 fi
 if [[ "$SLUG" == */* || "$SLUG" == .* ]]; then
@@ -77,7 +85,29 @@ mkdir -p \
   "$TARGET/Wiki/World/Systems" \
   "$TARGET/Wiki/World/Events" \
   "$TARGET/Chapters/Book-1" \
-  "$TARGET/_Edits/Book-1"
+  "$TARGET/_Edits/Book-1" \
+  "$TARGET/_Intake/Book-1/raw-notes"
+
+# Intake templates: inspirational staging for series and Book 1.
+sed "s/__SERIES_TITLE__/$TITLE/g" \
+  "$LIBRARY_DIR/templates/series-brief.md" > "$TARGET/_Intake/series-brief.md"
+sed -e "s/__SERIES_TITLE__/$TITLE/g" -e "s/__BOOK_NUM__/1/g" \
+  "$LIBRARY_DIR/templates/book-premise.md" > "$TARGET/_Intake/Book-1/premise.md"
+
+# If an existing manuscript was supplied, stage it in _Intake/Book-1/raw-manuscript/
+if [[ -n "$IMPORT_SOURCE" ]]; then
+  if [[ ! -e "$IMPORT_SOURCE" ]]; then
+    echo "error: import path does not exist: $IMPORT_SOURCE" >&2
+    exit 1
+  fi
+  mkdir -p "$TARGET/_Intake/Book-1/raw-manuscript"
+  if [[ -d "$IMPORT_SOURCE" ]]; then
+    cp -R "$IMPORT_SOURCE"/* "$TARGET/_Intake/Book-1/raw-manuscript/"
+  else
+    cp "$IMPORT_SOURCE" "$TARGET/_Intake/Book-1/raw-manuscript/"
+  fi
+  echo "Imported raw manuscript to _Intake/Book-1/raw-manuscript/"
+fi
 
 # Non-fiction slots (the workflow template expects them for NONFICTION/HYBRID).
 if [[ "$PROJECT_TYPE" != "fiction" ]]; then
@@ -111,12 +141,18 @@ fi
 echo
 echo "Done. Next steps (see AGENTS.md):"
 echo "  1. cd $TARGET"
-if [[ "$PROJECT_TYPE" == "fiction" ]]; then
-  echo "  2. Planning skills in order: fiction-genre, fiction-audience, fiction-theme, fiction-synopsis, fiction-series-outline"
-  echo "  3. Then characters, world, outline, divergence, psych, scenes, style + voiceprompt, writechapter, reviewchapter"
+if [[ -n "$IMPORT_SOURCE" ]]; then
+  echo "  2. Reverse-engineer existing manuscript:"
+  echo "     Run 'book-reverse-engineer' to analyze the text, extract Wiki canon, promises, and findings."
+  echo "  3. Review _Edits/Book-1/reverse-analysis.md, approve canon decisions, then run the import pass."
+elif [[ "$PROJECT_TYPE" == "fiction" ]]; then
+  echo "  2. Fill out or add notes to _Intake/series-brief.md (or drop notes in _Intake/Book-1/raw-notes/)"
+  echo "  3. Planning skills in order (they ingest _Intake first): fiction-genre, fiction-audience, fiction-theme, fiction-synopsis, fiction-series-outline"
+  echo "  4. Then characters, world, outline, divergence, psych, scenes, style + voiceprompt, writechapter, reviewchapter"
 elif [[ "$PROJECT_TYPE" == "nonfiction" ]]; then
-  echo "  2. Planning skills in order: nonfiction-concept, nonfiction-audience, nonfiction-structure"
-  echo "  3. Then chapter-plan, writechapter, factcheck, clarity-edit; promise-tracker as chapters land"
+  echo "  2. Fill out or add notes to _Intake/series-brief.md"
+  echo "  3. Planning skills in order: nonfiction-concept, nonfiction-audience, nonfiction-structure"
+  echo "  4. Then chapter-plan, writechapter, factcheck, clarity-edit; promise-tracker as chapters land"
 else
   echo "  2. Hybrid project: fiction planning order for the narrative, non-fiction planning order for the argument (see AGENTS.md routing)"
 fi

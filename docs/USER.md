@@ -15,13 +15,14 @@ There are two kinds of repository, and keeping them apart is the whole game:
   project has its own git history; updating a project's library means copying `skills/`
   over again and committing.
 
-Inside a project, everything has one of three jobs:
+Inside a project, everything has a defined job:
 
 | Place | Job |
 |---|---|
+| `_Intake/` | **Staging & Inception.** Creative brief (`series-brief.md`), per-book premise (`Book-N/premise.md`), raw voice memos/brain dumps, and imported manuscripts (`raw-manuscript/`). Advisory to planning skills; never binding canon. |
 | `Wiki/` | **Canon.** Characters, world, style, outlines, promises, review findings. Wiki wins over any draft — if a chapter and the Wiki disagree, the Wiki is right until you explicitly change canon. |
 | `Chapters/Book-N/` | The prose. `Chapter-001.md`, three-digit numbering, title + POV name(s) inside the file. |
-| `_Edits/Book-N/` | Review and edit reports (`Chapter-NNN_Review.md`, `_FactCheck.md`, `_ClarityEdit.md`…), matched to chapters by number. |
+| `_Edits/Book-N/` | Review and edit reports (`Chapter-NNN_Review.md`, `_FactCheck.md`, `_ClarityEdit.md`…), defect ledgers (`findings.yaml`), matched to chapters by number. |
 
 A series is shared canon (Wiki root: characters, world, style, series synopsis,
 `series-arc.md`, review panel) plus per-book slots (`Book-N/` subfolders for synopsis,
@@ -31,15 +32,26 @@ isn't in the Wiki — they stop and ask instead.
 ## Starting a series
 
 ```bash
-./new-book.sh my-series "My Series Title"          # → ~/Projects/Books/my-series
-BOOKS_DIR=/some/where ./new-book.sh my-series      # → /some/where/my-series
+./new-book.sh my-series "My Series Title"          # → ~/Projects/Books/my-series (fiction)
 ./new-book.sh my-thesis "My Thesis" --type nonfiction   # or --type hybrid
+./new-book.sh my-book "My Book" --import /path/to/draft.md   # import existing manuscript
 ```
 
-You get the folder skeleton, the pinned skill library, rendered `AGENTS.md` +
-`CLAUDE.md`, and an initial commit. Open the project with your agent and say
-**"start the book"** — `AGENTS.md` tells the agent the exact order (fiction:
-`fiction-genre` first; every step can be skipped by saying so).
+You get the folder skeleton, the `_Intake/` creative brief staging area, the pinned skill
+library, rendered `AGENTS.md` + `CLAUDE.md`, and an initial commit.
+
+There are two distinct entry points:
+
+- **Path A: Greenfield (Starting from a new idea):**
+  Review or fill out `_Intake/series-brief.md`. Then open the project with your agent and say
+  **"start the book"** — the planning skills (`fiction-genre` first) ingest your intake notes
+  automatically to seed `Wiki/` canon without grilling you cold.
+- **Path B: Brownfield (Reverse-engineering an existing manuscript):**
+  If you provided `--import`, your manuscript is staged in `_Intake/Book-1/raw-manuscript/`.
+  Say **"reverse engineer the book"** — `book-reverse-engineer` will analyze the text, extract
+  characters, rules, timeline, promises, and voice into `_Edits/Book-1/reverse-analysis.md`,
+  flag contradictions, lock `Wiki/` canon upon your review, and seed `_Edits/Book-1/findings.yaml`
+  for surgical repairs.
 
 `--type` sets the project-type line in the rendered `AGENTS.md` and, for `nonfiction`
 and `hybrid`, creates `Wiki/Concept/` and `Wiki/Research/` alongside the shared Wiki
@@ -219,6 +231,7 @@ All 72 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 | Skill | What it does |
 |---|---|
+| `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.0.0 | Unified end-to-end runner: scene planning → draft → gate validation → cleanup. |
 | `gate-check` 1.1.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
 | `book-status` 1.0.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
@@ -259,6 +272,7 @@ All 72 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 
 Phrases that map to skills (the agent routes on them):
 
+- "Reverse-engineer existing draft" → `book-reverse-engineer` → `_Edits/Book-N/reverse-analysis.md` + `findings.yaml`
 - "Review chapter 5" → `fiction-reviewchapter` (or `gate-check`) → `_Edits/Book-N/Chapter-005_Review.md`
 - "Run chapter pipeline on chapter 3" → `chapter-pipeline`
 - "Show book status / dashboard" → `book-status`

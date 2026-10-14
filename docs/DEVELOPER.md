@@ -23,8 +23,8 @@ of `skills/` at `.agents/skills/` when scaffolded (a real `cp -R`, not a symlink
 every project versions its own library and can fork it freely. Changes here do not
 propagate to existing projects automatically — that is by design.
 
-Scale today: **72 skills** — 42 inherited from upstream at the fork point, 30 added
-since (8 fiction, 13 cross-cutting/pipeline/publishing, 9 non-fiction).
+Scale today: **73 skills** — 42 inherited from upstream at the fork point, 31 added
+since (8 fiction, 14 cross-cutting/pipeline/publishing, 9 non-fiction).
 
 ## Repository layout
 
@@ -143,6 +143,8 @@ These are load-bearing; breaking them breaks other skills' assumptions:
 
 | Script | Owner | Purpose |
 |---|---|---|
+| `book-reverse-engineer/scripts/manuscriptkit.py` | book-reverse-engineer | split/inspect manuscript units, word counts, chapter export |
+| `book-reverse-engineer/scripts/findings.py` | book-reverse-engineer | extracts flags from reverse-analysis.md into findings.yaml |
 | `drift-check/references/drift.py` | drift-check | book-level drift metrics (pet words, negation pivots, opener/closer formulas, noun-swapped dies, specifics density) |
 | `burstiness-check/references/measure.py` | burstiness-check | sentence/paragraph variance, openings, dialogue ratio |
 | `fiction-promises/scripts/promises.py` | fiction-promises | Chekhov ledger report |
@@ -185,18 +187,16 @@ any new placeholder needs matching script support.
 ./new-book.sh <slug> ["Series Title"]                # → ~/Projects/Books/<slug>  (fiction)
 BOOKS_DIR=/some/where ./new-book.sh <slug>           # → /some/where/<slug>
 ./new-book.sh <slug> "Title" --type nonfiction       # or hybrid
+./new-book.sh <slug> "Title" --import /path/to/ms.md # stages existing manuscript for retrofit
 ```
 
-Creates the project folder, `cp -R`s the library to `.agents/skills/`, makes the Wiki
-skeleton (shared: `Characters/`, `World/{Places,Factions,Systems,Events}`, `Style/`,
-`Review/`, `Story/Book-1`; per-book: `Story/`, `Outline/`, `Psych/` under `Wiki/*/Book-1`
-plus `Chapters/Book-1/`, `_Edits/Book-1/`), renders the templates, `git init`s (with a
-fallback to the Xcode git binary when the CLT license blocks `git`), and commits.
-
-`--type` sets the `__PROJECT_TYPE__` line in the rendered `AGENTS.md` and creates
-`Wiki/Concept/` + `Wiki/Research/` for `nonfiction` and `hybrid`; fiction scaffolds are
-unchanged. Slug validation: no slashes, no leading dot; refuses to overwrite an
-existing folder.
+Creates the project folder, `cp -R`s the library to `.agents/skills/`, creates `_Intake/`
+(rendered `series-brief.md` and `Book-1/premise.md`), makes the Wiki skeleton (shared:
+`Characters/`, `World/{Places,Factions,Systems,Events}`, `Style/`, `Review/`, `Story/Book-1`;
+per-book: `Story/`, `Outline/`, `Psych/` under `Wiki/*/Book-1` plus `Chapters/Book-1/`,
+`_Edits/Book-1/`), renders the templates, `git init`s (with a fallback to the Xcode git binary
+when the CLT license blocks `git`), and commits. `--import` copies an existing manuscript into
+`_Intake/Book-1/raw-manuscript/` for immediate analysis with `book-reverse-engineer`.
 
 ## Upstream sync: sync-check.sh
 

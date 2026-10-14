@@ -117,3 +117,5 @@ skills/town-generator/scripts/generate_town.py
 skills/town-generator/scripts/urls.txt
 templates/AGENTS.md
 templates/CLAUDE.md
+templates/book-premise.md
+templates/series-brief.md

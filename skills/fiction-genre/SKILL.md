@@ -3,7 +3,7 @@ name: fiction-genre
 description: "Select genre, subgenre, flavor, tone, and tropes for a new fiction project. Use when user says 'pick a genre', 'what genre', 'start a new book', 'genre selection', or before running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.2.1"
+  version: "3.2.2"
   category: fiction-writing
   output-format: markdown
 ---
@@ -14,7 +14,9 @@ metadata:
 
 ## Step 1: Gather User Input
 
-Ask the user for these three pieces of information using the host's normal question mechanism:
+First, check if `_Intake/series-brief.md` (or `_Intake/Book-1/premise.md`) exists and has values for genre, subgenre, tropes, or title.
+- If intake files provide these answers, present them to the user for quick confirmation or adjustment rather than asking cold in a vacuum.
+- Otherwise, ask the user for these three pieces of information using the host's normal question mechanism:
 
 **Question 1: Genre:** "What genre? Fantasy, Sci-Fi, Romance, Thriller, Mystery, Horror, Comedy, Adventure, Literary Fiction, or 'Surprise me'."
 

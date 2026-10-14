@@ -2,6 +2,33 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-14 — Inception & Reverse-Engineering Suite: _Intake/ Staging & book-reverse-engineer
+
+Rationale: Book projects previously suffered from two structural intake gaps: (1) Cold-start friction where planning skills interrogated authors in a vacuum before asking for their raw ideas, while dropping raw notes into `Wiki/` risked polluting binding canon with uncommitted brainstorms; (2) Lack of a pathway to bring existing manuscripts drafted without Storycraft discipline into the system, forcing authors to either edit without canon gates or painstakingly author `Wiki/` files and scene outlines by hand. This release introduces a dedicated `_Intake/` staging area for creative briefs and raw materials, integrates intake pre-population into planning skills, adds `--import <path>` support to `new-book.sh`, and adds the `book-reverse-engineer` skill (powered by zero-dependency `manuscriptkit.py` and `findings.py`) to inspect existing drafts, infer `Wiki/` canon and Chekhov ledgers, flag contradictions for human review, and seed defect backlogs in `_Edits/Book-N/findings.yaml` for surgical repair. Scale expands from 72 to 73 skills.
+
+### Added
+
+- **`_Intake/` Staging Architecture** — Dedicated staging folder (`_Intake/series-brief.md`, `_Intake/Book-N/premise.md`, `_Intake/Book-N/raw-notes/`, and `_Intake/Book-N/raw-manuscript/`). Explicitly defined as authorial inspiration/staging (advisory, not binding canon).
+- **`templates/series-brief.md`** & **`templates/book-premise.md`** — Inception brief skeletons capturing loglines, comp titles, tropes, tonal guardrails, non-negotiables, and conflict drivers.
+- **`new-book.sh --import <path>`** — Flags existing manuscript file or directory, copies it to `_Intake/Book-1/raw-manuscript/`, and outputs immediate reverse-engineering next steps.
+- **`book-reverse-engineer` 1.0.0** — Two-phase skill to analyze undisciplined manuscripts and retrofit them into Storycraft:
+  - *Analyze (Read-Only)*: Scans chapter prose, extracts character rosters, world systems, timeline chronology, retrofitted chapter beat plans, Chekhov promises, and voice DNA into `_Edits/Book-N/reverse-analysis.md`. Flags discrepancies (`CANON CONFLICT`, `DROPPED THREAD`, `CANON GAP`, `VOICE BREAK`, `LOW CONFIDENCE`).
+  - *Checkpoint*: Mandatory pause for human review of discrepancies.
+  - *Import*: Populates authoritative `Wiki/Characters/`, `Wiki/World/`, `Wiki/Style/`, `Wiki/Story/synopsis.md`, `promises.yaml`, `Wiki/Outline/Book-N/` beat files, and generates a structured defect backlog in `_Edits/Book-N/findings.yaml` via `findings.py`.
+- **`skills/book-reverse-engineer/scripts/manuscriptkit.py`** — Host-neutral Python stdlib script for unit splitting, boundary detection, word counting, and `--export-chapters` into `Chapters/Book-N/Chapter-NNN.md`.
+- **`skills/book-reverse-engineer/scripts/findings.py`** — Host-neutral Python stdlib script parsing confidence tags and conflicts into YAML defect rows.
+- **`skills/book-reverse-engineer/references/reverse-schema.md`** — Contract and markdown schema for `reverse-analysis.md`.
+
+### Changed
+
+- **`fiction-genre` 3.2.1 → 3.2.2** — Checks `_Intake/series-brief.md` first to pre-fill genre, subgenre, tropes, and title for author confirmation.
+- **`fiction-synopsis` 5.2.2 → 5.2.3** — Checks `_Intake/` for creative briefs and raw braindumps to seed the synopsis worker without demanding a cold braindump.
+- **`new-book.sh`** — Scaffolds `_Intake/` directory and renders intake templates automatically.
+- **`templates/AGENTS.md`** — Added `_Intake/` to layout and authority rules; added explicit Path A (Greenfield) and Path B (Brownfield Reverse-Engineering) workflows; indexed `book-reverse-engineer`.
+- **`docs/USER.md`** & **`docs/DEVELOPER.md`** — Documented `_Intake/` and `book-reverse-engineer`, updated script inventory, and bumped skill scale to 73.
+- **`sync-manifest.txt`** — Registered new templates; zero upstream drift verified via `sync-check.sh`.
+
+
 ## 2026-10-13 — LitRPG & Progression Fantasy Suite: Mechanics, Ledger & Audits
 
 Rationale: The library provided comprehensive craft, editing, and pipeline orchestration for general fiction, but lacked support for the core requirements of LitRPG and Progression Fantasy: power system design, mathematical sanity, deterministic numeric tracking, and audiobook/e-reader safe status box conventions. Furthermore, standard prose linters and sentence burstiness metrics penalized in-game status notifications and stat-analysis vocabulary. This release adds dedicated system design and progression audit skills, wires numeric checks into `gate-check`, teaches prose linters to respect system callouts, and establishes `Wiki/World/Systems/` as the canonical home for game rules and character ledgers. Scale expands from 70 to 72 skills.

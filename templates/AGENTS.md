@@ -23,6 +23,9 @@ This repo holds a series, so everything is either **shared series canon** or **p
 ├── AGENTS.md                 # this file — project-wide writing rules
 ├── CLAUDE.md                 # one-line import of AGENTS.md
 ├── .agents/skills/           # the skill library + companion files
+├── _Intake/                  # author staging & inception materials (advisory, not binding canon)
+│   ├── series-brief.md       # series-level pitch, comp titles, tropes, non-negotiables
+│   └── Book-N/               # per-book: premise.md, raw-notes/, raw-manuscript/ (for retrofit)
 ├── Wiki/                     # series canon
 │   ├── Story/                # theme, series synopsis, series arc, active context
 │   │   └── Book-N/           # per-book: synopsis, revision plans, promises.yaml
@@ -37,7 +40,7 @@ This repo holds a series, so everything is either **shared series canon** or **p
 ├── Chapters/
 │   └── Book-N/               # Chapter-001.md …
 └── _Edits/
-    └── Book-N/               # Chapter-NNN_Review.md, sanity checks, gate reports
+    └── Book-N/               # Chapter-NNN_Review.md, sanity checks, gate reports, findings.yaml
 ```
 
 ## Authority
@@ -50,26 +53,45 @@ This repo holds a series, so everything is either **shared series canon** or **p
 
 If Wiki and a draft disagree, Wiki wins until the user explicitly changes canon. If a skill would create a proper noun that is not in Wiki, stop and say so rather than inventing it.
 
+`_Intake/` holds authorial raw material, brainstorming, voice dictations, and external manuscripts staged for reverse-engineering. It is **inspirational and advisory**: skills read it to avoid interrogating you from scratch, but it does not override established `Wiki/` canon once formalized.
+
 ## How to start a book (FICTION)
 
-Run these skills in order unless the user skips a step:
+There are two doors into a book project:
 
-1. `fiction-genre` → `Wiki/Style/genre.md`
-2. `fiction-audience` → `Wiki/Style/audience.md`
-3. `fiction-theme` → `Wiki/Story/theme.md`
-4. `fiction-synopsis` → `Wiki/Story/synopsis.md`
-5. `fiction-series-outline` → `Wiki/Story/series-arc.md` (at series inception; refresh before planning each later book)
-6. `fiction-characters` → `Wiki/Characters/`
-7. `fiction-world` (and `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
-8. `litrpg-system` → `Wiki/World/Systems/` + character sheets + `ledger.yaml` (if writing LitRPG or Progression Fantasy)
-9. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
-10. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
-11. `fiction-psych` → `Wiki/Psych/Book-N/`
-12. `fiction-scenes` → chapter beat plans
-13. `fiction-style` + `fiction-voiceprompt`
-14. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-15. `fiction-reviewchapter` / `gate-check` (runs continuity, Chekhov ledger audit, and `litrpg-audit` for system books)
-16. `review-panel` per act and before calling the book done; `drift-check` at part boundaries
+### Path A: Greenfield (Starting from a new idea or brief)
+
+1. Review or fill `_Intake/series-brief.md` (and `_Intake/Book-1/premise.md`). Drop stray brainstorms or voice dictations into `_Intake/Book-1/raw-notes/`.
+2. Run the planning skills in order. They check `_Intake/` first and pre-populate context rather than interrogating you in a vacuum:
+   1. `fiction-genre` → `Wiki/Style/genre.md`
+   2. `fiction-audience` → `Wiki/Style/audience.md`
+   3. `fiction-theme` → `Wiki/Story/theme.md`
+   4. `fiction-synopsis` → `Wiki/Story/synopsis.md`
+   5. `fiction-series-outline` → `Wiki/Story/series-arc.md` (at series inception; refresh before planning each later book)
+   6. `fiction-characters` → `Wiki/Characters/`
+   7. `fiction-world` (and `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
+   8. `litrpg-system` → `Wiki/World/Systems/` + character sheets + `ledger.yaml` (if writing LitRPG or Progression Fantasy)
+   9. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
+   10. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
+   11. `fiction-psych` → `Wiki/Psych/Book-N/`
+   12. `fiction-scenes` → chapter beat plans
+   13. `fiction-style` + `fiction-voiceprompt`
+   14. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
+   15. `fiction-reviewchapter` / `gate-check` (runs continuity, Chekhov ledger audit, and `litrpg-audit` for system books)
+   16. `review-panel` per act and before calling the book done; `drift-check` at part boundaries
+
+### Path B: Brownfield (Reverse-engineering an existing or unguided draft)
+
+If you already have a drafted or finished manuscript that was written without Storycraft discipline:
+
+1. **Stage the manuscript:** Place it in `_Intake/Book-N/raw-manuscript/` (or scaffold with `./new-book.sh my-book "My Book" --import /path/to/manuscript`).
+2. **Analyze (`book-reverse-engineer`):** Reads the chapters, normalizes units to `Chapters/Book-N/Chapter-NNN.md`, and produces `_Edits/Book-N/reverse-analysis.md` extracting characters, world rules, timeline, Chekhov promises, and voice DNA. Flags all `CANON CONFLICT` and `DROPPED THREAD` discrepancies.
+3. **Review & Canon Lock:** Review the analysis report's discrepancy punch list. Make the binding canon decisions where the text contradicted itself.
+4. **Import:** The skill writes the authoritative `Wiki/` canon, `Wiki/Story/Book-N/promises.yaml`, retrofitted beats in `Wiki/Outline/Book-N/`, and seeds `_Edits/Book-N/findings.yaml`.
+5. **Rebuild & Repair Loop:**
+   - Structural / developmental fixes: `fiction-dev-editor`
+   - Targeted scene & chapter fixes: `fiction-revise` against the locked `Wiki/`
+   - Validation & gating: `fiction-reviewchapter` / `gate-check`
 
 `fiction-story-sparks` is only for an explicit prompt, card-style idea, or writing exercise. Do not use it to start or rewrite this book unless asked. For a second book, run `fiction-series-outline` first to refresh `Wiki/Story/series-arc.md` and honor the handoff inventory and inter-book promise map; the already-canonical series-level steps (genre, audience, theme, series synopsis, characters, world, style) are skipped unless the book needs new entries, and the book starts at its own synopsis in `Wiki/Story/Book-N/`.
 
@@ -141,6 +163,8 @@ Route editing and review tasks using this decision tree:
 
 ### Fiction skills
 
+**Inception & Intake:** `book-reverse-engineer`
+
 **Plan the promise:** `fiction-story-sparks`, `fiction-series-outline`, `fiction-genre`, `fiction-audience`, `fiction-theme`, `fiction-synopsis`
 
 **Build the people:** `fiction-characters`, `fiction-psych`, `fiction-dialogue`, `fiction-voiceprompt`, `name-generator`
@@ -149,7 +173,7 @@ Route editing and review tasks using this decision tree:
 
 **Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
-**Workflow & Orchestration:** `chapter-pipeline`, `gate-check`, `book-status`, `canon-guard`
+**Workflow & Orchestration:** `chapter-pipeline`, `gate-check`, `book-status`, `canon-guard`, `book-reverse-engineer`
 
 **Review the story (decision tree):**
 - Blind voice read: `coldread`
