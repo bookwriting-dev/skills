@@ -2,6 +2,35 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-16 — Toolchain: self-checking library, generated inventory, project version pin
+
+Rationale: the 2026-10-11 audit was excellent but manual, and the same three bug classes kept recurring — docs drifting from frontmatter, duplicate/superseded skills with no boundary, and dead file paths. This release makes the audit mechanical and gives projects a way to take updates: a linter that enforces the frontmatter/path/doc-drift contract, a generator that renders the catalog from frontmatter so it cannot drift, CI that runs both on every push, and a version pin plus updater for scaffolded projects. It also fixes the doc drift the new tools immediately caught.
+
+### Added
+
+- **`tools/lint-skills.py`** — stdlib-only linter enforcing the audit's invariants: `name` == folder, quoted semver, category enum, description length/chars, resolvable `references/`/`assets/`/`scripts/`/`data/` paths, orphaned bundled files, phantom skill names, `docs/USER.md` catalog versions vs frontmatter, and the "N skills" count in README/USER/DEVELOPER vs the real count. Errors fail; warnings pass unless `--strict`.
+- **`tools/gen-inventory.py`** + **`docs/SKILL-INVENTORY.md`** — the catalog generated from frontmatter (name, version, category, summary); `--check` fails if the committed file is stale.
+- **`tools/skill_lib.py`** — shared frontmatter loader for the two tools.
+- **`tools/compile-check.py`** — side-effect-free syntax check for every Python file in `tools/` and `skills/` (in-memory `compile()`, no `__pycache__` written, so the filesystem diff `sync-check.sh` stays clean).
+- **`tools/update-project.sh`** — reports how a project's pinned `.agents/skills/` differs from the library and, with `--apply`, copies the library in (additive; `--prune` deletes removed files) and rewrites the project's pin.
+- **`Makefile`** (`make check` / `lint` / `inventory` / `compile`) and **`.github/workflows/ci.yml`** — the same gate locally and on push/PR.
+- **`VERSION`** — library revision, written into each project's pin.
+
+### Changed
+
+- **`new-book.sh`** — writes `.agents/skills/.storycraft-source` (library name, version, commit, skill count, pin date, source path) so a project records what it pinned and `tools/update-project.sh` can report how far behind it is.
+- **`docs/USER.md`** — fixed the skill-count drift ("All 72 skills" → 73) and two catalog versions the 2026-10-14 release missed (`fiction-genre` 3.2.1 → 3.2.2, `fiction-synopsis` 5.2.2 → 5.2.3); the non-fiction section no longer claims research/source management and a developmental editor are unbuilt (both shipped 2026-10-12 — only a non-fiction revise skill remains); house rule 7 documents `tools/update-project.sh`; the catalog now points at `docs/SKILL-INVENTORY.md`.
+- **`docs/DEVELOPER.md`** — adds a Toolchain section and folds `make check` into the change loop; repository layout updated; "still open, by choice" corrected to the single unbuilt non-fiction layer.
+- **`README.md`** — corrected counts, documented the tools and the update flow.
+- **`review-panel` 1.1.1 → 1.1.2** and **`reader-persona-review` 1.0.0 → 1.0.1** — each now states explicitly what it is *not* and when to reach for the other (the two persona-panel skills overlapped with no boundary, so the agent could not disambiguate).
+- **`fiction-promises` 1.1.0 → 1.1.1** and **`promise-tracker` 1.0.1 → 1.0.2** — each now names the other as the fiction-only / unified variant sharing the same ledger, so the two ledgers are not run on one book at once.
+
+### Verified
+
+- `make check` green: 73 skills, 0 errors, 0 warnings; inventory current; all 18 scripts syntax-check clean. `sync-check.sh` still exits 0 (\"everything is accounted for\").
+- `new-book.sh` scaffolded into a temp dir, pin written; `tools/update-project.sh` correctly reported a changed file and a project-only file, `--apply` reverted the drift and kept the local file, and rewrote the pin. Temp dir removed.
+
+
 ## 2026-10-14 — Inception & Reverse-Engineering Suite: _Intake/ Staging & book-reverse-engineer
 
 Rationale: Book projects previously suffered from two structural intake gaps: (1) Cold-start friction where planning skills interrogated authors in a vacuum before asking for their raw ideas, while dropping raw notes into `Wiki/` risked polluting binding canon with uncommitted brainstorms; (2) Lack of a pathway to bring existing manuscripts drafted without Storycraft discipline into the system, forcing authors to either edit without canon gates or painstakingly author `Wiki/` files and scene outlines by hand. This release introduces a dedicated `_Intake/` staging area for creative briefs and raw materials, integrates intake pre-population into planning skills, adds `--import <path>` support to `new-book.sh`, and adds the `book-reverse-engineer` skill (powered by zero-dependency `manuscriptkit.py` and `findings.py`) to inspect existing drafts, infer `Wiki/` canon and Chekhov ledgers, flag contradictions for human review, and seed defect backlogs in `_Edits/Book-N/findings.yaml` for surgical repair. Scale expands from 72 to 73 skills.

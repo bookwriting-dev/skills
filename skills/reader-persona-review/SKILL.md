@@ -3,13 +3,15 @@ name: reader-persona-review
 description: "Run qualitative, persona-driven reader critiques on drafted chapters or full book exports across diverse archetypes, panel presets, and criteria, generating structured critique reports and panel synthesis. Use when the user asks for 'reader persona review', 'persona feedback', 'reader test', 'panel review', 'what would readers think', 'check pacing with personas', or 'anti-AI audit with reader personas'."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.0.1"
   category: cross-cutting
 ---
 
 # Reader Persona Review
 
 A multi-perspective qualitative review skill that evaluates drafted chapters or full manuscript exports through distinct reader archetypes. It uncovers pacing drags, mystery/fairness issues, character resonance, genre expectation alignment, and machine-cadence tells without leaking bibles or spoilers.
+
+Not `review-panel`: that skill is the heavier alternative — it builds personas *for this specific book* from its genre contract, runs each seat in an isolated worker with lane discipline, and grep-verifies every quoted line before filing into `Wiki/Review/`. This skill is the lighter, prescriptive path: a fixed roster of numbered archetypes with star ratings and Goodreads-style public-review drafts, run from `references/personas.md` and saved under `_Edits/Book-N/reviews/`. Reach for `reader-persona-review` for a quick scored pulse against canned archetypes; reach for `review-panel` when the book needs seats tuned to its own risks and verified findings.
 
 ## Core Principles
 

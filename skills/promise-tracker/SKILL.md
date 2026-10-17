@@ -3,7 +3,7 @@ name: promise-tracker
 description: "Track and audit promises — setups the text tells the reader to remember. For fiction: Chekhov's guns, questions, threats, relationships, mysteries, prophecies, rules. For non-fiction: thesis threads, unresolved tensions, 'we'll return to this', promised counterarguments/definitions. Maintains a ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when checking promises, loose ends, unresolved setups, or before closing a book. Works for both fiction and non-fiction projects."
 metadata:
   author: Storycraft Skills
-  version: "1.0.1"
+  version: "1.0.2"
   category: cross-cutting
   output-format: yaml
 ---
@@ -15,6 +15,8 @@ Every text makes implicit contracts with its reader. A detail introduced with we
 For **fiction**, these are classic Chekhov setups (guns, threats, questions, mysteries, prophecies, relationships). For **non-fiction** (essays, books, dissertations, reports), these are thesis threads, unresolved tensions, explicit forward references ("we'll return to this"), counterarguments promised but not yet addressed, or definitions promised but not yet given.
 
 The ledger lives at `Wiki/Story/Book-N/promises.yaml`, one ledger per book/work unit. A setup deliberately withheld for a later volume can be marked `deferred_to_series: true` and must appear in the inter-book/series promise map.
+
+For a fiction-only project, `fiction-promises` is the focused equivalent; this skill is the unified fiction + non-fiction variant. Both use the same ledger format and an equivalent `scripts/promises.py`, and both edit the *same* `Wiki/Story/Book-N/promises.yaml` — pick the one that matches the project type rather than running both on one book.
 
 ## Step 1: Locate the book/work unit and the ledger
 

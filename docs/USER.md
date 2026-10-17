@@ -90,24 +90,25 @@ If your series has game mechanics, stat systems, or cultivation/progression tier
 
 ## The non-fiction workflow
 
-As the library stands today, seven skills exist and work end to end:
+As the library stands today, nine skills exist and work end to end:
 
 **concept** (`Wiki/Concept/thesis.md`) → **audience** (`audience.md`, five reader
 archetypes) → **structure** (`structure.md`: problem-solution / chronological /
-conceptual / hybrid) → **chapter plan** (`Wiki/Outline/Book-N/plan.md`: each chapter's
-claim, evidence, transition, takeaway) → **writechapter** (`Chapters/Book-N/`) →
-**factcheck** (`_Edits/…_FactCheck.md`) → **clarity-edit** (`_Edits/…_ClarityEdit.md`).
+conceptual / hybrid) → **research** (`Wiki/Research/`: citation vault + claims matrix)
+→ **chapter plan** (`Wiki/Outline/Book-N/plan.md`: each chapter's claim, evidence,
+transition, takeaway) → **writechapter** (`Chapters/Book-N/`) → **dev-editor**
+(argument architecture and cognitive load) → **factcheck**
+(`_Edits/…_FactCheck.md`) → **clarity-edit** (`_Edits/…_ClarityEdit.md`).
 
 `promise-tracker` keeps the unified promise/claim ledger, and `review-panel` and
 `drift-check` run on non-fiction too (non-fiction persona seats; claim-density and
 evidence-ratio drift metrics).
 
-Three non-fiction layers are intentionally not built yet: research/source management, a
-non-fiction developmental editor, and a non-fiction revise skill. The workflow routes
-around them — structural problems go back to `nonfiction-chapter-plan` and a re-draft,
-and approved report fixes apply through `fiction-revise`, which is report-driven and
-book-agnostic. (DEVELOPER.md's reconciliation record lists them, should you want to
-build them.)
+One non-fiction layer is intentionally not built yet: a non-fiction revise skill. The
+workflow routes around it — structural problems go back to `nonfiction-chapter-plan`
+and a re-draft, and approved report fixes apply through `fiction-revise`, which is
+report-driven and book-agnostic. (DEVELOPER.md's reconciliation record lists it, should
+you want to build it.)
 
 ## Which editing skill? (the decision tree)
 
@@ -133,17 +134,20 @@ re-draft the chapter.
 
 ## Skill catalog
 
-All 72 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
+All 73 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
+(A machine-generated, always-current version of this list — name, version, category,
+summary — lives in [SKILL-INVENTORY.md](SKILL-INVENTORY.md); `make check` keeps this
+hand-written catalog's versions honest against it.)
 
 ### Fiction — plan the promise
 
 | Skill | What it does |
 |---|---|
 | `fiction-story-sparks` 1.2.0 | Compact story prompts from character + location + object/creature + event + twist + ending. Only on explicit request — never auto-starts your book. |
-| `fiction-genre` 3.2.1 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
+| `fiction-genre` 3.2.2 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
 | `fiction-audience` 4.0.0 | Target reader age group, content boundaries, structural norms → `Wiki/Style/audience.md`. |
 | `fiction-theme` 3.1.0 | The thematic engine: central question, tone, motifs → `Wiki/Story/theme.md`. |
-| `fiction-synopsis` 5.2.2 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
+| `fiction-synopsis` 5.2.3 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
 | `fiction-series-outline` 1.0.0 | Series-level plan: per-book dramatic-question stack, inter-book promise map, character arc spans, escalation, handoffs → `Wiki/Story/series-arc.md`. Run at series inception; refresh before each later book. |
 
 ### Fiction — build the people
@@ -184,8 +188,8 @@ All 72 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `litrpg-audit` 1.0.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.0.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
-| `fiction-promises` 1.1.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. |
-| `review-panel` 1.1.1 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
+| `fiction-promises` 1.1.1 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. |
+| `review-panel` 1.1.2 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
 | `drift-check` 1.2.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
 ### Fiction — edit the prose
@@ -237,11 +241,11 @@ All 72 skills, grouped by role. "Say" gives a trigger phrase the agent will reco
 | `book-status` 1.0.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
 | `canon-guard` 1.0.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.0.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
-| `reader-persona-review` 1.0.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
+| `reader-persona-review` 1.0.1 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `compile-manuscript` 1.0.0 | Stitches chapter drafts into continuous manuscript with front/back matter and clean exports. |
 | `book-packaging` 1.0.0 | Generates marketing kits: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.0 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
-| `promise-tracker` 1.0.1 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
+| `promise-tracker` 1.0.2 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
 | `kill-hedge` 1.0.0 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.0.0 | Converts passive to active for clarity and authority. |
 | `kill-acronym` 1.0.1 | Flags unexplained initialisms/acronyms on first use. |
@@ -310,5 +314,8 @@ Phrases that map to skills (the agent routes on them):
 6. **Verified quotes.** Panel findings grep-verify every line they attribute to your
    book — personas hallucinate, and the library knows it.
 7. **Your project owns its library.** Updating skills in this repo doesn't change
-   existing projects; copy `skills/` into the project's `.agents/skills/` and commit
-   when you want a project to take the update.
+   existing projects. When you want a project to take an update, run
+   `tools/update-project.sh <project-dir>` to see what changed, then add `--apply` to
+   copy the library in and rewrite the project's `.agents/skills/.storycraft-source`
+   pin — commit it in the project repo. (The long way still works: copy `skills/` over
+   `.agents/skills/` and commit.)

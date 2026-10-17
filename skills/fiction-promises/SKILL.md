@@ -3,7 +3,7 @@ name: fiction-promises
 description: "Track and audit the Chekhov ledger: every setup the text has made and whether it has paid off. Maintains the per-book ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when user says 'check promises', 'loose ends', 'unresolved setups', 'what have I forgotten to pay off', 'chekhov', or before closing a book. Runs alongside fiction-reviewchapter, which audits the ledger during chapter review."
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   category: fiction-writing
   output-format: yaml
 ---
@@ -21,6 +21,12 @@ deliberately withheld for a later book is marked `deferred_to_series: true` and 
 appear in the inter-book promise map in `Wiki/Story/series-arc.md` (maintained by
 `fiction-series-outline`) — an unpaid setup is not less unpaid for being someone else's
 book.
+
+For fiction this is the focused tool. `promise-tracker` is the unified fiction +
+non-fiction variant sharing the same ledger format and an equivalent
+`scripts/promises.py`; both sides edit the *same* `Wiki/Story/Book-N/promises.yaml`, so
+use whichever matches the project type rather than both — mixing them on one book saves
+the ledger twice over.
 
 ## Step 1: Locate the book and the ledger
 

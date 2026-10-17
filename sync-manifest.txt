@@ -1,3 +1,7 @@
+.github/workflows/ci.yml
+Makefile
+VERSION
+docs/SKILL-INVENTORY.md
 new-book.sh
 skills/burstiness-check/SKILL.md
 skills/burstiness-check/references/measure.py
@@ -119,3 +123,8 @@ templates/AGENTS.md
 templates/CLAUDE.md
 templates/book-premise.md
 templates/series-brief.md
+tools/compile-check.py
+tools/gen-inventory.py
+tools/lint-skills.py
+tools/skill_lib.py
+tools/update-project.sh

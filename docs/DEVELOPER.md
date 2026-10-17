@@ -32,11 +32,15 @@ since (8 fiction, 14 cross-cutting/pipeline/publishing, 9 non-fiction).
 storycraft-skills/
 ├── skills/              # the library — one folder per skill
 ├── templates/           # AGENTS.md + CLAUDE.md skeletons, rendered per project
+├── tools/               # lint-skills.py, gen-inventory.py, compile-check.py, update-project.sh, skill_lib.py
+├── Makefile             # `make check` — the gate CI runs
+├── VERSION              # library revision (date-based), recorded into project pins
+├── .github/workflows/   # CI: the same gate on push/PR
 ├── new-book.sh          # scaffold a new series project
 ├── sync-check.sh        # diff against the upstream ZIP
 ├── sync-manifest.txt    # files we own that may differ from upstream
 ├── CHANGELOG.md         # every change, with the why
-└── docs/                # this guide and USER.md
+└── docs/                # this guide, USER.md, and the generated SKILL-INVENTORY.md
 ```
 
 ## Anatomy of a skill
@@ -156,6 +160,24 @@ These are load-bearing; breaking them breaks other skills' assumptions:
 Quirk worth normalizing someday: most scripts live in `scripts/`, but the two
 diagnostics keep theirs in `references/`.
 
+## Toolchain
+
+The library checks itself; the manual audit that produced `AUDIT-2026-10-11.md` is now
+a script. `make check` (and CI) runs:
+
+| Tool | Does |
+|---|---|
+| `tools/lint-skills.py` | Enforces the contract: `name` == folder, quoted semver, category enum, description length/chars, resolvable `references/`/`assets/`/`scripts/`/`data/` paths, no orphaned bundled files, no phantom skill names, catalog versions in `docs/USER.md` matching frontmatter, and the "N skills" count in README/USER/DEVELOPER matching reality. Errors fail; warnings pass unless `--strict`. |
+| `tools/gen-inventory.py` | Regenerates `docs/SKILL-INVENTORY.md` from frontmatter (the single source of truth). `--check` fails if the committed file is stale. |
+| `tools/skill_lib.py` | Shared, stdlib-only frontmatter loader so the tools agree on what a skill is. |
+| `tools/compile-check.py` | `compile()` every Python file in memory so a syntax error fails the gate without writing `__pycache__` (which `sync-check.sh` would then misread as a fork addition). |
+| `tools/update-project.sh` | The back half of `new-book.sh`: reports how a project's pinned `.agents/skills/` differs from the library and, with `--apply`, copies the library in (additive; `--prune` also deletes removed files) and rewrites the project's pin. |
+
+**Version pinning.** `new-book.sh` writes `.agents/skills/.storycraft-source`
+(`library`, `version` from `VERSION`, `commit`, `skills`, `pinned`, `source`) into every
+scaffolded project, and `tools/update-project.sh` rewrites it on update. That file is
+what lets a project — or the updater — answer "how far behind am I?" without guessing.
+
 ## Making a change
 
 The ordinary-dev loop (this replaces the old tracked-deltas ritual):
@@ -169,12 +191,19 @@ The ordinary-dev loop (this replaces the old tracked-deltas ritual):
 3. **Add a CHANGELOG entry** — newest first, with the *why*, not just the what.
 4. **Register new files in `sync-manifest.txt`** (paths relative to repo root, one per
    line). The manifest tells `sync-check.sh` which differing files are ours; an
-   unregistered changed file shows up as false "UPSTREAM DRIFT".
+   unregistered changed file shows up as false "UPSTREAM DRIFT". Keep it sorted.
 5. **Wire into `templates/AGENTS.md`** if the change affects the workflow: the
    start-of-book order, the editing decision tree, or the skill index. The template is
    the single source of workflow authority — a skill that isn't in the index is a skill
    the next project never runs.
-6. **Commit.**
+6. **Run the gate:** `make check`. It lints frontmatter/paths/doc-drift (including
+   the catalog versions and the "N skills" count in `docs/USER.md` and `README.md`),
+   verifies `docs/SKILL-INVENTORY.md` is current, and syntax-checks every script (in
+   memory — no `__pycache__` written, so `sync-check.sh` stays clean). Run
+   `make inventory` first if you added or renamed a skill or changed a description.
+   CI (`.github/workflows/ci.yml`) runs the same gate on every push, so a red local
+   `make check` is a red build.
+7. **Commit.**
 
 Two template-rendering notes: `templates/AGENTS.md` is the full instruction file and
 `templates/CLAUDE.md` is a one-line `@AGENTS.md` import (never give CLAUDE.md its own
@@ -256,9 +285,8 @@ the next change should preserve:
    commit actually shipped, with a correction note; the deleted audit report is cited
    as git history (`git show e84222e^:AUDIT-REPORT-2026-10-10.md`), not as a file.
 
-Still open, by choice: three non-fiction layers remain unbuilt — research/source
-management, a non-fiction developmental editor, and a non-fiction revise skill (the
-seven-skill non-fiction workflow routes around them; see USER.md's non-fiction section
-for how) — and the two diagnostics keep their scripts in `references/`
+Still open, by choice: one non-fiction layer remains unbuilt — a non-fiction revise
+skill (the nine-skill non-fiction workflow routes around it; see USER.md's non-fiction
+section for how) — and the two diagnostics keep their scripts in `references/`
 instead of `scripts/` — a harmless inconsistency; normalize it if you're touching
 those skills anyway.

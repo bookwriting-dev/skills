@@ -3,7 +3,7 @@ name: review-panel
 description: "Build and run a persona review panel for fiction and non-fiction: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review."
 metadata:
   author: Fiction Toolkit
-  version: "1.1.1"
+  version: "1.1.2"
   category: fiction-writing
   output-format: markdown
 ---
@@ -20,6 +20,13 @@ against chapters or acts, and files verified findings in `Wiki/Review/`. It repl
 nothing: `coldread` tests one isolated claim about one unit; `fiction-reviewchapter`
 audits craft against canon; the panel answers the question neither can — *what does
 each kind of reader experience?*
+
+Not `reader-persona-review`: that skill is the lighter, prescriptive alternative — a
+fixed roster of 123 numbered archetypes with star ratings and Goodreads-style public
+review drafts, run from its own persona library and saved under `_Edits/Book-N/reviews/`.
+Use `reader-persona-review` for a quick scored pulse against canned archetypes; use this
+skill when you want personas built *for this book* against its genre contract, with
+lane discipline and grep-verified quotes filed into `Wiki/Review/`.
 
 ## The panel design rules
 

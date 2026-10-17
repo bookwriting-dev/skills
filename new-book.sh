@@ -72,6 +72,20 @@ mkdir -p "$TARGET/.agents"
 # Skill library: pinned copy, not a symlink — each project versions its own.
 cp -R "$LIBRARY_DIR/skills" "$TARGET/.agents/skills"
 
+# Record which library revision this project pinned, so `tools/update-project.sh`
+# (and the author) can tell at a glance when the project is behind.
+LIB_VERSION="$(cat "$LIBRARY_DIR/VERSION" 2>/dev/null || echo unknown)"
+LIB_COMMIT="$(git -C "$LIBRARY_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
+LIB_COUNT="$(find "$TARGET/.agents/skills" -name SKILL.md | wc -l | tr -d ' ')"
+cat > "$TARGET/.agents/skills/.storycraft-source" <<EOF
+library: storycraft-skills
+version: $LIB_VERSION
+commit: $LIB_COMMIT
+skills: $LIB_COUNT
+pinned: $(date +%Y-%m-%d)
+source: $LIBRARY_DIR
+EOF
+
 # Wiki skeleton: shared slots + Book 1's five per-book slots.
 mkdir -p \
   "$TARGET/Wiki/Story/Book-1" \
