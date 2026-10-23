@@ -10,8 +10,8 @@ Each fiction project gets a pinned copy of `skills/` at `.agents/skills/` when s
 storycraft-skills/
 ├── skills/            # the skill library (ours since the 2026-10-10 fork)
 ├── templates/         # AGENTS.md + CLAUDE.md skeletons (__SERIES_TITLE__ placeholder)
-├── tools/             # lint-skills.py · gen-inventory.py · compile-check.py · smoke-new-book.sh · update-project.sh · skill_lib.py
-├── Makefile           # `make check` — the CI gate (lint + inventory + syntax + scaffold smoke test)
+├── tools/             # lint-skills.py · gen-inventory.py · compile-check.py · eval-skills.sh (+ eval-fixtures/) · smoke-new-book.sh · update-project.sh · skill_lib.py
+├── Makefile           # `make check` — the CI gate (lint + inventory + syntax + behavior eval + scaffold smoke test)
 ├── VERSION            # library revision, recorded into each project's pin
 ├── .github/           # CI: the same gate on push/PR (.github/workflows/ci.yml)
 ├── new-book.sh        # scaffold a new series project
@@ -47,12 +47,13 @@ tools/update-project.sh ~/Projects/Books/my-series --apply    # copy it in, rewr
 The library has its own gate. Run it before committing:
 
 ```bash
-make check     # lint frontmatter/paths/doc-drift + verify inventory + syntax-check all scripts + scaffold smoke test
+make check     # lint frontmatter/paths/doc-drift + verify inventory + syntax-check all scripts + behavior eval + scaffold smoke test
 make inventory # regenerate docs/SKILL-INVENTORY.md from frontmatter
+make eval      # run the scripts against fixture chapters/ledgers with known defects
 make smoke     # scaffold a throwaway project and assert the tree it produces
 ```
 
-`tools/lint-skills.py` enforces the invariants the manual audits used to check by hand — skill name == folder, quoted semver, valid category, resolvable `references/`/`assets/`/`scripts/` paths, catalog versions matching frontmatter, and the "N skills" count matching reality. `tools/compile-check.py` syntax-checks every Python file in memory and runs `bash -n` over every shell script, and `tools/smoke-new-book.sh` runs the scaffolder end-to-end against a scratch directory. CI (`.github/workflows/ci.yml`) runs `make check` on both Ubuntu and macOS, since darwin is the primary authoring platform and `sync-check.sh` parses BSD `diff -rq` output. See [docs/DEVELOPER.md](docs/DEVELOPER.md) for the full change loop.
+`tools/lint-skills.py` enforces the invariants the manual audits used to check by hand — skill name == folder, quoted semver, valid category, resolvable `references/`/`assets/`/`scripts/` paths, catalog versions matching frontmatter, and the "N skills" count matching reality. `tools/compile-check.py` syntax-checks every Python file in memory, runs `bash -n` over every shell script, and asserts the two ledger parsers agree; `tools/eval-skills.sh` runs the diagnostics and ledger scripts against fixtures with known defects (a chapter carrying callouts/fences with sentinel tokens, a deliberately monotone chapter, a mixed-format promise ledger) so behavior — not just shape — is gated; and `tools/smoke-new-book.sh` runs the scaffolder end-to-end against a scratch directory. CI (`.github/workflows/ci.yml`) runs `make check` on both Ubuntu and macOS, since darwin is the primary authoring platform and `sync-check.sh` parses BSD `diff -rq` output. See [docs/DEVELOPER.md](docs/DEVELOPER.md) for the full change loop.
 
 
 ## Lineage

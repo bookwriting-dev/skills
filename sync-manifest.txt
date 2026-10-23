@@ -126,6 +126,10 @@ templates/book-premise.md
 templates/kanban-board.md
 templates/series-brief.md
 tools/compile-check.py
+tools/eval-fixtures/chapter-callouts.md
+tools/eval-fixtures/chapter-monotone.md
+tools/eval-fixtures/promises-ledger.yaml
+tools/eval-skills.sh
 tools/gen-inventory.py
 tools/lint-skills.py
 tools/skill_lib.py

@@ -1,0 +1,50 @@
+# Eval fixture: a promise ledger in every deadline format the skills accept.
+#
+# Expected verdicts as of ch5 (the eval asserts these):
+#   P003 owed by sec3.2 -> OVERDUE (only under the unified first-integer
+#        parser; the old concatenating parser read sec3.2 as chapter 32
+#        and silently cleared the debt)
+#   P005 owed by ch3.5  -> OVERDUE (same trap: old parser read chapter 35)
+#   P001 owed by ch12   -> OPEN
+#   P002                -> paid
+#   P004                -> deferred to series
+promises:
+  - id: "P001"
+    promise: "the locked drawer in Elena's study"
+    introduced_ch: 1
+    kind: object
+    weight: loud
+    payoff_by_ch: "ch12"
+    project_type: fiction
+  - id: "P002"
+    promise: "the debt Kell owes the harbormaster"
+    introduced_ch: "Chapter 2"
+    kind: debt
+    weight: plain
+    payoff_by_ch: 9
+    paid_in_ch: 8
+    paid_how: "paid with the stolen chart"
+    project_type: fiction
+  - id: "P003"
+    promise: "what the lighthouse keeper saw"
+    introduced_ch: "sec2.1"
+    kind: mystery
+    weight: plain
+    payoff_by_ch: "sec3.2"
+    project_type: nonfiction
+  - id: "P004"
+    promise: "the counterargument promised in chapter 4"
+    introduced_ch: 4
+    kind: counterargument
+    weight: plain
+    payoff_by_ch: ""
+    deferred_to_series: true
+    notes: "moves to book two"
+    project_type: nonfiction
+  - id: "P005"
+    promise: "the unnamed rider's banner"
+    introduced_ch: "ch3.5"
+    kind: mystery
+    weight: whisper
+    payoff_by_ch: "ch3.5"
+    project_type: fiction

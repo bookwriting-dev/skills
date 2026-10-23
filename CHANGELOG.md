@@ -2,6 +2,57 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-23 — Added: behavior eval harness — the gate now proves the scripts work, not just parse (review Tier 2.1)
+
+Rationale: the product review's headline. `make check` proved the library's
+silhouette — frontmatter, paths, catalogs, syntax — while the chapter loop could
+not finish and two ledger parsers disagreed about the same file. This adds the
+missing half: fixtures with *known defects*, and assertions that the right script
+catches the right thing. Deterministic, CI-able, no model runs.
+
+### Added
+
+- **`tools/eval-fixtures/`** — `chapter-callouts.md` (prose mixed with a fenced
+  stat block and `> [!SYSTEM]` callouts carrying sentinel tokens, plus checkbox
+  apparatus), `chapter-monotone.md` (uniform length, one dominant opener), and
+  `promises-ledger.yaml` (every deadline format: `ch12`, `Chapter 12`, `9`,
+  `sec3.2`, `ch3.5`, undated, deferred).
+- **`tools/eval-skills.sh`** + **`make eval`**, wired into `make check`:
+  - *Prose extraction:* sentinels must never reach drift.py's or measure.py's
+    output (the exact bug drift-check had until this release); the callout
+    fixture's sentence count must reflect prose, not apparatus; the monotone
+    fixture must be flagged (LOW variance bucket, 100% single opener, run of 13).
+  - *Ledger behavior:* both ledger skills must produce the same status→id
+    mapping on the mixed-format ledger, and the overdue set as of ch5 must be
+    exactly {P003, P005} — those two promises are only overdue under the
+    unified first-integer parser; reintroduce the old concatenating parser and
+    this eval goes red (verified: it does, end to end).
+  - PyYAML (the ledger scripts' only optional dependency) gates the behavioral
+    ledger checks: CI installs it; without it the eval skips that section with
+    a loud notice and still asserts both skills degrade identically.
+- **CI installs PyYAML** so the full eval always runs in the gate.
+
+### Fixed
+
+- **Exec bits normalized** on every shebang-carrying skill script (9 of 14 were
+  not executable — `fiction-promises`' among them, so direct invocation failed
+  while `python3 <path>` worked). Found by the eval's first run.
+
+### Verified
+
+- Full path (with PyYAML): 11/11. Skip path: 7/7. Regression-tested red/green
+  against the concatenating parser. `make check` green end to end: 74 skills,
+  0 errors, 0 warnings; smoke 29/29.
+
+### Explicitly deferred (recorded from the product review)
+
+LLM-behavioral evals (the manual golden-chapter run-through, review 2.2), the
+thin-skill rewrites (`compile-manuscript`, `nonfiction-research`,
+`nonfiction-dev-editor`), `_Intake/` wiring, a per-book synopsis producer,
+kill-rule dedup into `references/`, HTML-comment stripping in the diagnostics
+(noted while building fixtures), and the Tier 3 scope decisions
+(`sync-check.sh` retirement, non-fiction parity).
+
 ## 2026-10-23 — Fix: drift-check now actually ignores system callouts (review §3.6)
 
 Rationale: USER.md promises the diagnostics "automatically recognize and ignore"
