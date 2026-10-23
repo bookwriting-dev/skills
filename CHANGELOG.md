@@ -2,6 +2,30 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-23 — Fix: drift-check now actually ignores system callouts (review §3.6)
+
+Rationale: USER.md promises the diagnostics "automatically recognize and ignore"
+LitRPG `> [!SYSTEM]` blocks so stat sheets never false-flag. `burstiness-check`'s
+measure.py kept that promise; `drift-check`'s drift.py did not — it stripped only
+headings and bare fence-marker lines, so callouts AND fenced block *content*
+flowed into every drift metric (word counts, opener clustering, pet-word rates),
+inflating them on exactly the books the claim protects.
+
+### Fixed
+
+- **`drift-check` 1.3.0 → 1.3.1** — `body_lines()` now mirrors measure.py's line
+  filter: fence-state tracking (including ` ```yaml `-style info strings, whose
+  content previously counted as prose) and `>` callout stripping, while keeping
+  its own checkbox-apparatus and rule stripping. The never-edits contract is
+  unchanged — this changes what the script *measures*, not what it touches.
+
+### Verified
+
+- Sentinel test: fixture chapters carrying `> [!SYSTEM]`/`> [!ALERT]` boxes and a
+  fenced stat block — none of the sentinel tokens reach the metrics input; prose
+  survives; the full two-chapter drift run executes cleanly. (This test becomes
+  permanent in the eval harness, next release.)
+
 ## 2026-10-23 — Fix: every fork has a tiebreaker; the non-fiction plan has a home (review Tier 0.4/0.5)
 
 Rationale: six workflow forks had two plausible skills and no rule for which one

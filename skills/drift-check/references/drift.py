@@ -73,18 +73,33 @@ def split_words(text: str) -> list[str]:
 
 
 def body_lines(path: Path) -> tuple[str, list[str]]:
-    """Title (first # heading or filename) and prose lines with headings/fences stripped."""
+    """Title (first # heading or filename) and prose lines.
+
+    Strips non-prose apparatus so the metrics see narration only: headings,
+    fenced blocks (marker AND content), blockquote callouts (`>` — LitRPG
+    `> [!SYSTEM]` stat boxes are UI, not prose), rules, and checkbox
+    apparatus. Mirrors burstiness-check's measure.py line filter; USER.md
+    promises both diagnostics ignore system callouts.
+    """
     title = path.stem
     lines = []
+    in_fence = False
     for raw in path.read_text(encoding="utf-8").splitlines():
         line = raw.strip()
         if not line:
+            continue
+        if line.startswith("```"):  # handles info strings too ("```yaml")
+            in_fence = not in_fence
+            continue
+        if in_fence:
             continue
         if line.startswith("#"):
             if title == path.stem:
                 title = line.lstrip("#").strip()
             continue
-        if line in ("---", "```", "***"):
+        if line.startswith(">"):
+            continue
+        if line in ("---", "***"):
             continue
         if re.match(r"^[-*] \[", line):  # checkbox apparatus
             continue

@@ -192,7 +192,7 @@ hand-written catalog's versions honest against it.)
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.2.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. Fiction's owner; non-fiction/hybrid use `promise-tracker`. |
 | `review-panel` 1.1.3 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
-| `drift-check` 1.3.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
+| `drift-check` 1.3.1 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
 ### Fiction — edit the prose
 
@@ -257,7 +257,7 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `drift-check` 1.3.0 | The gradient across the whole book (see Review). |
+| `drift-check` 1.3.1 | The gradient across the whole book (see Review). |
 | `burstiness-check` 1.5.0 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — excludes system callout blocks from prose variance. |
 | `pangram` 2.0.0 | Statistical patterns associated with AI-detection risk (predictability, lexical diversity, uniform construction). |
 
