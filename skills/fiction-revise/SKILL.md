@@ -3,7 +3,7 @@ name: fiction-revise
 description: Apply approved edits from a review or edit report (_Edits/Chapter-NNN_*.md) directly to a chapter manuscript file with minimal, verified in-place edits and a change ledger. Use when user says "apply edits", "apply review fixes", "revise chapter", "apply fixes 1, 3, 5", or after running fiction-reviewchapter, fiction-full-editor, or another editing pass.
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: fiction-editing
 ---
 
@@ -25,7 +25,7 @@ The request accepts:
 1. Resolve the chapter file (prefer canonical `Chapters/Book-N/Chapter-NNN.md`).
 2. Locate the source edit report:
    - Check `_Edits/Book-N/` (or adjacent `_Edits/` folder).
-   - Look for `Chapter-NNN_Review.md`, `Chapter-NNN_FullEdit.md`, `Chapter-NNN_LineEdit.md`, etc.
+   - Match the `Chapter-NNN_<Type>.md` pattern — every report writer in the library follows it (`Review`, `Gate`, `FullEdit`, `LineEdit`, `AIisms`, `LevelUp`, `FragmentHunt`, `FactCheck`, `ClarityEdit`).
    - If multiple reports exist and the user didn't specify one, ask or default to the newest.
 3. Read both the chapter and the report into context.
 

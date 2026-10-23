@@ -184,25 +184,25 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `fiction-reviewchapter` 2.6.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
+| `fiction-reviewchapter` 2.7.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
 | `litrpg-audit` 1.0.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.0.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.1.1 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. |
 | `review-panel` 1.1.2 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
-| `drift-check` 1.2.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
+| `drift-check` 1.3.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
 ### Fiction — edit the prose
 
 | Skill | What it does |
 |---|---|
 | `fiction-full-editor` 1.2.0 | **Default** sentence-level pass: AI-isms + prose mechanics + line edits in one scan. |
-| `fiction-revise` 1.0.0 | Applies the report items you approve to the chapter in place — exact-quote verification, minimal perturbation, change ledger. |
+| `fiction-revise` 1.1.0 | Applies the report items you approve to the chapter in place — exact-quote verification, minimal perturbation, change ledger. |
 | `fiction-line-editor` 5.2.0 | Line craft/voice layer only (clichés, repetition, POV violations) when isolating that layer. |
 | `fiction-prose-editor` 1.3.0 | Prose mechanics only (fragments, choppy S-V-O chains, simile density, rule-of-threes, show-vs-tell). |
 | `fiction-aiism-editor` 1.4.1 | AI fingerprints only (forbidden words, machine constructions, self-announcing narration; with LitRPG system exceptions). |
-| `levelup` 1.1.0 | Filter-word scan ("she saw / he felt") — reader-distance fixes. |
-| `fragment-hunter` 1.1.0 | Mechanically extracts 1–3-word sentences, rebuilds them into performable prose (audiobook prep). |
+| `levelup` 1.2.0 | Filter-word scan ("she saw / he felt") — reader-distance fixes. |
+| `fragment-hunter` 1.2.0 | Mechanically extracts 1–3-word sentences, rebuilds them into performable prose (audiobook prep). |
 | `nominalization-hunt` 1.1.0 | Finds abstract self-explanation ("the realization of…"), restores action and observation. |
 
 ### Fiction — remove the tells (kill passes)
@@ -228,7 +228,7 @@ hand-written catalog's versions honest against it.)
 | `nonfiction-chapter-plan` 1.0.1 | Per chapter: claim, evidence, transition, reader takeaway → `Wiki/Outline/Book-N/plan.md`. |
 | `nonfiction-writechapter` 1.0.1 | Drafts from the plan: explanatory clarity, signposting, concrete examples, varied evidence. |
 | `nonfiction-dev-editor` 1.0.0 | Developmental review: thesis scaffolding, argument architecture, cognitive load, conceptual progression. |
-| `nonfiction-factcheck` 1.1.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
+| `nonfiction-factcheck` 1.2.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
 | `nonfiction-clarity-edit` 1.1.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
 
 ### Cross-cutting (fiction and non-fiction)
@@ -238,7 +238,7 @@ hand-written catalog's versions honest against it.)
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.1.0 | Unified end-to-end runner: scene planning → draft → promise harvest → gate validation → *applied* polish. |
 | `gate-check` 1.1.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
-| `book-status` 1.0.1 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
+| `book-status` 1.1.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
 | `kanban-board` 1.0.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.0.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.0.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
@@ -255,8 +255,8 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `drift-check` 1.2.0 | The gradient across the whole book (see Review). |
-| `burstiness-check` 1.4.0 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — excludes system callout blocks from prose variance. |
+| `drift-check` 1.3.0 | The gradient across the whole book (see Review). |
+| `burstiness-check` 1.5.0 | Sentence/paragraph variance, repeated openings, dialogue ratio vs. the book's own baseline — excludes system callout blocks from prose variance. |
 | `pangram` 2.0.0 | Statistical patterns associated with AI-detection risk (predictability, lexical diversity, uniform construction). |
 
 ### Utilities

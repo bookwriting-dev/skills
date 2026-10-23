@@ -3,7 +3,7 @@ name: drift-check
 description: "Diagnostic-only, book-level drift audit: measures across all chapters what per-chapter gates cannot see — pet words concentrating, rhetorical-move density accelerating, chapter openers and closers running on the same formula, and lived specificity thinning toward the back. Quality decays monotonically in long generation runs while per-chapter checks stay green; this skill finds the gradient. Also measures non-fiction drift: claim density, evidence-to-claim ratio, abstraction ladder variance, and definition reintroduce rate. Never edits text. Use for drift checks, 'why does the back half feel flatter', 'pet word check', or drift-check with a chapter range."
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   category: fiction-editing
 ---
 
@@ -108,3 +108,8 @@ The script finds candidates; interpretation decides which are findings:
 Report: the per-chapter table, the trend flags, the refrain-vs-die ruling for each
 closer cluster, and the routing. Never propose prose rewrites from the statistics
 alone.
+
+Save the report to `_Edits/Book-N/drift-report.md` for the book measured (create the
+folder if needed; the file is regenerated on every run, latest wins). This is a
+report file, not a text edit — the never-edits-prose contract is unchanged — and it
+is what `book-status` reads to summarize drift health.

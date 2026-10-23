@@ -8,7 +8,7 @@ description: Vicious fragment hunter for fiction prose. Mechanically extracts al
   for audiobook narration.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: fiction-editing
 ---
 
@@ -245,7 +245,7 @@ Skip any section with zero entries.
 ## Step 8: Save and Report
 
 1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
-2. Save report as `[chapter-name]_FragmentHunt.md` in that folder.
+2. Save report as `Chapter-NNN_FragmentHunt.md` in that folder (three-digit number matching the chapter — the same `Chapter-NNN_<Type>.md` convention every other `_Edits` report uses, so `fiction-revise` finds it by pattern).
 3. Tell the user: save location, total kills, level reached, worst clusters.
 4. Offer to apply confirmed KILL rewrites to the chapter (or route them through `fiction-revise`). SPAREs and FALSE POSITIVEs are untouched.
 

@@ -7,7 +7,7 @@ description: Filter word scan for fiction prose. Reads a chapter in 40-line sect
   strengthen immersion.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: fiction-editing
 ---
 
@@ -118,6 +118,6 @@ Skip any tier with zero findings.
 ## Step 5: Save and Report
 
 1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
-2. Save report as `[chapter-name]_LevelUp.md` in that folder.
+2. Save report as `Chapter-NNN_LevelUp.md` in that folder (three-digit number matching the chapter — the same `Chapter-NNN_<Type>.md` convention every other `_Edits` report uses, so `fiction-revise` finds it by pattern).
 3. Tell the user: save location, total hit count, top filter categories.
 4. Offer to apply approved items with `fiction-revise`.

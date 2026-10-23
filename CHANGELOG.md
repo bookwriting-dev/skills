@@ -2,6 +2,46 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-23 — Fix: producer/consumer contracts line up (review Tier 0.2)
+
+Rationale: several skills read artifacts that other skills write, where the paths
+or formats didn't match. The failure mode was never an error — it was work that
+quietly didn't happen: a fact-checker blind to the citation registry, a reviser
+blind to two editors' reports, a dashboard summarizing files nobody writes.
+
+### Fixed
+
+- **`levelup` 1.1.0 → 1.2.0, `fragment-hunter` 1.1.0 → 1.2.0** — reports now save
+  as `Chapter-NNN_LevelUp.md` / `Chapter-NNN_FragmentHunt.md` (three-digit,
+  matching the convention every other `_Edits` report uses). The 2026-10-11 audit
+  claimed this conversion landed; git shows it touched the folder path, not the
+  filename — these two were invisible to `fiction-revise`'s pattern ever since.
+- **`fiction-revise` 1.0.0 → 1.1.0** — Step 1 now matches the
+  `Chapter-NNN_<Type>.md` pattern instead of an enumerated list, so every report
+  writer in the library is discoverable.
+- **`nonfiction-factcheck` 1.1.0 → 1.2.0** — the research-corpus search now loads
+  `**/Research/**/*.yaml` alongside the markdown: `sources.yaml` (the registry
+  `nonfiction-research` writes and claims cite) was invisible to the only skill
+  that verifies claims.
+- **`fiction-reviewchapter` 2.6.0 → 2.7.0** — harvested promises now get an `id`
+  (sequential, continuing the ledger's numbering). The ledger scripts key on
+  `id`; a harvested promise without one printed as `?` in every report.
+- **`drift-check` 1.2.0 → 1.3.0, `burstiness-check` 1.4.0 → 1.5.0** — both
+  diagnostics now save their report (`_Edits/Book-N/drift-report.md` /
+  `burstiness-report.md`, regenerated per run). Measurement passes were
+  console-only; nothing on disk ever recorded what they found. Report files are
+  not text edits — the never-edits-prose contract is unchanged.
+- **`book-status` 1.0.1 → 1.1.0** — every metric now names a real artifact:
+  persona reviews at `_Edits/Book-N/reviews/` (+ `_synthesis.md`) and
+  `Wiki/Review/`; drift/cadence from the two new report files (with an honest
+  "run drift-check" when absent); and the ledger tally via the script's actual
+  CLI (`--book`/`--chapter`) instead of a nonexistent `status check` invocation,
+  naming which skill's copy to use per project type.
+
+### Verified
+
+- `make check` green after the change (74 skills, 0 errors, 0 warnings).
+
 ## 2026-10-23 — Fix: `chapter-pipeline` can now finish its own loop
 
 Rationale: the 2026-10-19 product review found that the one skill whose entire

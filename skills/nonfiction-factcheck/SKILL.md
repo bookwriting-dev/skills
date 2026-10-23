@@ -3,7 +3,7 @@ name: nonfiction-factcheck
 description: "Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/Book-N/."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: nonfiction-editing
   output-format: markdown
 ---
@@ -21,7 +21,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 1. Parse the request argument to determine the chapter. Accept number, filename, or path.
 2. Search the project files for the chapter (e.g., `**/Chapter-5*`). If not found, ask.
 3. Locate the research corpus — the authoritative evidence the chapter cites. Search in priority order for:
-   - `**/Research/**/*.md` or `**/Wiki/Research/**/*.md` (source notes, study summaries, interview records)
+   - `**/Research/**/*.md` and `**/Research/**/*.yaml` (or the `**/Wiki/Research/**` variants): source notes, study summaries, interview records — and `sources.yaml`, the citation registry `nonfiction-research` writes; claims cite its source ids, so it is the first thing to load
    - `**/Wiki/Sources/**` or `**/sources.md` or `**/bibliography.md` (citation registry)
    - The chapter plan's `fact_status` table and citation fields (from `nonfiction-chapter-plan`)
    - Any file the chapter's citations name directly
