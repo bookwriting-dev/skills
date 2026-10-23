@@ -2,6 +2,10 @@
 #
 # One per book/work unit: Wiki/Story/Book-N/promises.yaml
 #
+# Both ledger skills (fiction-promises, promise-tracker) ship this identical
+# starter; whichever seeds the ledger, the other adopts it as-is. NEVER
+# overwrite an existing promises.yaml — an existing ledger is always the truth.
+#
 # Tracks anything the text tells the reader to remember: setups that create
 # expectations and should be resolved or explicitly deferred.
 #
@@ -10,26 +14,39 @@
 # Non-fiction examples: thesis threads, unresolved tensions, "we'll return to
 # this", promised counterarguments/definitions, open questions, concepts needing
 # fuller treatment.
+#
+# fiction-reviewchapter harvests new promises and records payoffs here during
+# review; fiction-promises audits the whole ledger; fiction-series-outline
+# carries deferred_to_series entries in its inter-book promise map.
 
 promises:
   - id: "P001"
-    # What the reader is now expecting. Write from the reader's side.
+    # Sequential P-number, continuing the ledger's own numbering. The ledger
+    # scripts key on id; a promise without one prints as '?' in every report.
+    # What the reader is now expecting. Write from the reader's side:
+    # "the locked drawer in Elena's study", not "foreshadowing".
     promise: ""
-    # Where it was made (chapter/section). e.g. ch3, sec2.1, 3.2
+    # Where it was made (chapter/section). e.g. ch3, sec2.1, 3.2, 12
     introduced_ch: ""
     # Kind of promise.
     # Fiction: object | skill | threat | question | debt | relationship | mystery | prophecy | rule
     # Non-fiction: thesis-thread | tension | forward-ref | counterargument | definition | concept | example | open-question | other
-    kind: "other"
-    # How loudly made: whisper | plain | loud
+    kind: "object"
+    # How loudly the text made it. A promise made in a chapter title is owed
+    # sooner and louder than one made in a subordinate clause.
+    # One of: whisper | plain | loud
     weight: "plain"
-    # By which chapter/section reader will feel cheated. Required unless deferred.
+    # The chapter/section by which the reader will start to feel cheated.
+    # Required unless deferred — an undated promise is one nobody will
+    # remember to pay.
     payoff_by_ch: ""
     # Project context: fiction | nonfiction
     project_type: "fiction"
-    # Filled when paid (both or neither)
+    # Filled in when paid. Both fields, or neither.
     paid_in_ch: ""
     paid_how: ""
-    # Deferred to later volume; requires series/inter-book promise map
+    # Set true when the payoff is deliberately withheld for a later book.
+    # Requires the inter-book promise map in Wiki/Story/series-arc.md
+    # (maintained by fiction-series-outline) to carry it, and a note saying so.
     deferred_to_series: false
     notes: ""

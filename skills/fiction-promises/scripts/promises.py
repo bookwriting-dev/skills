@@ -34,9 +34,23 @@ LEDGER_REL = Path("Wiki") / "Story"
 
 
 def chapter_number(value) -> int | None:
-    """'ch12' / 12 / 'Chapter 12' -> 12."""
-    text = str(value or "").strip().lower()
-    digits = "".join(c for c in text if c.isdigit())
+    """'ch12' / 12 / 'Chapter 12' / 'sec2.1' -> the first integer in the text.
+
+    The two ledger skills (fiction-promises, promise-tracker) ship identical
+    copies of this function on purpose: they must agree on what 'sec2.1' means,
+    or the same ledger reads as overdue in one skill's report and current in
+    the other's. tools/compile-check.py asserts the copies agree — change both
+    or neither.
+    """
+    if value is None:
+        return None
+    text = str(value).strip().lower()
+    digits = ""
+    for c in text:
+        if c.isdigit():
+            digits += c
+        elif digits:
+            break
     return int(digits) if digits else None
 
 

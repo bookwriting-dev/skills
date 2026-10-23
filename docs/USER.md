@@ -121,7 +121,7 @@ Ask "what's wrong?" and read the row:
 | LitRPG stat math / progression contradictions | `litrpg-audit` (also in `gate-check`) | — |
 | One claim sounds machine-written | `coldread` (blind, read-only) | `coldread` |
 | Dialogue samey / interview-like | `fiction-dialogue` | — |
-| Loose ends, unpaid setups | `fiction-promises` | `promise-tracker` |
+| Loose ends, unpaid setups | `fiction-promises` | `promise-tracker` (also owns **hybrid** projects — it carries both kind vocabularies) |
 | General sentence-level polish | `fiction-full-editor` | `nonfiction-clarity-edit` |
 | Apply approved fixes from a report | `fiction-revise` | `fiction-revise` (report-driven, book-agnostic) |
 | Recurring crutches, whole-chapter sweep | `kill-chapter` (7 passes) | `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym` |
@@ -188,7 +188,7 @@ hand-written catalog's versions honest against it.)
 | `litrpg-audit` 1.0.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.0.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
-| `fiction-promises` 1.1.1 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. |
+| `fiction-promises` 1.2.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. Fiction's owner; non-fiction/hybrid use `promise-tracker`. |
 | `review-panel` 1.1.2 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
 | `drift-check` 1.3.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
@@ -246,7 +246,7 @@ hand-written catalog's versions honest against it.)
 | `compile-manuscript` 1.0.0 | Stitches chapter drafts into continuous manuscript with front/back matter and clean exports. |
 | `book-packaging` 1.0.0 | Generates marketing kits: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.0 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
-| `promise-tracker` 1.0.2 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. |
+| `promise-tracker` 1.1.0 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. Owns non-fiction **and hybrid** projects. |
 | `kill-hedge` 1.0.0 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.0.0 | Converts passive to active for clarity and authority. |
 | `kill-acronym` 1.0.1 | Flags unexplained initialisms/acronyms on first use. |

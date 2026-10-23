@@ -2,6 +2,42 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-23 — Fix: one promise ledger, one parser (review Tier 0.3)
+
+Rationale: `Wiki/Story/Book-N/promises.yaml` is written by four skills, and the two
+ledger skills shipped *different parsers for the same field* — `fiction-promises`
+concatenated every digit (`sec2.1` → 21) while `promise-tracker` took the first
+integer (`sec2.1` → 2), so the same ledger read as overdue in one skill's report
+and current in the other's. A correctness bug, not a style issue.
+
+### Fixed
+
+- **Both `scripts/promises.py`** now carry a byte-identical `chapter_number()` on
+  first-integer semantics ('sec2.1' → 2, 'ch3.5' → 3, 'Chapter 12' → 12 —
+  concatenating digits across a separator invents chapters). The skills are
+  copied into projects individually so the copies cannot share a file; the
+  invariant is now enforced by the gate instead.
+- **Both `assets/promises.yaml`** are byte-identical, adopting the superset schema
+  (adds `project_type`), and both skills' init steps now say an existing ledger
+  is adopted as-is — never re-seeded from the starter.
+- **Hybrid projects have an owner:** `promise-tracker` (it carries both kind
+  vocabularies and `project_type`). Written into both skills' descriptions
+  (the router reads descriptions) and the USER.md decision tree.
+- **`fiction-promises` 1.1.1 → 1.2.0, `promise-tracker` 1.0.2 → 1.1.0.**
+
+### Added
+
+- **`tools/compile-check.py` — ledger-contract check.** Imports both
+  `chapter_number()` copies, asserts each against a pinned expectation vector
+  (a wrong value in *both* copies still fails) and asserts the two assets are
+  byte-identical with the full entry schema. Verified to fail when the old
+  concatenating parser is reintroduced in one copy.
+
+### Verified
+
+- `make check` green (74 skills, 0 errors, 0 warnings); compile-check reports
+  2 ledger contracts OK; the checker was regression-tested red/green.
+
 ## 2026-10-23 — Fix: producer/consumer contracts line up (review Tier 0.2)
 
 Rationale: several skills read artifacts that other skills write, where the paths

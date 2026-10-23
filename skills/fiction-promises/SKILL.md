@@ -1,9 +1,9 @@
 ---
 name: fiction-promises
-description: "Track and audit the Chekhov ledger: every setup the text has made and whether it has paid off. Maintains the per-book ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when user says 'check promises', 'loose ends', 'unresolved setups', 'what have I forgotten to pay off', 'chekhov', or before closing a book. Runs alongside fiction-reviewchapter, which audits the ledger during chapter review."
+description: "Track and audit the Chekhov ledger: every setup the text has made and whether it has paid off. Maintains the per-book ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when user says 'check promises', 'loose ends', 'unresolved setups', 'what have I forgotten to pay off', 'chekhov', or before closing a book. Runs alongside fiction-reviewchapter, which audits the ledger during chapter review. Fiction projects use this skill; non-fiction and hybrid projects use promise-tracker — same ledger format, same script, one owning skill per project."
 metadata:
   author: Fiction Toolkit
-  version: "1.1.1"
+  version: "1.2.0"
   category: fiction-writing
   output-format: yaml
 ---
@@ -22,11 +22,11 @@ appear in the inter-book promise map in `Wiki/Story/series-arc.md` (maintained b
 `fiction-series-outline`) — an unpaid setup is not less unpaid for being someone else's
 book.
 
-For fiction this is the focused tool. `promise-tracker` is the unified fiction +
-non-fiction variant sharing the same ledger format and an equivalent
-`scripts/promises.py`; both sides edit the *same* `Wiki/Story/Book-N/promises.yaml`, so
-use whichever matches the project type rather than both — mixing them on one book saves
-the ledger twice over.
+Routing: fiction projects use this skill; non-fiction and hybrid projects use
+`promise-tracker` — it carries both kind vocabularies and the `project_type` field.
+The two skills share the same ledger format and equivalent `scripts/promises.py`, and
+both edit the *same* `Wiki/Story/Book-N/promises.yaml`, so never run both on one book:
+mixing them saves the ledger twice over.
 
 ## Step 1: Locate the book and the ledger
 
@@ -35,7 +35,9 @@ The ledger path is `Wiki/Story/Book-N/promises.yaml` for that book.
 
 If there is no ledger yet, copy [assets/promises.yaml](assets/promises.yaml) to
 `Wiki/Story/Book-N/promises.yaml` (create the folder if missing) and delete the blank
-scaffold entry. Tell the user a ledger was created.
+scaffold entry. Tell the user a ledger was created. An existing `promises.yaml` is
+always adopted as-is, never re-seeded — copying the starter over a live ledger would
+erase the book's promise history.
 
 ## Step 2: Read the ledger and the chapter
 

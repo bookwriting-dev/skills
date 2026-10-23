@@ -1,9 +1,9 @@
 ---
 name: promise-tracker
-description: "Track and audit promises — setups the text tells the reader to remember. For fiction: Chekhov's guns, questions, threats, relationships, mysteries, prophecies, rules. For non-fiction: thesis threads, unresolved tensions, 'we'll return to this', promised counterarguments/definitions. Maintains a ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when checking promises, loose ends, unresolved setups, or before closing a book. Works for both fiction and non-fiction projects."
+description: "Track and audit promises — setups the text tells the reader to remember. For fiction: Chekhov's guns, questions, threats, relationships, mysteries, prophecies, rules. For non-fiction: thesis threads, unresolved tensions, 'we'll return to this', promised counterarguments/definitions. Maintains a ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when checking promises, loose ends, unresolved setups, or before closing a book. Works for both fiction and non-fiction projects. Non-fiction and hybrid projects use this skill; fiction-only projects may use the focused fiction-promises instead — same ledger format, one owning skill per project."
 metadata:
   author: Storycraft Skills
-  version: "1.0.2"
+  version: "1.1.0"
   category: cross-cutting
   output-format: yaml
 ---
@@ -16,13 +16,13 @@ For **fiction**, these are classic Chekhov setups (guns, threats, questions, mys
 
 The ledger lives at `Wiki/Story/Book-N/promises.yaml`, one ledger per book/work unit. A setup deliberately withheld for a later volume can be marked `deferred_to_series: true` and must appear in the inter-book/series promise map.
 
-For a fiction-only project, `fiction-promises` is the focused equivalent; this skill is the unified fiction + non-fiction variant. Both use the same ledger format and an equivalent `scripts/promises.py`, and both edit the *same* `Wiki/Story/Book-N/promises.yaml` — pick the one that matches the project type rather than running both on one book.
+Routing: non-fiction and hybrid projects use this skill (it carries both kind vocabularies and the `project_type` field); fiction-only projects may use the focused `fiction-promises` instead. Both use the same ledger format and an equivalent `scripts/promises.py`, and both edit the *same* `Wiki/Story/Book-N/promises.yaml` — pick the one that matches the project type rather than running both on one book.
 
 ## Step 1: Locate the book/work unit and the ledger
 
 Identify the book/work unit from the user's request or from `**/Wiki/Story/active-context.md`. The ledger path is `Wiki/Story/Book-N/promises.yaml` for that unit.
 
-If there is no ledger yet, copy [assets/promises.yaml](assets/promises.yaml) to `Wiki/Story/Book-N/promises.yaml` (create the folder if missing) and remove the blank scaffold entry. Tell the user a ledger was created.
+If there is no ledger yet, copy [assets/promises.yaml](assets/promises.yaml) to `Wiki/Story/Book-N/promises.yaml` (create the folder if missing) and remove the blank scaffold entry. Tell the user a ledger was created. An existing `promises.yaml` is always adopted as-is, never re-seeded — copying the starter over a live ledger would erase the book's promise history.
 
 ## Step 2: Read the ledger and the relevant text
 
