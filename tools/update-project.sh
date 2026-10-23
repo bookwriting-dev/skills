@@ -63,17 +63,40 @@ TMP="$(mktemp -d)"
 trap 'rm -rf "$TMP"' EXIT
 : > "$TMP/add"; : > "$TMP/chg"; : > "$TMP/rem"
 
-# Classify differences; never let the pin file itself count as a skill change.
+# `diff -rq` prints one of:
+#   Files <lib>/a and <proj>/a differ
+#   Only in <some/dir>: <name>
+#   Only in <some/dir>: <name>       (same shape, but <some/dir> is the
+#                                     *innermost* differing directory, not
+#                                     necessarily the root we diffed)
+#
+# Every branch must rebuild a path relative to the skills root by stripping a
+# *known* prefix. Stripping up to the first ": " instead would silently drop the
+# leading directory — `Only in <proj>/skills/book-status: references` would parse
+# as `references`, and --apply --prune would then rm -f a path that does not
+# exist, report success, and leave the file in place.
+#
+# $1 = the whole diff line, $2 = the skills root that line is relative to.
+relpath() {
+  local head="$1" root="$2" dir name
+  head="${head#Only in }"
+  dir="${head%%: *}"            # longest ": *"-suffixed tail = the name(s)
+  name="${head#*: }"            # shortest prefix = "dir: "
+  dir="${dir#"$root"}"          # exact-prefix strip; leaves "/sub/dir" or ""
+  dir="${dir#/}"               # "" when dir == root, else the sub-path
+  printf '%s\n' "${dir:+$dir/}$name"
+}
+
 while IFS= read -r line; do
   case "$line" in
     "Files "*)
       rel="${line#Files }"; rel="${rel%% and *}"; rel="${rel#"$LIB_SKILLS"/}"
       printf '%s\n' "$rel" >> "$TMP/chg" ;;
-    "Only in $LIB_SKILLS"*)
-      rel="${line#Only in }"; rel="${rel#*: }"
+    "Only in $LIB_SKILLS/"*|"Only in $LIB_SKILLS: "*)
+      rel="$(relpath "$line" "$LIB_SKILLS")"
       [[ "$rel" == ".storycraft-source" ]] || printf '%s\n' "$rel" >> "$TMP/add" ;;
-    "Only in $PROJ_SKILLS"*)
-      rel="${line#Only in }"; rel="${rel#*: }"
+    "Only in $PROJ_SKILLS/"*|"Only in $PROJ_SKILLS: "*)
+      rel="$(relpath "$line" "$PROJ_SKILLS")"
       [[ "$rel" == ".storycraft-source" ]] || printf '%s\n' "$rel" >> "$TMP/rem" ;;
   esac
 done < <(diff -rq -x .storycraft-source "$LIB_SKILLS" "$PROJ_SKILLS" || true)
@@ -107,11 +130,26 @@ fi
 cp -R "$LIB_SKILLS/." "$PROJ_SKILLS/"
 
 if [[ "$PRUNE" -eq 1 && "$n_rem" -gt 0 ]]; then
+  pruned=0
+  missed=0
   while IFS= read -r rel; do
-    rm -f "$PROJ_SKILLS/$rel"
+    target="$PROJ_SKILLS/$rel"
+    if [[ -d "$target" ]]; then
+      # diff reports a directory here only when the whole subtree is project-only
+      # (e.g. a locally forked skill folder). Removing it is what --prune means.
+      rm -rf "$target"; pruned=$(( pruned + 1 ))
+    elif [[ -e "$target" ]]; then
+      rm -f "$target"; pruned=$(( pruned + 1 ))
+    else
+      # Should be unreachable: every path in $TMP/rem came from this diff run.
+      echo "warn: listed for pruning but not found, skipping: $rel" >&2
+      missed=$(( missed + 1 ))
+    fi
   done < "$TMP/rem"
   # clean up now-empty directories
   find "$PROJ_SKILLS" -type d -empty -delete 2>/dev/null || true
+  echo "Pruned $pruned project-only path(s)."
+  [[ "$missed" -eq 0 ]] || echo "warn: $missed path(s) were listed but absent; nothing deleted." >&2
 fi
 
 # Rewrite the pin.

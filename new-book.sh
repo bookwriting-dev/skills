@@ -60,14 +60,49 @@ esac
 TITLE="${TITLE:-$SLUG}"
 TYPE_UPPER="$(printf '%s' "$PROJECT_TYPE" | tr '[:lower:]' '[:upper:]')"
 
+# The title is rendered into five templates with sed. A title containing the sed
+# delimiter, an unescaped `&`, or a backslash used to abort the scaffold *after*
+# the project directory had been created — leaving a half-project that the
+# exists-check below then refused to overwrite, so the run could not be retried.
+# Reject the unrepresentable case up front and escape the rest.
+if [[ "$TITLE" == *$'\n'* || "$TITLE" == *$'\r'* ]]; then
+  echo "error: series title must be a single line (no newline)" >&2
+  exit 1
+fi
+SED_TITLE="$(printf '%s' "$TITLE" | sed -e 's/[\\&|]/\\&/g')"
+
 TARGET="$BOOKS_DIR/$SLUG"
 if [[ -e "$TARGET" ]]; then
   echo "error: $TARGET already exists" >&2
   exit 1
 fi
 
+# Validate every input before touching the filesystem: a bad --import path must
+# not leave a fully-populated project behind.
+if [[ -n "$IMPORT_SOURCE" && ! -e "$IMPORT_SOURCE" ]]; then
+  echo "error: import path does not exist: $IMPORT_SOURCE" >&2
+  exit 1
+fi
+for required in series-brief.md book-premise.md AGENTS.md CLAUDE.md; do
+  if [[ ! -f "$LIBRARY_DIR/templates/$required" ]]; then
+    echo "error: library template missing: templates/$required" >&2
+    exit 1
+  fi
+done
+
 echo "Scaffolding \"$TITLE\" ($PROJECT_TYPE) in $TARGET"
 mkdir -p "$TARGET/.agents"
+
+# Any failure from here on must not leave an unusable project behind, because
+# the exists-check above would block the retry. Roll the whole scaffold back.
+SCAFFOLD_STARTED=1
+rollback() {
+  if [[ "${SCAFFOLD_STARTED:-0}" -eq 1 && -n "${TARGET:-}" ]]; then
+    rm -rf "$TARGET"
+    echo "error: scaffold failed — removed partial project $TARGET" >&2
+  fi
+}
+trap rollback ERR INT TERM
 
 # Skill library: pinned copy, not a symlink — each project versions its own.
 cp -R "$LIBRARY_DIR/skills" "$TARGET/.agents/skills"
@@ -103,20 +138,29 @@ mkdir -p \
   "$TARGET/_Intake/Book-1/raw-notes"
 
 # Intake templates: inspirational staging for series and Book 1.
-sed "s/__SERIES_TITLE__/$TITLE/g" \
+# `|` delimiter + pre-escaped replacement, so `/`, `&`, `\` and `.` in the title
+# are all safe.
+sed "s|__SERIES_TITLE__|$SED_TITLE|g" \
   "$LIBRARY_DIR/templates/series-brief.md" > "$TARGET/_Intake/series-brief.md"
-sed -e "s/__SERIES_TITLE__/$TITLE/g" -e "s/__BOOK_NUM__/1/g" \
+sed -e "s|__SERIES_TITLE__|$SED_TITLE|g" -e "s|__BOOK_NUM__|1|g" \
   "$LIBRARY_DIR/templates/book-premise.md" > "$TARGET/_Intake/Book-1/premise.md"
 
 # If an existing manuscript was supplied, stage it in _Intake/Book-1/raw-manuscript/
 if [[ -n "$IMPORT_SOURCE" ]]; then
-  if [[ ! -e "$IMPORT_SOURCE" ]]; then
-    echo "error: import path does not exist: $IMPORT_SOURCE" >&2
-    exit 1
-  fi
   mkdir -p "$TARGET/_Intake/Book-1/raw-manuscript"
   if [[ -d "$IMPORT_SOURCE" ]]; then
-    cp -R "$IMPORT_SOURCE"/* "$TARGET/_Intake/Book-1/raw-manuscript/"
+    # nullglob: an empty directory must not turn into `cp: src/*: No such file`.
+    # dotglob: a manuscript is often a git repo or dotfile-strewn; import them too.
+    shopt -s nullglob dotglob
+    imported=0
+    for f in "$IMPORT_SOURCE"/*; do
+      cp -R "$f" "$TARGET/_Intake/Book-1/raw-manuscript/"
+      imported=$(( imported + 1 ))
+    done
+    shopt -u nullglob dotglob
+    if [[ "$imported" -eq 0 ]]; then
+      echo "note: import directory is empty: $IMPORT_SOURCE" >&2
+    fi
   else
     cp "$IMPORT_SOURCE" "$TARGET/_Intake/Book-1/raw-manuscript/"
   fi
@@ -128,9 +172,9 @@ if [[ "$PROJECT_TYPE" != "fiction" ]]; then
   mkdir -p "$TARGET/Wiki/Concept" "$TARGET/Wiki/Research"
 fi
 
-sed -e "s/__SERIES_TITLE__/$TITLE/g" -e "s/__PROJECT_TYPE__/$TYPE_UPPER/g" \
+sed -e "s|__SERIES_TITLE__|$SED_TITLE|g" -e "s|__PROJECT_TYPE__|$TYPE_UPPER|g" \
   "$LIBRARY_DIR/templates/AGENTS.md" > "$TARGET/AGENTS.md"
-sed "s/__SERIES_TITLE__/$TITLE/g" "$LIBRARY_DIR/templates/CLAUDE.md" > "$TARGET/CLAUDE.md"
+sed "s|__SERIES_TITLE__|$SED_TITLE|g" "$LIBRARY_DIR/templates/CLAUDE.md" > "$TARGET/CLAUDE.md"
 
 # git: prefer a working git; fall back to the Xcode binary (CLT license block).
 GIT_BIN=""
@@ -151,6 +195,11 @@ if [[ -n "$GIT_BIN" ]]; then
 else
   echo "note: no working git found; $TARGET created without a repository" >&2
 fi
+
+# Scaffold is complete and valid: stop the rollback trap so later failures can
+# never delete a finished project.
+SCAFFOLD_STARTED=0
+trap - ERR INT TERM
 
 echo
 echo "Done. Next steps (see AGENTS.md):"

@@ -127,4 +127,5 @@ tools/compile-check.py
 tools/gen-inventory.py
 tools/lint-skills.py
 tools/skill_lib.py
+tools/smoke-new-book.sh
 tools/update-project.sh

@@ -6,15 +6,20 @@ on:
 
 jobs:
   check:
-    runs-on: ubuntu-latest
+    # darwin is the primary authoring platform, and sync-check.sh parses BSD
+    # `diff -rq` output — a different format from GNU diff. Run both.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.x"
-      - name: Lint skills (frontmatter, paths, doc drift)
-        run: python3 tools/lint-skills.py
-      - name: Check the generated inventory is current
-        run: python3 tools/gen-inventory.py --check
-      - name: Syntax-check every script
-        run: python3 tools/compile-check.py
+      # One step, running the same `make check` target a developer runs locally.
+      # (Running the tools individually here let the Makefile go untested and
+      # silently drift from the gate.)
+      - name: Run the gate
+        run: make check

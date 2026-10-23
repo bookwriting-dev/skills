@@ -32,7 +32,7 @@ since (8 fiction, 14 cross-cutting/pipeline/publishing, 9 non-fiction).
 storycraft-skills/
 ├── skills/              # the library — one folder per skill
 ├── templates/           # AGENTS.md + CLAUDE.md skeletons, rendered per project
-├── tools/               # lint-skills.py, gen-inventory.py, compile-check.py, update-project.sh, skill_lib.py
+├── tools/               # lint-skills.py, gen-inventory.py, compile-check.py, smoke-new-book.sh, update-project.sh, skill_lib.py
 ├── Makefile             # `make check` — the gate CI runs
 ├── VERSION              # library revision (date-based), recorded into project pins
 ├── .github/workflows/   # CI: the same gate on push/PR
@@ -170,8 +170,19 @@ a script. `make check` (and CI) runs:
 | `tools/lint-skills.py` | Enforces the contract: `name` == folder, quoted semver, category enum, description length/chars, resolvable `references/`/`assets/`/`scripts/`/`data/` paths, no orphaned bundled files, no phantom skill names, catalog versions in `docs/USER.md` matching frontmatter, and the "N skills" count in README/USER/DEVELOPER matching reality. Errors fail; warnings pass unless `--strict`. |
 | `tools/gen-inventory.py` | Regenerates `docs/SKILL-INVENTORY.md` from frontmatter (the single source of truth). `--check` fails if the committed file is stale. |
 | `tools/skill_lib.py` | Shared, stdlib-only frontmatter loader so the tools agree on what a skill is. |
-| `tools/compile-check.py` | `compile()` every Python file in memory so a syntax error fails the gate without writing `__pycache__` (which `sync-check.sh` would then misread as a fork addition). |
+| `tools/compile-check.py` | `compile()` every Python file in memory (no `__pycache__`, which `sync-check.sh` would misread as a fork addition) *and* run `bash -n` over every shell script in the repo. |
+| `tools/smoke-new-book.sh` | Runs `new-book.sh` end-to-end in a temp dir and asserts the tree it promises: pinned library, rendered instructions, pin file, slots, project types, `--import` staging, and the rollback/retry contract. `SMOKE_KEEP=1` keeps the scratch dir. |
 | `tools/update-project.sh` | The back half of `new-book.sh`: reports how a project's pinned `.agents/skills/` differs from the library and, with `--apply`, copies the library in (additive; `--prune` also deletes removed files) and rewrites the project's pin. |
+
+**Why the gate looks like this.** Two bugs survived for the life of the repo —
+a `sed`-interpolation crash in `new-book.sh` and a path-flattening bug in
+`update-project.sh` — because they lived in shell, and nothing in the repo ever
+executed a shell script. Both destroyed user work silently. The gate now runs
+`bash -n` over every shell script *and* exercises `new-book.sh` for real, and CI
+runs `make check` rather than the tools one by one, so the Makefile cannot drift
+out of sync with what CI enforces. CI also runs `macos-latest` alongside Ubuntu,
+because darwin is the primary authoring platform and `sync-check.sh` parses BSD
+`diff -rq` output — a different format from GNU diff.
 
 **Version pinning.** `new-book.sh` writes `.agents/skills/.storycraft-source`
 (`library`, `version` from `VERSION`, `commit`, `skills`, `pinned`, `source`) into every
@@ -198,11 +209,11 @@ The ordinary-dev loop (this replaces the old tracked-deltas ritual):
    the next project never runs.
 6. **Run the gate:** `make check`. It lints frontmatter/paths/doc-drift (including
    the catalog versions and the "N skills" count in `docs/USER.md` and `README.md`),
-   verifies `docs/SKILL-INVENTORY.md` is current, and syntax-checks every script (in
-   memory — no `__pycache__` written, so `sync-check.sh` stays clean). Run
-   `make inventory` first if you added or renamed a skill or changed a description.
-   CI (`.github/workflows/ci.yml`) runs the same gate on every push, so a red local
-   `make check` is a red build.
+   verifies `docs/SKILL-INVENTORY.md` is current, syntax-checks every Python *and
+   shell* script, and smoke-tests `new-book.sh` end-to-end. Run `make inventory`
+   first if you added or renamed a skill or changed a description. CI
+   (`.github/workflows/ci.yml`) runs the same `make check` target on Linux and
+   macOS, so a red local `make check` is a red build.
 7. **Commit.**
 
 Two template-rendering notes: `templates/AGENTS.md` is the full instruction file and

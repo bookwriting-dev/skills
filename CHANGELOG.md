@@ -2,6 +2,42 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-18 — Fix: two silent data-destroying bugs in the shell scripts, and close the CI gaps that hid them
+
+Rationale: a review of the toolchain found two bugs that both destroy user work
+silently — and both survived for the life of the repo because they lived in shell,
+which nothing in the project ever executed or checked. `make check` claimed to
+"syntax-check every script" while globbing `*.py` only, and CI ran the three tools
+individually instead of `make check`, so the Makefile itself was untested. This
+release fixes both bugs, adds real shell coverage (a `bash -n` pass plus an
+end-to-end smoke test of the scaffolder), and makes CI run the target developers
+run. No skill bodies changed; this is toolchain and process only.
+
+### Fixed
+
+- **`new-book.sh` — a title containing `/` or `&` destroyed the scaffold.** The title was interpolated raw into `sed "s/__SERIES_TITLE__/$TITLE/g"`. A `/` aborted `sed` with "bad flag in substitute command" *after* the project directory had already been created; the exists-check then refused the retry, so the run was unrecoverable and left a half-project on disk with no `AGENTS.md`, no `CLAUDE.md`, and no git repo. `&` was worse — it expanded to the whole match and silently corrupted three rendered files. Fixed by escaping the replacement for a `|` delimiter, rejecting multi-line titles up front, and validating every input (including `--import`) **before** touching the filesystem.
+- **`new-book.sh` — a failed run now rolls back.** An `ERR`/`INT`/`TERM` trap removes the partially-built project so the command is always retryable. The trap is cleared once the scaffold is complete, so nothing can delete a finished project.
+- **`new-book.sh` — `--import` of an empty directory no longer aborts, and dotfiles are now staged.** `cp -R "$src"/*` with no `nullglob` failed on an empty directory; with `nullglob`/`dotglob` an empty import is a clean no-op with a note, and `.hidden-chapters/` and other dotfile content (a git repo, a dotfile-strewn manuscript) are imported instead of silently skipped.
+- **`tools/update-project.sh` — `--apply --prune` could delete the wrong thing and report success.** The `Only in …` branches parsed by stripping up to the first `": "`, which dropped the leading directory: `Only in <proj>/skills/book-status: references` parsed as `references`, so `rm -f` targeted a nonexistent path, the real file survived, and the script still printed "Applied". (The `Files …` branch two lines above already did this correctly.) Fixed by rebuilding the path from the known skills-root prefix — `diff -rq` reports the *innermost* differing directory, not the root, so a first attempt that only stripped the root prefix still mis-parsed. `--prune` now distinguishes files from directories, counts what it actually removed, and warns if a listed path was absent.
+
+### Added
+
+- **`tools/smoke-new-book.sh`** — runs `new-book.sh` end-to-end in a temp dir and asserts the tree it promises: pinned library, rendered `AGENTS.md`/`CLAUDE.md`, version pin, chapter and world slots, skill count matching the library, project-type slots, `--import` staging including dotfiles, the rollback/retry contract, and titles containing `sed` metacharacters (`/`, `&`, `\`, `|`). 27 assertions; `SMOKE_KEEP=1` keeps the scratch dir. Verified to fail with 5 errors against the pre-fix `new-book.sh`, so it is a real regression test and not a tautology.
+- **`make smoke`**, wired into `make check`.
+
+### Changed
+
+- **`tools/compile-check.py`** — now also runs `bash -n` over `new-book.sh`, `sync-check.sh`, and `tools/update-project.sh`, and reports a non-UTF-8 Python file as a clean diagnostic instead of a raw traceback.
+- **`.github/workflows/ci.yml`** — runs `make check` (one target, not three ad-hoc tool invocations) so the Makefile cannot drift from what CI enforces, and adds a `macos-latest` leg alongside Ubuntu: darwin is the primary authoring platform and `sync-check.sh` parses BSD `diff -rq` output, a different format from GNU diff.
+- **`Makefile`** — added `inventory-check` and `smoke` targets; `check` is now the full gate.
+- **`sync-manifest.txt`** — registered `tools/smoke-new-book.sh`.
+- **`README.md` / `docs/DEVELOPER.md`** — toolchain table, layout, and change loop now describe the shell syntax check, the smoke test, and the macOS CI leg.
+
+### Verified
+
+- `make check` green: 73 skills, 0 errors, 0 warnings; inventory current; 18 Python files + 3 shell scripts syntax-clean; smoke 27/27. Ran clean three times consecutively (the smoke test's temp-dir cleanup is deterministic after disabling git's background auto-maintenance, which raced `rm -rf` with ENOTEMPTY).
+- Each fix reproduced before and after: the `/`-in-title crash and the unrecoverable retry, the `&` corruption, backslash/pipe titles, the `--import` empty-dir and dotfile cases, and the `update-project.sh` path-flattening bug (including the whole-forked-skill-directory and spaces-in-filenames cases, verified end-to-end against a real scaffolded project). Temp dirs removed; repo tree clean.
+
 ## 2026-10-16 — Toolchain: self-checking library, generated inventory, project version pin
 
 Rationale: the 2026-10-11 audit was excellent but manual, and the same three bug classes kept recurring — docs drifting from frontmatter, duplicate/superseded skills with no boundary, and dead file paths. This release makes the audit mechanical and gives projects a way to take updates: a linter that enforces the frontmatter/path/doc-drift contract, a generator that renders the catalog from frontmatter so it cannot drift, CI that runs both on every push, and a version pin plus updater for scaffolded projects. It also fixes the doc drift the new tools immediately caught.
