@@ -90,7 +90,9 @@ If your series has game mechanics, stat systems, or cultivation/progression tier
 
 ## The non-fiction workflow
 
-As the library stands today, nine skills exist and work end to end:
+As the library stands today, the end-to-end chain is nine skills deep, plus the
+cross-genre tools that also run on non-fiction (`promise-tracker`, `review-panel`,
+`drift-check`):
 
 **concept** (`Wiki/Concept/thesis.md`) → **audience** (`audience.md`, five reader
 archetypes) → **structure** (`structure.md`: problem-solution / chronological /
@@ -116,17 +118,17 @@ Ask "what's wrong?" and read the row:
 
 | Symptom | Fiction | Non-fiction |
 |---|---|---|
-| "Does this chapter move / prove?" — structure, causality | `fiction-dev-editor` | (not yet built — re-plan + re-draft) |
-| Default chapter review (the gate) | `fiction-reviewchapter` / `gate-check` | `nonfiction-factcheck` + `nonfiction-clarity-edit` |
+| "Does this chapter move / prove?" — structure, causality | `fiction-dev-editor` | `nonfiction-dev-editor` |
+| Default chapter review (the gate) | `fiction-reviewchapter` (full review of a finished draft); `gate-check` = lighter checklist, the one `chapter-pipeline` runs | `nonfiction-factcheck` + `nonfiction-clarity-edit` |
 | LitRPG stat math / progression contradictions | `litrpg-audit` (also in `gate-check`) | — |
 | One claim sounds machine-written | `coldread` (blind, read-only) | `coldread` |
 | Dialogue samey / interview-like | `fiction-dialogue` | — |
 | Loose ends, unpaid setups | `fiction-promises` | `promise-tracker` (also owns **hybrid** projects — it carries both kind vocabularies) |
 | General sentence-level polish | `fiction-full-editor` | `nonfiction-clarity-edit` |
 | Apply approved fixes from a report | `fiction-revise` | `fiction-revise` (report-driven, book-agnostic) |
-| Recurring crutches, whole-chapter sweep | `kill-chapter` (7 passes) | `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym` |
+| Recurring crutches, whole-chapter sweep | `kill-chapter` (7 passes) | `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`; `kill-crutch WORD` (book-agnostic) for one filler token |
 | Back half feels flatter than the front | `drift-check` | `drift-check` |
-| "What would a reader think?" | `review-panel` | `review-panel` personas |
+| "What would a reader think?" | `review-panel` (act/book QA) or `reader-persona-review` (quick chapter pulse) | `review-panel` non-fiction seats or `reader-persona-review` |
 
 Rule of thumb: **editing passes run only when you ask.** Review is part of the loop;
 revision is your call. And a structural problem is never an editing job — fix the plan,
@@ -184,12 +186,12 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `fiction-reviewchapter` 2.7.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
+| `fiction-reviewchapter` 2.7.1 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
 | `litrpg-audit` 1.0.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.0.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.0.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.2.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. Fiction's owner; non-fiction/hybrid use `promise-tracker`. |
-| `review-panel` 1.1.2 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
+| `review-panel` 1.1.3 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
 | `drift-check` 1.3.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
 ### Fiction — edit the prose
@@ -225,11 +227,11 @@ hand-written catalog's versions honest against it.)
 | `nonfiction-audience` 1.1.0 | Reader knowledge, objections, prerequisites across five archetypes → `Wiki/Concept/audience.md`. |
 | `nonfiction-structure` 1.1.0 | Argument architecture (problem-solution / chronological / conceptual / hybrid) → `Wiki/Concept/structure.md`. |
 | `nonfiction-research` 1.0.0 | Manages citation vaults, claims matrices, and primary evidence in `Wiki/Research/`. |
-| `nonfiction-chapter-plan` 1.0.1 | Per chapter: claim, evidence, transition, reader takeaway → `Wiki/Outline/Book-N/plan.md`. |
+| `nonfiction-chapter-plan` 1.1.0 | Per chapter: claim, evidence, transition, reader takeaway — one `## Chapter NN` section per chapter in `Wiki/Outline/Book-N/plan.md` (the default home; per-chapter files only if the project already uses them). |
 | `nonfiction-writechapter` 1.0.1 | Drafts from the plan: explanatory clarity, signposting, concrete examples, varied evidence. |
 | `nonfiction-dev-editor` 1.0.0 | Developmental review: thesis scaffolding, argument architecture, cognitive load, conceptual progression. |
 | `nonfiction-factcheck` 1.2.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
-| `nonfiction-clarity-edit` 1.1.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
+| `nonfiction-clarity-edit` 1.1.1 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
 
 ### Cross-cutting (fiction and non-fiction)
 
@@ -237,7 +239,7 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.1.0 | Unified end-to-end runner: scene planning → draft → promise harvest → gate validation → *applied* polish. |
-| `gate-check` 1.1.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
+| `gate-check` 1.1.1 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
 | `book-status` 1.1.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
 | `kanban-board` 1.0.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.0.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
@@ -295,7 +297,7 @@ Phrases that map to skills (the agent routes on them):
 - "Full edit on chapter 7" → `fiction-full-editor`
 - "Check loose ends" / "what have I forgotten to pay off" → `fiction-promises`
 - "Why does the back half feel flatter?" → `drift-check`
-- "What would a romance reader think of the act break?" → `reader-persona-review` / `review-panel`
+- "What would a romance reader think of the act break?" → `review-panel` (act-level QA; `reader-persona-review` for a quick single-chapter pulse)
 - "Does chapter 12 actually sound like a teenager?" → `coldread`
 - "Kill the word 'just'" → `kill-crutch just`
 - "Name a harbor town" → `town-generator`; "name the antagonist" → `name-generator`

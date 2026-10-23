@@ -40,7 +40,7 @@ This repo holds a series, so everything is either **shared series canon** or **p
 ├── Chapters/
 │   └── Book-N/               # Chapter-001.md …
 └── _Edits/
-    └── Book-N/               # Chapter-NNN_Review.md, sanity checks, gate reports, findings.yaml
+    └── Book-N/               # Chapter-NNN_<Type>.md reports, reviews/ (persona drafts + _synthesis.md), findings.yaml
 ```
 
 ## Authority
@@ -136,7 +136,7 @@ Route editing and review tasks using this decision tree:
 
 **Fiction:**
 - **Story structure / causality / "does this chapter move?":** `fiction-dev-editor`. Diagnose scene beats, pacing, and causality before touching lines.
-- **Chapter gate (default review):** `fiction-reviewchapter` / `gate-check`. Comprehensive readiness check including canon assertions, Chekhov setups, character consistency, prose rules, and (for LitRPG) progression continuity.
+- **Chapter gate (default review):** `fiction-reviewchapter` for a full review of a finished draft; `gate-check` for the lighter checklist gate over the same pillars — and it is the one `chapter-pipeline` runs. Both cover canon assertions, Chekhov setups, character consistency, prose rules, and (for LitRPG) progression continuity.
 - **LitRPG progression / stat continuity:** `litrpg-audit`. Deterministic mechanical check of stat point math, level curves, and skill unlocks against `ledger.yaml`. Also runs inside `gate-check`.
 - **Dialogue-only failure (samey, interview-like, expository):** `fiction-dialogue`. Diagnose conversation architecture and speaker stakes before diction.
 - **Blind POV / voice test:** `coldread`. Read-only, run in isolation before rule-loaded review so house rules do not prime the reader.
@@ -145,7 +145,7 @@ Route editing and review tasks using this decision tree:
 - **Applying approved review/edit fixes:** `fiction-revise`. Applies user-approved items from `_Edits/` reports in place with strict quote verification, minimal perturbation, and a change ledger.
 - **Recurring model crutches (default):** `kill-chapter`. Runs all seven kill passes consecutively in place (similes, person-who, opinion-personification, the-whole, crutch, soft, flat). Use single-kill passes (`kill-crutch WORD`, `kill-simile`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`) only when targeting a specific token.
 - **Book-level drift / back-half flatness / formula openers:** `drift-check` across part boundaries and chapters.
-- **Reader reaction / persona reads:** `review-panel`. Multi-persona qualitative reads with verified citations.
+- **Reader reaction / persona reads:** `review-panel` for act- and book-level QA; `reader-persona-review` for a quick scored archetype pulse on a single chapter. Both grep-verify quoted lines.
 
 **Non-Fiction:**
 - **Structural / argument flow / "does this chapter prove?":** `nonfiction-dev-editor`. Diagnose argument architecture, claim scaffolding, and cognitive load before sentence edits.
@@ -157,7 +157,7 @@ Route editing and review tasks using this decision tree:
 - **Applying approved review/edit fixes:** `fiction-revise`. Report-driven and book-agnostic — it applies user-approved items from any `_Edits/Chapter-NNN_*.md` report with strict quote verification and a change ledger.
 - **Recurring clarity crutches:** run the targeted passes — `nominalization-hunt`, `kill-passive`, `kill-hedge`, `kill-acronym`. Use a single pass when targeting one pattern.
 - **Book-level drift / argument coherence / thesis alignment:** `drift-check` across part boundaries and chapters.
-- **Reader reaction / persona reads:** `reader-persona-review` (or `review-panel`). Multi-persona qualitative reads with verified citations.
+- **Reader reaction / persona reads:** `review-panel` for act- and book-level QA (it ships non-fiction seats); `reader-persona-review` for a quick scored archetype pulse on a single chapter.
 
 ## Skill index
 
@@ -178,10 +178,10 @@ Route editing and review tasks using this decision tree:
 **Review the story (decision tree):**
 - Blind voice read: `coldread`
 - Structural / developmental: `fiction-dev-editor`
-- Comprehensive chapter gate: `gate-check`, `fiction-reviewchapter`
+- Comprehensive chapter gate: `fiction-reviewchapter` (full review), `gate-check` (lighter checklist; the one `chapter-pipeline` runs)
 - LitRPG numeric & stat audit: `litrpg-audit` (also runs in `gate-check`)
 - Chekhov promise ledger: `fiction-promises`
-- Reader persona panel: `reader-persona-review`, `review-panel`
+- Reader persona panel: `review-panel` (act/book QA), `reader-persona-review` (quick chapter pulse)
 - Multi-book consistency: `series-continuity`
 
 **Edit the prose (decision tree):**
@@ -212,7 +212,7 @@ Route editing and review tasks using this decision tree:
 - Comprehensive chapter gate: `nonfiction-factcheck` + `nonfiction-clarity-edit`
 - Fact & evidence verification: `nonfiction-factcheck`
 - Promise / claim ledger: `promise-tracker`
-- Reader persona panel: `reader-persona-review`, `review-panel`
+- Reader persona panel: `review-panel` (act/book QA), `reader-persona-review` (quick chapter pulse)
 
 **Edit the prose (decision tree):**
 - Default full sentence edit: `nonfiction-clarity-edit`

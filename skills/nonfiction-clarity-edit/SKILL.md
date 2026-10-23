@@ -3,7 +3,7 @@ name: nonfiction-clarity-edit
 description: "Default comprehensive non-fiction clarity pass: jargon density, abstraction ladder, cognitive load, and signposting, plus sentence-level mechanics. The non-fiction equivalent of fiction-full-editor. Uses focused workers for 40-line chunk scanning. Use when user says 'clarity edit', 'make it clearer', 'check readability', 'edit chapter', 'polish writing', or asks for general sentence-level editing of non-fiction."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   category: nonfiction-editing
   output-format: markdown
 ---
@@ -21,7 +21,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 1. Parse the request argument to determine the chapter.
 2. Search the project files for the chapter (e.g., `**/Chapter-5*`). If not found, ask.
 3. Search for the project's style guide (`**/style_guide.md`) and review guide (`**/review_guide.md`). Use whichever exist.
-4. Search for the chapter's plan (`**/Chapter_[NN]_Plan.md` or the project's planning convention from `nonfiction-chapter-plan`). The plan states the chapter's claim, evidence blocks, and required transitions — a clarity edit must not cut an argument move it mistakes for clutter, and must not pass prose that buries the plan's claim.
+4. Search for the chapter's plan (its `## Chapter NN` section in `Wiki/Outline/Book-N/plan.md` — the default home — or a per-chapter `**/Chapter_[NN]_Plan.md` file, or the project's planning convention from `nonfiction-chapter-plan`). The plan states the chapter's claim, evidence blocks, and required transitions — a clarity edit must not cut an argument move it mistakes for clutter, and must not pass prose that buries the plan's claim.
 5. Get the chapter's line count using the host's available file or line-count operation.
 
 ## Step 2: Read All Criteria

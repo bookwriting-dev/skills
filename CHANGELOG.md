@@ -2,6 +2,55 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-23 — Fix: every fork has a tiebreaker; the non-fiction plan has a home (review Tier 0.4/0.5)
+
+Rationale: six workflow forks had two plausible skills and no rule for which one
+runs — the router decided, and the author couldn't predict it. And the non-fiction
+chapter plan had a three-way mismatch: AGENTS.md/USER.md promised a book-level
+`plan.md`, the skill defaulted to per-chapter files, and `kanban-board` read
+`plan.md` — which nothing wrote. Decision (with the author): the book-level
+`plan.md` wins.
+
+### Fixed — forks
+
+- **Chapter gate:** `fiction-reviewchapter` = full review of a finished draft;
+  `gate-check` = lighter checklist over the same pillars, the one `chapter-pipeline`
+  runs. Applied consistently in the USER.md decision tree, both AGENTS.md decision
+  trees (the skill-index order flip at the old :181 is gone), and as cross-reference
+  sentences in both skills' descriptions — the router reads descriptions, not docs.
+  `gate-check` 1.1.0 → 1.1.1, `fiction-reviewchapter` 2.7.0 → 2.7.1.
+- **Persona review:** `review-panel` for act-/book-level QA on both fiction and
+  non-fiction (it ships non-fiction seats); `reader-persona-review` for a quick
+  scored archetype pulse on one chapter. The USER.md decision tree no longer
+  contradicts its own recipes; `review-panel`'s description now carries the reverse
+  cross-reference. `review-panel` 1.1.2 → 1.1.3.
+- **`kill-crutch`** (book-agnostic single-token filler pass) added to the decision
+  tree's crutch row — it was findable in neither column.
+- **Promise ledger fork:** fiction → `fiction-promises`; non-fiction and hybrid →
+  `promise-tracker` (previous release).
+
+### Fixed — doc facts
+
+- USER.md's non-fiction dev-editor row no longer says "(not yet built)" —
+  `nonfiction-dev-editor` has existed at 1.0.0 all along.
+- USER.md's "nine skills" count reconciled with the chain it actually lists.
+- The `_Edits/Book-N/` layout comment names the real contents
+  (`Chapter-NNN_<Type>.md` reports, `reviews/`, findings).
+
+### Fixed — the non-fiction plan convention
+
+- **`nonfiction-chapter-plan` 1.0.1 → 1.1.0:** the default home is the book-level
+  `Wiki/Outline/Book-N/plan.md` with one `## Chapter NN` section per chapter
+  (mirrors fiction's `outline.md`; explicit paths and existing project conventions
+  still win). This is the file AGENTS.md's workflow, USER.md, and `kanban-board`'s
+  Backlog column all expected — a producer now exists.
+- **`nonfiction-clarity-edit` 1.1.0 → 1.1.1:** its plan-search step looks in
+  `plan.md` (the new default home) as well as per-chapter plan files.
+
+### Verified
+
+- `make check` green after the change (74 skills, 0 errors, 0 warnings).
+
 ## 2026-10-23 — Fix: one promise ledger, one parser (review Tier 0.3)
 
 Rationale: `Wiki/Story/Book-N/promises.yaml` is written by four skills, and the two

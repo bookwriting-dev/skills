@@ -1,9 +1,9 @@
 ---
 name: fiction-reviewchapter
-description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing."
+description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.7.0"
+  version: "2.7.1"
   category: fiction-writing
 ---
 

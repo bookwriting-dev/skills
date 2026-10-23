@@ -3,7 +3,7 @@ name: nonfiction-chapter-plan
 description: "Create or revise non-fiction chapter plans. Each chapter's claim, evidence, transition, and reader takeaway. The non-fiction equivalent of fiction-scenes/psych — replaces beat sheets with argument architecture. Use when structuring a chapter's logical flow before drafting."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.1"
+  version: "1.1.0"
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -21,7 +21,7 @@ Use this order of authority:
 3. The project's established source of truth and file conventions.
 4. This skill's generic defaults.
 
-Do not impose Wiki-only storage, integer numbering, or `Chapter_XX_Plan.md` when the project uses decimal or interlude chapters, or a different planning convention. An explicit output path wins. Otherwise, revise the existing assigned file. For a new file, follow neighboring chapter files; use `Wiki/Outline/Book-N/Chapter_[NN]_Plan.md` only when no project convention exists.
+Do not impose Wiki-only storage, integer numbering, or a fixed filename when the project uses decimal or interlude chapters, or a different planning convention. An explicit output path wins. Otherwise, revise the existing assigned file. The default home is the book-level `Wiki/Outline/Book-N/plan.md` — one `## Chapter NN` section per chapter, so the book's whole argument architecture stays visible in one file (mirrors fiction's `outline.md`, and it is what `kanban-board` reads as the non-fiction Backlog source). Use per-chapter `Chapter_[NN]_Plan.md` files only when the project already works that way.
 
 Do not create a diagnostic, receipt, research dump, or separate argument map unless the user asks or book instructions require it. Record unresolved research questions inside the requested artifact only when they affect drafting.
 
