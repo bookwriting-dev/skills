@@ -236,7 +236,7 @@ hand-written catalog's versions honest against it.)
 | Skill | What it does |
 |---|---|
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
-| `chapter-pipeline` 1.0.0 | Unified end-to-end runner: scene planning → draft → gate validation → cleanup. |
+| `chapter-pipeline` 1.1.0 | Unified end-to-end runner: scene planning → draft → promise harvest → gate validation → *applied* polish. |
 | `gate-check` 1.1.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
 | `book-status` 1.0.1 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
 | `kanban-board` 1.0.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |

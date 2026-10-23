@@ -8,7 +8,7 @@ Total: **74 skills**. The hand-written workflow guide is [USER.md](USER.md); thi
 
 | Skill | Version | Summary |
 |---|---|---|
-| `chapter-pipeline` | 1.0.0 | Run the complete end-to-end chapter production lifecycle from scene briefing to draft generation, gate verification, and line polish in a unified automated execution. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'. |
+| `chapter-pipeline` | 1.1.0 | Run the complete end-to-end chapter production lifecycle from scene briefing to draft generation, promise-ledger harvest, gate verification, and applied line polish in a unified automated execution. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'. |
 | `fiction-audience` | 4.0.0 | Define target reader age group, content boundaries, and structural norms. Use when user says 'define audience', 'who is this for', 'age group', 'target reader', 'content rating', or after running fiction-genre. |
 | `fiction-characters` | 3.1.1 | Generate one Wiki/Characters/[Name].md file per character with full profiles. Personality and dialogue_style are WRITING INSTRUCTIONS, not descriptions. Use when user says 'create characters', 'generate cast', 'build character profiles', or after running fiction-synopsis. |
 | `fiction-dialogue` | 1.0.0 | Draft, diagnose, or revise substantial fiction dialogue when speaker fidelity, unequal knowledge, subtext, or conversation architecture matters. Use for dialogue-heavy scenes or speech that feels samey, interview-like, over-clever, expository, or generically AI-written. Do not use for ordinary copyedits. |

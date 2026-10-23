@@ -2,6 +2,33 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-23 — Fix: `chapter-pipeline` can now finish its own loop
+
+Rationale: the 2026-10-19 product review found that the one skill whose entire
+job is "run the chapter loop" structurally could not complete it — its gate
+could never PASS, its polish step could be a no-op, and it looked for a scene
+file under a name nothing writes. First of the review's Tier 0 trust fixes.
+
+### Fixed
+
+- **`skills/chapter-pipeline` 1.0.0 → 1.1.0:**
+  - Scene-file glob corrected to `Chapter_NN_Scene.md` — the authority spelling
+    `fiction-scenes` actually writes (`templates/AGENTS.md` layout). The old
+    `Chapter_[NN]_Scene.md` matched nothing in a standard scaffold.
+  - New step 3 runs `fiction-promises` between drafting and the gate, so new
+    setups/payoffs are registered before `gate-check` requires them — the gate
+    can now PASS on chapters that set things up.
+  - The polish step completes: `kill-chapter` (edits in place), or
+    `fiction-aiism-editor` followed by `fiction-revise` applying the approved
+    items — the report alone was never polish.
+  - "Major beat gap" and halt-worthy `WARN` are now defined (an outline
+    `what_must_happen` directive with no scene; canon/continuity/ledger WARN),
+    so "halts on genuine blockers" is decidable.
+
+### Verified
+
+- `make check` green after the change (74 skills, 0 errors, 0 warnings).
+
 ## 2026-10-22 — Added: `kanban-board` — a per-book production board
 
 Rationale: a book is produced one chapter at a time through a fixed sequence
