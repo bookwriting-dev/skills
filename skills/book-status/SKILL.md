@@ -3,13 +3,15 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate check results, word counts, open Chekhov promises, and stylistic drift metrics across books and chapters. Use when user asks 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', or 'show project status'."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.0.1"
   category: cross-cutting
 ---
 
 # Book Status Dashboard
 
 Provides an executive summary of manuscript health, drafting completeness, gate checks, promise debts, and stylistic health across the entire book or series.
+
+For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` from the same on-disk state this skill reads.
 
 ## Dashboard Metrics
 

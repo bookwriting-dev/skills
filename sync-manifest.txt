@@ -55,6 +55,7 @@ skills/fiction-writechapter/references/common-pitfalls.md
 skills/fiction-writechapter/references/json-active-context-schema.json
 skills/fiction-writechapter/references/universal-quality-rules.md
 skills/fragment-hunter/SKILL.md
+skills/kanban-board/SKILL.md
 skills/kill-acronym/SKILL.md
 skills/kill-acronym/references/acronym.md
 skills/kill-chapter/SKILL.md
@@ -122,6 +123,7 @@ skills/town-generator/scripts/urls.txt
 templates/AGENTS.md
 templates/CLAUDE.md
 templates/book-premise.md
+templates/kanban-board.md
 templates/series-brief.md
 tools/compile-check.py
 tools/gen-inventory.py

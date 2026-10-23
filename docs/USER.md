@@ -134,7 +134,7 @@ re-draft the chapter.
 
 ## Skill catalog
 
-All 73 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
+All 74 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
 (A machine-generated, always-current version of this list — name, version, category,
 summary — lives in [SKILL-INVENTORY.md](SKILL-INVENTORY.md); `make check` keeps this
 hand-written catalog's versions honest against it.)
@@ -238,7 +238,8 @@ hand-written catalog's versions honest against it.)
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.0.0 | Unified end-to-end runner: scene planning → draft → gate validation → cleanup. |
 | `gate-check` 1.1.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
-| `book-status` 1.0.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
+| `book-status` 1.0.1 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
+| `kanban-board` 1.0.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.0.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.0.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
 | `reader-persona-review` 1.0.1 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
@@ -280,6 +281,7 @@ Phrases that map to skills (the agent routes on them):
 - "Review chapter 5" → `fiction-reviewchapter` (or `gate-check`) → `_Edits/Book-N/Chapter-005_Review.md`
 - "Run chapter pipeline on chapter 3" → `chapter-pipeline`
 - "Show book status / dashboard" → `book-status`
+- "Show the board / what's in progress" → `kanban-board`
 - "Safely update character fact" → `canon-guard`
 - "Audit series continuity" → `series-continuity`
 - "Run reader persona review on chapter 2" → `reader-persona-review`

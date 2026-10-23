@@ -63,6 +63,8 @@ expect_file "$P/AGENTS.md"                "rendered AGENTS.md"
 expect_file "$P/CLAUDE.md"                "rendered CLAUDE.md"
 expect_file "$P/_Intake/series-brief.md"  "rendered series brief"
 expect_file "$P/_Intake/Book-1/premise.md" "rendered book premise"
+expect_file "$P/Wiki/Story/Book-1/kanban.md" "starter kanban board"
+expect_grep "$P/Wiki/Story/Book-1/kanban.md" "Basic Book" "title rendered into kanban board"
 expect_file "$P/.agents/skills/.storycraft-source" "version pin"
 expect_dir  "$P/Chapters/Book-1"          "chapter slot"
 expect_dir  "$P/Wiki/World/Places"        "world slot"
@@ -71,7 +73,7 @@ expect_eq   "skill count matches library" \
   "$(find "$LIBRARY_DIR/skills" -name SKILL.md | wc -l | tr -d ' ')"
 expect_grep "$P/.agents/skills/.storycraft-source" "version:" "pin records a version"
 expect_grep "$P/AGENTS.md" "Basic Book"    "title rendered into AGENTS.md"
-if grep -rq "__SERIES_TITLE__" "$P/AGENTS.md" "$P/CLAUDE.md" "$P/_Intake"; then
+if grep -rq "__SERIES_TITLE__" "$P/AGENTS.md" "$P/CLAUDE.md" "$P/_Intake" "$P/Wiki/Story/Book-1/kanban.md"; then
   bad "no unrendered placeholders left behind"
 else
   ok "no unrendered placeholders left behind"

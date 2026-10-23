@@ -83,7 +83,7 @@ if [[ -n "$IMPORT_SOURCE" && ! -e "$IMPORT_SOURCE" ]]; then
   echo "error: import path does not exist: $IMPORT_SOURCE" >&2
   exit 1
 fi
-for required in series-brief.md book-premise.md AGENTS.md CLAUDE.md; do
+for required in series-brief.md book-premise.md kanban-board.md AGENTS.md CLAUDE.md; do
   if [[ ! -f "$LIBRARY_DIR/templates/$required" ]]; then
     echo "error: library template missing: templates/$required" >&2
     exit 1
@@ -144,6 +144,10 @@ sed "s|__SERIES_TITLE__|$SED_TITLE|g" \
   "$LIBRARY_DIR/templates/series-brief.md" > "$TARGET/_Intake/series-brief.md"
 sed -e "s|__SERIES_TITLE__|$SED_TITLE|g" -e "s|__BOOK_NUM__|1|g" \
   "$LIBRARY_DIR/templates/book-premise.md" > "$TARGET/_Intake/Book-1/premise.md"
+
+# Starter production board for Book 1 (refreshed by the kanban-board skill).
+sed -e "s|__SERIES_TITLE__|$SED_TITLE|g" -e "s|__BOOK_NUM__|1|g" \
+  "$LIBRARY_DIR/templates/kanban-board.md" > "$TARGET/Wiki/Story/Book-1/kanban.md"
 
 # If an existing manuscript was supplied, stage it in _Intake/Book-1/raw-manuscript/
 if [[ -n "$IMPORT_SOURCE" ]]; then

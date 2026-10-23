@@ -2,6 +2,51 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-10-22 — Added: `kanban-board` — a per-book production board
+
+Rationale: a book is produced one chapter at a time through a fixed sequence
+(outline beat → scene plan → draft → review/gate → revise), but nothing in a
+project shows that sequence at a glance — `book-status` reports metrics, not
+workflow position, and the alternative is scrolling directories. `kanban-board`
+renders the pipeline as a board: one card per chapter in Backlog / Ready /
+Drafting / Review / Done, placed mechanically from what exists on disk. The
+board is a regenerated view, never source of truth; the skill is a read-only
+diagnostic except for the board file itself.
+
+### Added
+
+- **`skills/kanban-board/`** (1.0.0, cross-cutting) — renders and refreshes
+  `Wiki/Story/Book-N/kanban.md` from the outline, scene plans, chapter drafts,
+  gate/review reports, and the promise ledger, with per-column next-move
+  routing (`fiction-scenes`, `fiction-writechapter`, `chapter-pipeline`,
+  `gate-check`, `fiction-revise`, `fiction-promises`). Non-fiction variant
+  keys off the chapter plan and the factcheck/clarity-edit reports, with
+  `Done` requiring the clarity-edit pass.
+- **`templates/kanban-board.md`** — the starter board `new-book.sh` renders
+  into `Wiki/Story/Book-1/kanban.md`, so every new book begins with a board;
+  later books get theirs on the skill's first run.
+
+### Changed
+
+- **`new-book.sh`** — validates the new template with the other required
+  templates and renders the Book-1 starter board.
+- **`tools/smoke-new-book.sh`** — asserts the board exists in the scaffold,
+  the title rendered into it, and no placeholder left behind.
+- **`skills/book-status`** 1.0.0 → 1.0.1 — points at `kanban-board` for the
+  per-chapter workflow view (the two read the same on-disk state; one is
+  metrics, one is position).
+- **`templates/AGENTS.md`** — `kanban.md` in the folder layout and per-book
+  slots; `kanban-board` in the Workflow & Orchestration index.
+- **docs** — USER.md catalog entry and recipe; skill counts updated to 74 in
+  README/USER/DEVELOPER.
+- **`sync-manifest.txt`** — registered the two new files. **`VERSION`** →
+  2026.10.22.
+
+### Verified
+
+- `make check` green after the change: 74 skills, 0 errors, 0 warnings;
+  inventory current; smoke passing including the new board assertions.
+
 ## 2026-10-18 — Fix: two silent data-destroying bugs in the shell scripts, and close the CI gaps that hid them
 
 Rationale: a review of the toolchain found two bugs that both destroy user work
