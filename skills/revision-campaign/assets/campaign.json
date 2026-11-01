@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "outcome": "Make the betrayal earned",
+  "preserve": [
+    "The reconciliation scene"
+  ],
+  "authorization": "Copy the actual user instruction here",
+  "tasks": [
+    {
+      "id": "setup",
+      "files": [
+        "Chapters/Book-1/Chapter-001.md"
+      ],
+      "depends_on": [],
+      "kind": "plan-repair",
+      "acceptance": [
+        "Motive changes a visible choice"
+      ]
+    }
+  ]
+}

@@ -112,6 +112,16 @@ cp -R "$LIBRARY_DIR/skills" "$TARGET/.agents/skills"
 LIB_VERSION="$(cat "$LIBRARY_DIR/VERSION" 2>/dev/null || echo unknown)"
 LIB_COMMIT="$(git -C "$LIBRARY_DIR" rev-parse --short HEAD 2>/dev/null || echo unknown)"
 LIB_COUNT="$(find "$TARGET/.agents/skills" -name SKILL.md | wc -l | tr -d ' ')"
+# Record the installed base so later upgrades can preserve local modifications.
+python3 - "$TARGET/.agents/skills" <<'PYBASE'
+import hashlib, json, sys
+from pathlib import Path
+base = Path(sys.argv[1])
+values = {str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
+          for p in base.rglob('*') if p.is_file() and not any(x.startswith('.') for x in p.relative_to(base).parts)}
+(base / '.storycraft-base.json').write_text(json.dumps(values, indent=2) + '\n')
+PYBASE
+
 cat > "$TARGET/.agents/skills/.storycraft-source" <<EOF
 library: storycraft-skills
 version: $LIB_VERSION

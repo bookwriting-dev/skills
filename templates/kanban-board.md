@@ -24,3 +24,5 @@ refresh it. Columns:
 ## Done
 
 - (gate verdict PASS)
+
+Evidence: Done requires current configured checks and resolved blocking work. Legacy or stale PASS remains Review.

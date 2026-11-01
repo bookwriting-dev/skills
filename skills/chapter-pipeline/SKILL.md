@@ -3,7 +3,8 @@ name: chapter-pipeline
 description: "Run the complete end-to-end chapter production lifecycle from scene briefing to draft generation, promise-ledger harvest, gate verification, and applied line polish in a unified automated execution. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.1.0"
+  version: "1.2.0"
+  bundled-dependencies: book-status
   category: fiction-writing
 ---
 
@@ -38,3 +39,7 @@ The pipeline halts before the polish step when:
      - `kill-chapter` — edits the draft in place, deletion-first; no further step needed, or
      - `fiction-aiism-editor` → report at `_Edits/Book-N/Chapter-NNN_AIisms.md` → `fiction-revise` to apply the approved items. The report alone is not polish; this route is not done until `fiction-revise` has run.
    - Re-runs `gate-check` if polish changed more than crutch tokens, and reports the final verdict.
+
+## Resumable execution and final evidence
+
+Use [project_state.py](../book-status/scripts/project_state.py) with the pipeline journal in [state-contract.md](../book-status/references/state-contract.md). Record running and completed step evidence. Reuse only completed steps whose inputs AND outputs match; inspect interrupted edits before retrying. Harvest promises idempotently (match existing IDs/source anchors, never re-seed) and run fiction-knowledge harvest before gating. Reconcile an interrupted harvest against current prose and ledger before continuing. Every polish change invalidates the pre-polish gate: always obtain a current final gate after changed prose, including crutch-only changes. A source hash mismatch is a need to reconcile, not permission to repeat destructive work.

@@ -3,7 +3,8 @@ name: canon-guard
 description: "Safeguard locked canon files during writing, execute impact analysis scans across drafted chapters before intentional canon updates, and safely reconcile world, character, or timeline revisions. Use when user says 'update canon', 'change world rule', 'canon conflict', 'character change impact', or 'modify canon safely'."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: cross-cutting
 ---
 
@@ -39,3 +40,7 @@ Protects core narrative truth from accidental drift during drafting, and manages
 ### Step 4: Apply & Register
 - Write the change to the target Wiki file with an audit timestamp.
 - Append a re-gate reminder in `_Edits/Book-N/re-gate-needed.md`.
+
+## Knowledge and campaign integration
+
+Consult fiction-knowledge for supported acquisitions, suspicions, false beliefs, and reader-only exposure at the assigned scene. Verify cited source hashes; missing coverage cannot establish ignorance. Preserve intentional deception and unreliable narration. For multi-chapter changes, use revision-campaign to track affected plans, prose, ledgers, and current re-gating. Existing user authorization applies to its stated scope. Keep unresolved decisions and impacted chapters visible until current verification succeeds.

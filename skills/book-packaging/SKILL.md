@@ -3,7 +3,8 @@ name: book-packaging
 description: "Generate professional publishing and marketing packaging kits including back-cover blurb copy, query letters, loglines, Amazon retail metadata, and artist cover design briefs. Use when user says 'write book blurb', 'query letter', 'generate cover brief', 'create book metadata', or 'package book for publication'."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: cross-cutting
 ---
 
@@ -31,3 +32,7 @@ Translates a finished manuscript into market-facing publishing assets: high-conv
 
 Outputs to:
 `Wiki/Story/Book-N/packaging.md` or `docs/packaging/Book-N.md`.
+
+## Delivery handoff
+
+Use verified compile-manuscript outputs and export-manifest.json for the intended beta/submission/publication profile. Confirm the blurb describes the authoritative current manuscript. Link the output artifacts and disclose unchecked previews; a conversion alone does not prove release readiness.

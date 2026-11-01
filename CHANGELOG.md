@@ -2,6 +2,14 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-01 — Evidence, editorial memory, information flow, revision, and delivery
+
+Implements the seven-feature plan with four new skills (78 total): editorial-memory, fiction-knowledge, sequential-read, and revision-campaign. Existing drafting, editorial, gate, pipeline, status, and board instructions now consume scoped decisions and content evidence. Saved reviews capture source hashes before analysis; stale and unknown evidence cannot establish readiness. Journals preserve interrupted work, false beliefs remain distinct from truth, and blind readers receive only ordered reader-facing packets.
+
+Added the project-local standard-library state runtime, record templates and schema, conservative upgrades with installed-base hashes, a 24-case provisional preservation corpus and provider-neutral evaluation tool, and executable profile exports with provenance manifests. All changed skills receive minor version bumps. Full pins include explicitly declared internal dependencies, checked by lint.
+
+Verification includes deterministic workflow regressions, existing ledger/prose/scaffold checks, real Pandoc DOCX/EPUB and Typst PDF conversions, and a three-step isolated reader pilot. The PDF was visually inspected; native DOCX preview was unavailable in this sandbox. Author-scored baseline/candidate literary evaluation and longer author-selected chapter cases remain pending human validation; no prose-quality improvement is claimed from CI alone. See docs/IMPLEMENTATION-PLAN-2026-11-01.md for implementation/validation status.
+
 ## 2026-10-23 — Added: behavior eval harness — the gate now proves the scripts work, not just parse (review Tier 2.1)
 
 Rationale: the product review's headline. `make check` proved the library's

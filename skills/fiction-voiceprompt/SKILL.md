@@ -3,7 +3,8 @@ name: fiction-voiceprompt
 description: "Generate or refresh a compact protagonist voice_prompt.md from character, style, theme, audience, genre, and synopsis files. Use when user says voice prompt, protagonist voice, refresh voice, or robotic prose prevention."
 metadata:
   author: Fiction Toolkit
-  version: "2.0.0"
+  version: "2.1.0"
+  bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
 ---
@@ -104,3 +105,7 @@ Write the full voice prompt Markdown to `Wiki/Style/voice_prompt.md` in the proj
 Return only:
 
 `Voice Prompt written to Wiki/Style/voice_prompt.md.`
+
+## Editorial decisions and current continuity
+
+Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. For fiction, consult current confirmed knowledge events from Wiki/Story/Book-N/knowledge.json as of this scene. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.

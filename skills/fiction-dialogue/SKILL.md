@@ -3,7 +3,8 @@ name: fiction-dialogue
 description: Draft, diagnose, or revise substantial fiction dialogue when speaker fidelity, unequal knowledge, subtext, or conversation architecture matters. Use for dialogue-heavy scenes or speech that feels samey, interview-like, over-clever, expository, or generically AI-written. Do not use for ordinary copyedits.
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: fiction-writing
 ---
 
@@ -62,3 +63,7 @@ Draft the scene from the preflight's objectives, knowledge gaps, response tenden
 Run the architecture gates before polishing diction. If a scene fails for interview sequencing, comeback scaffolding, distributed wit, over-cooperation, or shared conversational intelligence, restructure the exchange. Rewording individual lines cannot repair a synthetic conversation pattern.
 
 When reporting findings, identify the location, failure mode, speaker-specific cause, and smallest structural repair. Do not merely label dialogue "stiff" or "AI-like."
+
+## Knowledge and campaign integration
+
+Consult fiction-knowledge for supported acquisitions, suspicions, false beliefs, and reader-only exposure at the assigned scene. Verify cited source hashes; missing coverage cannot establish ignorance. Preserve intentional deception and unreliable narration. For multi-chapter changes, use revision-campaign to track affected plans, prose, ledgers, and current re-gating. Existing user authorization applies to its stated scope. Keep unresolved decisions and impacted chapters visible until current verification succeeds.

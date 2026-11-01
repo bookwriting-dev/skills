@@ -3,7 +3,8 @@ name: kill-acronym
 description: Hunt unexplained initialisms and acronyms on first use across a chapter, flag them, and expand on first occurrence so every reader can follow (flag-first; edits in place when the expansion is unambiguous). Targets first-use of tokens like AI, ML, NLP, GDP, UNESCO without a prior spelling-out. Use when user says "kill-acronym", "flag acronyms", "spell out first use", or "explain initialisms".
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.1"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: nonfiction-editing
 ---
 
@@ -91,3 +92,9 @@ flag only and leave the text untouched for the author.
 - "First use" is reader-path-sensitive across the whole book, not just the file.
   When running over a single chapter in isolation, treat an acronym as established
   only if it was spelled out earlier in the same file.
+
+## Current evidence and author decisions
+
+For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
+
+Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.

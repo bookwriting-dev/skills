@@ -3,7 +3,8 @@ name: kanban-board
 description: "Render and maintain a per-book Kanban production board at Wiki/Story/Book-N/kanban.md: one card per chapter in columns Backlog, Ready, Drafting, Review, Done, derived mechanically from the book outline, scene plans, chapter drafts, and gate/review reports. Use when user says 'kanban', 'show the board', 'chapter board', 'update the board', 'what is in progress', or 'where am I in this book'. Read-only diagnostic except for the board file itself; never edits chapters, scene plans, canon, or reports. Works for fiction and non-fiction."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: cross-cutting
 ---
 
@@ -38,7 +39,7 @@ reaches.
 | **Ready** | Its scene plan exists (`Wiki/Outline/Book-N/Chapter_NN_Scene.md`), no draft yet. |
 | **Drafting** | A draft exists (`Chapters/Book-N/Chapter-NNN.md`), no gate/review report yet. |
 | **Review** | A gate or review report exists (`_Edits/Book-N/Chapter-NNN_Gate.md` or `Chapter-NNN_Review.md`) and the gate verdict is not `PASS`. |
-| **Done** | Its gate report exists with verdict `PASS`. |
+| **Done** | Its configured gate evidence is CURRENT PASS, with no unresolved blocking findings or campaign tasks. |
 
 Chapters that exist only as drafts or reports but have no outline entry still
 get a card (in Drafting or later) — the outline is an input, not a gate, for
@@ -51,8 +52,7 @@ line), POV name(s), word count, gate verdict, and flags. Example:
 
 > `004 — The Tar Auction — POV: Ren — 3,410 words — gate: PASS`
 
-Flags: `no-scene-plan`, `no-outline-entry`, `unapplied-review-findings` (a
-review report newer than the last draft edit — approximate by file mtime),
+Flags: `no-scene-plan`, `no-outline-entry`, `unapplied-review-findings` (unresolved stable findings in the disposition ledger; legacy resolution UNKNOWN),
 `?` for ambiguous state.
 
 ## Procedure
@@ -88,8 +88,7 @@ Same board, same columns; the evidence sources change only:
 
 - Backlog source is `Wiki/Outline/Book-N/plan.md` (the chapter plan);
 - Review/Done evidence is `_Edits/Book-N/Chapter-NNN_FactCheck.md` and
-  `_Edits/Book-N/Chapter-NNN_ClarityEdit.md` — a chapter is Done only when a
-  clarity-edit report exists, since that is the last pass in the loop;
+  `_Edits/Book-N/Chapter-NNN_ClarityEdit.md` — a chapter is Done only when current required fact-check/clarity evidence passes and blocking findings are resolved;
 - next-move routing uses the non-fiction skills (`nonfiction-chapter-plan`,
   `nonfiction-writechapter`, `nonfiction-factcheck`,
   `nonfiction-clarity-edit`, `promise-tracker`).
@@ -125,3 +124,7 @@ Done <done> · Overdue promises <p>
 
 Empty columns are shown with a `- (empty)` line, not omitted — the five-column
 shape is the point of the board.
+
+## Freshness overrides column placement
+
+Use [project_state.py](../book-status/scripts/project_state.py) and [state-contract.md](../book-status/references/state-contract.md). Fiction Done requires a CURRENT PASS plus no unresolved blocking findings/campaign tasks. STALE or UNKNOWN PASS remains Review with its reason. Non-fiction Done requires CURRENT configured fact-check and clarity evidence and all blocking findings resolved, not merely the existence of a clarity report. Hybrid projects explicitly configure required checks. Use finding dispositions, never mtime, to determine applied/rejected work. The board remains a generated view and never modifies sources.

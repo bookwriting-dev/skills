@@ -3,7 +3,8 @@ name: fiction-style
 description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or when the plan-the-book sequence reaches the style + voice step (after scene plans, alongside fiction-voiceprompt)."
 metadata:
   author: Fiction Toolkit
-  version: "7.1.0"
+  version: "7.2.0"
+  bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
 ---
@@ -175,3 +176,7 @@ tone: "[tone descriptor]"
 2. Offer: "Would you like to review the guides and request changes?"
 3. If changes are needed, revise the files (or use the same isolated-worker mechanism when available with revision instructions) and re-enforce the critical constraints from Step 2.
 4. When approved, suggest: "Next: use `fiction-voiceprompt` to distill the protagonist's voice prompt (if not already built), then `fiction-writechapter` to draft Chapter 1."
+
+## Editorial decisions and current continuity
+
+Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. For fiction, consult current confirmed knowledge events from Wiki/Story/Book-N/knowledge.json as of this scene. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.

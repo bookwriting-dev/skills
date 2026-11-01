@@ -13,7 +13,7 @@ PYTHON ?= python3
 # stray bytecode dir under skills/ would show up in sync-check.sh's filesystem diff.
 export PYTHONDONTWRITEBYTECODE := 1
 
-.PHONY: help check lint inventory compile eval smoke
+.PHONY: help check lint inventory compile eval smoke eval-editorial export-eval
 
 help:
 	@echo "make check      CI gate (lint + inventory freshness + syntax + eval + smoke)"
@@ -41,6 +41,14 @@ compile:
 
 eval:
 	bash tools/eval-skills.sh
+	$(PYTHON) tools/test-storycraft-state.py
 
 smoke:
 	bash tools/smoke-new-book.sh
+
+# Emits neutral packets; literary author scoring stays explicit.
+eval-editorial:
+	$(PYTHON) tools/eval-editorial.py --packets /tmp/storycraft-editorial-packets
+
+export-eval:
+	$(PYTHON) tools/eval-exports.py

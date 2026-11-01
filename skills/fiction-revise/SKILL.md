@@ -3,7 +3,8 @@ name: fiction-revise
 description: Apply approved edits from a review or edit report (_Edits/Chapter-NNN_*.md) directly to a chapter manuscript file with minimal, verified in-place edits and a change ledger. Use when user says "apply edits", "apply review fixes", "revise chapter", "apply fixes 1, 3, 5", or after running fiction-reviewchapter, fiction-full-editor, or another editing pass.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
+  bundled-dependencies: book-status
   category: fiction-editing
 ---
 
@@ -81,3 +82,7 @@ Chapter manuscript updated. Run `fiction-reviewchapter` to re-gate the chapter.
 ```
 
 Offer to leave staged or commit per project convention. Do not commit unless requested.
+
+## Durable dispositions and freshness
+
+Use [project_state.py](../book-status/scripts/project_state.py) and [state-contract.md](../book-status/references/state-contract.md). Inspect report freshness before selection. STALE reports can supply a still-exact local quote only after checking its current context; do not treat their old gate verdict as current. Log applied/rejected/deferred findings with report hash and stable finding ID. Record the author's reason verbatim when supplied. A rejection stays local unless the user explicitly asks editorial-memory to remember a reusable preference. Every source change invalidates old gate evidence. Re-review before declaring Done.

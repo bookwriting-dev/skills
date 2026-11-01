@@ -1,0 +1,293 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "id": "01-keep",
+      "category": "fragment",
+      "source": "The key turned. Too late. Mara heard the bolt slide home.",
+      "protected_spans": [
+        "Too late."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "01-fix",
+      "category": "fragment",
+      "source": "The key turned. Because of the. Mara heard the bolt slide home.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Because of the."
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "02-keep",
+      "category": "repetition",
+      "source": "He knocked once. No answer. He knocked again, harder.",
+      "protected_spans": [
+        "He knocked again, harder."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "02-fix",
+      "category": "repetition",
+      "source": "He knocked once. He knocked once. No answer.",
+      "protected_spans": [],
+      "defect_spans": [
+        "He knocked once. He knocked once."
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "03-keep",
+      "category": "metaphor",
+      "source": "The canal swallowed the moon as the barge passed.",
+      "protected_spans": [
+        "swallowed the moon"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "03-fix",
+      "category": "metaphor",
+      "source": "The canal swallowed the moon like a system of metaphorical darkness.",
+      "protected_spans": [],
+      "defect_spans": [
+        "like a system of metaphorical darkness"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "04-keep",
+      "category": "dialect",
+      "source": "\u201cAin\u2019t yours,\u201d Jo said, pocketing the rent.",
+      "protected_spans": [
+        "Ain\u2019t yours"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "04-fix",
+      "category": "dialect",
+      "source": "\u201cAin\u2019t yours,\u201d Jo said. \u201cI have never used contractions in my life.\u201d",
+      "protected_spans": [],
+      "defect_spans": [
+        "I have never used contractions"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "05-keep",
+      "category": "quiet-ending",
+      "source": "She left his cup beside hers and turned out the light. Tomorrow she would tell him.",
+      "protected_spans": [
+        "Tomorrow she would tell him."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "05-fix",
+      "category": "quiet-ending",
+      "source": "She left his cup beside hers. All the questions were solved, but none were solved.",
+      "protected_spans": [],
+      "defect_spans": [
+        "All the questions were solved, but none were solved."
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "06-keep",
+      "category": "interiority",
+      "source": "She could forgive the lie. It was his relief that she could not bear.",
+      "protected_spans": [
+        "It was his relief"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "06-fix",
+      "category": "interiority",
+      "source": "She experienced the realization of the emotional processing of betrayal.",
+      "protected_spans": [],
+      "defect_spans": [
+        "the realization of the emotional processing"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "07-keep",
+      "category": "pov",
+      "source": "From the doorway, Ren watched his fingers shake. Afraid, perhaps.",
+      "protected_spans": [
+        "Afraid, perhaps."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "07-fix",
+      "category": "pov",
+      "source": "From the doorway, Ren knew his private unspoken memory of childhood.",
+      "protected_spans": [],
+      "defect_spans": [
+        "knew his private unspoken memory"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "08-keep",
+      "category": "numeric",
+      "source": "\u201cGo now,\u201d she said. Two words were all she trusted herself with.",
+      "protected_spans": [
+        "Two words"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "08-fix",
+      "category": "numeric",
+      "source": "\u201cGo now,\u201d she said. Four words were all she trusted herself with.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Four words"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "09-keep",
+      "category": "knowledge",
+      "source": "The sealed letter stayed in her pocket. She still did not know who had signed it.",
+      "protected_spans": [
+        "did not know"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "09-fix",
+      "category": "knowledge",
+      "source": "The sealed letter stayed unread in her pocket. Recognizing its signature, she named the killer.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Recognizing its signature"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "10-keep",
+      "category": "negation",
+      "source": "\u201cNot my son.\u201d She pushed the photograph back.",
+      "protected_spans": [
+        "Not my son."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "10-fix",
+      "category": "negation",
+      "source": "It was not fear but terror, not darkness but night, not pain but agony.",
+      "protected_spans": [],
+      "defect_spans": [
+        "not fear but terror"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "11-keep",
+      "category": "sensory",
+      "source": "Cold rain found the split in his boot. He curled his toes.",
+      "protected_spans": [
+        "He curled his toes."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "11-fix",
+      "category": "sensory",
+      "source": "Cold rain was cold and wet with a wetness that was cold.",
+      "protected_spans": [],
+      "defect_spans": [
+        "cold and wet with a wetness"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "12-keep",
+      "category": "silence",
+      "source": "\u201cWere you there?\u201d He folded the receipt until its edges met.",
+      "protected_spans": [
+        "He folded the receipt"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate scene function and voice.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "12-fix",
+      "category": "silence",
+      "source": "\u201cWere you there?\u201d He folded the receipt, which showed he was avoiding the question through silence.",
+      "protected_spans": [],
+      "defect_spans": [
+        "which showed he was avoiding the question through silence"
+      ],
+      "rationale": "Repair the supported defect with minimal scope.",
+      "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "label_status": "provisional-needs-author-review"
+    }
+  ]
+}

@@ -3,7 +3,8 @@ name: litrpg-audit
 description: "Deterministic numeric and progression continuity audit for LitRPG chapters — checks stat math, level curves, skill prerequisites, resource expenditure, inventory continuity, and status box accuracy against the ledger. Use when user says 'audit stats', 'litrpg audit', 'check stat math', 'verify progression', 'stat continuity', 'audit chapter numbers', or as part of gate-check."
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: fiction-editing
 ---
 
@@ -89,3 +90,9 @@ If the audit passes and the chapter contains approved level-ups, stat allocation
 - Synchronize `Wiki/Characters/<Name>_sheet.md` if an attribute milestone was reached.
 
 Report the outcome to the user.
+
+## Current evidence and author decisions
+
+For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
+
+Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.

@@ -3,7 +3,8 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled."
 metadata:
   author: Fiction Toolkit
-  version: "4.1.1"
+  version: "4.2.0"
+  bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
 ---
@@ -117,3 +118,7 @@ Update `active-context.md` minimally:
 Do not recalculate motif cadence, genre architecture, false-belief stages, or character-arc strategy during the writing pass unless the book's own instructions explicitly require that update. Those are planning and review judgments.
 
 Return the chapter path, title, word count, and any genuine canon blocker. Offer the next appropriate action: review this chapter, plan the next chapter, or continue writing when its scene plan already exists.
+
+## Editorial decisions and current continuity
+
+Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. For fiction, consult current confirmed knowledge events from Wiki/Story/Book-N/knowledge.json as of this scene. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.

@@ -3,7 +3,8 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.0.1"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -141,3 +142,7 @@ Update project tracking minimally:
 Do not recalculate argument architecture, evidence strategy, or chapter necessity during the writing pass unless the book's own instructions explicitly require that update. Those are planning and review judgments.
 
 Return the chapter path, title, word count, and any genuine canon blocker. Offer the next appropriate action: fact-check this chapter, clarity-edit this chapter, plan the next chapter, or continue writing when its chapter plan already exists.
+
+## Editorial decisions and current continuity
+
+Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. For fiction, consult current confirmed knowledge events from Wiki/Story/Book-N/knowledge.json as of this scene. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.

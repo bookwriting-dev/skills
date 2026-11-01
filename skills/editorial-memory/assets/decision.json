@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "id": "D001",
+  "scope": "Book-1/POV/Ren",
+  "rule_category": "fragments",
+  "reason": "Author explicitly retained abrupt thoughts for Ren",
+  "status": "active",
+  "reusable": true,
+  "supersedes": []
+}

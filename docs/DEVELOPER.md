@@ -23,8 +23,8 @@ of `skills/` at `.agents/skills/` when scaffolded (a real `cp -R`, not a symlink
 every project versions its own library and can fork it freely. Changes here do not
 propagate to existing projects automatically — that is by design.
 
-Scale today: **74 skills** — 42 inherited from upstream at the fork point, 32 added
-since (8 fiction, 15 cross-cutting/pipeline/publishing, 9 non-fiction).
+Scale today: **78 skills** — 42 inherited from upstream at the fork point, 36 added
+since the fork. See the generated inventory for current category counts.
 
 ## Repository layout
 
@@ -173,7 +173,7 @@ a script. `make check` (and CI) runs:
 | `tools/compile-check.py` | `compile()` every Python file in memory (no `__pycache__`, which `sync-check.sh` would misread as a fork addition) *and* run `bash -n` over every shell script in the repo. |
 | `tools/eval-skills.sh` | The behavior gate: runs the diagnostics and both ledger scripts against `tools/eval-fixtures/` (chapters carrying callouts/fences with sentinel tokens; a deliberately monotone chapter; a mixed-format promise ledger). Asserts sentinels never reach a diagnostic's output, the monotone fixture gets flagged, and both ledger skills produce the same status→id mapping with section deadlines (`sec3.2`) read correctly. The ledger checks need PyYAML — CI installs it; locally the check skips with a loud notice. |
 | `tools/smoke-new-book.sh` | Runs `new-book.sh` end-to-end in a temp dir and asserts the tree it promises: pinned library, rendered instructions, pin file, slots, project types, `--import` staging, and the rollback/retry contract. `SMOKE_KEEP=1` keeps the scratch dir. |
-| `tools/update-project.sh` | The back half of `new-book.sh`: reports how a project's pinned `.agents/skills/` differs from the library and, with `--apply`, copies the library in (additive; `--prune` also deletes removed files) and rewrites the project's pin. |
+| `tools/update-project.sh` | The back half of `new-book.sh`: reports how a project's pinned `.agents/skills/` differs from the library and, with `--apply`, installs safe changes using recorded base hashes, retains local/unknown conflicts, and updates the pin only when conflicts are resolved. `--prune` removes only unmodified base files. |
 
 **Why the gate looks like this.** Two bugs survived for the life of the repo —
 a `sed`-interpolation crash in `new-book.sh` and a path-flattening bug in
@@ -292,8 +292,8 @@ the next change should preserve:
    duplicate entry removed.
 4. **No build artifacts tracked.** `.gitignore` covers `__pycache__/` and `*.pyc`; the
    committed `.pyc` is gone.
-5. **Version bumps caught up.** `drift-check` 1.1.0 (its non-fiction metrics had
-   shipped without the bump) and `coldread` 1.0.1 (description generalized to fiction
+5. **Version bumps caught up.** `drift-check` 1.4.0 (its non-fiction metrics had
+   shipped without the bump) and `coldread` 1.1.0 (description generalized to fiction
    or non-fiction — the template's non-fiction tree routes to it).
 6. **`new-book.sh --type fiction|nonfiction|hybrid`** implemented: renders the
    `__PROJECT_TYPE__` line and creates `Wiki/Concept/` + `Wiki/Research/` for
@@ -307,3 +307,10 @@ skill (the nine-skill non-fiction workflow routes around it; see USER.md's non-f
 section for how) — and the two diagnostics keep their scripts in `references/`
 instead of `scripts/` — a harmless inconsistency; normalize it if you're touching
 those skills anyway.
+
+
+## Content state, evaluations, and delivery
+
+Read [STATE-CONTRACT.md](STATE-CONTRACT.md), [MIGRATION.md](MIGRATION.md), and [EDITORIAL-EVALS.md](EDITORIAL-EVALS.md) before changing the new shared records. The project-local runtime is owned by book-status and consumers declare metadata.bundled-dependencies. This is an explicit internal-library dependency; scripts do not import development-only tools from a book project. Lint verifies dependency existence.
+
+`make check` now also executes tools/test-storycraft-state.py for state/race/legacy handling, author memory, false beliefs/flashbacks, isolated packet boundaries, campaign dependencies/recovery, migration preservation, and source-safe Markdown delivery. `make export-eval` performs actual DOCX/EPUB/PDF conversion with Pandoc and Typst in its explicit CI job. `make eval-editorial` prepares model-neutral packets; author-scored literary outcomes remain distinct from mechanical CI success.

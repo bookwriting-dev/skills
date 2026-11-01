@@ -3,7 +3,8 @@ name: coldread
 description: Run a blind, read-only assessment of whether one complete chapter or section (fiction or non-fiction) delivers a claimed voice, viewpoint, narrator identity, age register, or register of authority on the page. Use for cold reads, blind reads, POV checks, or "does this sound like this character?" Do not use for rule-based style audits or automatic revision.
 metadata:
   author: Fiction Toolkit
-  version: "1.0.1"
+  version: "1.1.0"
+  bundled-dependencies: book-status
   category: fiction-editing
 ---
 
@@ -64,3 +65,9 @@ Treat an age-register judgment as a prose judgment, not a demographic stereotype
 - Do not label prose incorrect merely because the reader lacked information intentionally withheld by the story. Report the experienced ambiguity and let the coordinating editor compare it with the intended reader promise.
 - If a flagged line came from an earlier agent revision and that provenance is known, state it plainly without using authorship as a defense.
 - The test is most useful on a complete, stable chapter or scene. If run earlier, identify the snapshot as provisional.
+
+## Current evidence and author decisions
+
+For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
+
+Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.

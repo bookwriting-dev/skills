@@ -3,7 +3,8 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.1.1"
+  version: "1.2.0"
+  bundled-dependencies: book-status
   category: fiction-editing
 ---
 
@@ -20,7 +21,7 @@ Every gate run systematically evaluates up to 7 pillars:
    - World & Setting: locations, sensory anchors, physical distances match `Wiki/World/`.
    - Timeline: chronological continuity with preceding chapters and series timeline.
 2. **Scene Contract & Beat Fulfillment:**
-   - Evaluates drafted prose against `Wiki/Outline/Book-N/Chapter_[NN]_Scene.md` or scene plan.
+   - Evaluates drafted prose against `Wiki/Outline/Book-N/Chapter_NN_Scene.md` or scene plan.
    - All mandatory narrative beats, emotional shifts, and turning points must be present and dramatized.
 3. **Chekhov & Promise Maintenance:**
    - Any clues, objects, or dramatic setups introduced in this chapter must be registered in `promises.yaml` via `fiction-promises`.
@@ -85,3 +86,13 @@ Gate check produces a timestamped run report saved to:
 - If **FAIL (Structural / Canon / Progression)**: Route back to scene plan or `litrpg-audit` to fix mathematical contradictions.
 - If **WARN (Prose / Cadence)**: Route directly to `fiction-revise` or `kill-chapter`.
 ```
+
+## Current evidence and author decisions
+
+For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
+
+Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
+
+## Knowledge gate
+
+Audit actions/dialogue against sourced knowledge acquisitions in story time, and reader exposure separately in reading order. Report premature knowledge with exact action/acquisition quotes. A supported deduction or intentional false belief is not a contradiction. Missing/stale ledger coverage is explicitly UNKNOWN and cannot clear the knowledge pillar. Knowledge WARN blocks pipeline completion until reconciled.

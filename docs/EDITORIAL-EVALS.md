@@ -1,0 +1,11 @@
+# Editorial preservation evaluations
+
+Run `make eval-editorial` to emit 24 neutral packets under /tmp/storycraft-editorial-packets. Cases contain 12 paired protected choices and 12 real defects spanning fragments, repetition, metaphor, dialect, quiet endings, interiority, POV, numeric assertions, knowledge, negation, sensory detail, and silence. The three-chapter synthetic book exercises interaction and ordered reading; it is a short integration fixture, not a substitute for chapter-length author-selected examples.
+
+Labels are provisional until author review. Candidate contexts receive source/rules/skill instructions, never labels or protected-span answers. Use tools/eval-editorial.py --packets DIR --baseline-ref COMMIT for an earlier skill revision; use the same cases, model/host configuration, and preselected repeat count for candidate and baseline. Keep held-out cases out of skill-tuning examples. Do not claim improvement from a single model run or a test that copies expected labels into output.
+
+Recorded results are JSON: configuration (model/host, parameters, input/skill hashes), repeat_count chosen before execution, results [{id, findings: [{quote, replacement, reason, author_accept when actually scored}]}]. Use `python3 tools/eval-editorial.py --results FILE` for counts, per-category sample sizes, precision/recall proxies, harmful interventions on protected spans, unsupported quotes, and actual author acceptance. Missing author judgments are reported pending, never zero or simulated acceptance.
+
+The deterministic CI gate validates runtime behavior, scope and evidence mechanics. Literary evaluation requires a blind author comparison with candidate identities hidden where practical. Author-selected full chapters and category tolerances should be fixed after the pilot, before candidate comparison. Preserve and explain every regression. Model assistance may organize findings but cannot impersonate the author's decisions.
+
+Release execution requirements: no unsupported source quotations, no edits outside authorized scope, and no future-only content in blind-reader packets. Passing those checks does not establish prose superiority. The repository ships the evaluation tool and provisional corpus; a validated author-scored baseline/candidate study remains an explicit human evaluation step.

@@ -232,3 +232,17 @@ Route editing and review tasks using this decision tree:
 
 (End of file)
 
+
+
+## Evidence, editorial memory, and book-wide revision
+
+| Skill | Role |
+|---|---|
+| `editorial-memory` 1.0.0 | Explicit scoped author decisions; keep/reject history and reusable preferences. |
+| `fiction-knowledge` 1.0.0 | Sourced character beliefs, secret acquisition, and reader exposure in story/reading order. |
+| `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
+| `revision-campaign` 1.0.0 | Dependent book/series revision tasks, snapshots, safe resume, and current verification. |
+
+Drafting and review load applicable editorial decisions and current knowledge evidence. After draft generation, reconcile promise and knowledge harvest before gating. All changed prose requires a fresh final gate after polish. Review reports capture input hashes before review and emit metadata only if those inputs still match afterward. Status and the board show CURRENT/STALE/UNKNOWN separately from PASS/WARN/FAIL. Legacy reports remain UNKNOWN until re-reviewed. Pending blocking findings or campaign work prevent Done.
+
+For a reading-experience test, use sequential-read; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use revision-campaign; inspect interrupted work before reuse. Compile a beta/submission/publication package with compile-manuscript after current checks. Required checks for non-fiction/hybrid projects are configured explicitly (FactCheck and ClarityEdit for the non-fiction workflow); a clarity report's existence alone cannot mark Done. Existing project conventions and current user instructions retain authority.

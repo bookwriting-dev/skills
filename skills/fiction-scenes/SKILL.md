@@ -3,7 +3,8 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.0.1"
+  version: "4.1.0"
+  bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
 ---
@@ -141,3 +142,7 @@ Before finishing, verify:
 - formatting checks pass when available.
 
 Return a concise completion note with the file link and any true drafting blocker. Do not paste the artifact or produce a review report unless asked.
+
+## Knowledge and campaign integration
+
+Consult fiction-knowledge for supported acquisitions, suspicions, false beliefs, and reader-only exposure at the assigned scene. Verify cited source hashes; missing coverage cannot establish ignorance. Preserve intentional deception and unreliable narration. For multi-chapter changes, use revision-campaign to track affected plans, prose, ledgers, and current re-gating. Existing user authorization applies to its stated scope. Keep unresolved decisions and impacted chapters visible until current verification succeeds.

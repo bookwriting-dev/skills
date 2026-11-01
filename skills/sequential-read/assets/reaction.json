@@ -1,0 +1,19 @@
+{
+  "schema_version": 1,
+  "remembered_facts": [],
+  "predictions": [],
+  "questions": [],
+  "emotional_response": "",
+  "continue_reading": {
+    "answer": "maybe",
+    "reason": ""
+  },
+  "confusion": [],
+  "relationship_changes": [],
+  "isolation_evidence": {
+    "allowed_inputs": [],
+    "transcript_reference": "",
+    "verified_by_coordinator": false
+  },
+  "memory_truncated": false
+}

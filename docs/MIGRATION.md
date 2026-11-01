@@ -1,0 +1,11 @@
+# Updating existing book projects
+
+Run `tools/update-project.sh PROJECT --migration` for a read-only report of updates, conflicts, and legacy reports without current metadata. Run with --apply to install safe new/changed library files; --prune removes only project-only files whose hashes still match the recorded installed base. Book manuscripts, Wiki content, instructions, editorial decisions, and review records are never copied over by this updater.
+
+New scaffolds record .agents/skills/.storycraft-base.json. On update, files changed locally since that base are retained and reported. For older pins without base hashes, differing existing files have unknown ancestry and are retained as conflicts; identical incoming files establish a safe base. Resolve conflicts deliberately, rerun the updater, then review and commit locally when requested. An unresolved conflict retains the old source pin. Updating dependencies piecemeal can leave incomplete installations; use the full library and inspect dependency warnings.
+
+Instruction templates are not overwritten. Reconcile their new evidence, knowledge, sequential-read, and revision workflow sections manually. Tracking files initialize lazily. No renumbering or complete Wiki reconstruction is necessary. Existing reports remain readable but UNKNOWN until reviewed again against captured source evidence. Never stamp a historical report as current merely because its prose still exists.
+
+Version 1 records are supported. Future schema versions fail without rewriting; there is no speculative conversion or destructive automatic migration. Before any future migration, back up records and test repeated execution on a disposable copy. Initialization must adopt existing data rather than reseeding it. Proposed knowledge imported from earlier prose should remain unconfirmed until exact source evidence is checked.
+
+Literary preferences require explicit scope and author intent; existing rejections can be imported as local dispositions without inventing broad rules. Missing knowledge coverage must remain visible. Readiness for non-fiction/hybrid projects must name required current checks explicitly; the exporter can configure required_checks, e.g. FactCheck and ClarityEdit, in its project export config.

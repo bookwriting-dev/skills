@@ -144,6 +144,12 @@ def main() -> int:
             if not (d / cand).exists():
                 findings.append(Finding("error", where, f"broken path `{cand}`"))
 
+    for name, record in skills.items():
+        fm, _ = parse_frontmatter((record['dir'] / 'SKILL.md').read_text())
+        for dependency in fm.get('metadata', {}).get('bundled-dependencies', '').split(','):
+            if dependency.strip() and dependency.strip() not in skills:
+                findings.append(Finding('error', name, 'missing bundled dependency: ' + dependency))
+
     # Text corpus for orphan + phantom scans (references included).
     for d in skill_dirs:
         for f in sorted(d.rglob("*.md")):
