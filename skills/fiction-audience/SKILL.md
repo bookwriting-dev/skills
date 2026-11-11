@@ -3,23 +3,24 @@ name: fiction-audience
 description: "Define target reader age group, content boundaries, and structural norms. Use when user says 'define audience', 'who is this for', 'age group', 'target reader', 'content rating', or after running fiction-genre."
 metadata:
   author: Fiction Toolkit
-  version: "4.0.0"
+  version: "4.1.0"
   category: fiction-writing
   output-format: markdown
 ---
 
 # Audience Definer
 
-**Output:** `Wiki/Style/audience.md` at the project root. All inputs come from `Wiki/` Markdown files; all output is written back into `Wiki/`.
+**Output:** `Wiki/Style/audience.md` at the project root. Inputs come from `_Intake/` (advisory) and `Wiki/` Markdown files; all output is written back into `Wiki/`.
 
 ## Step 1: Locate the Project and Load Context
 
 The project may live in a subfolder, so search for:
 
+- `**/_Intake/series-brief.md` and `**/_Intake/Book-*/premise.md` (optional, advisory): for target reader notes, comp titles, heat/content boundaries, and non-negotiables the author already recorded.
 - `**/Wiki/Style/genre.md` for: genre, subgenre, tone_notes, tropes, and any content heat levels the genre file records.
 - `**/Wiki/Story/synopsis.md` for: protagonist names and ages, POV structure.
 
-If no `Wiki/Style/genre.md` exists, tell the user: "No genre profile found. Run `fiction-genre` first, or tell me the genre and I will work from that." A synopsis without a genre file is still useful; read it for genre context.
+If no `Wiki/Style/genre.md` exists, tell the user: "No genre profile found. Run `fiction-genre` first, or tell me the genre and I will work from that." A synopsis or `_Intake/` brief without a genre file is still useful; read it for context and pre-populate the target reader recommendation rather than asking cold.
 
 ## Step 2: Gather User Input
 

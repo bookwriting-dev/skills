@@ -3,20 +3,22 @@ name: fiction-synopsis
 description: "Transform a new-story braindump into Wiki/Story/synopsis.md with premise, central question, reader promise, story answer and payoff, protagonists, mechanism, act structure, and open threads. Use when user says 'create synopsis', 'start my story', 'I have a story idea', or 'turn this into a synopsis'."
 metadata:
   author: Fiction Toolkit
-  version: "5.2.3"
+  version: "5.3.0"
   category: fiction-writing
   output-format: markdown
 ---
 
 # Synopsis Generator
 
-**Output:** `Wiki/Story/synopsis.md` in the project's `Wiki/` folder. This Markdown file is the source of truth for the synopsis; the Markdown file remains the source of truth.
+**Output:** `Wiki/Story/synopsis.md` (series or standalone root synopsis) AND/OR `Wiki/Story/Book-N/synopsis.md` (per-book synopsis for Book $N$ in a multi-book series, required by `fiction-outline` for Book 2 onward). The Markdown file is the source of truth for the synopsis.
 
 ## Step 1: Load Context
 
-Inputs come from the project's `_Intake/` and `Wiki/` folders. Search for each file before reading:
+Inputs come from the project's `_Intake/` and `Wiki/` folders. Determine whether the user is creating the root/Book-1 synopsis (`Wiki/Story/synopsis.md`) or a per-book synopsis (`Wiki/Story/Book-N/synopsis.md`). Search for each file before reading:
 
-- `**/_Intake/series-brief.md`, `**/_Intake/braindump.md`, `**/_Intake/Book-*/premise.md` for raw braindumps, hooks, comps, and author intent
+- `**/_Intake/series-brief.md`, `**/_Intake/braindump.md`, `**/_Intake/Book-*/premise.md`, and `**/_Intake/Book-*/raw-notes/*.md` for raw braindumps, hooks, comps, and author intent
+- `**/Wiki/Story/series-arc.md` (when planning Book 2+ or a per-book synopsis): for the per-book dramatic-question stack, inter-book promise map, character arc spans, escalation plan, and handoff inventory from `fiction-series-outline`
+- `**/Wiki/Story/synopsis.md` (when generating `Wiki/Story/Book-N/synopsis.md` for a sequel): for the overarching series premise and cast
 - `**/Wiki/Style/genre.md`, for: genre, subgenre, flavor, tone_notes, tropes, trope commitments
 - `**/Wiki/Story/theme.md`, for: central_question, tone, motifs
 - `**/Wiki/Style/audience.md`, for: protagonist_ages, structural_norms
@@ -91,7 +93,7 @@ Every specific element the user gave (names, scenes, relationships, tones) must 
 
 ### Save
 
-Write the synopsis to `Wiki/Story/synopsis.md` under the project root. Create the `Wiki/Story/` folder if it does not exist. Use this shape:
+Write the synopsis to `Wiki/Story/synopsis.md` under the project root (and for a per-book synopsis in a series, write `Wiki/Story/Book-N/synopsis.md`, creating `Wiki/Story/Book-N/` if missing; for Book 1 you may write both or `Wiki/Story/synopsis.md`). When writing a Book 2+ synopsis (`Wiki/Story/Book-N/synopsis.md`), ensure every inter-book promise and character handoff scheduled for Book $N$ in `Wiki/Story/series-arc.md` is honored in the premise, act shapes, or open threads. Use this shape:
 
 ```markdown
 ---

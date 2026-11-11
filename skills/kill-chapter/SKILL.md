@@ -3,7 +3,7 @@ name: kill-chapter
 description: One-pass cleanup bot that strips the recurring model-generated prose crutches from a chapter by running seven kill passes consecutively — similes, person-who constructions, opinion personification, "the whole of X", generic filler words, "soft", and "flat". Each pass fans out parallel focused workers, edits in place deletion-first, and verifies. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
 metadata:
   author: Fiction Toolkit
-  version: "2.1.0"
+  version: "2.2.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -28,14 +28,13 @@ completes and verifies before pass N+1 begins.
 
 ## The passes, in order
 
-Run these in sequence. Each has a rule-set in `references/`; read it and hand it to that
-pass's workers verbatim:
+Run these in sequence. Each has its single-source rule-set in `references/` (shared with the seven standalone `kill-*` skills); read it and hand it to that pass's workers verbatim:
 
 1. **simile** — `references/simile.md` (structural rewrites first, while the prose is untouched)
 2. **person-who** — `references/person-who.md` (labeling subtext via "the [quality] of a [person] who [clause]")
 3. **opinion-personification** — `references/opinion-personification.md` (non-sentient things "having opinions")
 4. **the-whole** — `references/the-whole.md` (hollow intensifier "the whole of [me/him/attention]")
-5. **crutch** — `references/crutch.md` (sweep the common filler set: just, little, really, almost, slightly, seemed)
+5. **crutch** — `references/crutch.md` (sweep the common filler set: `just`, `little`, `really`, `quite`, `almost`, `slightly`, `a bit`, `seemed`, `somehow`, `simply`)
 6. **soft** — `references/soft.md`
 7. **flat** — `references/flat.md`
 

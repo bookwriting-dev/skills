@@ -3,7 +3,7 @@ name: fiction-voiceprompt
 description: "Generate or refresh a compact protagonist voice_prompt.md from character, style, theme, audience, genre, and synopsis files. Use when user says voice prompt, protagonist voice, refresh voice, or robotic prose prevention."
 metadata:
   author: Fiction Toolkit
-  version: "2.1.0"
+  version: "2.2.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -11,7 +11,7 @@ metadata:
 
 # Voice Prompt Generator
 
-Create a compact `Wiki/Style/voice_prompt.md` that a chapter-writing agent can obey directly. This is not a full style guide. It is the fast-access POV and voice firewall for the main character.
+Create a compact `Wiki/Style/voice_prompt.md` (and per-POV `Wiki/Style/voice_prompt_<Character_Name>.md` files for dual/multi-POV books) that a chapter-writing agent can obey directly. This is not a full style guide. It is the fast-access POV and voice firewall for each viewpoint character.
 
 ## Step 1: Identify Project Files
 
@@ -27,22 +27,25 @@ Optional but strongly preferred:
 - `**/Wiki/Style/audience.md`
 - `**/Wiki/Style/genre.md`
 - `**/Wiki/Style/review_guide.md` or legacy `**/Wiki/Style/Review Guide.md`
-- existing `**/Wiki/Style/voice_prompt.md` or root `**/voice_prompt.md`
+- existing `**/Wiki/Style/voice_prompt*.md` or root `**/voice_prompt.md`
 
-If multiple projects exist, ask which one. If no protagonist is obvious from the synopsis/style guide, infer from POV or ask the user.
+If multiple projects exist, ask which one. Inspect `pov_mode` and `pov_1` / `pov_2` in `Wiki/Style/style_guide.md` (or infer from `Wiki/Story/synopsis.md`) to determine whether the book is single-POV or dual/multi-POV.
 
 ## Step 2: Read Inputs
 
 Read:
 1. Synopsis
 2. Style guide
-3. Protagonist character file first, then any key deuteragonist/antagonist files needed for relationship voice
+3. Every POV character file in full, plus any key non-POV deuteragonist/antagonist files needed for relationship voice
 4. Theme, audience, genre, and review guide if present
-5. Existing voice prompt if present, to preserve useful project-specific rules
+5. Existing voice prompt(s) if present, to preserve useful project-specific rules
 
-## Step 3: Build the Voice Prompt
+## Step 3: Build the Voice Prompt(s)
 
-Compose the voice prompt using this structure:
+- **Single-POV project:** Compose `Wiki/Style/voice_prompt.md` for the sole POV protagonist using the structure below.
+- **Dual or multi-POV project:** Compose one `Wiki/Style/voice_prompt_<Character_Name>.md` per POV character (replacing spaces with underscores, matching `Wiki/Characters/<Character_Name>.md`), AND write `Wiki/Style/voice_prompt.md` as the **Multi-POV Voice Index & Contrast Firewall** linking each per-POV file and explicitly defining how the POVs contrast in sentence rhythm, emotional translation, perception filters, and metaphor domains so POV 1 never bleeds into POV 2.
+
+Compose each POV character's voice prompt using this structure:
 
 ```markdown
 # Voice Prompt: [Protagonist Name] Close-[POV] Rewrite
@@ -100,11 +103,11 @@ Avoid:
 
 ## Step 5: Save and Report
 
-Write the full voice prompt Markdown to `Wiki/Style/voice_prompt.md` in the project (create the `Wiki/Style/` folder if it is missing). If a legacy voice prompt exists under another name or at the project root, still write the canonical `Wiki/Style/voice_prompt.md`; downstream skills read only the canonical path. Overwrite on refresh; the file is safe to regenerate.
+Write the full voice prompt Markdown to `Wiki/Style/voice_prompt.md` in the project (create the `Wiki/Style/` folder if it is missing). For dual or multi-POV books, also write `Wiki/Style/voice_prompt_<Character_Name>.md` for each POV protagonist and keep `Wiki/Style/voice_prompt.md` as the cross-POV contrast and routing index. If a legacy voice prompt exists under another name or at the project root, still write the canonical path(s); downstream skills (`fiction-writechapter`, `project_state.py draft-packet`) read the canonical paths. Overwrite on refresh; the files are safe to regenerate.
 
 Return only:
 
-`Voice Prompt written to Wiki/Style/voice_prompt.md.`
+`Voice Prompt written to Wiki/Style/voice_prompt.md (and per-POV voice_prompt_<Name>.md files if multi-POV).`
 
 ## Editorial decisions and current continuity
 

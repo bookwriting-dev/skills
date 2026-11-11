@@ -288,6 +288,102 @@
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
       "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "13-keep",
+      "category": "subtext-unsaid",
+      "source": "\u201cKeep the key,\u201d Mara said, and set the charred ledger on his desk without touching his hand.",
+      "protected_spans": [
+        "set the charred ledger on his desk without touching his hand"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve physical action carrying the psych pass's unsaid blame ('I still blame you for the fire') without speaking it.",
+      "rules": "Close limited POV; honor Chapter_NN_Psych.md What they won't say constraints through physical action and subtext.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "13-fix",
+      "category": "subtext-unsaid",
+      "source": "\u201cKeep the key,\u201d Mara said. \u201cI still blame you for the fire, which is the exact thought I am swallowing.\u201d",
+      "protected_spans": [],
+      "defect_spans": [
+        "I still blame you for the fire, which is the exact thought I am swallowing."
+      ],
+      "rationale": "Flag spoken or narrated exposition of a thought designated as 'What they won't say' in the chapter psych pass.",
+      "rules": "Close limited POV; honor Chapter_NN_Psych.md What they won't say constraints through physical action and subtext.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "14-keep",
+      "category": "dialogue-interview",
+      "source": "\u201cWhere did the ledger go?\u201d Mara asked. Jo scrapes wax off his thumb. \u201cRent\u2019s due Friday.\u201d",
+      "protected_spans": [
+        "Rent\u2019s due Friday."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve asymmetric dialogue deflection where a question is answered with pressure instead of compliance.",
+      "rules": "Dialogue is action under pressure; avoid 3+ consecutive cooperative question-answer interview pairs.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "14-fix",
+      "category": "dialogue-interview",
+      "source": "\u201cWhere is the ledger?\u201d \u201cIn the safe.\u201d \u201cWhat is the code?\u201d \u201cFour-nine-two.\u201d \u201cWhy tell me?\u201d \u201cBecause you asked.\u201d",
+      "protected_spans": [],
+      "defect_spans": [
+        "\u201cWhat is the code?\u201d \u201cFour-nine-two.\u201d \u201cWhy tell me?\u201d \u201cBecause you asked.\u201d"
+      ],
+      "rationale": "Repair three consecutive cooperative Q&A pairs that flatten speaker stakes into an interview.",
+      "rules": "Dialogue is action under pressure; avoid 3+ consecutive cooperative question-answer interview pairs.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "15-keep",
+      "category": "micro-friction",
+      "source": "She reached for the latch. Jo\u2019s boot wedged the door an inch wide until she laid the silver mark on the barrel.",
+      "protected_spans": [
+        "Jo\u2019s boot wedged the door an inch wide"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve earned micro-friction where the turn costs a concrete price before access is granted.",
+      "rules": "Every scene turn requires micro-friction (a failed tactic, deflection, or raised cost) rather than instant cooperative concession.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "15-fix",
+      "category": "micro-friction",
+      "source": "She asked her sworn enemy for the harbor charter, and he immediately handed it over with a helpful explanation of his plan.",
+      "protected_spans": [],
+      "defect_spans": [
+        "immediately handed it over with a helpful explanation of his plan"
+      ],
+      "rationale": "Repair un-earned cooperative concession that bypasses scene resistance.",
+      "rules": "Every scene turn requires micro-friction (a failed tactic, deflection, or raised cost) rather than instant cooperative concession.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "16-keep",
+      "category": "relationship-checkpoint",
+      "source": "She slid the extra ration across the crate to Jo without meeting his eyes; the truce was three hours old and brittle.",
+      "protected_spans": [
+        "the truce was three hours old and brittle"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve interaction matching the active chapter relationship checkpoint (uneasy truce).",
+      "rules": "Honor the active chapter-sliced relationship_checkpoints entry in Wiki/Characters/.",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "16-fix",
+      "category": "relationship-checkpoint",
+      "source": "Although they had never met before this moment, Mara greeted Jo as her childhood confidant of twenty years.",
+      "protected_spans": [],
+      "defect_spans": [
+        "greeted Jo as her childhood confidant of twenty years"
+      ],
+      "rationale": "Flag contradiction against the active chapter relationship checkpoint.",
+      "rules": "Honor the active chapter-sliced relationship_checkpoints entry in Wiki/Characters/.",
+      "label_status": "provisional-needs-author-review"
     }
   ]
 }

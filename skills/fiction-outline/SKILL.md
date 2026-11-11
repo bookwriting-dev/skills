@@ -3,7 +3,7 @@ name: fiction-outline
 description: "Generate the chapter-by-chapter outline at Wiki/Outline/Book-N/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "5.3.1"
+  version: "5.4.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -16,11 +16,13 @@ This skill runs its generation in an isolated worker when the host supports one,
 
 ## Step 1: Locate Inputs
 
-All inputs are Markdown files in the project's `Wiki/` folder. The project may live in a subfolder, so search for them:
+All inputs are Markdown files in the project's `Wiki/` and `_Intake/` folders. The project may live in a subfolder, so search for them:
 
-- `**/Wiki/Story/Book-N/synopsis.md` (when outlining a specific book in a series) or `**/Wiki/Story/synopsis.md` (series / standalone synopsis): required. Contains premise, central_question, reader_promise, story_answer, trope payoff plan, protagonists, mechanism, act_1/2/3, open_threads, locations_in_play, characters_in_play. Prefer the target book's synopsis if one exists; otherwise use the root synopsis.
+- `**/Wiki/Story/Book-N/synopsis.md` (when outlining a specific book in a series) or `**/Wiki/Story/synopsis.md` (series / standalone synopsis): required. Contains premise, central_question, reader_promise, story_answer, trope payoff plan, protagonists, mechanism, act_1/2/3, open_threads, locations_in_play, characters_in_play. Prefer the target book's `Wiki/Story/Book-N/synopsis.md` if one exists; for `Book-2+`, if `Wiki/Story/Book-N/synopsis.md` is missing, prompt the user to generate it with `fiction-synopsis` (which reads `Wiki/Story/series-arc.md`) or confirm fallback to the root synopsis.
+- `**/Wiki/Story/series-arc.md`: optional (recommended for series projects). Carries the inter-book promise map, per-book dramatic question stack, and handoff inventory.
+- `**/_Intake/series-brief.md`, `**/_Intake/Book-N/premise.md`, and `**/_Intake/Book-N/raw-notes/*.md`: optional (advisory). Specific chapter ideas, set-pieces, or beat notes from the author's intake brief (`Wiki/` canon wins on any conflict).
 - `**/Wiki/Style/genre.md`: selected tropes and their genre-level commitments. Required when the project was built through `fiction-genre`; if missing, flag that trope coverage cannot be verified.
-- `**/Wiki/Characters/*.md`: one file per character: names, roles, personality, dialogue_style.
+- `**/Wiki/Characters/*.md`: one file per character: names, roles, personality, dialogue_style, and `relationship_checkpoints`.
 - `**/Wiki/World/**/*.md` (current layout) and the legacy per-type folders (`**/Wiki/Locations/*.md`, `**/Wiki/Organizations/*.md`, `**/Wiki/Systems/*.md`, `**/Wiki/Events/*.md`): location names and organization constraints (prevents/forces/enables).
 - `**/Wiki/Story/theme.md`: central_question, tone, motifs.
 

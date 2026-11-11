@@ -3,8 +3,8 @@ name: kill-the-whole
 description: Hunt the intensifier phrase "the whole of [me/him/it/attention]" across a chapter and cut the hollow padding while keeping literal quantitative uses and in-voice dialogue idioms (deletion-first, parallel focused workers, edits in place). "the whole of X" is a frequently overused filler intensifier, especially during high-arousal/high-stress beats. Use when user says "kill-the-whole", "kill the whole", or "strip the whole-of crutch".
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
-  bundled-dependencies: book-status
+  version: "1.2.0"
+  bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
 
@@ -13,33 +13,14 @@ metadata:
 "the whole" is correct when it names the actual entirety of a concrete, countable, or
 nameable thing (a crew, a room, a night, a plan) and is filler almost everywhere it's
 stretched over a pronoun or a rising sensation to inflate a beat without adding a concrete
-image. It shows up disproportionately at moments of escalation (pain, arousal, revelation)
-as a stock way to signal totality instead of grounding the beat in a physical detail.
+image.
 
 The request arguments = the chapter file(s): a path, a file pattern, or several paths. Resolve it to a
 concrete file list before doing anything (skip files that don't contain "the whole").
 
-## What to keep vs. fix
+## Single-source rule-set (What to keep vs. fix)
 
-**KEEP (do not touch):**
-- **Literal quantitative uses** naming an actual complete set/place/duration: "the whole
-  crew," "the whole room," "the whole night," "the whole town," "the whole plan," "the
-  whole story," "the whole speech" — anywhere "whole" genuinely refers to the entirety of a
-  concrete, nameable thing.
-- **In-voice dialogue idiom:** "that's the whole of it," "the whole business," "the whole
-  production" when spoken by a character as their natural speech pattern.
-
-**FIX (deletion-first) — everything else, especially:**
-- "the whole of me" / "the whole of him" / "the whole of my attention" / "the whole of it"
-  (referring to a rising sensation, feeling, or moment) used as a padding intensifier in
-  narration. Prefer outright deletion: "the whole of me started to gather" → "I started to
-  gather"; "seized the whole of my attention" → "seized my attention."
-- Any case where "the whole" appears 3+ times within a few lines or one scene as an
-  intensifier — vary or cut the repeats even if individually borderline.
-
-Default move is **deletion**, not a swap to another intensifier. Only do a fuller rewrite
-if deletion genuinely loses needed meaning, and ground it in a concrete physical detail
-rather than another abstract totalizer.
+Read [the-whole.md](../kill-chapter/references/the-whole.md) before triaging or launching workers. That file is the single source of truth for deletion-first rules, KEEP/FIX criteria, examples, and triage patterns shared with `kill-chapter`; pass its contents verbatim to every focused worker so single-pass and full-chapter sweeps never drift.
 
 ## Procedure
 

@@ -1,6 +1,6 @@
 # State records and shared runtime
 
-The portable contract ships at [state-contract.md](../skills/book-status/references/state-contract.md), alongside [project_state.py](../skills/book-status/scripts/project_state.py). It defines review preparation/finalization, freshness, finding dispositions, pipeline journals, editorial decisions, knowledge, ordered readers, and revision campaigns. Use `python3 skills/book-status/scripts/project_state.py --help` for commands; put global --root/--book options before the command.
+The portable contract ships at [state-contract.md](../skills/book-status/references/state-contract.md), alongside [project_state.py](../skills/book-status/scripts/project_state.py). It defines review preparation/finalization, freshness, finding dispositions, pipeline journals, editorial decisions, knowledge, ordered readers, revision campaigns, and pre-draft context/cooling packets (`draft-packet`). Use `python3 skills/book-status/scripts/project_state.py --help` for commands; put global --root/--book options before the command.
 
 Report verdict and freshness are independent. CURRENT evidence establishes which inputs were checked, not literary correctness. Legacy reports are UNKNOWN. Directory inventory changes and expected missing inputs participate in invalidation. All writes remain within the resolved project root. There is no network or provider API dependency.
 

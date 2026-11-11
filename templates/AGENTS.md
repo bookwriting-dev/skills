@@ -74,10 +74,10 @@ There are two doors into a book project:
    9. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
    10. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
    11. `fiction-psych` → `Wiki/Psych/Book-N/`
-   12. `fiction-scenes` → chapter beat plans
-   13. `fiction-style` + `fiction-voiceprompt`
-   14. `fiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-   15. `fiction-reviewchapter` / `gate-check` (runs continuity, Chekhov ledger audit, and `litrpg-audit` for system books)
+   12. `fiction-scenes` → chapter beat plans (slicing active `relationship_checkpoints` and enforcing micro-friction per scene)
+   13. `fiction-style` + `fiction-voiceprompt` (writes `voice_prompt.md` and per-POV `voice_prompt_<Name>.md` files for dual/multi-POV books)
+   14. `fiction-writechapter` → compiles `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json` (continuity tail, active relationship checkpoints, psych `what_they_wont_say`, knowledge as-of, and trailing 3-chapter cooling list) and drafts `Chapters/Book-N/Chapter-NNN.md` scene by scene
+   15. `fiction-reviewchapter` / `gate-check` (runs canon, relationship checkpoint, subtext/dialogue architecture, cooling list, Chekhov ledger, knowledge, and `litrpg-audit` checks)
    16. `review-panel` per act and before calling the book done; `drift-check` at part boundaries
 
 ### Path B: Brownfield (Reverse-engineering an existing or unguided draft)

@@ -133,22 +133,45 @@ def main() -> int:
         }
         all_text.append((where, text))
 
-        # Resolvable skill-relative paths.
+        # Resolvable skill-relative and cross-skill paths.
         for cand in iter_paths(body):
             cand = cand.strip().rstrip(".,;:")
             cand = cand.split("#", 1)[0]
             if not cand or cand.startswith(("/", "#", "http")) or "<" in cand or "*" in cand:
+                continue
+            if cand.startswith("../"):
+                resolved = (d / cand).resolve()
+                if not resolved.is_relative_to(SKILLS.resolve()) or not resolved.exists():
+                    findings.append(Finding("error", where, f"broken cross-skill path `{cand}`"))
                 continue
             if not cand.startswith(FILE_PREFIXES) or "/" not in cand:
                 continue
             if not (d / cand).exists():
                 findings.append(Finding("error", where, f"broken path `{cand}`"))
 
+    KILL_SINGLE_SOURCE = {
+        "kill-simile": "../kill-chapter/references/simile.md",
+        "kill-person-who": "../kill-chapter/references/person-who.md",
+        "kill-opinion-personification": "../kill-chapter/references/opinion-personification.md",
+        "kill-the-whole": "../kill-chapter/references/the-whole.md",
+        "kill-crutch": "../kill-chapter/references/crutch.md",
+        "kill-soft": "../kill-chapter/references/soft.md",
+        "kill-flat": "../kill-chapter/references/flat.md",
+    }
+
     for name, record in skills.items():
-        fm, _ = parse_frontmatter((record['dir'] / 'SKILL.md').read_text())
-        for dependency in fm.get('metadata', {}).get('bundled-dependencies', '').split(','):
-            if dependency.strip() and dependency.strip() not in skills:
+        text = (record['dir'] / 'SKILL.md').read_text(encoding='utf-8')
+        fm, body = parse_frontmatter(text)
+        deps = [dep.strip() for dep in fm.get('metadata', {}).get('bundled-dependencies', '').split(',') if dep.strip()]
+        for dependency in deps:
+            if dependency not in skills:
                 findings.append(Finding('error', name, 'missing bundled dependency: ' + dependency))
+        if name in KILL_SINGLE_SOURCE:
+            expected_ref = KILL_SINGLE_SOURCE[name]
+            if 'kill-chapter' not in deps:
+                findings.append(Finding('error', f'skills/{name}/SKILL.md', 'must declare `kill-chapter` in metadata.bundled-dependencies'))
+            if expected_ref not in body:
+                findings.append(Finding('error', f'skills/{name}/SKILL.md', f'must reference single-source rule file `{expected_ref}`'))
 
     # Text corpus for orphan + phantom scans (references included).
     for d in skill_dirs:

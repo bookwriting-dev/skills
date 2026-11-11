@@ -3,8 +3,8 @@ name: kill-opinion-personification
 description: Hunt the "opinion" personification tic (pain, wounds, and inanimate objects "having opinions" or "saying their piece") across a chapter range and cut or vary the repeats while keeping one or two founding uses (deletion-first, parallel focused workers, edits in place). Use when user says "kill-opinion-personification", "kill the opinion tic", "kill 'had opinions'", or flags repeated "X had an opinion about Y" / "sent up its opinion" phrasing.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
-  bundled-dependencies: book-status
+  version: "1.2.0"
+  bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
 
@@ -13,59 +13,13 @@ metadata:
 The tic: pain, wounds, body parts, and inanimate objects (pilings, walls, ribs) are given
 "opinions" as a stand-in for sensory/physical description — a cute deflection move that
 substitutes a labeled abstraction ("it had an opinion about X") for the actual physical
-detail. It's not wrong on its own; it's a legitimate voice choice in small doses. It
-becomes a tic when it recurs enough that the reader starts to predict it. Generic examples across several scenes:
-
-- Early scene: pilings "have opinions about their own weight"
-- Early scene: the wall "was now mostly opinion"
-- Early scene: "everything in it had an opinion"
-- Later scene: "The pain sent up its opinion, which I noted and did not act on"
-- Later scene: "A wound that had opinions"
-- Later scene: "my ribs said their piece"
-- Final scene: "it had opinions about the walk up the hill and I was choosing not to have
-  opinions back" (two uses in one sentence)
-
-That's 7-8 uses across four chapters — this is a voice choice, not a hard rule, so the fix
-is density management, not eradication.
+detail. This is a voice choice in small doses that becomes a predictable crutch when repeated.
 
 The request arguments = the chapter file(s) or range: a path, a file pattern, or several paths.
 
-## The pattern to detect
+## Single-source rule-set (Pattern & What to keep vs. fix)
 
-Any construction where a non-sentient thing (pain, a wound, ribs, a wall, pilings,
-furniture, weather) is said to "have an opinion," "voice/send up its opinion," "say its
-piece," "have something to say about," or an equivalent personification-via-opinion
-phrasing standing in for physical sensation or description.
-
-Search starting point (this will over-match legitimate character opinions, so triage by eye and
-only count hits where the subject is non-sentient): `opinion|said (its|their) piece|had something to say`.
-
-## What to keep vs. fix
-
-**KEEP (do not touch):**
-- The **founding use** — the first instance chronologically in the chapter range (the earliest pilings/wall/"everything in it had an opinion" cluster), since it establishes the
-  voice move. Note this cluster has 3 uses in one scene already; keep at most the
-  strongest one or two of that founding cluster, don't necessarily keep all three.
-- At most one additional use later in the range, chosen where it's freshest/funniest and
-  farthest in distance from the founding use, to keep the motif alive as a rhythm rather
-  than a crutch.
-
-**FIX (deletion-first, then vary) — every other instance:**
-Default move is to **replace with a concrete physical/sensory detail** that does not use
-"opinion" or a synonym stand-in ("said its piece," "had something to say"). Ground it in
-what the body or object actually does: what does the pain do (spike, drag, pull), what
-does the wound do (pull at the stitches, throb on the inhale), what does the wall/piling
-actually do (groan, list, shed a plank). Only fall back to a different personification
-device if a straight physical description genuinely loses the comic/voice effect the line
-needs, and even then don't reuse "opinion" or a close synonym.
-
-Examples of direction (not prescriptive text):
-- "The pain sent up its opinion, which I noted and did not act on" → name the actual
-  sensation and the character's actual response to it, cut the personification frame
-  entirely if the surrounding prose already carries the voice.
-- "it had opinions about the walk up the hill and I was choosing not to have opinions
-  back" → this is two uses in one sentence; cut to one concrete beat about the climb
-  (breath, legs, ribs) with no "opinion" language at all.
+Read [opinion-personification.md](../kill-chapter/references/opinion-personification.md) before triaging or launching workers. That file is the single source of truth for the detection pattern, founding-use KEEP budget, physical-detail FIX rules, and examples shared with `kill-chapter`; pass its contents verbatim to every focused worker so single-pass and full-chapter sweeps never drift.
 
 ## Procedure
 

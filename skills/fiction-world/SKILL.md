@@ -3,7 +3,7 @@ name: fiction-world
 description: "Build story setting: locations, organizations, systems, events. Use when user says 'build the world', 'create setting', 'world building', or after running fiction-characters."
 metadata:
   author: Fiction Toolkit
-  version: "5.1.1"
+  version: "5.2.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -16,9 +16,9 @@ This skill runs its generation work in an isolated worker when the host supports
 
 ## Step 1: Identify Project and Locate Inputs
 
-Search for `**/Wiki/Story/synopsis.md` from the working directory (the project may live in a subfolder). If multiple projects match, ask which one. If none: tell the user to run `fiction-synopsis` first and stop.
+Search for `**/Wiki/Story/synopsis.md` (and `**/Wiki/Story/Book-N/synopsis.md`) from the working directory (the project may live in a subfolder). If multiple projects match, ask which one. If none: tell the user to run `fiction-synopsis` first and stop.
 
-Also search for `**/Wiki/Characters/*.md` in the same project. Character files are optional; note whether any exist.
+Also search for `**/Wiki/Characters/*.md` and advisory intake notes (`**/_Intake/series-brief.md`, `**/_Intake/Book-*/premise.md`, `**/_Intake/Book-*/raw-notes/*.md`) in the same project. Character and `_Intake/` files are optional; note whether any exist and pass their paths to the worker so setting details from the author's initial brief are preserved.
 
 Do NOT read these files in the main conversation. Record their paths and the project root (the folder containing `Wiki/`).
 

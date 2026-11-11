@@ -147,25 +147,25 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `fiction-story-sparks` 1.2.0 | Compact story prompts from character + location + object/creature + event + twist + ending. Only on explicit request — never auto-starts your book. |
 | `fiction-genre` 3.2.2 | Genre, subgenre, flavor, tone, tropes → `Wiki/Style/genre.md`. Say "pick a genre" / "start a new book". |
-| `fiction-audience` 4.0.0 | Target reader age group, content boundaries, structural norms → `Wiki/Style/audience.md`. |
-| `fiction-theme` 3.1.0 | The thematic engine: central question, tone, motifs → `Wiki/Story/theme.md`. |
-| `fiction-synopsis` 5.2.3 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md`. |
+| `fiction-audience` 4.1.0 | Target reader age group, content boundaries, structural norms → `Wiki/Style/audience.md`. |
+| `fiction-theme` 3.2.0 | The thematic engine: central question, tone, motifs → `Wiki/Story/theme.md`. |
+| `fiction-synopsis` 5.3.0 | Turns a braindump into the book synopsis: premise, central question, reader promise, answer, act structure → `Wiki/Story/synopsis.md` (and per-book `Wiki/Story/Book-N/synopsis.md` for Book 2+). |
 | `fiction-series-outline` 1.0.0 | Series-level plan: per-book dramatic-question stack, inter-book promise map, character arc spans, escalation, handoffs → `Wiki/Story/series-arc.md`. Run at series inception; refresh before each later book. |
 
 ### Fiction — build the people
 
 | Skill | What it does |
 |---|---|
-| `fiction-characters` 3.1.1 | One profile per character in `Wiki/Characters/` — personality and dialogue style written as *instructions*, not descriptions. |
+| `fiction-characters` 3.2.0 | One profile per character in `Wiki/Characters/` — personality and dialogue style written as *instructions*, not descriptions. |
 | `fiction-psych` 2.1.0 | Per-chapter psychological interior pass (what each character believes/fears/wants underneath the scene's external beats) → `Wiki/Psych/Book-N/`. |
 | `fiction-dialogue` 1.1.0 | Draft, diagnose, or revise dialogue when speaker fidelity, unequal knowledge, or subtext matters. |
-| `fiction-voiceprompt` 2.1.0 | Compact protagonist `voice_prompt.md` distilled from the character/style/theme/synopsis files. |
+| `fiction-voiceprompt` 2.2.0 | Compact protagonist `voice_prompt.md` (plus per-POV `voice_prompt_<Name>.md` files for dual/multi-POV books) distilled from the character/style/theme/synopsis files. |
 
 ### Fiction — build the world
 
 | Skill | What it does |
 |---|---|
-| `fiction-world` 5.1.1 | The setting build: locations, organizations, systems, events. |
+| `fiction-world` 5.2.0 | The setting build: locations, organizations, systems, events. |
 | `fiction-places` 1.0.0 | Scene-bearing sites and landmarks (ruins, rooms, tactical locations) — not full towns. |
 | `fiction-factions` 1.0.0 | Factions, institutions, guilds, crews, cults, corporations, rival networks. |
 | `fiction-polities` 1.0.0 | Kingdoms, empires, federations, city-states and their territorial divisions. |
@@ -176,17 +176,17 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `fiction-outline` 5.3.1 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
+| `fiction-outline` 5.4.0 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
 | `fiction-divergence` 1.0.0 | Anti-convergence pass over the outline: per beat, a default, an inversion, and a cost-shift candidate; keeps the least-expected-but-earned; per-act surprise ledger. |
-| `fiction-scenes` 4.1.0 | Chapter beats and scene plans — turning the outline into writable action (`Chapter_NN_Scene.md`). |
+| `fiction-scenes` 4.2.0 | Chapter beats and scene plans with active relationship checkpoints and micro-friction resistance beats — turning the outline into writable action (`Chapter_NN_Scene.md`). |
 | `fiction-style` 7.2.0 | `style_guide.md` + `review_guide.md` — the project's prose law. |
-| `fiction-writechapter` 4.2.0 | Draft or continue a chapter from scene plan + voice + canon; maintains the active-context log. |
+| `fiction-writechapter` 4.3.0 | Draft or continue a chapter from the compiled pre-draft packet (scene plan + voice + active relationship checkpoints + cooling list + canon); scene-by-scene stitched execution. |
 
 ### Fiction — review the story
 
 | Skill | What it does |
 |---|---|
-| `fiction-reviewchapter` 2.8.0 | The chapter gate: canon assertions, Chekhov ledger audit (incl. the book mis-quoting itself), character consistency, prose rules → `_Edits/…_Review.md`. |
+| `fiction-reviewchapter` 2.9.0 | The chapter gate: canon assertions, Chekhov ledger audit, active relationship checkpoints, psych subtext, cooling list, and prose rules → `_Edits/…_Review.md`. |
 | `litrpg-audit` 1.1.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.1.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.1.0 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
@@ -211,13 +211,13 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `kill-chapter` 2.1.0 | **Default sweep**: runs all seven passes consecutively, in place, with a combined report. |
-| `kill-simile` 1.1.0 | Explain-it similes ("the way…"). |
-| `kill-person-who` 1.1.0 | Subtext-by-label ("the [quality] of a [person] who [clause]"). |
-| `kill-opinion-personification` 1.1.0 | Non-sentient things "having opinions". |
-| `kill-the-whole` 1.1.0 | Hollow "the whole of X" intensifiers. |
-| `kill-crutch` 1.1.0 | Generalized filler-word pass — `kill-crutch WORD` hunts any word. |
-| `kill-soft` 1.1.0 / `kill-flat` 1.1.0 | The mood-adjectives "soft" and "flat" (also covered by `kill-crutch`). |
+| `kill-chapter` 2.2.0 | **Default sweep**: runs all seven passes consecutively, in place, with a combined report. |
+| `kill-simile` 1.2.0 | Explain-it similes ("the way…"). |
+| `kill-person-who` 1.2.0 | Subtext-by-label ("the [quality] of a [person] who [clause]"). |
+| `kill-opinion-personification` 1.2.0 | Non-sentient things "having opinions". |
+| `kill-the-whole` 1.2.0 | Hollow "the whole of X" intensifiers. |
+| `kill-crutch` 1.2.0 | Generalized filler-word pass — `kill-crutch WORD` hunts any word. |
+| `kill-soft` 1.2.0 / `kill-flat` 1.2.0 | The mood-adjectives "soft" and "flat" (also covered by `kill-crutch`). |
 
 ### Non-fiction
 
@@ -238,9 +238,9 @@ hand-written catalog's versions honest against it.)
 | Skill | What it does |
 |---|---|
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
-| `chapter-pipeline` 1.2.0 | Unified end-to-end runner: scene planning → draft → promise harvest → gate validation → *applied* polish. |
-| `gate-check` 1.2.0 | Comprehensive chapter readiness & continuity gate (canon, Chekhov debt, cadence lint, and LitRPG progression audit). |
-| `book-status` 1.2.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies. |
+| `chapter-pipeline` 1.3.0 | Unified end-to-end runner: scene/psych/dialogue scaffolding → pre-draft packet & draft → promise/knowledge harvest → gate validation → *applied* polish + final gate. |
+| `gate-check` 1.3.0 | Comprehensive chapter readiness & continuity gate (canon, relationship checkpoints, Chekhov debt, subtext/dialogue architecture, cooling list, cadence lint, and LitRPG progression audit). |
+| `book-status` 1.3.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies, and `project_state.py` runtime (`draft-packet`, freshness, campaigns). |
 | `kanban-board` 1.1.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.1.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.1.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |

@@ -3,7 +3,7 @@ name: fiction-characters
 description: "Generate one Wiki/Characters/[Name].md file per character with full profiles. Personality and dialogue_style are WRITING INSTRUCTIONS, not descriptions. Use when user says 'create characters', 'generate cast', 'build character profiles', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.1.1"
+  version: "3.2.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -14,9 +14,10 @@ metadata:
 
 ## Step 1: Load Context
 
-All inputs come from the project's `Wiki/` folder. Search for the files, since the project may be a subfolder (e.g. `**/Wiki/Story/synopsis.md`).
+Inputs come from the project's `_Intake/` (advisory) and `Wiki/` folders. Search for the files, since the project may be a subfolder (e.g. `**/Wiki/Story/synopsis.md`).
 
-- `Wiki/Story/synopsis.md`: required. For: protagonists, mechanism, characters_in_play, act structure.
+- `Wiki/Story/synopsis.md` (or `Wiki/Story/Book-N/synopsis.md`): required. For: protagonists, mechanism, characters_in_play, act structure.
+- `_Intake/series-brief.md`, `_Intake/Book-*/premise.md`, and `_Intake/Book-*/raw-notes/*.md`: optional (advisory). For: author-specified character sketches, voice notes, archetypes, and naming preferences that may not all fit in the synopsis summary. (Established `Wiki/` canon outranks `_Intake/` if they conflict.)
 - `Wiki/Style/genre.md`: for: tropes (especially romance/power dynamic tropes).
 - `Wiki/Style/audience.md`: for: protagonist_ages, content_boundaries.
 - `Wiki/Style/style_guide.md`: for: style (the prose register the character voices must fit). Also accept the legacy name `Wiki/Style/Style Guide.md` when reading, but never write it.

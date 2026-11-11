@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.8.0"
+  version: "2.9.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -131,15 +131,15 @@ Read:
 
 ### Step 4: Evaluate Against 10 Criteria
 
-1. **POV Voice & Agency** - Is voice present? Are they active?
-2. **Scene-Plan Delivery & Plot Advancement** - Are the required choices, consequences, chapter-specific obligations, and ending movement present without becoming mechanical?
+1. **POV Voice, Subtext & Agency** - Is voice present and matched to `voice_prompt_<POV>.md` / `voice_prompt.md`? Are they active? Does the chapter honor `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (`What they won't say` kept unsaid; `Show-Don't-Tell Gaps` dramatized physically rather than reported)?
+2. **Scene-Plan Delivery, Micro-Friction & Plot Advancement** - Are the required choices, micro-friction resistance beats (at least one deflection, failed tactic, or raised cost before each turn), consequences, chapter-specific obligations, and ending movement present without back-half summary compression?
 3. **Continuity Check** - Flows from previous? No contradictions?
-4. **Character Authenticity** - Voices match? Consistent behavior?
+4. **Character & Relationship Checkpoint Authenticity** - Voices match? Do interactions match the active `## relationship_checkpoints` span for this chapter (`chapter_start <= N <= chapter_end`) in `Wiki/Characters/`, and does dialogue avoid 3+ consecutive interview-style Q&A pairs (`fiction-dialogue`)?
 5. **Reader Appeal & Genre Fit** - Meets expectations? Right pacing?
 6. **Plot Logic** - No holes? Decisions make sense?
 7. **Sensory Atmosphere** - Setting present? Physical sensation?
 8. **World-Building Accuracy** - Locations correct? Rules followed?
-9. **Style Guide Compliance** - No forbidden phrases? Format correct?
+9. **Style Guide & Cooling List Compliance** - No forbidden phrases? Format correct? No trailing 3-chapter `cooling_list` violations (repeated somatic hotspots, repeated 3-grams/similes, or repeated chapter opener/closer formulas)?
 10. **Genre Compliance** - See detailed instructions below.
 
 #### Criterion 10: Genre Compliance

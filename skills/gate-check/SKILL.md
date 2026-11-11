@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -17,24 +17,25 @@ The definitive readiness and continuity validator for a drafted chapter. Evaluat
 Every gate run systematically evaluates up to 7 pillars:
 
 1. **Canon Integrity (Hard Gate):**
-   - Characters: names, physical states, active injuries, relationships match `Wiki/Characters/`.
+   - Characters: names, physical states, active injuries, and active chapter-sliced `relationship_checkpoints` (`chapter_start <= N <= chapter_end`) match `Wiki/Characters/`.
    - World & Setting: locations, sensory anchors, physical distances match `Wiki/World/`.
    - Timeline: chronological continuity with preceding chapters and series timeline.
-2. **Scene Contract & Beat Fulfillment:**
+2. **Scene Contract, Micro-Friction & Beat Fulfillment:**
    - Evaluates drafted prose against `Wiki/Outline/Book-N/Chapter_NN_Scene.md` or scene plan.
-   - All mandatory narrative beats, emotional shifts, and turning points must be present and dramatized.
+   - All mandatory narrative beats, emotional shifts, and turning points must be present, dramatized (no back-half summary compression), and earned through at least one micro-friction resistance beat (failed tactic, deflection, or raised cost) rather than instant concession.
 3. **Chekhov & Promise Maintenance:**
    - Any clues, objects, or dramatic setups introduced in this chapter must be registered in `promises.yaml` via `fiction-promises`.
    - Any setups resolved here must be correctly retired.
-4. **Voice & POV Integrity:**
-   - Adherence to designated POV (Third Limited, First, etc.) with zero POV slips or head-hopping.
-   - Dialogue cadence reflects character dialect/register from `Wiki/Characters/` and `voice-dna.md`.
-5. **Mechanical & Machine Cadence Lint:**
+4. **Voice, POV, Subtext & Dialogue Integrity:**
+   - Adherence to designated POV (Third Limited, First, etc.) and POV-matched `voice_prompt_<POV>.md` / `voice_prompt.md` with zero POV slips or head-hopping.
+   - Subtext compliance against `Wiki/Psych/Book-N/Chapter_NN_Psych.md` when present: characters must not speak out loud or narrate as flat summary any thought listed under **What they won't say**, and moments in **Show-Don't-Tell Gaps** must be rendered through body, object, or silence.
+   - Dialogue architecture (`fiction-dialogue`): dialogue reflects speaker register and unequal knowledge; 3+ consecutive clean question-answer pairs without deflection or action are flagged as an interview-pattern `WARN`.
+5. **Mechanical, Cooling List & Machine Cadence Lint:**
    - Tricolon (rule-of-three) saturation rate.
    - "Not X but Y" negation density.
    - Em-dash clusters (>10 in a scene).
    - Paragraph-closing aphorisms.
-   - Stock sensory repetitions (dust, paper must, brass warmth, creaking wood).
+   - Stock sensory repetitions (dust, paper must, brass warmth, creaking wood) and trailing 3-chapter `cooling_list` violations (reused somatic hotspots, repeated 3-grams/similes, or repeated chapter opener/closer formulas from `project_state.py draft-packet`).
 6. **Closing Beat & Transition:**
    - Chapter ending leaves a distinct forward momentum or deliberate unresolved hook (avoiding homogeneous quiet-tea reflective resolutions on 100% of chapters).
 7. **LitRPG & Numeric Continuity (Conditional Gate):**

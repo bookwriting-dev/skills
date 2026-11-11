@@ -3,19 +3,20 @@ name: fiction-theme
 description: "Generate the thematic engine: central question, tone, and motifs. Defines what the story is ABOUT underneath the plot. Use when user says 'define theme', 'what is this about', 'thematic core', or after running fiction-audience."
 metadata:
   author: Fiction Toolkit
-  version: "3.1.0"
+  version: "3.2.0"
   category: fiction-writing
   output-format: markdown
 ---
 
 # Theme Engine
 
-**Output:** `Wiki/Story/theme.md` in the project's `Wiki/` folder. All inputs are read from `Wiki/` Markdown files; all output is written as Markdown. All work stays in the project's Markdown files.
+**Output:** `Wiki/Story/theme.md` in the project's `Wiki/` folder. Inputs are read from `_Intake/` (advisory) and `Wiki/` Markdown files; all output is written as Markdown. All work stays in the project's Markdown files.
 
 ## Step 1: Locate the Project and Load Context
 
 The project may live in a subfolder of the working directory, so search for the upstream files:
 
+- `**/_Intake/series-brief.md`, `**/_Intake/Book-*/premise.md`, and `**/_Intake/Book-*/raw-notes/*.md`: Optional (advisory). Read for thematic seeds, motifs, emotional promise, and non-negotiables so the user is not interrogated cold when `_Intake/` already states the core question.
 - `**/Wiki/Style/genre.md`: Required. For: genre, subgenre, tone_notes, tropes. If missing, tell the user: "No genre profile found. Run `fiction-genre` first, or tell me your genre."
 - `**/Wiki/Style/audience.md`: Optional but recommended. For: age group, thematic expectations. If missing, note it and proceed.
 - `**/Wiki/Story/synopsis.md`: Optional (theme usually runs before synopsis). If it exists, read it for: protagonists, premise, act structure.

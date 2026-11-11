@@ -331,12 +331,350 @@ def dashboard(root, book):
     return dict(chapters=chapters, campaigns=campaigns)
 
 
+SOMATIC_TOKENS = {
+    'jaw', 'breath', 'throat', 'pulse', 'ribs', 'chest', 'knuckles', 'stomach',
+    'silence', 'stillness', 'ozone', 'copper', 'bile', 'sternum', 'temples',
+    'collarbone', 'exhale', 'inhale', 'swallowed', 'clenched', 'unclenched',
+    'tightened', 'shiver', 'tremor', 'heartbeat',
+}
+
+STOP_WORDS = {
+    'a', 'an', 'and', 'the', 'this', 'that', 'these', 'those', 'there', 'here',
+    'it', 'its', 'he', 'she', 'they', 'them', 'his', 'her', 'their', 'him',
+    'of', 'to', 'in', 'on', 'at', 'by', 'for', 'with', 'from', 'as', 'is',
+    'are', 'was', 'were', 'be', 'been', 'being', 'am', 'do', 'does', 'did',
+    'have', 'has', 'had', 'will', 'would', 'could', 'should', 'can', 'may',
+    'might', 'must', 'not', 'no', 'nor', 'so', 'if', 'but', 'or', 'then',
+    'than', 'when', 'while', 'where', 'what', 'which', 'who', 'whom', 'whose',
+    'how', 'why', 'all', 'any', 'both', 'each', 'few', 'more', 'most', 'other',
+    'some', 'such', 'only', 'own', 'same', 'too', 'very', 'just', 'now', 'i',
+    'you', 'we', 'us', 'our', 'your', 'my', 'me', 'up', 'out', 'off', 'over',
+    'under', 'again', 'once', 'about', 'into', 'through', 'during', 'before',
+    'after', 'above', 'below', 'between', 'because', 'until', 'against',
+}
+
+
+def prose_lines(path):
+    """Extract clean prose lines, stripping headings, fences, > callouts, rules, and checkboxes."""
+    lines = []
+    in_fence = False
+    for raw in path.read_text(encoding='utf-8').splitlines():
+        line = raw.strip()
+        if not line:
+            continue
+        if line.startswith('```'):
+            in_fence = not in_fence
+            continue
+        if in_fence or line.startswith('#') or line.startswith('>') or line in ('---', '***'):
+            continue
+        if re.match(r'^[-*] \[', line):
+            continue
+        lines.append(line)
+    return lines
+
+
+def parse_checkpoints(path, chapter_num):
+    """Return active relationship_checkpoints for chapter_num from a character Markdown file."""
+    text = path.read_text(encoding='utf-8')
+    m = re.search(r'^##\s+relationship_checkpoints\b(.*?)(?=^##\s+|\Z)', text, re.M | re.S)
+    if not m:
+        return []
+    char_name = path.stem.replace('_', ' ')
+    fm_name = re.search(r'^name:\s*["\']?([^"\'\n]+)["\']?', text, re.M)
+    if fm_name:
+        char_name = fm_name.group(1).strip()
+    active = []
+    block = m.group(1)
+    for sub in re.finditer(r'^###\s+([^\n]+)\n(.*?)(?=^###\s+|\Z)', block, re.M | re.S):
+        other = sub.group(1).strip()
+        entries = []
+        current = {}
+        for line in sub.group(2).splitlines():
+            kv = re.match(r'^\s*-\s*\*\*([a-z_]+):\*\*\s*(.+)$', line.strip())
+            if kv:
+                k, v = kv.group(1), kv.group(2).strip()
+                if k == 'link_type' and current:
+                    entries.append(current)
+                    current = {}
+                current[k] = v
+        if current:
+            entries.append(current)
+        for entry in entries:
+            start_m = re.search(r'\d+', str(entry.get('chapter_start', '1')))
+            start = int(start_m.group(0)) if start_m else 1
+            end_raw = str(entry.get('chapter_end', '(open)')).strip().lower()
+            end_m = re.search(r'\d+', end_raw)
+            end = None if ('open' in end_raw or not end_m) else int(end_m.group(0))
+            if start <= chapter_num and (end is None or chapter_num <= end):
+                active.append({
+                    'character': char_name,
+                    'other_character': other,
+                    'link_type': entry.get('link_type', ''),
+                    'chapter_start': start,
+                    'chapter_end': 'open' if end is None else end,
+                    'notes': entry.get('notes', ''),
+                    'source': path,
+                })
+    return active
+
+
+def parse_psych(path):
+    """Extract What they won't say lines and Show-Don't-Tell Gaps rows from a Psych file."""
+    text = path.read_text(encoding='utf-8')
+    unsaid = [m.group(1).strip() for m in re.finditer(
+        r'^\s*-\s*\*\*What they won\'t say:\*\*\s*(.+)$', text, re.M | re.I
+    )]
+    gaps = []
+    gap_sec = re.search(r'^##\s+Show-Don\'t-Tell Gaps\b(.*?)(?=^##\s+|^---\s*$|\Z)', text, re.M | re.S | re.I)
+    if gap_sec:
+        for line in gap_sec.group(1).splitlines():
+            line = line.strip()
+            if not line.startswith('|') or re.match(r'^\|\s*[-:]+\s*\|', line):
+                continue
+            cells = [c.strip() for c in line.strip('|').split('|')]
+            if len(cells) >= 3 and cells[0].lower() != 'beat':
+                gaps.append({'beat': cells[0], 'reporting_draft': cells[1], 'instead': cells[2]})
+    return {'what_they_wont_say': unsaid, 'show_dont_tell_gaps': gaps}
+
+
+def draft_packet(root, args):
+    ch_m = re.search(r'\d+', str(args.chapter or '1'))
+    if not ch_m:
+        raise ValueError('invalid --chapter value')
+    ch_num = int(ch_m.group(0))
+    window = max(1, int(args.window))
+    book = args.book
+
+    # 1. Scene plan
+    scene_info = None
+    pov_names = []
+    for cand in (
+        root / 'Wiki' / 'Outline' / book / f'Chapter_{ch_num:02d}_Scene.md',
+        root / 'Wiki' / 'Outline' / book / f'Chapter_{ch_num:03d}_Scene.md',
+    ):
+        if cand.is_file():
+            stext = cand.read_text(encoding='utf-8')
+            for pm in re.finditer(r'(?:\*\*POV:\*\*|^POV:)\s*([^\n|]+)', stext, re.M | re.I):
+                for raw_p in re.split(r'[,/]| and ', pm.group(1)):
+                    clean_p = raw_p.strip().split('(')[0].strip()
+                    if clean_p and clean_p not in pov_names:
+                        pov_names.append(clean_p)
+            scenes_count = len(re.findall(r'^##\s+Scene\s+\d+\b', stext, re.M | re.I))
+            scene_info = {
+                'path': str(cand.relative_to(root)),
+                'sha256': digest(cand),
+                'scene_count': scenes_count or 1,
+                'pov_characters': pov_names,
+            }
+            break
+
+    # 2. Psych pass
+    psych_info = None
+    for cand in (
+        root / 'Wiki' / 'Psych' / book / f'Chapter_{ch_num:02d}_Psych.md',
+        root / 'Wiki' / 'Psych' / book / f'Chapter_{ch_num:03d}_Psych.md',
+    ):
+        if cand.is_file():
+            ptext = cand.read_text(encoding='utf-8')
+            for pm in re.finditer(r'\*\*POV:\*\*\s*([^\n,]+)', ptext):
+                clean_p = pm.group(1).strip()
+                if clean_p and clean_p not in pov_names:
+                    pov_names.append(clean_p)
+            psych_info = {
+                'path': str(cand.relative_to(root)),
+                'sha256': digest(cand),
+                **parse_psych(cand),
+            }
+            break
+
+    # 3. Style guide & multi-POV voice prompts
+    style_path = root / 'Wiki' / 'Style' / 'style_guide.md'
+    if style_path.is_file():
+        sg_text = style_path.read_text(encoding='utf-8')
+        for key in ('pov_1', 'pov_2', 'pov_3', 'pov_4'):
+            km = re.search(rf'^{key}:\s*["\']?([^"\'\n]+)["\']?', sg_text, re.M)
+            if km:
+                val = km.group(1).strip()
+                if val and val.lower() != 'none' and val not in pov_names:
+                    pov_names.append(val)
+    voice_prompts = []
+    seen_vp = set()
+    style_dir = root / 'Wiki' / 'Style'
+    for pov in pov_names:
+        slug_full = re.sub(r'\s+', '_', pov.strip())
+        slug_first = slug_full.split('_')[0]
+        for cand_name in (f'voice_prompt_{slug_full}.md', f'voice_prompt_{slug_first}.md',
+                          f'voice_prompt_{slug_full.lower()}.md', f'voice_prompt_{slug_first.lower()}.md'):
+            vp = style_dir / cand_name
+            if vp.is_file() and vp not in seen_vp:
+                seen_vp.add(vp)
+                voice_prompts.append({'pov': pov, 'path': str(vp.relative_to(root)), 'sha256': digest(vp)})
+                break
+    default_vp = style_dir / 'voice_prompt.md'
+    if default_vp.is_file() and default_vp not in seen_vp:
+        voice_prompts.append({'pov': 'default', 'path': str(default_vp.relative_to(root)), 'sha256': digest(default_vp)})
+
+    # 4. Active relationship checkpoints for Chapter N
+    checkpoints = []
+    char_dir = root / 'Wiki' / 'Characters'
+    if char_dir.is_dir():
+        for cf in sorted(char_dir.glob('*.md')):
+            if cf.stem.endswith('_sheet'):
+                continue
+            for cp in parse_checkpoints(cf, ch_num):
+                cp['source'] = str(cf.relative_to(root))
+                cp['source_sha256'] = digest(cf)
+                checkpoints.append(cp)
+
+    # 5. Immediate continuity tail from Chapter-(N-1)
+    continuity_tail = None
+    if ch_num > 1:
+        prev_ch = root / 'Chapters' / book / f'Chapter-{ch_num - 1:03d}.md'
+        if prev_ch.is_file():
+            plines = prose_lines(prev_ch)
+            all_words = ' '.join(plines).split()
+            tail_words = ' '.join(all_words[-400:]) if all_words else ''
+            closing_sentence = ''
+            for line in reversed(plines):
+                sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', line) if len(s.split()) >= 3]
+                if sents:
+                    closing_sentence = sents[-1]
+                    break
+            continuity_tail = {
+                'path': str(prev_ch.relative_to(root)),
+                'sha256': digest(prev_ch),
+                'tail_excerpt': tail_words,
+                'closing_sentence': closing_sentence,
+            }
+
+    # 6. Rolling N-chapter Cooling List
+    somatic_counts = {}
+    ngram_counts = {}
+    simile_counts = {}
+    recent_openers = []
+    recent_closers = []
+    start_trail = max(1, ch_num - window)
+    for t_num in range(start_trail, ch_num):
+        t_path = root / 'Chapters' / book / f'Chapter-{t_num:03d}.md'
+        if not t_path.is_file():
+            continue
+        t_lines = prose_lines(t_path)
+        if not t_lines:
+            continue
+        first_w = []
+        for l in t_lines:
+            w = re.findall(r"[A-Za-z][A-Za-z']+", l)
+            if len(w) >= 3:
+                first_w = w[:6]
+                break
+        if first_w:
+            recent_openers.append({'chapter': f'Chapter-{t_num:03d}', 'opener': ' '.join(first_w)})
+        last_s = ''
+        for l in reversed(t_lines):
+            sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', l) if len(s.split()) >= 3]
+            if sents:
+                last_s = sents[-1]
+                break
+        if last_s:
+            recent_closers.append({'chapter': f'Chapter-{t_num:03d}', 'closer': last_s})
+
+        prose_blob = ' '.join(t_lines)
+        tokens = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z']+", prose_blob)]
+        ch_somatic = {}
+        for tok in tokens:
+            if tok in SOMATIC_TOKENS:
+                ch_somatic[tok] = ch_somatic.get(tok, 0) + 1
+                somatic_counts[tok] = somatic_counts.get(tok, 0) + 1
+        # Flag any somatic token used >= 2 times in a single trailing chapter as at least 3 in aggregate
+        for tok, c in ch_somatic.items():
+            if c >= 2 and somatic_counts[tok] < 3:
+                somatic_counts[tok] = 3
+
+        for i in range(len(tokens) - 2):
+            tri = tokens[i:i + 3]
+            if sum(1 for w in tri if w not in STOP_WORDS) >= 2:
+                key = ' '.join(tri)
+                ngram_counts[key] = ngram_counts.get(key, 0) + 1
+
+        for sm in re.finditer(r'\b(?:like\s+(?:a|an|the)\s+[a-z]+\s+[a-z]+|as\s+if\s+[a-z]+\s+[a-z]+\s+[a-z]+)', prose_blob.lower()):
+            phrase = re.sub(r'\s+', ' ', sm.group(0).strip())
+            simile_counts[phrase] = simile_counts.get(phrase, 0) + 1
+
+    cooling_list = {
+        'window_chapters': window,
+        'somatic_hotspots': [
+            {'word': k, 'count': v}
+            for k, v in sorted(somatic_counts.items(), key=lambda x: (-x[1], x[0]))
+            if v >= 3
+        ],
+        'repeated_ngrams': [
+            {'ngram': k, 'count': v}
+            for k, v in sorted(ngram_counts.items(), key=lambda x: (-x[1], x[0]))
+            if v >= 2
+        ][:20],
+        'repeated_similes': [
+            {'phrase': k, 'count': v}
+            for k, v in sorted(simile_counts.items(), key=lambda x: (-x[1], x[0]))
+        ][:15],
+        'recent_openers': recent_openers,
+        'recent_closers': recent_closers,
+    }
+
+    # 7. Knowledge state as of start of Chapter N
+    k_path = root / 'Wiki' / 'Story' / book / 'knowledge.json'
+    knowledge_as_of = {}
+    if k_path.is_file():
+        kd = document(k_path, 'events')
+        events = [dict(e, current=source_valid(root, e)) for e in kd['events']]
+        superseded = {i for e in events if e['current'] and e['confirmed'] for i in e.get('supersedes', [])}
+        observers = sorted({e.get('observer') for e in events if e.get('observer')})
+        for obs in observers:
+            field = 'reader_position' if obs == 'reader' else 'story_position'
+            obs_state = {}
+            for e in sorted(events, key=lambda x: x[field]):
+                if e['current'] and e['confirmed'] and e['id'] not in superseded and e['observer'] == obs and e[field] <= [ch_num, 0]:
+                    obs_state[e['fact_id']] = e
+            if obs_state:
+                knowledge_as_of[obs] = obs_state
+
+    # 8. Applicable active editorial decisions
+    ed_path = root / 'Wiki' / 'Style' / 'editorial-decisions.json'
+    allowed_scopes = {'series', book, f'Chapter-{ch_num:03d}'} | set(pov_names)
+    active_decisions = []
+    if ed_path.is_file():
+        ed = document(ed_path, 'decisions')
+        active_decisions = [
+            x for x in ed['decisions']
+            if x.get('status') == 'active' and x.get('scope') in allowed_scopes
+        ]
+
+    packet = {
+        'schema_version': VERSION,
+        'book': book,
+        'chapter_number': ch_num,
+        'chapter_id': f'Chapter-{ch_num:03d}',
+        'scene_plan': scene_info,
+        'psych': psych_info,
+        'voice_prompts': voice_prompts,
+        'relationship_checkpoints': checkpoints,
+        'continuity_tail': continuity_tail,
+        'knowledge_as_of': knowledge_as_of,
+        'editorial_decisions': active_decisions,
+        'cooling_list': cooling_list,
+    }
+    if getattr(args, 'output', None):
+        out = path_at(root, args.output)
+        with locked(out):
+            write(out, packet)
+    return packet
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--root', type=Path, required=True)
     ap.add_argument('--book', default='Book-1')
     sub = ap.add_subparsers(dest='command', required=True)
-    for cmd in ('prepare', 'snapshot', 'check', 'validate', 'dashboard', 'disposition', 'memory', 'knowledge', 'reading', 'campaign', 'pipeline'):
+    for cmd in ('prepare', 'snapshot', 'check', 'validate', 'dashboard', 'disposition', 'memory', 'knowledge', 'reading', 'campaign', 'pipeline', 'draft-packet'):
         p = sub.add_parser(cmd)
         p.add_argument('--spec')
         p.add_argument('--output')
@@ -347,6 +685,8 @@ def main():
         p.add_argument('--position', default='999999')
         p.add_argument('--run', default='default')
         p.add_argument('--task')
+        p.add_argument('--chapter', default='1')
+        p.add_argument('--window', type=int, default=3)
     a = ap.parse_args()
     root = a.root.resolve()
     if not re.fullmatch(r'Book-\d+', a.book) or not re.fullmatch(r'[\w-]+', a.run):
@@ -403,6 +743,8 @@ def main():
                 d['steps'].append(item)
                 write(p, d)
             result = [dict(s, reusable=s['status'] == 'complete' and evidence(root, [e['path'] for e in s['inputs']]) == s['inputs'] and evidence(root, [e['path'] for e in s.get('outputs', [])]) == s.get('outputs')) for s in d['steps']]
+    elif a.command == 'draft-packet':
+        result = draft_packet(root, a)
     else:
         result = globals()[a.command](root, a)
     print(json.dumps(result, indent=2, ensure_ascii=False))

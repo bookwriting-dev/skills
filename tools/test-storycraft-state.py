@@ -203,6 +203,74 @@ class Workflow(unittest.TestCase):
         self.assertEqual(score['author_evaluation'],'pending')
         self.assertIsNone(score['author_acceptance'])
 
+    def test_draft_packet_checkpoints_cooling_and_psych(self):
+        char_md = self.root / 'Wiki/Characters/Mara.md'
+        char_md.parent.mkdir(parents=True, exist_ok=True)
+        char_md.write_text(
+            '---\nname: Mara\nrole: protagonist\n---\n\n'
+            '## relationship_checkpoints\n\n'
+            '### Jo\n'
+            '- **link_type:** rival\n'
+            '- **chapter_start:** 1\n'
+            '- **chapter_end:** 2\n'
+            '- **notes:** Distrusts Jo over the ledger\n'
+            '- **link_type:** ally\n'
+            '- **chapter_start:** 3\n'
+            '- **chapter_end:** (open)\n'
+            '- **notes:** Uneasy truce after the receipt reveal\n'
+        )
+        style_md = self.root / 'Wiki/Style/style_guide.md'
+        style_md.parent.mkdir(parents=True, exist_ok=True)
+        style_md.write_text('---\npov_mode: dual\npov_1: Mara\npov_2: Jo\n---\n\n## Style\nClose third past.\n')
+        vp_mara = self.root / 'Wiki/Style/voice_prompt_Mara.md'
+        vp_mara.write_text('# Voice Prompt: Mara\n')
+        psych_md = self.root / 'Wiki/Psych/Book-1/Chapter_03_Psych.md'
+        psych_md.parent.mkdir(parents=True, exist_ok=True)
+        psych_md.write_text(
+            '# Chapter 03: Psychological Interior Pass\n'
+            '**POV:** Mara, 29\n\n'
+            '## Beat-by-Beat Interior Cost\n'
+            '### The Receipt\n'
+            "- **Interior cost:** Grief\n"
+            "- **Body expression:** Hands still\n"
+            "- **What they won't say:** I still blame you for the fire.\n\n"
+            "## Show-Don't-Tell Gaps\n"
+            '| Beat | What a reporting draft does | What it should do instead |\n'
+            '|------|----------------------------|--------------------------|\n'
+            '| Jo enters | States she is angry | Pockets the key without looking up |\n'
+        )
+        ch1 = self.root / 'Chapters/Book-1/Chapter-001.md'
+        ch2 = self.root / 'Chapters/Book-1/Chapter-002.md'
+        ch1.write_text(
+            '# Chapter 1\n\n'
+            'Mara folded the receipt and clenched her jaw. Her jaw ached.\n\n'
+            '> [!SYSTEM]\n'
+            '> ZORBAXICUS_SENTINEL jaw jaw jaw\n'
+        )
+        ch2.write_text(
+            '# Chapter 2\n\n'
+            'Mara folded the receipt again. Her jaw tightened in the hall.\n'
+        )
+        pkt1 = self.runcli('draft-packet', '--chapter', '1')
+        self.assertEqual(len(pkt1['relationship_checkpoints']), 1)
+        self.assertEqual(pkt1['relationship_checkpoints'][0]['link_type'], 'rival')
+
+        pkt3 = self.runcli(
+            'draft-packet', '--chapter', '3',
+            '--output', '_Edits/Book-1/packets/Chapter-003_DraftPacket.json'
+        )
+        self.assertTrue((self.root / '_Edits/Book-1/packets/Chapter-003_DraftPacket.json').is_file())
+        self.assertEqual(len(pkt3['relationship_checkpoints']), 1)
+        self.assertEqual(pkt3['relationship_checkpoints'][0]['link_type'], 'ally')
+        self.assertEqual(pkt3['psych']['what_they_wont_say'], ['I still blame you for the fire.'])
+        self.assertEqual(len(pkt3['psych']['show_dont_tell_gaps']), 1)
+        self.assertTrue(any(v['path'] == 'Wiki/Style/voice_prompt_Mara.md' for v in pkt3['voice_prompts']))
+        hot_words = [h['word'] for h in pkt3['cooling_list']['somatic_hotspots']]
+        self.assertIn('jaw', hot_words)
+        ngrams = [g['ngram'] for g in pkt3['cooling_list']['repeated_ngrams']]
+        self.assertIn('folded the receipt', ngrams)
+        self.assertNotIn('ZORBAXICUS', json.dumps(pkt3).upper())
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate check results, word counts, open Chekhov promises, and stylistic drift metrics across books and chapters. Use when user asks 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', or 'show project status'."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.3.0"
   category: cross-cutting
 ---
 

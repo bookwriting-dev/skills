@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.1.0"
+  version: "4.2.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -42,7 +42,7 @@ Do not silently escalate compact beats into a full scene dossier.
 Read only context that can change the plan:
 
 - assigned outline, proposal, existing beats, or chapter directive;
-- the POV character and named participants;
+- the POV character and named participants, including the active `## relationship_checkpoints` span for this chapter (`chapter_start <= N <= chapter_end`) in `Wiki/Characters/<Name>.md`;
 - relevant current-canon locations, factions, systems, and active context;
 - adjacent prose or beats needed for continuity;
 - the project's style/voice source only when the beats include drafting guardrails or the user names it.
@@ -57,11 +57,12 @@ Write the chapter's causal spine in one or two sentences and test it:
 
 1. **Want:** What does the POV character actively seek now?
 2. **Pressure:** What makes that difficult? Friction may be uncertainty, cost, incompatible duties, time, or incomplete knowledge; it need not be hostility.
-3. **Choice:** What consequential decision or action does the POV character make?
-4. **Change:** What is irreversibly different by the chapter's end?
-5. **Necessity:** What future event, relationship, or option would disappear if the chapter were cut?
+3. **Micro-Friction (Earn the Turn):** What specific resistance, failed first tactic, deflection, or raised cost prevents the scene from resolving on the first push? (Ban "cooperative exposition" where another character hands over information, trust, or concession immediately.)
+4. **Choice:** What consequential decision or action does the POV character make?
+5. **Change:** What is irreversibly different by the chapter's end?
+6. **Necessity:** What future event, relationship, or option would disappear if the chapter were cut?
 
-If the spine cannot answer all five, repair the spine before adding worldbuilding. Information, atmosphere, shopping lists, status reports, and theories are not plot unless they cause a decision that changes later events.
+If the spine cannot answer all six, repair the spine before adding worldbuilding. Information, atmosphere, shopping lists, status reports, and theories are not plot unless they cause a decision that changes later events.
 
 Prefer one primary driver and at most one supporting driver. Consult [driver-types.md](references/driver-types.md) when the driver is unclear or when planning a batch. Use [anti-flat-scenes.md](references/anti-flat-scenes.md) when a chapter risks becoming travel, processing, setup, or exposition without action.
 
@@ -71,11 +72,11 @@ Use 1–3 scenes according to real changes in location, time, power, or emotiona
 
 Each scene should establish:
 
-- the POV character's immediate goal;
-- active pressure or resistance;
+- the POV character's immediate goal and the active `relationship_checkpoints` state between participants at this chapter;
+- active pressure and at least one **micro-friction beat** (a failed attempt, refusal, misdirection, interruption, or price escalation) before the turn lands;
 - concrete actions and selective physical anchors;
 - the turn: the line, discovery, refusal, choice, or act that changes the scene;
-- the consequence carried into the next scene;
+- the consequence carried into the next scene (if a bond shifts here, append a new dated checkpoint entry to `## relationship_checkpoints` in both characters' `Wiki/Characters/<Name>.md` files and close the prior open span);
 - the surface response and the truer interior movement;
 - a specific ending beat with forward pull.
 

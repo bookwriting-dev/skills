@@ -68,4 +68,4 @@ make smoke     # scaffold a throwaway project and assert the tree it produces
 
 The 2026.11.01 library adds scoped editorial memory, review freshness and resumable work, character/reader knowledge events, isolated sequential reading, revision campaigns, preservation evaluation packets, and executable manuscript delivery. See [state records](docs/STATE-CONTRACT.md), [safe upgrades](docs/MIGRATION.md), and [editorial evaluations](docs/EDITORIAL-EVALS.md).
 
-`make export-eval` exercises real DOCX/EPUB/PDF exports with explicit Pandoc/Typst dependencies. `make eval-editorial` prepares 24 provisional author-review cases. Passing the deterministic gate does not substitute for author acceptance or rendered-layout review.
+`make export-eval` exercises real DOCX/EPUB/PDF exports with explicit Pandoc/Typst dependencies. `make eval-editorial` prepares 32 provisional author-review cases. Passing the deterministic gate does not substitute for author acceptance or rendered-layout review.

@@ -3,8 +3,8 @@ name: kill-soft
 description: Hunt the word "soft" across a chapter and cut the figurative crutch uses while keeping the literal texture and speaking-voice ones (deletion-first, parallel focused workers, edits in place). Maintained as a dedicated pass; also covered by the generalized kill-crutch pass (kill-crutch soft). Use when user says "kill-soft", "kill soft", or "strip the soft crutch".
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
-  bundled-dependencies: book-status
+  version: "1.2.0"
+  bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
 
@@ -13,35 +13,13 @@ metadata:
 "soft" is a crutch word the model reaches for too often. It is correct for **physical
 texture** and for a **quiet speaking voice**, and wrong almost everywhere else: stretched
 over an abstract, temporal, atmospheric, or emotional noun for a romance/writerly effect.
-This skill finds every use in the named files and cuts the bad ones in place,
-deletion-first, in the POV character's voice.
 
 The request arguments = the chapter file(s): a path, a file pattern, or several paths. Resolve it to a
 concrete file list before doing anything (skip files that don't contain "soft").
 
-## What to keep vs. fix
+## Single-source rule-set (What to keep vs. fix)
 
-**KEEP (do not touch):**
-- **Physical texture** of a body or object you could actually touch: "soft fur," "soft
-  skin," "the soft of her belly," "marble worn soft." Canon and correct.
-- **Speaking softly / a soft voice:** "he said softly," "her voice went soft." A quiet
-  voice genuinely is soft.
-- **Deliberate theme threads** where "soft / softness" names a character's tenderness as a
-  named trait the book is consciously building. When in doubt whether a use is thematic,
-  KEEP it and flag it rather than stripping.
-
-**FIX (cut first; reword only if the beat needs it) — everything else, especially:**
-- "soft" pinned to an **abstract / temporal / atmospheric / emotional** noun: "the soft
-  morning," "the soft dark," "a soft ache," "soft warmth / quiet / silence," "soft
-  complaints," "the room going soft at the edges," "a soft sound," "a soft click."
-- "soft" on a thing that has **no softness** ("a soft heap of copper," "soft bracelets of
-  scar").
-- **Repetition:** the same noun called "soft" twice within a few lines, or "soft" twice in
-  one sentence. Cut the weaker one.
-
-Default move is **deletion** ("a soft ache" → "an ache," "the soft morning" → "the
-morning"). Reword only when deletion loses needed meaning; ground it in the plain word the
-narrator would use (quiet, faint, low, weak, gentle, dull), never another mood word.
+Read [soft.md](../kill-chapter/references/soft.md) before triaging or launching workers. That file is the single source of truth for KEEP/FIX criteria, deletion-first rules, and verification patterns shared with `kill-chapter`; pass its contents verbatim to every focused worker so single-pass and full-chapter sweeps never drift.
 
 ## Procedure
 
