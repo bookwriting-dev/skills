@@ -1,9 +1,9 @@
 ---
 name: nonfiction-clarity-edit
-description: "Default comprehensive non-fiction clarity pass: jargon density, abstraction ladder, cognitive load, and signposting, plus sentence-level mechanics. The non-fiction equivalent of fiction-full-editor. Uses focused workers for 40-line chunk scanning. Use when user says 'clarity edit', 'make it clearer', 'check readability', 'edit chapter', 'polish writing', or asks for general sentence-level editing of non-fiction."
+description: "Default comprehensive non-fiction clarity pass: jargon density, abstraction ladder, cognitive load, and signposting, plus sentence-level mechanics. The non-fiction equivalent of fiction-full-editor. Uses paragraph- and section-aware contextual packets. Use when user says 'clarity edit', 'make it clearer', 'check readability', 'edit chapter', 'polish writing', or asks for general sentence-level editing of non-fiction."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: nonfiction-editing
   output-format: markdown
@@ -11,7 +11,7 @@ metadata:
 
 # Nonfiction Clarity Edit
 
-Runs every sentence-level clarity check in a single pass. Each focused worker scans its 40-line chunk against the complete criteria set: jargon density + abstraction ladder + cognitive load + signposting + sentence mechanics.
+Runs every sentence-level clarity check in a single pass. Each focused worker scans complete paragraph- and section-aware target passages against the complete criteria set: jargon density + abstraction ladder + cognitive load + signposting + sentence mechanics. Fixed line counts are not passage boundaries.
 
 ## Arguments
 
@@ -23,7 +23,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 2. Search the project files for the chapter (e.g., `**/Chapter-5*`). If not found, ask.
 3. Search for the project's style guide (`**/style_guide.md`) and review guide (`**/review_guide.md`). Use whichever exist.
 4. Search for the chapter's plan (its `## Chapter NN` section in `Wiki/Outline/Book-N/plan.md` — the default home — or a per-chapter `**/Chapter_[NN]_Plan.md` file, or the project's planning convention from `nonfiction-chapter-plan`). The plan states the chapter's claim, evidence blocks, and required transitions — a clarity edit must not cut an argument move it mistakes for clutter, and must not pass prose that buries the plan's claim.
-5. Get the chapter's line count using the host's available file or line-count operation.
+5. Resolve chapter identity/path through the project resolver when present. Read the complete chapter and identify paragraph, section, quotation, and intentional-format boundaries. If style-guide authorities conflict, preserve both and report the conflict rather than choosing silently.
 
 ## Step 2: Read All Criteria
 
@@ -40,25 +40,25 @@ Combine them into a single criteria block for the worker prompts.
 
 ## Step 3: Launch Focused Workers
 
-Calculate 40-line chunks. For EACH chunk, use one isolated worker with the task description `Clarity edit lines {start}-{end}`.
+Use the shared [passages.py](../book-status/scripts/passages.py) extractor to partition the complete chapter by paragraph and section boundaries under the available context budget. Give each passage a stable ID and mark editable targets separately from read-only context before and after. Include nearby definitions, evidence qualifiers, referents, and rhetorical-mode instructions when they inform the target. Preserve quotations and intentional formatting. If one paragraph exceeds budget, split only at sentence boundaries, retain the common parent passage ID and source offsets, and cover every sentence exactly once.
 
 Launch all chunks in parallel when the host supports workers; otherwise process the chunks sequentially. Keep the work in the foreground so all findings can be compiled in this run.
 
 **Worker prompt for each chunk:**
 
-> You are performing a comprehensive non-fiction clarity edit. Check ONLY lines {start} through {end}.
+> You are performing a comprehensive non-fiction clarity edit. Inspect all supplied context, but propose changes only inside the explicitly marked target passage(s).
 >
 > 1. Read the style guide at: {style_guide_path} (if it exists)
 > 2. Read the chapter plan at: {plan_path} (if it exists) — note the chapter's claim, evidence blocks, and required transitions so argument moves are not flagged as clutter
-> 3. Read the chapter using offset={start - 1} and limit=40: {chapter_path}
-> 4. Check every line against ALL of the following criteria:
+> 3. Read source revision {subject_sha256}. Target passage IDs and exact zero-based half-open Unicode code-point offsets: {target_passages}. Context before/after is read-only: {context_passages}.
+> 4. Check every target passage against ALL of the following criteria:
 >
 > {paste the combined contents of all four criteria files}
 >
-> 5. Return your findings in this EXACT format. Return NOTHING if no issues found:
+> 5. Return each finding with exact quote, offsets into the exact delivered chapter string, target passage ID, reason, and smallest proposed replacement. Preserve claim strength, attribution, quantities, uncertainty, and evidence boundaries. Do not edit context-only text. Return NOTHING if no issues found:
 >
 > ```
-> **Line {N}:** `exact quoted text`
+> **Anchor:** `{start}:{end}` `exact quoted text` (passage `{passage_id}`)
 > Category: [Jargon Density | Abstraction Ladder | Cognitive Load | Signposting | Sentence Mechanics | Style Guide Violations]
 > Problem: [why it obstructs the reader]
 > Fix: [specific replacement]

@@ -3,7 +3,7 @@ name: nonfiction-structure
 description: "Choose and scaffold the argument architecture (problem-solution, chronological, conceptual, hybrid). Use when user says 'structure my book', 'choose architecture', 'organize chapters', 'argument structure', or after running nonfiction-concept."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -31,6 +31,8 @@ Read these craft knowledge files before generating:
 - [references/structure-templates.md](references/structure-templates.md): ready-to-adapt chapter grids for each architecture; act/part breakdowns; pacing guides
 
 Extract: which architecture serves this thesis + audience; how to sequence evidence for maximum persuasion; how to design chapters that teach *and* argue.
+
+Distinguish **argument architecture** (problem-solution, chronological, conceptual, hybrid) from **rhetorical mode**. Preserve an established project mode; for a new project, record a book-level mode: `argumentative`, `instructional`, `narrative`, `memoir`, `essay`, `reference`, or `hybrid`. A chapter may override it, and hybrid chapters/sections must identify their local mode. Treat a clearly specified brief as authoritative; ask only when a material mode ambiguity changes obligations. A satirical essay may declare `satirical_essay` without relaxing factual standards.
 
 ## Step 3: Gather User Input
 
@@ -79,6 +81,8 @@ If any check fails, report the conflict and recommend: architecture adjustment, 
 Cover every field in [references/json-schema.json](references/json-schema.json) as frontmatter or a `##` section.
 
 **architecture**: One of: `problem_solution`, `chronological`, `conceptual`, `hybrid`. If hybrid, specify `primary` and `secondary`.
+
+**rhetorical_mode**: One of `argumentative`, `instructional`, `narrative`, `memoir`, `essay`, `reference`, `hybrid`. For hybrid, record mode per chapter or section. Record `satire_variant: satirical_essay` when applicable. Mode controls structure, not evidentiary standards.
 
 **thesis_clause_map**: Array mapping each thesis clause → chapter/part numbers. Ensures full thesis coverage.
 

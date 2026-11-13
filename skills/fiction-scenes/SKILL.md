@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.2.0"
+  version: "4.3.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -74,6 +74,7 @@ Each scene should establish:
 
 - the POV character's immediate goal and the active `relationship_checkpoints` state between participants at this chapter;
 - active pressure and at least one **micro-friction beat** (a failed attempt, refusal, misdirection, interruption, or price escalation) before the turn lands;
+- when dialogue architecture materially shapes the scene, name the **conversation form** (for example interview, interrogation, briefing, examination, or purposeful cooperation) and its pressure source. State why direct answers or repeated confirmations serve the scene; do not use the label as a blanket exemption from checking actual stagnation;
 - concrete actions and selective physical anchors;
 - the turn: the line, discovery, refusal, choice, or act that changes the scene;
 - the consequence carried into the next scene (if a bond shifts here, append a new dated checkpoint entry to `## relationship_checkpoints` in both characters' `Wiki/Characters/<Name>.md` files and close the prior open span);
@@ -103,6 +104,7 @@ Adapt to the project's neighboring files. A useful default is:
 - **Action and turn:** [specific beat-by-beat action]
 - **Interior movement:** [surface / underneath / where POV lands]
 - **Consequence or hook:** ...
+- **Conversation form / pressure source (when relevant):** ...
 ```
 
 Add continuity or fact-status notes only where the drafter could otherwise contradict canon. Do not append a generic recommendations section after the plan is already usable.
@@ -119,6 +121,8 @@ Only in full mode, read:
 Use [scene-template.md](assets/scene-template.md) or [output-template.json](assets/output-template.json) only when their format matches the project or downstream tool. Field-length examples are guidance, not quotas. A summary should be long enough to draft the scene and no longer. Emotional fields must add interior causality rather than paraphrase events.
 
 For each structured scene, populate the fields required by the project's generator. Resolve proper nouns exactly when machine ingestion depends on them. If a valid provisional name cannot resolve, flag it; do not silently replace it or create unrelated canon.
+
+Carry any declared conversation form and pressure-source rationale intact into dialogue preflight and downstream review/gates. A plan's declared form permits functional direct answers; it does not excuse an exchange that fails to change knowledge, risk, permission, status, commitment, or available action. Do not manufacture refusals or interruptions to satisfy a numeric resistance rule.
 
 ## Workers
 

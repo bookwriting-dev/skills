@@ -3,7 +3,7 @@ name: fiction-promises
 description: "Track and audit the Chekhov ledger: every setup the text has made and whether it has paid off. Maintains the per-book ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when user says 'check promises', 'loose ends', 'unresolved setups', 'what have I forgotten to pay off', 'chekhov', or before closing a book. Runs alongside fiction-reviewchapter, which audits the ledger during chapter review. Fiction projects use this skill; non-fiction and hybrid projects use promise-tracker — same ledger format, same script, one owning skill per project."
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   category: fiction-writing
   output-format: yaml
 ---
@@ -16,7 +16,7 @@ answers, a name dropped once with weight. Unpaid setups are the most common stru
 complaint in reviews of otherwise competent novels, and they are entirely preventable
 with bookkeeping.
 
-The ledger lives at `Wiki/Story/Book-N/promises.yaml`, one ledger per book. A setup
+The ledger lives at `Wiki/Story/Book-N/promises.yaml`, one ledger per book. When `.storycraft/ledger-current.json` exists, the committed generation is authoritative for reads. Do not edit committed generations or a legacy mirror directly; route managed writes through the shared ledger transaction tool. A setup
 deliberately withheld for a later book is marked `deferred_to_series: true` and must
 appear in the inter-book promise map in `Wiki/Story/series-arc.md` (maintained by
 `fiction-series-outline`) — an unpaid setup is not less unpaid for being someone else's
@@ -38,6 +38,8 @@ If there is no ledger yet, copy [assets/promises.yaml](assets/promises.yaml) to
 scaffold entry. Tell the user a ledger was created. An existing `promises.yaml` is
 always adopted as-is, never re-seeded — copying the starter over a live ledger would
 erase the book's promise history.
+
+For managed writes, stage the updated YAML and any related knowledge/relationship changes together in one transaction spec, include exact source evidence and the expected current generation, then commit with `.agents/skills/book-status/scripts/ledger_transaction.py --root ROOT --spec SPEC.json`. Inspect `--status` after conflicts; do not retry a stale proposal with a refreshed expected generation until changes have been reconciled against the new source.
 
 ## Step 2: Read the ledger and the chapter
 

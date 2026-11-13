@@ -1,4 +1,7 @@
 {
+  "rhetorical_mode": "argumentative | instructional | narrative | memoir | essay | reference | hybrid",
+  "satire_variant": "optional: satirical_essay",
+  "mode_contract": "conditional obligations from the selected mode",
   "architecture": "problem_solution | chronological | conceptual | hybrid",
   "primary_architecture": "if hybrid: problem_solution | chronological | conceptual",
   "secondary_architecture": "if hybrid: problem_solution | chronological | conceptual",
@@ -21,6 +24,7 @@
     {
       "chapter_number": 1,
       "title": "Chapter title",
+      "rhetorical_mode_override": "optional mode override; hybrid sections declare local modes",
       "chapter_type": "frame | evidence | application | synthesis | transition",
       "thesis_clause": "Primary thesis clause advanced",
       "evidence_types": ["case_studies", "data", "frameworks"],

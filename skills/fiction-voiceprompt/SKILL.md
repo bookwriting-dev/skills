@@ -3,7 +3,7 @@ name: fiction-voiceprompt
 description: "Generate or refresh a compact protagonist voice_prompt.md from character, style, theme, audience, genre, and synopsis files. Use when user says voice prompt, protagonist voice, refresh voice, or robotic prose prevention."
 metadata:
   author: Fiction Toolkit
-  version: "2.2.0"
+  version: "2.3.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -19,7 +19,7 @@ Find these paths in the working directory; the project may live in a subfolder:
 
 Required:
 - `**/Wiki/Story/synopsis.md`
-- `**/Wiki/Style/style_guide.md` or legacy `**/Wiki/Style/Style Guide.md`
+- `**/Wiki/Style/style_guide.md`, legacy `Style Guide.md`, imported `style.md`, or the manifest-declared style authority
 - `**/Wiki/Characters/**/*.md`
 
 Optional but strongly preferred:
@@ -29,7 +29,7 @@ Optional but strongly preferred:
 - `**/Wiki/Style/review_guide.md` or legacy `**/Wiki/Style/Review Guide.md`
 - existing `**/Wiki/Style/voice_prompt*.md` or root `**/voice_prompt.md`
 
-If multiple projects exist, ask which one. Inspect `pov_mode` and `pov_1` / `pov_2` in `Wiki/Style/style_guide.md` (or infer from `Wiki/Story/synopsis.md`) to determine whether the book is single-POV or dual/multi-POV.
+If multiple projects exist, ask which one. Resolve the effective style authority through `book-status/scripts/project_manifest.py::resolve_style_guide` before reading or generating prompts. If the result is `CONFLICT`, preserve both files and stop with the conflicting paths; do not silently prefer or merge. Inspect `pov_mode` and `pov_1` / `pov_2` in the resolved file (or infer from `Wiki/Story/synopsis.md` only when no style authority exists) to determine whether the book is single-POV or dual/multi-POV.
 
 ## Step 2: Read Inputs
 

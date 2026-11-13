@@ -20,6 +20,7 @@ debt.
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import sys
 from pathlib import Path
 
@@ -62,12 +63,26 @@ def find_wiki_root() -> Path | None:
     return None
 
 
+def managed_ledger_paths(root: Path) -> set[str]:
+    store_path = Path(__file__).parents[2] / 'book-status' / 'scripts' / 'ledger_store.py'
+    if not store_path.is_file():
+        return set()
+    spec = importlib.util.spec_from_file_location('storycraft_promise_ledger_store', store_path)
+    store = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(store)
+    pointer = store.current_pointer(root)
+    return set(pointer.get('ledgers', {})) if pointer else set()
+
+
 def find_ledger(root: Path, book: str | None) -> tuple[Path | None, str | None]:
     story = root / LEDGER_REL
+    managed = managed_ledger_paths(root)
     if book:
         path = story / book / "promises.yaml"
-        return (path, None) if path.exists() else (None, f"no ledger at {path}")
-    candidates = sorted(story.glob("Book-*/promises.yaml"))
+        logical = path.relative_to(root).as_posix()
+        return (path, None) if path.exists() or logical in managed else (None, f"no ledger at {path}")
+    candidates = sorted(set(story.glob("Book-*/promises.yaml")) |
+                        {root / item for item in managed if item.startswith('Wiki/Story/Book-') and item.endswith('/promises.yaml')})
     if not candidates:
         return None, ("no ledger found under Wiki/Story/Book-N/ — copy the skill's "
                       "assets/promises.yaml there to start tracking setups")
@@ -81,7 +96,19 @@ def load(ledger_path: Path) -> tuple[list[dict], str | None]:
     if yaml is None:
         return [], "PyYAML is not importable, so the ledger cannot be read"
     try:
-        data = yaml.safe_load(ledger_path.read_text(encoding="utf-8")) or {}
+        resolved = ledger_path.resolve()
+        root = next((parent for parent in resolved.parents if (parent / 'Wiki').is_dir()), None)
+        raw = None
+        if root is not None:
+            store_path = Path(__file__).parents[2] / 'book-status' / 'scripts' / 'ledger_store.py'
+            if store_path.is_file():
+                spec = importlib.util.spec_from_file_location('storycraft_promise_ledger_store', store_path)
+                store = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(store)
+                relative = resolved.relative_to(root).as_posix()
+                raw = store.load_ledger_bytes(root, relative)
+        data = yaml.safe_load(raw.decode('utf-8') if raw is not None else
+                              ledger_path.read_text(encoding="utf-8")) or {}
     except Exception as exc:
         return [], f"{ledger_path} could not be parsed: {exc}"
     promises = [p for p in (data.get("promises") or []) if isinstance(p, dict)]

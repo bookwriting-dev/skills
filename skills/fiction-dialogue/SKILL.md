@@ -3,7 +3,7 @@ name: fiction-dialogue
 description: Draft, diagnose, or revise substantial fiction dialogue when speaker fidelity, unequal knowledge, subtext, or conversation architecture matters. Use for dialogue-heavy scenes or speech that feels samey, interview-like, over-clever, expository, or generically AI-written. Do not use for ordinary copyedits.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -40,7 +40,7 @@ Character sheets are inputs, not proof of compliance. Convert them into scene-sp
 - Do not distribute wit evenly. One person may drive humor in a beat; everyone else does not need to match them.
 - Banter is opt-in. A warm, tense, operational, grieving, intimate, or culturally difficult scene does not become banter because two characters know each other.
 - Do not make all speakers equally articulate, perceptive, concise, sarcastic, or emotionally literate.
-- A question does not earn an answer. Two clean question-answer pairs in succession are an interview warning; three are a structural failure unless the scene is deliberately an interrogation, briefing, or examination.
+- A question does not automatically earn an answer, but direct answers may be exactly right. Carry the scene plan's conversation form and pressure-source exception into drafting and review. Interviews, interrogations, briefings, examinations, and purposeful cooperation may use consecutive direct answers; inspect whether the exchange changes knowledge, risk, permission, status, commitment, or available action. A form label is not blanket immunity from stagnation, and arbitrary evasion/interruption inserted to satisfy a count is not useful resistance.
 - Do not turn cultural, moral, or political friction into a tidy contemporary lesson. Let characters hesitate, misread, limit the explanation, or leave discomfort unresolved.
 - Do not make alien, aristocratic, technical, or formal speakers generate a stream of aphorisms. Formality is a social strategy, not constant eloquence.
 - Operational acknowledgments may be direct and repetitive when safety or coordination requires them. Do not force subtext into functional calls.
@@ -48,7 +48,7 @@ Character sheets are inputs, not proof of compliance. Convert them into scene-sp
 
 ## Conversation architecture
 
-For each exchange, track what changes in at least one of these states: objective, knowledge, trust, status, permission, risk, intimacy, commitment, or available action. Lines that only keep the conversational ball moving are candidates for deletion.
+For each exchange, track what changes in at least one of these states: objective, knowledge, trust, status, permission, risk, intimacy, commitment, or available action. Lines that only keep the conversational ball moving are candidates for deletion. If the plan names a form/exception, preserve its exact rationale in the drafting brief and the review report; if the plan is silent, do not invent a special exception to excuse a genuinely inert exchange.
 
 Prefer asymmetry. One character probes while another avoids. One talks while another works. A physical or environmental interruption can replace an answer. A later observation can continue an earlier conflict without restating it.
 

@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -28,8 +28,8 @@ Every gate run systematically evaluates up to 7 pillars:
    - Any setups resolved here must be correctly retired.
 4. **Voice, POV, Subtext & Dialogue Integrity:**
    - Adherence to designated POV (Third Limited, First, etc.) and POV-matched `voice_prompt_<POV>.md` / `voice_prompt.md` with zero POV slips or head-hopping.
-   - Subtext compliance against `Wiki/Psych/Book-N/Chapter_NN_Psych.md` when present: characters must not speak out loud or narrate as flat summary any thought listed under **What they won't say**, and moments in **Show-Don't-Tell Gaps** must be rendered through body, object, or silence.
-   - Dialogue architecture (`fiction-dialogue`): dialogue reflects speaker register and unequal knowledge; 3+ consecutive clean question-answer pairs without deflection or action are flagged as an interview-pattern `WARN`.
+    - Subtext compliance against `Wiki/Psych/Book-N/Chapter_NN_Psych.md` when present: characters must not speak aloud or narrate as flat summary any thought listed under **What they won't say**. For **Show-Don't-Tell Gaps**, assess whether the chosen channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—fits the voice and moment. Bodily cues are optional; do not fail a chapter for choosing another earned channel.
+    - Dialogue architecture (`fiction-dialogue`): dialogue reflects speaker register and unequal knowledge. Carry any scene-plan conversation form and pressure-source exception into the gate. Consecutive direct answers are not a failure by count alone; inspect whether the exchange changes knowledge, risk, permission, status, commitment, or available action. A declared form does not excuse a truly inert exchange, and arbitrary inserted evasion is not a repair.
 5. **Mechanical, Cooling List & Machine Cadence Lint:**
    - Tricolon (rule-of-three) saturation rate.
    - "Not X but Y" negation density.

@@ -157,9 +157,9 @@ hand-written catalog's versions honest against it.)
 | Skill | What it does |
 |---|---|
 | `fiction-characters` 3.2.0 | One profile per character in `Wiki/Characters/` — personality and dialogue style written as *instructions*, not descriptions. |
-| `fiction-psych` 2.1.0 | Per-chapter psychological interior pass (what each character believes/fears/wants underneath the scene's external beats) → `Wiki/Psych/Book-N/`. |
-| `fiction-dialogue` 1.1.0 | Draft, diagnose, or revise dialogue when speaker fidelity, unequal knowledge, or subtext matters. |
-| `fiction-voiceprompt` 2.2.0 | Compact protagonist `voice_prompt.md` (plus per-POV `voice_prompt_<Name>.md` files for dual/multi-POV books) distilled from the character/style/theme/synopsis files. |
+| `fiction-psych` 2.2.0 | Per-chapter interior map with optional, character-appropriate expression channels; bodily cues are not mandatory → `Wiki/Psych/Book-N/`. |
+| `fiction-dialogue` 1.2.0 | Draft, diagnose, or revise dialogue with scene-planned conversation forms and pressure exceptions carried through review. |
+| `fiction-voiceprompt` 2.3.0 | Compact protagonist voice prompts grounded in the manifest/legacy-resolved style authority; conflicting guides stop rather than merge. |
 
 ### Fiction — build the world
 
@@ -178,9 +178,9 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `fiction-outline` 5.4.0 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
 | `fiction-divergence` 1.0.0 | Anti-convergence pass over the outline: per beat, a default, an inversion, and a cost-shift candidate; keeps the least-expected-but-earned; per-act surprise ledger. |
-| `fiction-scenes` 4.2.0 | Chapter beats and scene plans with active relationship checkpoints and micro-friction resistance beats — turning the outline into writable action (`Chapter_NN_Scene.md`). |
+| `fiction-scenes` 4.3.0 | Chapter beats and scene plans with active relationship checkpoints, micro-friction, and declared conversation form/pressure source where relevant. |
 | `fiction-style` 7.2.0 | `style_guide.md` + `review_guide.md` — the project's prose law. |
-| `fiction-writechapter` 4.3.0 | Draft or continue a chapter from the compiled pre-draft packet (scene plan + voice + active relationship checkpoints + cooling list + canon); scene-by-scene stitched execution. |
+| `fiction-writechapter` 4.4.0 | Draft or continue from a compiled pre-draft packet; expression channel is voice- and moment-led, not mechanically physical. |
 
 ### Fiction — review the story
 
@@ -190,7 +190,7 @@ hand-written catalog's versions honest against it.)
 | `litrpg-audit` 1.1.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.1.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.1.0 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
-| `fiction-promises` 1.2.0 | The Chekhov ledger: harvest setups, record payoffs, report overdue/due/undated → `Wiki/Story/Book-N/promises.yaml`. Fiction's owner; non-fiction/hybrid use `promise-tracker`. |
+| `fiction-promises` 1.3.0 | The Chekhov ledger reads committed generations and routes managed promise/related-ledger writes through atomic transactions. |
 | `review-panel` 1.2.0 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
 | `drift-check` 1.4.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
@@ -198,7 +198,7 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `fiction-full-editor` 1.3.0 | **Default** sentence-level pass: AI-isms + prose mechanics + line edits in one scan. |
+| `fiction-full-editor` 1.4.0 | **Default** sentence-level pass: AI-isms + prose mechanics + line edits using paragraph/scene-aware contextual packets. |
 | `fiction-revise` 1.2.0 | Applies the report items you approve to the chapter in place — exact-quote verification, minimal perturbation, change ledger. |
 | `fiction-line-editor` 5.3.0 | Line craft/voice layer only (clichés, repetition, POV violations) when isolating that layer. |
 | `fiction-prose-editor` 1.4.0 | Prose mechanics only (fragments, choppy S-V-O chains, simile density, rule-of-threes, show-vs-tell). |
@@ -225,30 +225,30 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `nonfiction-concept` 1.1.0 | Central argument/thesis, reader transformation, big idea → `Wiki/Concept/thesis.md`. |
 | `nonfiction-audience` 1.1.0 | Reader knowledge, objections, prerequisites across five archetypes → `Wiki/Concept/audience.md`. |
-| `nonfiction-structure` 1.1.0 | Argument architecture (problem-solution / chronological / conceptual / hybrid) → `Wiki/Concept/structure.md`. |
-| `nonfiction-research` 1.0.0 | Manages citation vaults, claims matrices, and primary evidence in `Wiki/Research/`. |
-| `nonfiction-chapter-plan` 1.1.0 | Per chapter: claim, evidence, transition, reader takeaway — one `## Chapter NN` section per chapter in `Wiki/Outline/Book-N/plan.md` (the default home; per-chapter files only if the project already uses them). |
-| `nonfiction-writechapter` 1.1.0 | Drafts from the plan: explanatory clarity, signposting, concrete examples, varied evidence. |
+| `nonfiction-structure` 1.2.0 | Argument architecture plus book/chapter rhetorical modes and conditional obligations → `Wiki/Concept/structure.md`. |
+| `nonfiction-research` 1.1.0 | Manages source/passages and chapter assertion inventories; validates evidence readiness with `scripts/evidence.py`. |
+| `nonfiction-chapter-plan` 1.2.0 | Mode-aware chapter argument/reader contract, evidence blocks, and explicit `evidence_needed` gaps. |
+| `nonfiction-writechapter` 1.2.0 | Drafts to the plan's rhetorical mode; preserves provenance and claim strength without forcing argument-first form. |
 | `nonfiction-dev-editor` 1.1.0 | Developmental review: thesis scaffolding, argument architecture, cognitive load, conceptual progression. |
-| `nonfiction-factcheck` 1.3.0 | Verifies every claim, quote, statistic, date, proper noun; flags unsupported assertions → `_Edits/…_FactCheck.md`. |
-| `nonfiction-clarity-edit` 1.2.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting → `_Edits/…_ClarityEdit.md`. |
+| `nonfiction-factcheck` 1.4.0 | Verifies anchored assertions, records semantic inventory coverage, and derives factual readiness through the evidence contract. |
+| `nonfiction-clarity-edit` 1.3.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting using paragraph-aware context → `_Edits/…_ClarityEdit.md`. |
 
 ### Cross-cutting (fiction and non-fiction)
 
 | Skill | What it does |
 |---|---|
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
-| `chapter-pipeline` 1.3.0 | Unified end-to-end runner: scene/psych/dialogue scaffolding → pre-draft packet & draft → promise/knowledge harvest → gate validation → *applied* polish + final gate. |
-| `gate-check` 1.3.0 | Comprehensive chapter readiness & continuity gate (canon, relationship checkpoints, Chekhov debt, subtext/dialogue architecture, cooling list, cadence lint, and LitRPG progression audit). |
-| `book-status` 1.3.0 | Manuscript dashboard: word counts, gate status, open promises, review tallies, and `project_state.py` runtime (`draft-packet`, freshness, campaigns). |
+| `chapter-pipeline` 1.5.0 | Profiled chapter workflow: draft verification by default; full candidate stages now require developmental repair/checkpoint, distinct line edit, integration/seam reads, reconciliation, and final checks. |
+| `gate-check` 1.4.0 | Comprehensive chapter readiness & continuity gate; subtext accepts multiple earned channels rather than requiring bodily rendering. |
+| `book-status` 1.6.0 | Manifest-resolved draft packets (custom IDs/order/paths and style authority), shared readiness, versioned operation journals, and committed ledger generations. |
 | `kanban-board` 1.1.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.1.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.1.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
 | `reader-persona-review` 1.1.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
-| `compile-manuscript` 1.1.0 | Stitches chapter drafts into continuous manuscript with front/back matter and clean exports. |
+| `compile-manuscript` 1.2.0 | Builds staged delivery packages with structural checks; rendered/layout review stays pending until actually inspected. |
 | `book-packaging` 1.1.0 | Generates marketing kits: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.0 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
-| `promise-tracker` 1.1.0 | Unified promise/claim ledger — Chekhov setups (fiction) or thesis threads and unresolved tensions (non-fiction) → `Wiki/Story/Book-N/promises.yaml`. Owns non-fiction **and hybrid** projects. |
+| `promise-tracker` 1.2.0 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |
 | `kill-hedge` 1.1.0 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.1.0 | Converts passive to active for clarity and authority. |
 | `kill-acronym` 1.1.0 | Flags unexplained initialisms/acronyms on first use. |
@@ -265,7 +265,7 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `name-generator` 1.2.0 | Character names from 24 culture corpora. Collision-checks against existing fiction/games/brands before a name enters canon. |
+| `name-generator` 1.4.0 | Distinguishes invented names from seeded, exact-form grounded/attested candidates with provenance, context filters, and shortfall reporting. |
 | `town-generator` 1.1.0 | Settlement names (lexical, 11 corpora + epithets). |
 | `fantasy-settlement` 1.0.1 | Full settlement dossier: population, economy, districts, security. |
 

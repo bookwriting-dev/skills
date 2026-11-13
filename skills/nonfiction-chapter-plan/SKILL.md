@@ -3,7 +3,7 @@ name: nonfiction-chapter-plan
 description: "Create or revise non-fiction chapter plans. Each chapter's claim, evidence, transition, and reader takeaway. The non-fiction equivalent of fiction-scenes/psych — replaces beat sheets with argument architecture. Use when structuring a chapter's logical flow before drafting."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -42,13 +42,14 @@ Read only context that can change the plan:
 
 - Assigned outline, proposal, existing chapter plans, or chapter directive;
 - The book's central thesis and argument architecture;
+- The effective rhetorical mode from the book structure, including any chapter/section override;
 - Relevant current-canon research, sources, and established facts;
 - Adjacent chapter plans needed for argument continuity;
 - The project's style/voice source only when the plan includes drafting guardrails or the user names it.
 
 Use the project's required retrieval method first. If the book has a preferred index or semantic-search rule, follow it. Search narrowly after semantic retrieval for exact facts. Do not load every source file by default.
 
-Separate **established**, **author-directed**, **proposed**, and **unknown** facts. Never convert a possibility into canon merely to fill a field. Avoid inventing statistics, studies, quotes, or technical mechanics unless the argument cannot work without them; mark any necessary invention as proposed.
+Separate **established**, **author-directed**, **proposed**, and **unknown** facts. Never convert a possibility into canon merely to fill a field. Never invent a researcher, study, quotation, sample size, result, historical event, or other evidence to make an argument work. When support is missing, mark the proposition `evidence_needed`, name the support required and affected argument block, and propose narrowing, removing, or reframing the claim. An author-approved plan may retain that gap but cannot make it factually ready to draft. Clearly labeled hypotheticals, illustrative numbers, composites, and proposed experiments are allowed only as such; they do not satisfy empirical evidence requirements.
 
 ## Argument gate: do this before expanding evidence blocks
 
@@ -61,6 +62,8 @@ Write the chapter's argument spine in one or two sentences and test it:
 5. **Necessity:** What future chapter, argument, or option would collapse if this chapter were cut?
 
 If the spine cannot answer all five, repair the spine before adding evidence. Coverage, background, literature review, and definitions are not argument unless they serve the claim.
+
+For a non-argumentative mode, do not force an argument spine onto the chapter. Instead write the mode's contract: instructional (prerequisites, usable steps/outcome, and verification), narrative/memoir (coherent progression and transparent reconstruction), essay (question/insight development), or reference (definitions and findability). Hybrid plans label each section's local mode. Keep factual sourcing and assertion classification constant in every mode.
 
 Prefer one primary evidence type per block and at most one supporting type. Consult [evidence-types.md](references/evidence-types.md) when the strategy is unclear or when planning a batch. Use [anti-flat-chapters.md](references/anti-flat-chapters.md) when a chapter risks becoming summary, survey, or exposition without argument.
 

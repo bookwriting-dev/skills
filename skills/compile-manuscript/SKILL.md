@@ -1,9 +1,9 @@
 ---
 name: compile-manuscript
-description: "Compile and stitch drafted chapter files into a continuous, publication-ready manuscript with customizable front matter, scene breaks, table of contents, and export formatting. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'."
+description: "Compile and stitch drafted chapter files into a delivery package with customizable front matter, scene breaks, table of contents, and export formatting. Structural conversion does not imply rendered, author, or publication approval. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'."
 metadata:
   author: Storycraft Skills
-  version: "1.1.0"
+  version: "1.2.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -12,7 +12,7 @@ metadata:
 
 ## Resolve sources and profile
 
-Read project instructions, select book and beta/submission/publication profile, and resolve authoritative chapter conventions. Use [scripts/compile_manuscript.py](scripts/compile_manuscript.py). The bundled dependency is [project_state.py](../book-status/scripts/project_state.py); read [state-contract.md](../book-status/references/state-contract.md). Configure project-specific paths and conventions in [export-config.json](assets/export-config.json), supplying actual title, front/back matter paths, scene marker, required checks and an optional submission reference DOCX. Recipient requirements determine submission formatting.
+Read project instructions, select book and beta/submission/publication profile, and resolve authoritative chapter conventions. Use [scripts/compile_manuscript.py](scripts/compile_manuscript.py). The bundled dependencies are [project_state.py](../book-status/scripts/project_state.py) and its shared [reader_text.py](../book-status/scripts/reader_text.py) extractor; read [state-contract.md](../book-status/references/state-contract.md). Configure project-specific paths and conventions in [export-config.json](assets/export-config.json), supplying actual title, front/back matter paths, scene marker, required checks and an optional submission reference DOCX. Recipient requirements determine submission formatting.
 
 ## Preflight
 

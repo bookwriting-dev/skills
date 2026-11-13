@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
@@ -59,12 +59,12 @@ Do not load the entire research corpus, bibliography, or all chapter plans by de
 Before drafting, extract a compact working brief:
 
 - Voice, tone, and register constraints;
-- Opening: the claim and stakes established immediately;
+- Opening: the mode-appropriate entry (claim/stakes, scene, question, instruction, or reference orientation);
 - Required evidence blocks in order with their turns;
 - Facts and defined terms carried from previous chapters;
 - Named concepts, studies, figures, and canon terms the chapter expects.
 
-The chapter plan has already decided argument architecture. Honor its required claim, evidence blocks, turns, transitions, and synthesis. You may shape connective prose, illustrative examples, local signposting, and sentence-level clarity, but do not replace the plan with a new argument.
+The chapter plan has already decided its mode and architecture. Honor the mode-appropriate contract and required evidence; do not force claim-first openings, frameworks, exercises, or cliffhangers when the selected mode does not require them. In hybrid work, honor each section's declared mode. You may shape connective prose and sentence-level clarity, but do not replace the plan's argument or narrative design.
 
 ### Research every proper noun and citation in the chapter plan
 
@@ -90,20 +90,19 @@ Use the book's requested length; otherwise aim for roughly 2,500–4,000 words f
 
 **Structure requirements from the plan:**
 
-- Open with the **claim** and **stakes** — the reader must know what's being proven and why it matters.
-- Each **evidence block** becomes a major section (or subsection) with:
+- Follow the declared mode. Argumentative chapters establish claim/stakes at the plan's chosen point; narrative and memoir may open with a sourced or accurately labeled reconstructed scene; essays may develop a question; reference chapters prioritize findability; instructions state prerequisites and the promised usable outcome.
+- In argumentative sections, each **evidence block** becomes a major section (or subsection) with:
   - Clear signpost: "To prove [sub-claim], we examine [evidence type]..."
   - The concrete evidence presented with precision (study design, quote context, data specifics).
   - The **turn** rendered as insight, not announcement: show the reversal/complication/synthesis through the evidence itself.
   - Explicit **transition** to the next block: "This [finding/complication] forces us to ask..." or "But [evidence] only holds if [assumption]..."
-- Close with the **synthesis** — the new understanding, not a summary.
-- Deliver the **reader takeaway** and **forward hook** as the final beats.
+- Close with the mode's planned payoff. Use synthesis, takeaway, and forward hook only when required by that chapter's plan and reader contract.
 
 For ready-made evidence-presentation templates (narrated study, data-first, integrated quote, and the variety rule), read [references/evidence-presentation.md](references/evidence-presentation.md).
 
-**Clarity mechanics (apply throughout):**
+**Clarity mechanics (apply according to mode and audience):**
 
-- **Signpost every move:** "We argue X because Y." "This matters because Z." "Having shown A, we now turn to B."
+- **Signpost real transitions:** orient the reader at consequential argument or instruction moves; do not narrate every paragraph's function.
 - **Concrete before abstract:** Lead with the specific study, case, number, quote — then generalize.
 - **Vary evidence presentation:** Don't stack three studies the same way. Mix: one narrated experiment, one quoted expert, one data visualization description, one historical scene.
 - **Define terms at point of use:** Not in a glossary, not upfront — when the term first does argumentative work.
@@ -113,7 +112,7 @@ For ready-made evidence-presentation templates (narrated study, data-first, inte
 
 For a pattern library of signposting moves (openings, block transitions, complication reversals), read [references/signposting-patterns.md](references/signposting-patterns.md).
 
-**End with forward movement:** The final paragraph must land the synthesis and instantiate the forward hook — the specific question, stakes escalation, or practical imperative that pulls the reader to the next chapter.
+End with the payoff declared by the plan. A next-chapter hook is optional unless the book's mode/plan requires it; reference and memoir chapters need not manufacture one.
 
 ### Verify before saving
 

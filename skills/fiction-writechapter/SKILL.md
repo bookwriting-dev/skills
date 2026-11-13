@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled."
 metadata:
   author: Fiction Toolkit
-  version: "4.3.0"
+  version: "4.4.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -37,7 +37,7 @@ python3 .agents/skills/book-status/scripts/project_state.py \
   --output _Edits/Book-N/packets/Chapter-NNN_DraftPacket.json
 ```
 
-The packet resolves the target scene plan, `Chapter_NN_Psych.md` (`what_they_wont_say` and `show_dont_tell_gaps`), POV-specific voice prompts (`voice_prompt_<POV>.md` and `voice_prompt.md`), chapter-sliced `relationship_checkpoints` (`chapter_start <= N <= chapter_end`), the immediate continuity tail from `Chapter-(N-1).md`, confirmed `knowledge_as_of` state at `[N, 0]`, active scoped `editorial_decisions`, and the rolling 3-chapter `cooling_list` (somatic hotspots, repeated content 3-grams, repeated similes, and recent openers/closers).
+The packet resolves the target scene plan, optional `Chapter_NN_Psych.md`, the effective style-authority path (or an explicit conflict/missing status), POV-specific voice prompts, chapter-sliced relationship state, immediate continuity tail, knowledge state, active scoped decisions, and the rolling cooling list. If style authority is `CONFLICT`, stop and report both paths; do not draft against a silently selected or merged guide.
 
 Follow neighboring chapter filenames and the book's instructions. When no local convention exists, use `<book-root>/Chapters/Chapter-[NNN].md` and put the title inside the Markdown file. Never create `[WorkingTitle]_Chapters` or another independently editable copy.
 
@@ -72,7 +72,8 @@ Before drafting, extract a compact working brief:
 - opening physical and emotional state, plus the previous chapter's closing seam;
 - active `relationship_checkpoints` for this chapter (do not revert to Chapter 1 dynamics or jump ahead to a future checkpoint);
 - required scene outcomes, micro-friction beats (at least one failed tactic, deflection, or raised cost before each scene's turn), and ending movement;
-- `what_they_wont_say` thoughts that must remain subtext and `show_dont_tell_gaps` that must be rendered physically;
+- any scene-plan conversation form/pressure-source rationale; preserve purposeful direct answers and do not add artificial evasions or interruptions to satisfy a numeric rule;
+- `what_they_wont_say` thoughts that must remain subtext and `show_dont_tell_gaps` with their suggested expression channels; bodily rendering is optional;
 - the **Cooling List** tokens/phrases/opener shapes from the trailing 3 chapters to avoid repeating;
 - named participants, places, organizations, systems, objects, events, and other canon terms that the scene expects.
 
@@ -115,7 +116,7 @@ Perform a focused completion check, not a full editorial review:
 3. Scan the title and prose for every proper noun, including possessives and aliases. Search the entire book Wiki for each one and correct every unsupported or inconsistent use.
 4. Remove analytical drafting language and generic voice drift that clearly violates the style guide or voice prompt.
 5. Check subtext and cooling rules against the draft packet:
-   - Confirm no character speaks out loud or narrates as flat exposition a thought listed in `what_they_wont_say`, and confirm every `show_dont_tell_gaps` moment is rendered through physical action, object, or silence.
+    - Confirm no character speaks aloud or narrates as flat exposition a thought listed in `what_they_wont_say`, and assess whether each `show_dont_tell_gaps` moment uses a fitting channel (action, perception, thought, speech, memory, omission, object, or purposeful naming). Do not mechanically require bodily action.
    - Check the chapter opening, closing sentence, somatic vocabulary, and similes against the packet's `cooling_list`; replace any repeated trailing-window opener/closer formula, repeated 3-gram, or overused somatic tic.
 6. Verify every exact count or duration the prose asserts ("four words," "two syllables," "six days") against the line on the page. Recast any assertion the page disproves; never adjust the page to fit the count. Check durations and dates against the chapter's own stated anchors, and recast any reference to a manuscript or chapter number into in-world terms.
 7. Scan for verbatim duplication: a sentence or block rendered twice in near-identical form, especially in adjacent paragraphs or across a scene seam. A deliberate echo varies its continuation; an artifact repeats. Cut the artifact copy.

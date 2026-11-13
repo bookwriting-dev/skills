@@ -9,6 +9,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+import time
 import zipfile
 import sys
 sys.dont_write_bytecode = True
@@ -22,22 +23,26 @@ def state_module():
     return m
 
 
+def reader_text_module():
+    p = Path(__file__).resolve().parents[2] / 'book-status/scripts/reader_text.py'
+    spec = importlib.util.spec_from_file_location('storycraft_reader_text', p)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
+def manifest_module():
+    p = Path(__file__).resolve().parents[2] / 'book-status/scripts/project_manifest.py'
+    spec = importlib.util.spec_from_file_location('storycraft_project_manifest', p)
+    m = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(m)
+    return m
+
+
 def clean(text, marker, strip_pov=False):
-    # Only explicitly marked internal apparatus is disposable.
-    text = re.sub(r'<!--\s*STORYCRAFT:.*?-->', '', text, flags=re.S)
-    text = re.sub(r'^```storycraft-internal\s*\n.*?^```\s*$', '', text, flags=re.M | re.S)
-    if '<!--' in text or '```storycraft-internal' in text:
-        raise ValueError('unknown or unclosed internal apparatus; configure or remove explicitly')
-    if strip_pov:
-        text = re.sub(r'^<!--\s*POV:.*?-->\s*$', '', text, flags=re.M)
-    lines = text.splitlines()
-    fence = False
-    for i, line in enumerate(lines):
-        if re.match(r'^\s*(```|~~~)', line):
-            fence = not fence
-        if not fence and line.strip() == '* * *':
-            lines[i] = marker
-    return '\n'.join(lines).strip() + '\n'
+    return reader_text_module().extract(
+        text, scene_break=marker, strip_pov=strip_pov
+    )['text']
 
 
 def verify(path, fmt):
@@ -71,17 +76,21 @@ def main():
     if not re.fullmatch(r'Book-\d+', a.book):
         raise ValueError('invalid book')
     cfg = s.load(a.config) if a.config else {'schema_version': 1}
-    chapter_dir = s.path_at(root, cfg.get('chapter_dir', f'Chapters/{a.book}'))
+    config_sha256 = hashlib.sha256(a.config.read_bytes()).hexdigest() if a.config else None
+    resolver = manifest_module()
+    manifest = resolver.load(root)
+    books = [b for b in manifest['books'] if b['id'] == a.book or b.get('display_label') == a.book]
+    if len(books) != 1:
+        raise ValueError('book must resolve uniquely through project manifest: ' + a.book)
+    book_record = books[0]
     chapters = []
-    for p in chapter_dir.glob('Chapter-*.md'):
-        match = re.fullmatch(r'Chapter-(\d+)\.md', p.name)
-        if not match:
-            raise ValueError('ambiguous chapter filename: ' + p.name)
-        chapters.append((int(match[1]), p))
-    chapters.sort()
-    nums = [n for n, _ in chapters]
-    if not nums or nums != list(range(1, max(nums)+1)):
-        raise ValueError('missing or duplicate chapter numbering')
+    for chapter in sorted(book_record['chapters'], key=lambda c: c['reading_order']):
+        source_path = s.path_at(root, chapter['path'])
+        if cfg.get('chapter_dir') and not source_path.is_relative_to(s.path_at(root, cfg['chapter_dir'])):
+            raise ValueError('manifest chapter is outside configured chapter_dir: ' + chapter['path'])
+        chapters.append((chapter['reading_order'], source_path, chapter))
+    if not chapters:
+        raise ValueError('project manifest has no chapters for ' + a.book)
     formats = list(dict.fromkeys(a.format or ['md']))
     pandoc = shutil.which('pandoc')
     if any(f != 'md' for f in formats) and not pandoc:
@@ -93,11 +102,13 @@ def main():
     required = cfg.get('required_checks', ['Gate'])
     if not isinstance(required, list) or not required or not all(re.fullmatch(r'[A-Za-z]+', c) for c in required):
         raise ValueError('required_checks must name at least one configured check')
-    for n, p in chapters:
+    for n, p, chapter_record in chapters:
+        match = re.search(r'(\d+)', chapter_record.get('display_label', ''))
+        legacy_number = int(match.group(1)) if match else n
         for check in required:
-            meta = s.path_at(root, f'_Edits/{a.book}/Chapter-{n:03}_{check}.meta.json')
-            status = s.freshness(root, meta)
-            if status['freshness'] != 'CURRENT' or status.get('verdict') != 'PASS':
+            meta = s.path_at(root, f'_Edits/{a.book}/Chapter-{legacy_number:03}_{check}.meta.json')
+            status = s.readiness(root, meta, [str(p.relative_to(root))], profile=cfg.get('completion_profile', 'draft_verified'))
+            if status['readiness'] != 'ELIGIBLE':
                 warnings.append(f'{p.name}: {check} {status}')
     dash = s.dashboard(root, a.book)
     for chapter in dash['chapters']:
@@ -112,22 +123,53 @@ def main():
             warnings.append('unfinished campaign: ' + str(cp.relative_to(root)))
     if warnings and a.profile != 'beta' and not a.unchecked_preview:
         raise ValueError('release checks incomplete: ' + '; '.join(warnings))
-    names = [str(p.relative_to(root)) for _, p in chapters]
+    names = [str(p.relative_to(root)) for _, p, _ in chapters]
     names += cfg.get('front_matter', []) + cfg.get('back_matter', [])
     if cfg.get('reference_doc'):
         names.append(cfg['reference_doc'])
     before = s.evidence(root, names)
     if any(e.get('sha256') is None for e in before):
         raise ValueError('missing source/front/back matter')
+    validation_names = list(names) + [resolver.MANIFEST_PATH]
+    for _, _, chapter_record in chapters:
+        match = re.search(r'(\d+)', chapter_record.get('display_label', ''))
+        legacy_number = int(match.group(1)) if match else chapter_record['reading_order']
+        for check in required:
+            meta_name = f'_Edits/{a.book}/Chapter-{legacy_number:03}_{check}.meta.json'
+            validation_names.append(meta_name)
+            meta_path = s.path_at(root, meta_name)
+            if meta_path.is_file():
+                meta_record = s.load(meta_path)
+                if isinstance(meta_record.get('report'), str):
+                    validation_names.append(meta_record['report'])
+    disposition_path = f'_Edits/{a.book}/decisions.jsonl'
+    validation_names.append(disposition_path)
+    validation_names.extend(str(p.relative_to(root)) for p in
+                            (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'))
+    validation_names = sorted(set(validation_names))
+    validation_before = s.evidence(root, validation_names)
+    # Assemble and validate reader-facing content before either preflight returns
+    # or a converter is invoked. This keeps deterministic content failures equal.
+    order = cfg.get('front_matter', []) + [str(p.relative_to(root)) for _, p, _ in chapters] + cfg.get('back_matter', [])
+    text = '\n\n'.join(
+        clean(s.path_at(root, n).read_text(encoding='utf-8'), cfg.get('scene_break', '* * *'))
+        for n in order
+    )
+    reader_text_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
     plan = {'schema_version': 1, 'sources': before, 'profile': a.profile, 'formats': formats,
             'warnings': warnings, 'unchecked_preview': a.unchecked_preview,
             'pandoc': subprocess.check_output([pandoc, '--version'], text=True).splitlines()[0] if pandoc else None,
-            'pdf_engine': engine, 'config': cfg}
+            'pdf_engine': engine, 'config': cfg, 'config_sha256': config_sha256,
+            'validation_inputs': validation_before, 'reader_text_sha256': reader_text_hash,
+            'extractor_version': reader_text_module().EXTRACTOR_VERSION,
+            'delivery_status': 'PREFLIGHTED_NOT_BUILT',
+            'structural_checks': {fmt: 'NOT_BUILT' for fmt in formats},
+            'rendered_review': {'status': 'PENDING',
+                                'formats': {fmt: 'PENDING' for fmt in formats},
+                                'reason': 'structure checks do not inspect reader-visible layout'}}
     if a.check:
         print(json.dumps(plan, indent=2))
         return
-    order = cfg.get('front_matter', []) + [str(p.relative_to(root)) for _, p in chapters] + cfg.get('back_matter', [])
-    text = '\n\n'.join(clean(s.path_at(root, n).read_text(), cfg.get('scene_break', '* * *')) for n in order)
     out = s.path_at(root, f'Chapters/{a.book}/export/{a.profile}')
     out.parent.mkdir(parents=True, exist_ok=True)
     with s.locked(out):
@@ -149,18 +191,20 @@ def main():
                         cmd += ['--reference-doc', str(s.path_at(root, cfg['reference_doc']))]
                     subprocess.run(cmd, check=True, capture_output=True)
                 verify(target, fmt)
-            if s.evidence(root, names) != before:
-                raise ValueError('sources changed during export')
+                plan['structural_checks'][fmt] = 'PASS'
+            if s.evidence(root, validation_names) != validation_before:
+                raise ValueError('source or required readiness evidence changed during export; rerun preflight')
+            if a.config and hashlib.sha256(a.config.read_bytes()).hexdigest() != config_sha256:
+                raise ValueError('export configuration changed during conversion; rerun preflight')
             plan['outputs'] = {p.name: s.digest(p) for p in stage.iterdir() if p.suffix[1:] in formats}
+            plan['delivery_status'] = 'PREVIEW_UNCHECKED' if a.unchecked_preview else 'BUILT_PENDING_RENDERED_REVIEW'
             s.write(stage / 'export-manifest.json', plan)
             # Keep previous package recoverable until the entire new package is valid.
-            backup = out.with_name(out.name + '.previous')
-            if backup.exists():
-                shutil.rmtree(backup)
+            backup = out.with_name(out.name + f'.previous-{time.time_ns()}')
             if out.exists():
                 out.rename(backup)
             try:
-                shutil.copytree(stage, out)
+                stage.rename(out)
             except Exception:
                 if out.exists():
                     shutil.rmtree(out)

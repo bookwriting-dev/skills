@@ -6,6 +6,7 @@ import json
 import posixpath
 import re
 from pathlib import Path
+import secrets
 import subprocess
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -15,6 +16,7 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--packets', type=Path)
     ap.add_argument('--results', type=Path)
+    ap.add_argument('--mapping', type=Path, help='private opaque-ID map; never place in candidate-visible packets')
     ap.add_argument('--skill', default='fiction-full-editor')
     ap.add_argument('--baseline-ref')
     a = ap.parse_args()
@@ -39,33 +41,256 @@ def main():
                     collect(resolved)
         collect(skillpath)
         hashes = {name: hashlib.sha256(content.encode()).hexdigest() for name,content in bundle.items()}
+        mapping = {}
         for c in cases:
-            packet = dict(schema_version=1,id=c['id'],source=c['source'],rules=c['rules'],skill=skill,
-                          skill_sha256=hashlib.sha256(skill.encode()).hexdigest(),rule_sources=bundle,rule_hashes=hashes,task='Return findings with exact quote, proposed replacement, and reason. Preserve effective deliberate choices.')
-            (a.packets/(c['id']+'.json')).write_text(json.dumps(packet,indent=2)+'\n')
-        print(json.dumps({'packets': len(cases), 'labels': 'provisional; keep hidden from candidate contexts'}))
+            opaque_id = secrets.token_urlsafe(18)
+            mapping[opaque_id] = c['id']
+            packet = dict(schema_version=1, case_id=opaque_id, source=c['source'], rules=c['rules'], skill=skill,
+                          source_sha256=hashlib.sha256(c['source'].encode()).hexdigest(),
+                          skill_sha256=hashlib.sha256(skill.encode()).hexdigest(), rule_sources=bundle,
+                          rule_hashes=hashes,
+                          task='Return findings with exact source offsets, quote, proposed replacement, and reason. Preserve deliberate choices.')
+            (a.packets/(opaque_id+'.json')).write_text(json.dumps(packet,indent=2)+'\n')
+        # Keep the identity mapping outside the candidate packet directory.
+        private = a.packets.parent / ('.' + a.packets.name + '-private-manifest.json')
+        private_bytes = (json.dumps({'schema_version': 1, 'mapping': mapping,
+                                     'warning': 'private scoring data; never expose to candidate'}, indent=2)+'\n').encode()
+        private.write_bytes(private_bytes)
+        print(json.dumps({'packets': len(cases), 'candidate_visible_labels': False,
+                          'private_manifest': str(private),
+                          'mapping_sha256': hashlib.sha256(private_bytes).hexdigest()}))
     if a.results:
         data = json.loads(a.results.read_text())
-        if not data.get('configuration') or not data.get('repeat_count'):
-            raise ValueError('results need recorded configuration and preselected repeat_count')
+        manifest = data.get('manifest', data)
+        if not isinstance(manifest.get('configuration'), dict) or type(manifest.get('repeat_count')) is not int or manifest['repeat_count'] <= 0:
+            raise ValueError('results need a recorded configuration and positive integer repeat_count')
         by_id = {c['id']: c for c in cases}
+        strict = 'expected_case_ids' in manifest or 'variants' in manifest or any('repeat_index' in r for r in data.get('results', []))
+        opaque_to_case = {}
+        if strict:
+            if not a.mapping:
+                raise ValueError('strict scoring requires the private opaque-ID mapping via --mapping')
+            private_map = json.loads(a.mapping.read_text())
+            if not isinstance(private_map, dict):
+                raise ValueError('private opaque-ID mapping must be a JSON object')
+            opaque_to_case = private_map.get('mapping', {})
+            if hashlib.sha256(a.mapping.read_bytes()).hexdigest() != manifest.get('mapping_sha256'):
+                raise ValueError('private mapping hash does not match frozen run manifest')
+            if (not isinstance(opaque_to_case, dict) or not opaque_to_case or
+                    len(set(opaque_to_case.values())) != len(opaque_to_case) or
+                    any(case_id not in by_id for case_id in opaque_to_case.values())):
+                raise ValueError('private opaque-ID mapping is invalid')
+        results = data.get('results')
+        if not isinstance(results, list):
+            raise ValueError('results must be an array')
+        coverage = {'status': 'DIAGNOSTIC', 'missing': [], 'duplicates': [], 'unknown': [], 'invalid': []}
+        selected = {}
+        if strict:
+            expected_cases = manifest.get('expected_case_ids')
+            variants = manifest.get('variants')
+            if (not isinstance(expected_cases, list) or not expected_cases or
+                    not all(isinstance(case, str) for case in expected_cases) or len(set(expected_cases)) != len(expected_cases)):
+                raise ValueError('manifest expected_case_ids must be a nonempty unique list')
+            if (not isinstance(variants, list) or not variants or
+                    not all(isinstance(variant, str) for variant in variants) or len(set(variants)) != len(variants)):
+                raise ValueError('manifest variants must be a nonempty unique list')
+            if not set(expected_cases).issubset(opaque_to_case):
+                coverage['invalid'].append({'reason': 'manifest contains IDs absent from private opaque mapping'})
+            frozen_fields = ('run_id', 'corpus_sha256', 'source_hashes', 'configuration',
+                             'skill_hashes', 'packet_hashes', 'span_policy', 'permissions',
+                             'permitted_context', 'mapping_sha256')
+            for field in frozen_fields:
+                if field not in manifest or manifest[field] in (None, '', {}, []):
+                    coverage['invalid'].append({'reason': f'manifest missing frozen field: {field}'})
+            for field in ('source_hashes', 'configuration', 'skill_hashes', 'packet_hashes'):
+                if not isinstance(manifest.get(field), dict):
+                    coverage['invalid'].append({'reason': f'manifest {field} must be an object'})
+            expected_source_hashes = {
+                opaque_id: hashlib.sha256(by_id[opaque_to_case[opaque_id]]['source'].encode()).hexdigest()
+                for opaque_id in expected_cases if opaque_id in opaque_to_case
+            }
+            if manifest.get('source_hashes') != expected_source_hashes:
+                coverage['invalid'].append({'reason': 'source hash manifest mismatch'})
+            configuration_sha256 = hashlib.sha256(
+                json.dumps(manifest.get('configuration', {}), sort_keys=True, separators=(',', ':')).encode()
+            ).hexdigest()
+            coordinates = [(case, variant, repeat) for case in expected_cases
+                           for variant in variants for repeat in range(1, manifest['repeat_count'] + 1)]
+            seen = {}
+            for result in results:
+                coordinate = (result.get('case_id'), result.get('variant'), result.get('repeat_index'))
+                if type(result.get('repeat_index')) is not int or result.get('repeat_index') <= 0:
+                    coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'repeat_index must be a positive integer'})
+                if coordinate not in coordinates:
+                    coverage['unknown'].append(list(coordinate))
+                elif coordinate in seen:
+                    coverage['duplicates'].append(list(coordinate))
+                else:
+                    seen[coordinate] = result
+                    selected[coordinate] = result
+                if result.get('status') not in ('complete', 'failed'):
+                    coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'invalid status'})
+                if result.get('status') == 'complete' and not isinstance(result.get('findings'), list):
+                    coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'findings must be an array'})
+                if coordinate in coordinates:
+                    expected_source = expected_source_hashes.get(result.get('case_id'))
+                    if result.get('source_sha256') != expected_source:
+                        coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'source hash mismatch'})
+                    if result.get('configuration_sha256') != configuration_sha256:
+                        coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'configuration hash mismatch'})
+                    packet_hashes = manifest.get('packet_hashes') if isinstance(manifest.get('packet_hashes'), dict) else {}
+                    if not result.get('packet_sha256') or packet_hashes.get(result.get('case_id')) != result.get('packet_sha256'):
+                        coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'packet hash mismatch'})
+                    if not result.get('attempt_id'):
+                        coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'missing attempt_id'})
+            coverage['missing'] = [list(c) for c in coordinates if c not in seen]
+            coverage['status'] = 'COMPLETE' if not any(coverage[k] for k in ('missing','duplicates','unknown','invalid')) else 'INCOMPLETE'
         categories = {}
-        stats = dict(findings=0,true_positive_findings=0,cases=0,protected=0,harmful=0,defects=0,detected=0,unsupported_quotes=0,author_scored=0,author_accepted=0)
-        for r in data['results']:
-            c = by_id[r['id']]; stats['cases'] += 1
+        stats = dict(findings=0,localized_findings=0,repair_judgments=0,successful_repairs=0,cases=0,protected=0,harmful=0,defects=0,detected=0,unsupported_quotes=0,author_scored=0,author_accepted=0,failed_runs=0,scored_outputs=0,author_judgments=0)
+        # In strict runs, score exactly the first recorded attempt per frozen
+        # coordinate. Duplicate retries remain visible as coverage failures,
+        # but cannot replace a terminal failure or improve the denominator.
+        scoring_results = list(selected.values()) if strict else results
+        for r in scoring_results:
+            case_id = r.get('id') if not strict else opaque_to_case.get(r.get('case_id'))
+            if strict and case_id not in by_id:
+                continue
+            if not strict and case_id not in by_id:
+                coverage['unknown'].append(case_id)
+                continue
+            c = by_id[case_id]
+            if r.get('status') == 'failed':
+                stats['failed_runs'] += 1
+                continue
+            stats['scored_outputs'] += 1
+            stats['cases'] += 1
             stats['protected'] += bool(c['protected_spans']); stats['defects'] += bool(c['defect_spans'])
             findings = r.get('findings', [])
             category = categories.setdefault(c['category'], {'cases':0,'findings':0})
             category['cases'] += 1; category['findings'] += len(findings)
             stats['findings'] += len(findings)
-            stats['true_positive_findings'] += sum(bool(f.get('quote')) and any(d in f['quote'] or f['quote'] in d for d in c['defect_spans']) for f in findings)
-            stats['unsupported_quotes'] += sum(not f.get('quote') or f['quote'] not in c['source'] for f in findings)
-            stats['harmful'] += bool(c['protected_spans'] and any(f.get('quote') and any(p in f.get('quote','') or f.get('quote','') in p for p in c['protected_spans']) for f in findings))
-            stats['detected'] += bool(c['defect_spans'] and any(f.get('quote') and any(d in f.get('quote','') or f.get('quote','') in d for d in c['defect_spans']) for f in findings))
+            valid = []
             for f in findings:
-                if 'author_accept' in f:
-                    stats['author_scored'] += 1;stats['author_accepted'] += bool(f['author_accept'])
-        print(json.dumps(dict(schema_version=1,counts=stats,categories=categories,precision=stats['true_positive_findings']/stats['findings'] if stats['findings'] else None,recall=stats['detected']/stats['defects'] if stats['defects'] else None,harmful_edit_rate=stats['harmful']/stats['protected'] if stats['protected'] else None,author_acceptance=stats['author_accepted']/stats['author_scored'] if stats['author_scored'] else None,author_evaluation='pending' if not stats['author_scored'] else 'recorded',literary_thresholds='set after author-reviewed pilot; never inferred from this score'),indent=2))
+                quote = f.get('quote')
+                if strict:
+                    start, end = f.get('start'), f.get('end')
+                    anchored = (type(start) is int and type(end) is int and 0 <= start < end <= len(c['source'])
+                                and c['source'][start:end] == quote)
+                else:
+                    anchored = bool(quote) and quote in c['source']
+                if not anchored:
+                    stats['unsupported_quotes'] += 1
+                else:
+                    valid.append((f, (f.get('start'), f.get('end')) if strict else (c['source'].find(quote), c['source'].find(quote)+len(quote))))
+            defect_ranges = [(c['source'].find(d), c['source'].find(d)+len(d)) for d in c['defect_spans'] if d in c['source']]
+            protected_ranges = [(c['source'].find(p), c['source'].find(p)+len(p)) for p in c['protected_spans'] if p in c['source']]
+            localized = [(f, span) for f, span in valid if any(span[0] < end and start < span[1] for start, end in defect_ranges)]
+            protected_hits = [(f, span) for f, span in valid if any(span[0] < end and start < span[1] for start, end in protected_ranges)]
+            stats['localized_findings'] += len(localized)
+            stats['detected'] += bool(localized)
+            stats['harmful'] += bool(protected_hits)
+        human_judgments = data.get('human_judgments', [])
+        if not isinstance(human_judgments, list):
+            coverage['invalid'].append({'reason': 'human_judgments must be an array'})
+            human_judgments = []
+        seen_judgments = set()
+        for judgment in human_judgments:
+            if not isinstance(judgment, dict) or judgment.get('evaluator_role') != 'author' or not judgment.get('evaluator_id'):
+                coverage['invalid'].append({'reason': 'human judgment must identify an actual author evaluator'})
+                continue
+            if (judgment.get('run_id') != manifest.get('run_id') or not judgment.get('rubric_version') or
+                    not judgment.get('dimension') or not judgment.get('reason')):
+                coverage['invalid'].append({'reason': 'human judgment missing rubric, dimension, or rationale'})
+                continue
+            if strict:
+                coordinate = (judgment.get('case_id'), judgment.get('variant'), judgment.get('repeat_index'))
+                result = selected.get(coordinate)
+                if (not result or result.get('status') != 'complete' or
+                        judgment.get('attempt_id') != result.get('attempt_id')):
+                    coverage['invalid'].append({'coordinate': list(coordinate),
+                                                'reason': 'human judgment does not bind to a selected complete output'})
+                    continue
+            dedupe = (judgment.get('case_id'), judgment.get('variant'), judgment.get('repeat_index'),
+                      judgment.get('attempt_id'), judgment.get('dimension'), judgment.get('evaluator_id'))
+            if dedupe in seen_judgments:
+                coverage['invalid'].append({'reason': 'duplicate human judgment for output/dimension/evaluator'})
+                continue
+            seen_judgments.add(dedupe)
+            stats['author_judgments'] += 1
+            if type(judgment.get('accepted')) is bool:
+                stats['author_scored'] += 1
+                stats['author_accepted'] += judgment['accepted']
+        semantic_judgments = data.get('semantic_judgments', [])
+        if not isinstance(semantic_judgments, list):
+            coverage['invalid'].append({'reason': 'semantic_judgments must be an array'})
+            semantic_judgments = []
+        for judgment in semantic_judgments:
+            if (not isinstance(judgment, dict) or judgment.get('evaluator_role') not in ('editor', 'expert', 'author') or
+                    not judgment.get('evaluator_id') or not judgment.get('rubric_version') or not judgment.get('rationale') or
+                    judgment.get('run_id') != manifest.get('run_id') or
+                    judgment.get('judgment') not in ('successful', 'unsuccessful')):
+                coverage['invalid'].append({'reason': 'invalid attributed semantic repair judgment'})
+                continue
+            coordinate = (judgment.get('case_id'), judgment.get('variant'), judgment.get('repeat_index'))
+            result = selected.get(coordinate) if strict else None
+            finding_index = judgment.get('finding_index')
+            if (not result or result.get('status') != 'complete' or
+                    judgment.get('attempt_id') != result.get('attempt_id') or
+                    type(finding_index) is not int or not 0 <= finding_index < len(result.get('findings', []))):
+                coverage['invalid'].append({'coordinate': list(coordinate),
+                                            'reason': 'semantic judgment does not bind to a selected finding/output'})
+                continue
+            case = by_id[opaque_to_case.get(judgment.get('case_id'))] if strict and judgment.get('case_id') in opaque_to_case else None
+            finding = result['findings'][finding_index]
+            start, end, quote = finding.get('start'), finding.get('end'), finding.get('quote')
+            if (not case or type(start) is not int or type(end) is not int or
+                    not (0 <= start < end <= len(case['source'])) or case['source'][start:end] != quote or
+                    not any(start < case['source'].find(span) + len(span) and case['source'].find(span) < end
+                            for span in case['defect_spans'] if span in case['source'])):
+                coverage['invalid'].append({'coordinate': list(coordinate),
+                                            'reason': 'semantic repair judgment does not target a valid localized defect'})
+                continue
+            stats['repair_judgments'] += 1
+            stats['successful_repairs'] += judgment['judgment'] == 'successful'
+        release_conditions = manifest.get('release_conditions', [])
+        conditions_valid = (isinstance(release_conditions, list) and bool(release_conditions) and
+                            all(isinstance(condition, dict) and condition.get('id') and
+                                condition.get('status') == 'PASS' and condition.get('evidence')
+                                for condition in release_conditions))
+        if any(coverage[key] for key in ('duplicates', 'unknown', 'invalid')):
+            coverage['status'] = 'INCOMPLETE'
+        required_dimensions = manifest.get('required_author_dimensions', [])
+        complete_author_coverage = False
+        if strict and isinstance(required_dimensions, list) and required_dimensions:
+            expected_outputs = {coordinate for coordinate, result in selected.items()
+                                if result.get('status') == 'complete'}
+            covered = {}
+            for judgment in human_judgments:
+                coordinate = (judgment.get('case_id'), judgment.get('variant'), judgment.get('repeat_index'))
+                if type(judgment.get('accepted')) is bool:
+                    covered.setdefault(coordinate, set()).add(judgment.get('dimension'))
+            complete_author_coverage = bool(expected_outputs) and all(
+                set(required_dimensions).issubset(covered.get(coordinate, set()))
+                for coordinate in expected_outputs)
+        release_blockers = []
+        if not strict or coverage['status'] != 'COMPLETE':
+            release_blockers.append('complete strict execution coverage is not established')
+        if not conditions_valid:
+            release_blockers.append('predeclared release conditions are missing or not all PASS')
+        if not complete_author_coverage:
+            release_blockers.append('required author judgment coverage remains pending or incomplete')
+        stats['author_unscored'] = stats['author_judgments'] - stats['author_scored']
+        author_status = ('recorded' if complete_author_coverage else
+                         'pending' if not stats['author_scored'] else 'partial')
+        print(json.dumps(dict(schema_version=1,coverage=coverage,counts=stats,categories=categories,
+                              localization_rate=stats['detected']/stats['defects'] if stats['defects'] else None,
+                              harmful_edit_rate=stats['harmful']/stats['protected'] if stats['protected'] else None,
+                              author_acceptance=stats['author_accepted']/stats['author_scored'] if stats['author_scored'] else None,
+                              author_evaluation=author_status,
+                              author_judgment_coverage='complete' if complete_author_coverage else 'incomplete',
+                              release_eligible=not release_blockers,
+                              release_blockers=release_blockers,
+                              literary_thresholds='set after author-reviewed pilot; never inferred from this score'),indent=2))
     if not a.packets and not a.results:
         ap.error('choose --packets or --results')
 

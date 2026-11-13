@@ -3,17 +3,23 @@ name: name-generator
 description: Generate character and people proper names using a Markov chain model trained on culture/style name lists. Use when user says "generate character names", "character names", "people names", "create names", "fantasy names", or "name generator" for characters. Do not use for settlements, towns, or geographic places.
 metadata:
   author: Custom
-  version: "1.2.0"
+  version: "1.4.0"
   category: utilities
 ---
 
-# Markov Name Generator
+# Name Generator
 
-Generates names using a Markov chain model trained on name lists in `data/`.
+Supports three visibly distinct modes. A Markov corpus is a source of invented candidates only; corpus membership does not establish authenticity, historical fit, legal clearance, or uniqueness.
+
+- **`invented`** — use for clear fantasy invention and as the documented generic creative default. Label the result as invented. Use [scripts/generate.py](scripts/generate.py) with `--mode invented`; `--json` records the seed, parameters, and corpus hash.
+- **`contemporary_grounded`** — use when the request requires names evidenced in a real contemporary locale or language and a declared date window. Supply inspected exact-form records with stable source ID, source title/locator, date, region or language, and `inspection_status: inspected` via `--evidence`.
+- **`historical_attested`** — use when a requested historical period/context requires evidence for that period. Supply matching inspected source records, the period window, and requested region or language. Current usage alone is not historical attestation.
+
+Evidence modes return only exact forms from eligible records and do not require an invented-mode name list. A supplied `--seed` reproducibly shuffles eligible exact forms without changing spelling or provenance. If fewer records qualify than requested, report the shortfall; never fill it with Markov output. The script checks record completeness and filter membership only. It does not inspect the cited source or prove the record true, so source review and uncertainty remain explicit. Preserve exact spelling, diacritics, compounds, and transliteration as recorded.
 
 ## Default Behavior: Full Sweep
 
-By default, generate **3 names from every list** in `data/` and present them all grouped by culture. Do NOT ask questions first — just run it and show the results.
+For an ordinary creative request with no attestation requirement, generate **3 invented names from every list** in `data/` and present them grouped by corpus label. Do NOT imply the output is historically or culturally attested.
 
 Enumerate every `data/*.txt` file. For each file, use [scripts/generate.py](scripts/generate.py) with the host's available Python interpreter and these arguments:
 

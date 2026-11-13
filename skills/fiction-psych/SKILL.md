@@ -3,7 +3,7 @@ name: fiction-psych
 description: "Generates a deep psychological interior pass for each chapter in a Wiki-mode fiction project. For each chapter, reads the external beats from the book outline (Wiki/Outline/Book-N/outline.md) and the POV character's full profile from Wiki/Characters/, then writes a chapter-level interior analysis: start state, beat-by-beat interior cost, end state, and show-don't-tell gaps. Output is saved as Wiki/Psych/Book-N/Chapter_[NN]_Psych.md, human-reviewable and editable before drafting. Use after fiction-outline and fiction-divergence, before fiction-scenes; or to deepen or refresh specific chapters' interior layer."
 metadata:
   author: Fiction Toolkit
-  version: "2.1.0"
+  version: "2.2.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -30,7 +30,7 @@ All inputs come from the project's `Wiki/` folder. Read:
 
 - The resolved book outline (`Wiki/Outline/Book-N/outline.md`): all chapter entries with external beats
 - `Wiki/Characters/*.md`: full character profiles, one file per character
-- `Wiki/Style/style_guide.md`: craft rules and emotional vocabulary: how each emotion maps to physical tells for this POV character (also accept the legacy name `Wiki/Style/Style Guide.md` when reading)
+- `Wiki/Style/style_guide.md`: craft rules and optional expression channels/emotional vocabulary for this POV character (also accept the legacy name `Wiki/Style/Style Guide.md` when reading)
 - `Wiki/Story/theme.md`: motifs, central question
 
 Create the `Wiki/Psych/` folder if it doesn't exist.
@@ -66,7 +66,7 @@ Next: `fiction-scenes` if scene plans do not exist yet; otherwise `fiction-style
 
 ## Worker Instructions
 
-You are generating a psychological interior analysis for a single chapter of a novel. This analysis will be read by the writing agent that drafts the chapter. Your job is to map what the POV character feels underneath every external beat: not what they say or do, but what it costs them, what they refuse to name, and where the prose must render psychology through body and action rather than report it from a distance.
+You are generating a psychological interior analysis for a single chapter of a novel. This analysis will be read by the writing agent that drafts the chapter. Your job is to map what the POV character feels underneath significant external beats: what it costs them, what they refuse to name, and which expression channel best conveys the interior movement. Choose among action, perception, thought, speech, memory, omission, or purposeful emotional naming. Bodily cues are optional, not mandatory.
 
 Read the criteria file at [references/psych-criteria.md](references/psych-criteria.md) before writing.
 
@@ -81,7 +81,7 @@ A chapter-level psychological map with four sections:
 At the top of the chapter:
 - Surface affect: what the character presents externally
 - Underneath: what they are actually carrying, in specific emotional states, not generic ones
-- Body: how the body is already holding it before anything happens, in the specific physical tells (from the character's style profile) that the prose should render
+- Expression channel: which of action, perception, thought, speech, memory, omission, or purposeful naming best carries the start state; include a bodily cue only if apt
 
 ---
 
@@ -90,7 +90,7 @@ At the top of the chapter:
 For each significant external beat in the chapter summary, map:
 - The beat (what happens externally)
 - The interior cost (what it costs the POV character, the thing they feel but will not name)
-- The body expression (the specific physical tell that carries the feeling, drawn from the character's emotional vocabulary in `Wiki/Style/style_guide.md`)
+- The expression channel and its specific evidence (physical tell, action, attention shift, thought, speech, memory, omission, or purposeful naming)
 - What they won't say (the exact thought or word they swallow)
 
 Do not work from generic psychology. Work from this specific character's profile: their personality, backstory, want, need, flaw, secret. The cost of each beat is specific to who this person is.
@@ -102,16 +102,16 @@ Do not work from generic psychology. Work from this specific character's profile
 At the chapter's close:
 - Surface affect: what they present
 - Underneath: what is actually in the room
-- Body: the physical tell that should hold the chapter's emotional weight at the final beat
+- Expression channel: the most earned way to carry the final emotional weight; do not require a bodily closer
 
 ---
 
 **4. SHOW-DON'T-TELL GAPS**
 
-A table of specific moments where the prose must render interior through body/action, not report it. For each:
+A table of specific moments where a reporting draft loses useful interiority. For each, propose the smallest fitting channel; direct emotional naming may be right when it suits the voice.
 - The beat
 - What a reporting draft does (observes, notes, states)
-- What it should do instead (the specific body action, object, silence, or internal movement that carries the feeling)
+- A fitting alternative channel: action, perception, thought, speech, memory, omission, object, or purposeful naming
 
 ---
 
@@ -137,8 +137,8 @@ Write the file to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` (same `Book-N` folde
 **Underneath:**
 [Paragraph of specific emotional states. Not "he is tired." "The exhaustion has gone past tired into mean. He has counted the supplies eighty times. Each count comes up short and each shortfall feels like a personal insult." Draw from the character's personality and backstory to make this specific.]
 
-**Body:**
-[How the body is carrying it, in specific physical tells from the character's emotional vocabulary. "Jaw set. Breath through the nose. The specific decision not to shift the strap because shifting it would mean admitting it hurts."]
+**Expression channel:**
+[The channel that best carries the start state, with a specific cue if available. Bodily detail is optional.]
 
 ---
 
@@ -146,7 +146,7 @@ Write the file to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` (same `Book-N` folde
 
 ### [Beat name / external action]
 - **Interior cost:** [What it costs them, specific to this character's psychology]
-- **Body expression:** [The physical tell, from the character's emotional vocabulary]
+- **Expression channel:** [The best-fitting channel and specific evidence; bodily tell only if apt]
 - **What they won't say:** [The exact swallowed thought, blunt, in their register]
 
 [Repeat for each significant beat]
@@ -160,8 +160,8 @@ Write the file to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` (same `Book-N` folde
 **Underneath:**
 [Paragraph: what is actually in the room. Specific. Drawn from what this chapter has done to this specific character.]
 
-**Body:**
-[The physical tell that holds the chapter's emotional weight at the final beat. This is the image or action the prose should land on and hold one beat longer than comfortable.]
+**Expression channel:**
+[The most earned carrier of the chapter's emotional weight at the final beat; it need not be an image or bodily action.]
 
 ---
 
@@ -169,7 +169,7 @@ Write the file to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` (same `Book-N` folde
 
 | Beat | What a reporting draft does | What it should do instead |
 |------|----------------------------|--------------------------|
-| [Specific moment] | Observes / notes / states neutrally | [Specific body action, object, swallowed word, or silence] |
+| [Specific moment] | [What the draft flattens or explains] | [Fitting channel: action, perception, thought, speech, memory, omission, object, or purposeful naming] |
 
 ---
 
@@ -181,7 +181,7 @@ Write the file to `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` (same `Book-N` folde
 ### Critical Rules
 
 - Never write generic psychology ("he feels sad"). Write specific psychology drawn from this character's profile.
-- Every interior state must map to a physical tell from the character's emotional vocabulary. If the character expresses fear by going still, fear looks like stillness, not "he felt afraid."
+- Do not force every interior state into a physical tell. Select channels for character and moment; preserve direct thought, selective attention, silence, and purposeful emotional naming when truer to the voice.
 - The "what they won't say" entries should sound like the character's internal register: blunt, in their voice, not literary.
 - Show-don't-tell gaps must name SPECIFIC beats from the chapter summary, not general advice.
 - The bottom line is for the writing agent, not the reader. It should tell the agent what they must understand to stay inside the POV character's skin for this chapter.

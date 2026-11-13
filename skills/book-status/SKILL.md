@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate check results, word counts, open Chekhov promises, and stylistic drift metrics across books and chapters. Use when user asks 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', or 'show project status'."
 metadata:
   author: Storycraft Skills
-  version: "1.3.0"
+  version: "1.6.0"
   category: cross-cutting
 ---
 
@@ -43,6 +43,12 @@ For the per-chapter workflow view — where each chapter sits between scene plan
 
 ## Evidence-first status
 
-Use `python3 .agents/skills/book-status/scripts/project_state.py --root ROOT --book Book-N validate` and the contract in [references/state-contract.md](references/state-contract.md). Show verdict separately from CURRENT/STALE/UNKNOWN, with reasons. Legacy PASS without metadata is UNKNOWN. Ignore mtimes when determining applied edits; use report-hash/finding-ID dispositions and inspect legacy unresolved findings. Include active campaigns, invalidated reading checkpoints, stale knowledge evidence, and pending migrations. Never infer that every task marked complete still has current checks. Offer the first concrete blocked action.
+Use `python3 .agents/skills/book-status/scripts/project_state.py --root ROOT --book Book-N validate` and the contract in [references/state-contract.md](references/state-contract.md). Resolve project identities and canonical paths through [project_manifest.py](scripts/project_manifest.py); preview legacy-layout adoption with `python3 tools/project-manifest.py ROOT preview` and only apply when explicitly requested. Show verdict separately from CURRENT/STALE/UNKNOWN, with reasons. Legacy PASS without metadata is UNKNOWN. Ignore mtimes when determining applied edits; use report-hash/finding-ID dispositions and inspect legacy unresolved findings. Include active campaigns, invalidated reading checkpoints, stale knowledge evidence, and pending migrations. Never infer that every task marked complete still has current checks. Offer the first concrete blocked action.
+
+Series-wide relationship events belong in `Wiki/Story/relationship-events.json` and are queried only at an explicit story-order position, for example `project_state.py --root ROOT relationship-state --observer Mara --scope Jo --story-order 42`. Record planned turns with `--action record` and a sourced event spec; they remain separate from confirmed state. Do not substitute chapter number or reading order when story chronology is unknown.
+
+Series-wide knowledge events belong in `Wiki/Story/knowledge-events.json`; query character belief with `knowledge-state --observer CHARACTER --story-order N` and reader exposure with `--observer reader --reader-order N`. These axes are independent. A missing event means coverage is partial, not that a character is ignorant, and later corrections do not erase earlier as-of states.
+
+Managed multi-ledger updates use immutable generations and one committed pointer implemented by [ledger_store.py](scripts/ledger_store.py). Inspect with `python3 .agents/skills/book-status/scripts/ledger_transaction.py --root ROOT --status`; prepare an explicit transaction spec and commit with `--spec SPEC.json`. A source or generation conflict blocks commit. Uncommitted generations are retained for inspection and safe retry; do not edit generation files directly.
 
 The report metadata format is specified in [assets/report-meta.schema.json](assets/report-meta.schema.json). Use the runtime dashboard command for machine evidence before rendering status.

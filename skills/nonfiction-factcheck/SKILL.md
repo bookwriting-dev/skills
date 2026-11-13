@@ -3,7 +3,7 @@ name: nonfiction-factcheck
 description: "Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/Book-N/."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: nonfiction-editing
   output-format: markdown
@@ -27,7 +27,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
    - The chapter plan's `fact_status` table and citation fields (from `nonfiction-chapter-plan`)
    - Any file the chapter's citations name directly
 4. Search for the project's style or review guide (`**/review_guide.md`, `**/style_guide.md`) for house citation rules.
-5. Get the chapter's line count using the host's available file or line-count operation.
+5. Resolve the canonical chapter path/revision through the project resolver where available. Do not use line numbers as assertion identity.
 
 If no research corpus exists at all, report that verification is impossible and recommend building one (`nonfiction-chapter-plan` records per-assertion fact status during planning). Never accept the draft's own statements as their own source.
 
@@ -50,20 +50,20 @@ Sweep the chapter and build the assertion inventory before verifying anything. E
 - **Proper nouns:** names of people, institutions, studies, places, works
 - **Attributions:** who said what, who found what, who holds which position
 
-Record each with its line number and the exact quoted text from the page.
+Assign each a stable assertion ID, claim type, and exact quote with zero-based half-open Unicode code-point offsets into the current delivered chapter string and its hash. Multiple claims on one sentence/line get distinct IDs. Include scope, population, units, attribution, certainty, and claim strength where applicable. Complete a semantic coverage sweep of the entire chapter and record the reviewer, method, exact revision, omissions, and limitations; schema-valid listed claims do not prove the inventory is complete.
 
 ## Step 4: Launch Focused Workers
 
-Split the assertion inventory into balanced batches (by line range). For EACH batch, use one isolated worker with the task description `Fact check lines {start}-{end}`.
+Split the assertion inventory into balanced batches by assertion IDs, with target claims separated from read-only surrounding context. Give each worker the exact source revision and permitted source passages. Do not use fixed line chunks as context boundaries.
 
 Launch all batches in parallel when the host supports workers; otherwise process sequentially. Keep the work in the foreground so all findings compile in this run.
 
 **Worker prompt for each batch:**
 
-> You are verifying non-fiction factual assertions. Check ONLY assertions in lines {start} through {end}.
+> You are verifying non-fiction assertions. Assess ONLY the listed target assertion IDs; inspect surrounding context to preserve meaning.
 >
-> 1. Read the chapter using offset={start - 1} and limit={batch_size}: {chapter_path}
-> 2. For every assertion in your range, locate and read its source in the research corpus: {source_paths}
+> 1. Read the exact chapter revision {subject_sha256}; target IDs/quotes/offsets: {target_assertions}; context is read-only: {context}
+> 2. For every empirical assertion, inspect its source record and exact passage in the research corpus: {source_paths}
 > 3. Check every assertion against ALL of the following criteria:
 >
 > {paste the combined contents of all four reference files}
@@ -71,9 +71,9 @@ Launch all batches in parallel when the host supports workers; otherwise process
 > 4. Return your findings in this EXACT format. Return NOTHING if all assertions verify:
 >
 > ```
-> **Line {N}:** `exact quoted text`
-> Assertion: [statistic | quote | claim | proper noun | attribution]
-> Status: [verified | unsupported | contradicted | misattributed | imprecise | unverifiable]
+> **Assertion:** `{assertion_id}` `{start}:{end}` `exact quoted text`
+> Type: [factual | quotation_attribution | inference | definition | testimony | normative_judgment | hypothetical_illustration]
+> Status: [verified | unsupported | contradicted | misattributed | imprecise | unverifiable | not_empirical | pending]
 > Severity: [critical | high | medium | low]
 > Source: [what the source actually says, with location]
 > Fix: [corrected text, or the verification the author must supply]
@@ -123,7 +123,7 @@ Skip empty sections.
 
 1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
 2. Save as `Chapter-NNN_FactCheck.md` (three-digit number matching the chapter).
-3. Tell the user: location, assertions checked, finding count, and whether the chapter is publishable, fixable, or requires re-research.
+3. Run [evidence.py](../nonfiction-research/scripts/evidence.py) on the exact chapter evidence record. Report readiness and coverage separately from the semantic review; never infer publication approval from a fact-check result.
 4. Offer to apply approved findings with `fiction-revise` (report-driven and book-agnostic; it verifies every quote and keeps a change ledger).
 
 ## Verification rules
