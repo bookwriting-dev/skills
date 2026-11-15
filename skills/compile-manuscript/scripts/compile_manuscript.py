@@ -39,9 +39,9 @@ def manifest_module():
     return m
 
 
-def clean(text, marker, strip_pov=False):
+def clean(text, marker, source, pov_comment_lines=()):
     return reader_text_module().extract(
-        text, scene_break=marker, strip_pov=strip_pov
+        text, source=source, scene_break=marker, pov_comment_lines=pov_comment_lines
     )['text']
 
 
@@ -78,11 +78,8 @@ def main():
     cfg = s.load(a.config) if a.config else {'schema_version': 1}
     config_sha256 = hashlib.sha256(a.config.read_bytes()).hexdigest() if a.config else None
     resolver = manifest_module()
-    manifest = resolver.load(root)
-    books = [b for b in manifest['books'] if b['id'] == a.book or b.get('display_label') == a.book]
-    if len(books) != 1:
-        raise ValueError('book must resolve uniquely through project manifest: ' + a.book)
-    book_record = books[0]
+    manifest_hash = s.digest(s.path_at(root, resolver.MANIFEST_PATH))
+    book_record = resolver.resolve_book(root, a.book)
     chapters = []
     for chapter in sorted(book_record['chapters'], key=lambda c: c['reading_order']):
         source_path = s.path_at(root, chapter['path'])
@@ -121,8 +118,6 @@ def main():
     for cp in (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'):
         if any(t['status'] != 'complete' for t in s.load(cp)['tasks']):
             warnings.append('unfinished campaign: ' + str(cp.relative_to(root)))
-    if warnings and a.profile != 'beta' and not a.unchecked_preview:
-        raise ValueError('release checks incomplete: ' + '; '.join(warnings))
     names = [str(p.relative_to(root)) for _, p, _ in chapters]
     names += cfg.get('front_matter', []) + cfg.get('back_matter', [])
     if cfg.get('reference_doc'):
@@ -131,6 +126,7 @@ def main():
     if any(e.get('sha256') is None for e in before):
         raise ValueError('missing source/front/back matter')
     validation_names = list(names) + [resolver.MANIFEST_PATH]
+    validation_names.append(s.continuity_dir(book_record))
     for _, _, chapter_record in chapters:
         match = re.search(r'(\d+)', chapter_record.get('display_label', ''))
         legacy_number = int(match.group(1)) if match else chapter_record['reading_order']
@@ -148,16 +144,56 @@ def main():
                             (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'))
     validation_names = sorted(set(validation_names))
     validation_before = s.evidence(root, validation_names)
+    source_texts = s.manuscript_texts(root, book_record)
+    manuscript_hashes = {entry['path']: entry['sha256'] for entry in before}
+    if any(hashlib.sha256(raw.encode('utf-8')).hexdigest() != manuscript_hashes[name]
+           for name, raw in source_texts.items()):
+        raise ValueError('manuscript changed while reading preflight inputs')
+    formatting = s.chapter_format_module().audit(book_record, source_texts)
+    for finding in formatting['findings']:
+        warnings.append(f"{finding['path']}:{finding['line']}: {finding['message']}")
+    blockers = list(warnings)
+    continuity = s.continuity_report(root, book_record, source_texts)
+    validation_map = {entry['path']: entry for entry in validation_before}
+    for path, sha256 in continuity['source_inputs'].items():
+        observed = {'path': path, 'kind': 'file', 'sha256': sha256}
+        if validation_map.setdefault(path, observed) != observed:
+            raise ValueError('source evidence changed during export preflight: ' + path)
+    validation_names = sorted(validation_map)
+    validation_before = [validation_map[name] for name in validation_names]
+    if continuity['active']:
+        for item in continuity['coverage']:
+            if item['status'] != 'CURRENT':
+                warning = f"{item['path']}: {item['status'].lower()} continuity review coverage"
+                warnings.append(warning)
+                blockers.append(warning)
+        for finding in continuity['findings']:
+            locations = ', '.join(f"{source['path']}:{source['line']}" for source in finding['sources'])
+            warning = f"{locations}: {finding['message']}"
+            warnings.append(warning)
+            if finding['blocking']:
+                blockers.append(warning)
+    if blockers and a.profile != 'beta' and not a.unchecked_preview:
+        raise ValueError('release checks incomplete: ' + '; '.join(blockers))
     # Assemble and validate reader-facing content before either preflight returns
     # or a converter is invoked. This keeps deterministic content failures equal.
     order = cfg.get('front_matter', []) + [str(p.relative_to(root)) for _, p, _ in chapters] + cfg.get('back_matter', [])
-    text = '\n\n'.join(
-        clean(s.path_at(root, n).read_text(encoding='utf-8'), cfg.get('scene_break', '* * *'))
-        for n in order
-    )
+    parts = []
+    for name in order:
+        raw = source_texts[name] if name in source_texts else s.path_at(root, name).read_text(encoding='utf-8')
+        parts.append(clean(raw, cfg.get('scene_break', '* * *'), name,
+                           formatting['pov_comment_lines'].get(name, ())))
+    text = '\n\n'.join(parts)
+    if (s.evidence(root, validation_names) != validation_before
+            or s.evidence(root, names) != before
+            or s.digest(s.path_at(root, resolver.MANIFEST_PATH)) != manifest_hash
+            or resolver.resolve_book(root, a.book) != book_record
+            or (a.config and s.digest(a.config) != config_sha256)):
+        raise ValueError('source or required readiness evidence changed during preflight')
     reader_text_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
     plan = {'schema_version': 1, 'sources': before, 'profile': a.profile, 'formats': formats,
             'warnings': warnings, 'unchecked_preview': a.unchecked_preview,
+            'format_findings': formatting['findings'], 'continuity': continuity,
             'pandoc': subprocess.check_output([pandoc, '--version'], text=True).splitlines()[0] if pandoc else None,
             'pdf_engine': engine, 'config': cfg, 'config_sha256': config_sha256,
             'validation_inputs': validation_before, 'reader_text_sha256': reader_text_hash,
@@ -192,7 +228,8 @@ def main():
                     subprocess.run(cmd, check=True, capture_output=True)
                 verify(target, fmt)
                 plan['structural_checks'][fmt] = 'PASS'
-            if s.evidence(root, validation_names) != validation_before:
+            if (s.evidence(root, validation_names) != validation_before
+                    or resolver.resolve_book(root, a.book) != book_record):
                 raise ValueError('source or required readiness evidence changed during export; rerun preflight')
             if a.config and hashlib.sha256(a.config.read_bytes()).hexdigest() != config_sha256:
                 raise ValueError('export configuration changed during conversion; rerun preflight')

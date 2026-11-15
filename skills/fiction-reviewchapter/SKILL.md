@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.9.0"
+  version: "2.11.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -182,6 +182,10 @@ Output this section in the review report using the following format:
 Extract every specific canon fact the chapter asserts: proper nouns (people, places, organizations, items, events), dates and durations, counts and distances, injuries and physical states, possessions, and relationship or knowledge facts new to this chapter. For each assertion, search the book Wiki and the scene plan for the source that establishes it. An unsupported assertion is a finding, not texture: flag it with the line reference, the missing source, and a fix — name the canonical fact, replace the specific with an accurate generic description, or mark it for canonization. The draft itself, a previous chapter, and general memory are not evidence. Report unsupported assertions among the Proposed Edits tagged `[Canon]`.
 
 References to the book's own past are canon assertions too. Every callback to a specific prior moment — "as she had promised in the tower," "the wound from the river crossing," "what he said at the funeral" — must be verified against the chapter or scene where the moment supposedly happened: the moment exists, and it happened as this chapter describes. A false callback is worse than an unsupported detail. The book trains readers to trust its references; one check that pays out empty dents the trust everywhere else. Flag the false callback with both locations — where the callback claims, and what the claimed source actually says.
+
+Record source-linked identifier, object state, clock and inventory claims from this audit using [book continuity review](../book-status/references/continuity-review.md). Run the scoped continuity audit and chapter-format check. Include their findings and checked inputs in the review. Verify the prose against the reported passages before proposing fixes.
+
+Apply [evidence that a scene depends on](../book-status/references/evidence-chain.md) to decisive assertions, including close-POV conclusions and callbacks. Trace each claim to the establishing scene, handoff, complete manifest, or inspected source. Verify the scope of any conclusion before accepting it as established.
 
 ### Step 6: Audit the Chekhov ledger
 

@@ -178,15 +178,15 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `fiction-outline` 5.4.0 | Chapter-by-chapter outline with `what_must_happen` directives; every conflict binds to an earlier setup and leaves a consequence → `Wiki/Outline/Book-N/outline.md`. |
 | `fiction-divergence` 1.0.0 | Anti-convergence pass over the outline: per beat, a default, an inversion, and a cost-shift candidate; keeps the least-expected-but-earned; per-act surprise ledger. |
-| `fiction-scenes` 4.3.0 | Chapter beats and scene plans with active relationship checkpoints, micro-friction, and declared conversation form/pressure source where relevant. |
+| `fiction-scenes` 4.5.0 | Chapter beats and scene plans with active relationship checkpoints, micro-friction, and declared conversation form/pressure source where relevant. |
 | `fiction-style` 7.2.0 | `style_guide.md` + `review_guide.md` — the project's prose law. |
-| `fiction-writechapter` 4.4.0 | Draft or continue from a compiled pre-draft packet; expression channel is voice- and moment-led, not mechanically physical. |
+| `fiction-writechapter` 4.6.0 | Draft or continue from a compiled pre-draft packet; expression channel is voice- and moment-led, not mechanically physical. |
 
 ### Fiction — review the story
 
 | Skill | What it does |
 |---|---|
-| `fiction-reviewchapter` 2.9.0 | The chapter gate: canon assertions, Chekhov ledger audit, active relationship checkpoints, psych subtext, cooling list, and prose rules → `_Edits/…_Review.md`. |
+| `fiction-reviewchapter` 2.11.0 | The chapter gate: canon assertions, Chekhov ledger audit, active relationship checkpoints, psych subtext, cooling list, and prose rules → `_Edits/…_Review.md`. |
 | `litrpg-audit` 1.1.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.1.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.1.0 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
@@ -226,7 +226,7 @@ hand-written catalog's versions honest against it.)
 | `nonfiction-concept` 1.1.0 | Central argument/thesis, reader transformation, big idea → `Wiki/Concept/thesis.md`. |
 | `nonfiction-audience` 1.1.0 | Reader knowledge, objections, prerequisites across five archetypes → `Wiki/Concept/audience.md`. |
 | `nonfiction-structure` 1.2.0 | Argument architecture plus book/chapter rhetorical modes and conditional obligations → `Wiki/Concept/structure.md`. |
-| `nonfiction-research` 1.1.0 | Manages source/passages and chapter assertion inventories; validates evidence readiness with `scripts/evidence.py`. |
+| `nonfiction-research` 1.2.0 | Manages source/passages and chapter assertion inventories; validates evidence readiness with `scripts/evidence.py`. |
 | `nonfiction-chapter-plan` 1.2.0 | Mode-aware chapter argument/reader contract, evidence blocks, and explicit `evidence_needed` gaps. |
 | `nonfiction-writechapter` 1.2.0 | Drafts to the plan's rhetorical mode; preserves provenance and claim strength without forcing argument-first form. |
 | `nonfiction-dev-editor` 1.1.0 | Developmental review: thesis scaffolding, argument architecture, cognitive load, conceptual progression. |
@@ -238,14 +238,14 @@ hand-written catalog's versions honest against it.)
 | Skill | What it does |
 |---|---|
 | `book-reverse-engineer` 1.0.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
-| `chapter-pipeline` 1.5.0 | Profiled chapter workflow: draft verification by default; full candidate stages now require developmental repair/checkpoint, distinct line edit, integration/seam reads, reconciliation, and final checks. |
-| `gate-check` 1.4.0 | Comprehensive chapter readiness & continuity gate; subtext accepts multiple earned channels rather than requiring bodily rendering. |
-| `book-status` 1.6.0 | Manifest-resolved draft packets (custom IDs/order/paths and style authority), shared readiness, versioned operation journals, and committed ledger generations. |
+| `chapter-pipeline` 1.7.0 | Profiled chapter workflow: draft verification by default; full candidate stages now require developmental repair/checkpoint, distinct line edit, integration/seam reads, reconciliation, and final checks. |
+| `gate-check` 1.6.0 | Comprehensive chapter readiness & continuity gate; subtext accepts multiple earned channels rather than requiring bodily rendering. |
+| `book-status` 1.8.0 | Manifest-resolved draft packets (custom IDs/order/paths and style authority), shared readiness, versioned operation journals, and committed ledger generations. |
 | `kanban-board` 1.1.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.1.0 | Safeguards canon from drift; impact scan before deliberate world/character edits. |
 | `series-continuity` 1.1.0 | Audits multi-book consistency: character states, resolved secrets, timeline elapsed. |
 | `reader-persona-review` 1.1.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
-| `compile-manuscript` 1.2.0 | Builds staged delivery packages with structural checks; rendered/layout review stays pending until actually inspected. |
+| `compile-manuscript` 1.4.0 | Builds staged delivery packages with structural checks; rendered/layout review stays pending until actually inspected. |
 | `book-packaging` 1.1.0 | Generates marketing kits: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.0 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
 | `promise-tracker` 1.2.0 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |

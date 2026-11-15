@@ -464,6 +464,398 @@ class Workflow(unittest.TestCase):
         self.assertNotEqual(export('--profile','publication').returncode,0)
         self.assertEqual(export('--profile','publication','--unchecked-preview').returncode,0)
 
+    def test_act_005_mixed_heading_and_pov_styles_reach_preflight(self):
+        book_dir = self.root / 'Chapters/Book-1'
+        (book_dir / 'Chapter-001.md').write_text('# Chapter 1 — The Receipt\n\n**POV:** Tess\n\nTess waited.\n')
+        second = book_dir / 'Chapter-002.md'
+        second.write_text('# Chapter 002 — The Letter\n\nPOV: Owen\n\nOwen waited.\n')
+        audit = self.runcli('chapter-format', '--chapter', '2')
+        self.assertEqual(audit['contract']['heading_label'], 'Chapter 2')
+        self.assertEqual(audit['contract']['pov_style'], 'bold_label')
+        self.assertEqual([(f['category'], f['line']) for f in audit['findings']],
+                         [('chapter-heading', 1), ('pov-format', 3)])
+        exporter = ROOT / 'skills/compile-manuscript/scripts/compile_manuscript.py'
+        command = [sys.executable, str(exporter), '--root', str(self.root), '--check']
+        beta = subprocess.run(command, capture_output=True, text=True, check=True)
+        self.assertEqual(json.loads(beta.stdout)['format_findings'], audit['findings'])
+        release = subprocess.run(command + ['--profile', 'submission'], capture_output=True, text=True)
+        self.assertNotEqual(release.returncode, 0)
+        self.assertIn('Expected a level-one heading', release.stderr)
+        self.assertIn('Expected one nonempty POV tag', release.stderr)
+        second.write_text('# Chapter 2 — The Letter\n\n**POV:** Owen\n\nOwen waited.\n')
+        self.assertEqual(self.runcli('chapter-format')['findings'], [])
+
+    def test_declared_chapter_format_applies_at_scene_seams(self):
+        manifest = s.project_manifest_module().propose(self.root)['manifest']
+        book = manifest['books'][0]
+        book['chapter_format'] = {'pov_style': 'comment', 'require_pov': True, 'scene_break': '***'}
+        book['chapters'][0]['display_label'] = 'Interlude'
+        self.put('.storycraft/project.json', manifest)
+        source = self.root / self.chapter
+        source.write_text('# Interlude\n\n<!-- POV: Tess -->\n\nTess waited.\n\n'
+                          '```text\n***\nPOV: quoted exhibit\n```\n\n***\n\nOwen waited.\n')
+        audit = self.runcli('chapter-format', '--chapter', 'Interlude')
+        self.assertEqual([f['category'] for f in audit['findings']], ['missing-pov'])
+        source.write_text(source.read_text().replace('Owen waited.', '<!-- POV: Owen -->\n\nOwen waited.'))
+        self.assertEqual(self.runcli('chapter-format', '--chapter', 'Interlude')['findings'], [])
+        exporter = ROOT / 'skills/compile-manuscript/scripts/compile_manuscript.py'
+        subprocess.run([sys.executable, str(exporter), '--root', str(self.root)], check=True, capture_output=True)
+        output = (source.parent / 'export/beta/manuscript-combined.md').read_text()
+        self.assertIn('POV: quoted exhibit', output)
+        self.assertNotIn('<!-- POV:', output)
+
+    def continuity_record(self, number, *claims, prose=None):
+        path = self.root / f'Chapters/Book-1/Chapter-{number:03d}.md'
+        if prose is not None:
+            path.write_text(f'# Chapter {number}\n\n{prose}\n', encoding='utf-8')
+        source = self.runcli('continuity', '--action', 'source', '--chapter', str(number))
+        lines = path.read_text(encoding='utf-8').splitlines()
+        located = [dict(claim, line=next(n for n, line in enumerate(lines, 1) if claim['quote'] in line))
+                   for claim in claims]
+        spec = self.put('claim-spec.json', dict(source_sha256=source['source_sha256'],
+                                               record_sha256=source['record_sha256'], claims=located))
+        return self.runcli('continuity', '--action', 'record', '--chapter', str(number), '--spec', spec)
+
+    def evidence_pair(self, name):
+        path = ROOT / 'tools/eval-fixtures/evidence-chain/cases.json'
+        pair = next(item for item in json.loads(path.read_text()) if item['id'] == name)
+        return pair['reference'], {variant['status']: variant['text'] for variant in pair['variants']}
+
+    def test_evidence_chain_calendar_pair(self):
+        refs, variants = self.evidence_pair('calendar')
+        self.continuity_record(2, dict(kind='date', key='acquisition', value='1974-08-10',
+                                      quote='acquisition date of 1974-08-10'), prose=refs['Chapter 2'])
+        exhibit = dict(kind='date', key='exhibit', value='2019-11-03', quote='opened on 2019-11-03')
+        span = dict(kind='year_span', start='acquisition', end='exhibit')
+        self.continuity_record(31, exhibit, dict(span, value=52, quote='fifty-two years earlier'),
+                               prose=variants['contradiction'])
+        finding, = self.runcli('continuity', '--chapter', '31')['findings']
+        self.assertEqual(finding['category'], 'year-span-conflict')
+        self.assertIn('45 completed calendar years', finding['message'])
+        self.assertEqual(len(finding['sources']), 3)
+        self.continuity_record(31, exhibit, dict(span, value=45, quote='forty-five years earlier'),
+                               prose=variants['supported'])
+        self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'], [])
+
+    def test_evidence_chain_deadline_pair_uses_second_precision(self):
+        refs, variants = self.evidence_pair('delivery')
+        arrival = dict(kind='clock', clock='newsroom', key='arrival', value=21522,
+                       unit='seconds', quote='transmission ended at 05:58:42')
+        decision = dict(arrival, key='decision', value=21560, quote='made the decision at 05:59:20')
+        self.continuity_record(26, arrival, decision, prose=refs['Chapter 26'])
+        elapsed = dict(kind='duration', clock='newsroom', start='arrival', end='decision', value=90,
+                       unit='seconds', minimum=True, quote='review of that packet lasted ninety seconds')
+        self.continuity_record(31, elapsed, prose=variants['contradiction'])
+        finding, = self.runcli('continuity', '--chapter', '31')['findings']
+        self.assertEqual(finding['category'], 'duration-conflict')
+        self.assertIn('38 seconds', finding['message'])
+        self.continuity_record(31, dict(elapsed, value=38, minimum=False, quote='confirmed the hold at 05:59:20'),
+                               prose=variants['supported'])
+        self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'], [])
+
+    def test_evidence_chain_exclusion_window_checks_the_named_event(self):
+        visit = dict(kind='clock', clock='vault', key='vault-visit', value=1058, quote='left the vault at 17:38')
+        self.continuity_record(6, visit, prose='Tess left the vault at 17:38.')
+        start = dict(visit, key='window-start', value=1035, quote='17:15')
+        end = dict(visit, key='window-end', value=1185, quote='19:45')
+        absence = dict(kind='exclusion', clock='vault', start='window-start', end='window-end',
+                       event='vault-visit', quote='the vault was empty from 17:15 to 19:45')
+        self.continuity_record(9, start, end, absence, prose='The report said the vault was empty from 17:15 to 19:45.')
+        self.assertEqual(self.runcli('continuity', '--chapter', '9')['findings'][0]['category'], 'exclusion-conflict')
+        self.continuity_record(9, dict(start, value=1060, quote='17:40'), end,
+                               dict(absence, quote='the vault was empty from 17:40 to 19:45'),
+                               prose='The report said the vault was empty from 17:40 to 19:45.')
+        self.assertEqual(self.runcli('continuity', '--chapter', '9')['findings'], [])
+
+    def test_evidence_chain_format_pair_distinguishes_copy_and_master(self):
+        refs, variants = self.evidence_pair('format')
+        master = dict(kind='attribute', key='audio', stage='preservation-master', attribute='sample-rate',
+                      value=384, unit='kHz', quote='384 kHz')
+        self.continuity_record(8, master, prose=refs['Chapter 8'])
+        self.continuity_record(31, dict(master, value=96000, unit='Hz', quote='96 kHz'),
+                               prose=variants['contradiction'])
+        finding, = self.runcli('continuity', '--chapter', '31')['findings']
+        self.assertEqual(finding['category'], 'attribute-conflict')
+        self.continuity_record(31, dict(master, stage='review-copy', value=96, quote='96 kHz'),
+                               prose=variants['supported'])
+        self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'], [])
+        self.continuity_record(31, dict(master, value=384000, unit='Hz', quote='384000 Hz'),
+                               prose='The preservation master remained at 384000 Hz.')
+        self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'], [])
+
+    def test_evidence_chain_manifest_pair_respects_the_revision_and_partial_inventory(self):
+        refs, variants = self.evidence_pair('manifest')
+        bundle = dict(kind='bundle', key='mara-packet', snapshot='first', complete=True,
+                      members=['proxy', 'log', 'checksum'], quote='exactly three files')
+        self.continuity_record(25, bundle, prose=refs['Chapter 25'])
+        scan = dict(bundle, members=['survey-scan'], complete=False)
+        self.continuity_record(31, dict(scan, quote='the scan of the original paper survey'),
+                               prose=variants['contradiction'])
+        self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'][0]['category'], 'bundle-conflict')
+        self.continuity_record(31, dict(scan, snapshot='second', quote='The scan went into a second packet'),
+                               prose=variants['supported'])
+        self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'], [])
+
+    def test_evidence_chain_support_pairs_preserve_deliberate_uncertainty_and_deception(self):
+        for name, earlier, earlier_number, adverse in (
+                ('callback', 'Chapter 5', 5, 'contradiction'),
+                ('certificate', 'Chapter 4', 4, 'contradiction'),
+                ('inference', 'Chapter 4', 4, 'unresolved')):
+            with self.subTest(name=name):
+                refs, variants = self.evidence_pair(name)
+                self.continuity_record(earlier_number, prose=refs[earlier])
+                earlier_path = f'Chapters/Book-1/Chapter-{earlier_number:03d}.md'
+                citations = [dict(path=earlier_path, line=3, quote=refs[earlier],
+                                  source_sha256=s.digest(self.root / earlier_path))]
+                if name == 'certificate':
+                    manual_path = self.root / 'Wiki/World/Bench Manual.md'
+                    manual_path.parent.mkdir(parents=True, exist_ok=True)
+                    manual_path.write_text(refs['Bench manual, rev 2'] + '\n')
+                    citations.append(dict(path=str(manual_path.relative_to(self.root)), line=1,
+                                          quote=refs['Bench manual, rev 2'], source_sha256=s.digest(manual_path)))
+                claim = dict(kind='support', key=name, basis='story', assessment=adverse,
+                             rationale='Reviewed against the cited passage and its scope.', references=citations)
+                self.continuity_record(31, dict(claim, quote=variants[adverse]), prose=variants[adverse])
+                finding, = self.runcli('continuity', '--chapter', '31')['findings']
+                self.assertEqual(finding['category'], 'support-' + adverse)
+                self.assertEqual(len(finding['sources']), 1 + len(citations))
+                self.continuity_record(31, dict(claim, assessment='supported', quote=variants['supported']),
+                                       prose=variants['supported'])
+                self.assertEqual(self.runcli('continuity', '--chapter', '31')['findings'], [])
+                source_path = self.root / earlier_path
+                source_path.write_text(source_path.read_text() + '\nA new source revision.\n')
+                packet = self.runcli('draft-packet', '--chapter', '32', '--key', name)
+                self.assertEqual(packet['continuity']['support_findings'][0]['category'], 'support-evidence-invalid')
+
+    def test_evidence_chain_revalidates_research_at_export(self):
+        subject = self.root / self.chapter
+        claim_quote = 'The certificate covers only the inspected portion.'
+        subject.write_text('# Chapter 1\n\n' + claim_quote + '\n')
+        source_path = 'Wiki/Research/manual.txt'
+        source = self.root / source_path
+        source.parent.mkdir(parents=True)
+        evidence_quote = 'Certify only the portion physically inspected.'
+        source.write_text(evidence_quote + '\n')
+        chapter_hash, source_hash = s.digest(subject), s.digest(source)
+        record_path = '_Edits/Book-1/research.json'
+        start = subject.read_text().index(claim_quote)
+        record = dict(record_type='chapter_evidence', record_id='R1', project_id='P1',
+                      producer={'name': 'fixture'}, operation_id='OP1', subject_path=self.chapter,
+                      subject_sha256=chapter_hash,
+                      sources=[dict(source_id='S1', title='Fixture manual', locator='p. 1',
+                                    source_type='manual', access_status='accessible', inspection_status='inspected',
+                                    rights_status='permitted', limitations='Applies to this inspection only.',
+                                    source_sha256=source_hash, snapshot_path=source_path,
+                                    passages=[dict(passage_id='P1', source_revision=source_hash, quote=evidence_quote)])],
+                      assertions=[dict(assertion_id='A1', claim_type='factual',
+                                       anchor=dict(start=start, end=start + len(claim_quote), quote=claim_quote,
+                                                   subject_sha256=chapter_hash))],
+                      verifications=[dict(assertion_id='A1', result='verified', source_ids=['S1'], passage_ids=['P1'],
+                                          evaluator='reviewer', rules_version='1', rationale='Matches the manual scope.')],
+                      inventory_coverage=dict(complete=True, reviewer='reviewer', method='chapter review',
+                                              omissions=[], limitations='Scope limited to the certification claim.',
+                                              subject_sha256=chapter_hash))
+        self.put(record_path, record)
+        research = dict(path=record_path, sha256=s.digest(self.root / record_path), assertion_id='A1')
+        claim = dict(kind='support', key='inspection-scope', basis='research', assessment='supported',
+                     rationale='Inspected the cited edition.', references=[], quote=claim_quote, research=research)
+        self.continuity_record(1, dict(claim, research=dict(research, assertion_id='missing')))
+        self.assertEqual(self.runcli('continuity', '--chapter', '1')['findings'][0]['category'],
+                         'support-evidence-invalid')
+        record['sources'][0]['passages'][0]['quote'] = 'An invented passage.'
+        self.put(record_path, record)
+        bad_quote = dict(research, sha256=s.digest(self.root / record_path))
+        self.continuity_record(1, dict(claim, research=bad_quote))
+        finding, = self.runcli('continuity', '--chapter', '1')['findings']
+        self.assertIn('quoted passage is absent', finding['message'])
+        record['sources'][0]['passages'][0]['quote'] = evidence_quote
+        self.put(record_path, record)
+        self.continuity_record(1, claim)
+        for number in (2, 3):
+            self.continuity_record(number)
+        self.write_fixture_gates()
+        audit = self.runcli('continuity')
+        self.assertEqual(audit['status'], 'PASS')
+        self.assertEqual(audit['source_inputs'][source_path], source_hash)
+        exporter = ROOT / 'skills/compile-manuscript/scripts/compile_manuscript.py'
+        command = [sys.executable, str(exporter), '--root', str(self.root), '--check']
+        release = command + ['--profile', 'submission']
+        plan = json.loads(subprocess.run(release, capture_output=True, text=True, check=True).stdout)
+        self.assertIn(source_path, [entry['path'] for entry in plan['validation_inputs']])
+        source.write_text('An updated edition changes the scope.\n')
+        blocked = subprocess.run(release, capture_output=True, text=True)
+        self.assertNotEqual(blocked.returncode, 0)
+        self.assertIn('retained source snapshot hash mismatch', blocked.stderr)
+        beta = json.loads(subprocess.run(command, capture_output=True, text=True, check=True).stdout)
+        self.assertEqual(beta['continuity']['status'], 'FAIL')
+
+    def test_act_001_parcel_identifier_conflict_matches_entity_and_cites_both_sides(self):
+        canonical = dict(kind='identifier', key='parcel-under-order-69-c-104', value='Tract 14-B',
+                         canonical=True, quote='Tract 14-B (Order 69-C-104)')
+        first = dict(canonical, value='Tract 412', canonical=False, quote='the map of Tract 412')
+        second = dict(first, quote='access to Tract 412')
+        unrelated = dict(first, key='neighboring-parcel', quote='The neighboring parcel was Tract 412.')
+        prose = ('The order read Tract 14-B (Order 69-C-104).\n\nTess folded the map of Tract 412.\n\n'
+                 'The closure denied access to Tract 412.\n\nThe neighboring parcel was Tract 412.')
+        self.continuity_record(14, canonical, first, second, unrelated, prose=prose)
+        audit = self.runcli('continuity', '--chapter', '14')
+        self.assertEqual(audit['status'], 'FAIL')
+        self.assertEqual([f['category'] for f in audit['findings']], ['identifier-conflict'] * 2)
+        self.assertEqual([[s['quote'] for s in f['sources']] for f in audit['findings']],
+                         [[canonical['quote'], first['quote']], [canonical['quote'], second['quote']]])
+        self.continuity_record(14, dict(canonical, aliases=['Tract 412'],
+                                      quote='also known as Tract 412'), first, second,
+                               prose=prose.replace('(Order 69-C-104).', '(Order 69-C-104), also known as Tract 412.'))
+        self.assertEqual(self.runcli('continuity', '--chapter', '14')['findings'], [])
+
+    def test_act_002_calibration_tin_requires_a_sourced_reseal_in_story_order(self):
+        opened = dict(kind='state', key='calibration-tin-seal', operation='set', value='broken',
+                      position=[24, 1, 1], quote='Tess peeled open the dry paper strip seal')
+        intact = dict(opened, operation='assert', value='intact', position=[31, 2, 1],
+                      quote='The masking-tape seal remained intact.')
+        self.continuity_record(24, opened, prose=opened['quote'] + ' and lifted the lid.')
+        self.continuity_record(25, prose='Tess closed the calibration tin.')
+        self.continuity_record(31, intact, prose=intact['quote'])
+        audit = self.runcli('continuity', '--chapter', '31')
+        finding, = audit['findings']
+        self.assertEqual(finding['category'], 'state-conflict')
+        self.assertEqual([f['path'].split('/')[-1] for f in finding['sources']], ['Chapter-024.md', 'Chapter-031.md'])
+        plan = self.root / 'Wiki/Outline/Book-1/Chapter_31_Scene.md'
+        plan.parent.mkdir(parents=True, exist_ok=True)
+        plan.write_text('## Scene 1\nContinuity keys: calibration-tin-seal\n')
+        packet = self.runcli('draft-packet', '--chapter', '31')
+        context, = packet['continuity']['claims']
+        self.assertEqual(context['quote'], opened['quote'])
+        self.assertEqual(context['value'], 'broken')
+        resealed = dict(intact, operation='set', position=[25, 1, 1],
+                        quote='Tess applied a fresh masking-tape seal to the tin.')
+        self.continuity_record(25, resealed, prose=resealed['quote'])
+        self.assertEqual(self.runcli('continuity')['findings'], [])
+        self.continuity_record(25, dict(resealed, position=[23, 1, 1]), prose=resealed['quote'])
+        self.assertEqual(self.runcli('continuity')['findings'][0]['category'], 'state-conflict')
+        opened_file = self.root / 'Chapters/Book-1/Chapter-024.md'
+        opened_file.write_text(opened_file.read_text() + '\nA later edit.\n')
+        stale = self.runcli('continuity', '--chapter', '31')
+        self.assertEqual(stale['status'], 'UNKNOWN')
+        self.assertEqual(stale['findings'], [])
+        self.assertTrue(any(c['status'] == 'STALE' and c['path'].endswith('024.md') for c in stale['coverage']))
+
+    def test_predraft_continuity_is_available_before_a_new_chapter_exists(self):
+        quote = 'Tess peeled the tin seal.'
+        opened = dict(kind='state', key='tin-seal', value='broken', operation='set',
+                      position=[24, 1, 1], quote=quote)
+        self.continuity_record(24, opened, prose=quote)
+        packet = self.runcli('draft-packet', '--chapter', '31', '--key', 'tin-seal')
+        self.assertEqual(packet['chapter_path'], 'Chapters/Book-1/Chapter-031.md')
+        self.assertEqual(packet['chapter_format']['heading_label'], 'Chapter 31')
+        self.assertEqual(packet['continuity']['claims'][0]['quote'], quote)
+        path = self.root / packet['chapter_path']
+        self.assertFalse(path.exists())
+        path.write_text('# Chapter 31\n\nA new draft.\n')
+        self.assertEqual(self.runcli('continuity', '--action', 'source', '--chapter', '31')['chapter_id'],
+                         packet['chapter_id'])
+
+    def test_act_003_durations_check_named_clock_endpoints_and_rounding(self):
+        def anchor(key, value, quote):
+            return dict(kind='clock', key=key, clock='system-clock', value=value, quote=quote)
+        entry = anchor('underground-entry', 30, 'The entry log read 00:30.')
+        workshop = anchor('owen-workshop-threshold', 0, 'Owen reached the workshop at midnight.')
+        exit_event = anchor('underground-exit', 1500, 'The exit log read 01:00 the next day.')
+        callback_event = anchor('scene-two-reference', 1440, 'Earlier that night, the watch had read midnight.')
+        self.continuity_record(24, workshop, entry, prose=workshop['quote'] + '\n\n' + entry['quote'])
+        underground = dict(kind='duration', clock='system-clock', start='underground-entry',
+                           end='underground-exit', value=1680, quote='twenty-eight hours beneath fifty feet')
+        callback = dict(underground, start='owen-workshop-threshold', end='scene-two-reference', value=1440,
+                        quote="Owen's workshop threshold twenty-four hours earlier")
+        prose = ('After twenty-eight hours beneath fifty feet of mountain sod, Tess could see daylight.\n\n'
+                 + exit_event['quote'] + '\n\n' + callback_event['quote']
+                 + "\n\nShe remembered Owen's workshop threshold twenty-four hours earlier.")
+        self.continuity_record(31, exit_event, callback_event, underground, callback, prose=prose)
+        finding, = self.runcli('continuity')['findings']
+        self.assertEqual(finding['category'], 'duration-conflict')
+        self.assertIn('1470 minutes', finding['message'])
+        self.assertEqual([f['quote'] for f in finding['sources']],
+                         [underground['quote'], entry['quote'], exit_event['quote']])
+        revised = dict(underground, value=1440, tolerance=60, quote='about twenty-four hours beneath fifty feet')
+        self.continuity_record(31, exit_event, callback_event, revised, callback,
+                               prose=prose.replace(underground['quote'], revised['quote']))
+        self.assertEqual(self.runcli('continuity')['findings'], [])
+        self.continuity_record(31, exit_event, dict(revised, start='unplaced-entry'),
+                               prose=prose.replace(underground['quote'], revised['quote']))
+        finding, = self.runcli('continuity')['findings']
+        self.assertEqual(finding['category'], 'duration-unresolved')
+        self.assertFalse(finding['blocking'])
+
+    def test_act_004_scoped_inventory_counts_warn_only_when_scope_is_unclear(self):
+        target = dict(kind='count', key='nitrate-cans', snapshot='vault-survey',
+                      scope='target-evidence', value=4, quote='four pre-1951 cans')
+        cell = dict(target, scope=None, value=8, quote='Cans 4491-G1 through G8')
+        vault = dict(target, scope='vault-total', value=96, quote='ninety-six steel cans')
+        self.continuity_record(2, target, prose='They were seeking four pre-1951 cans.')
+        self.continuity_record(22, cell, prose=cell['quote'] + ' appeared on the docket.')
+        self.continuity_record(26, vault, prose='The entire vault held ninety-six steel cans.')
+        warning, = self.runcli('continuity')['findings']
+        self.assertEqual(warning['category'], 'count-scope-unclear')
+        self.assertFalse(warning['blocking'])
+        self.continuity_record(22, dict(cell, scope='cell-g'), prose='Cell G held ' + cell['quote'] + '.')
+        self.assertEqual(self.runcli('continuity')['findings'], [])
+        self.continuity_record(22, dict(cell, scope='target-evidence'),
+                               prose='The targets were ' + cell['quote'] + '.')
+        self.assertEqual(self.runcli('continuity')['findings'][0]['category'], 'count-conflict')
+        self.continuity_record(22, dict(cell, scope='target-evidence', snapshot='revised-survey'),
+                               prose='The new survey identified ' + cell['quote'] + ' as targets.')
+        self.assertEqual(self.runcli('continuity')['findings'], [])
+
+    def test_export_enforces_current_book_coverage_and_only_blocking_continuity_findings(self):
+        exporter = ROOT / 'skills/compile-manuscript/scripts/compile_manuscript.py'
+        command = [sys.executable, str(exporter), '--root', str(self.root), '--check']
+        count = dict(kind='count', key='test-cans', snapshot='survey', scope='vault', value=4,
+                     quote='Four cans.')
+        self.continuity_record(1, count, prose=count['quote'])
+        self.continuity_record(2, dict(count, scope=None, value=8, quote='Eight cans.'), prose='Eight cans.')
+        self.write_fixture_gates()
+        beta = json.loads(subprocess.run(command, text=True, capture_output=True, check=True).stdout)
+        self.assertEqual(beta['continuity']['status'], 'UNKNOWN')
+        release_command = command + ['--profile', 'submission']
+        missing = subprocess.run(release_command, text=True, capture_output=True)
+        self.assertNotEqual(missing.returncode, 0)
+        self.assertIn('missing continuity review coverage', missing.stderr)
+        self.continuity_record(3)
+        release = json.loads(subprocess.run(release_command, text=True, capture_output=True, check=True).stdout)
+        self.assertEqual(release['continuity']['status'], 'WARN')
+        self.assertIn('clarify which set', release['warnings'][0])
+        self.continuity_record(2, dict(count, value=8, quote='Eight cans.'))
+        conflict = subprocess.run(release_command, text=True, capture_output=True)
+        self.assertNotEqual(conflict.returncode, 0)
+        self.assertIn('competing counts of 4 and 8', conflict.stderr)
+        beta = json.loads(subprocess.run(command, text=True, capture_output=True, check=True).stdout)
+        self.assertEqual(beta['continuity']['status'], 'FAIL')
+
+    def write_fixture_gates(self):
+        for number in (1, 2, 3):
+            chapter = f'Chapters/Book-1/Chapter-{number:03d}.md'
+            gate = self.root / f'_Edits/Book-1/Chapter-{number:03d}_Gate.md'
+            gate.write_text('PASS\nSynthetic gate evidence for this exporter regression.\n')
+            s.write(gate.with_suffix('.meta.json'), dict(schema_version=1, verdict='PASS',
+                    report=str(gate.relative_to(self.root)), report_sha256=s.digest(gate),
+                    inputs=s.evidence(self.root, [chapter])))
+
+    def test_continuity_rejects_stale_review_and_inexact_quote(self):
+        source = self.runcli('continuity', '--action', 'source', '--chapter', '1')
+        spec = self.put('invalid.json', dict(source_sha256=source['source_sha256'],
+                                           record_sha256=source['record_sha256'], claims=[
+            dict(kind='identifier', key='archive', value='X7', line=1, quote='invented quote')]))
+        command = [sys.executable, str(SCRIPT), '--root', str(self.root), 'continuity',
+                   '--action', 'record', '--chapter', '1', '--spec', spec]
+        bad = subprocess.run(command, capture_output=True, text=True)
+        self.assertNotEqual(bad.returncode, 0)
+        self.assertIn('exact nonempty quote', json.loads(bad.stdout)['error'])
+        path = self.root / self.chapter
+        path.write_text(path.read_text() + '\nChange after review.\n')
+        stale = subprocess.run(command, capture_output=True, text=True)
+        self.assertNotEqual(stale.returncode, 0)
+        self.assertIn('continuity review source changed', json.loads(stale.stdout)['error'])
+
     def test_upgrade_preserves_local_and_legacy(self):
         pinned=self.root/'.agents/skills';shutil.copytree(ROOT/'skills',pinned)
         local=pinned/'fiction-writechapter/SKILL.md';local.write_text('LOCAL CUSTOMIZATION')

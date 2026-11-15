@@ -3,7 +3,8 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate check results, word counts, open Chekhov promises, and stylistic drift metrics across books and chapters. Use when user asks 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', or 'show project status'."
 metadata:
   author: Storycraft Skills
-  version: "1.6.0"
+  version: "1.8.0"
+  bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
 
@@ -52,3 +53,5 @@ Series-wide knowledge events belong in `Wiki/Story/knowledge-events.json`; query
 Managed multi-ledger updates use immutable generations and one committed pointer implemented by [ledger_store.py](scripts/ledger_store.py). Inspect with `python3 .agents/skills/book-status/scripts/ledger_transaction.py --root ROOT --status`; prepare an explicit transaction spec and commit with `--spec SPEC.json`. A source or generation conflict blocks commit. Uncommitted generations are retained for inspection and safe retry; do not edit generation files directly.
 
 The report metadata format is specified in [assets/report-meta.schema.json](assets/report-meta.schema.json). Use the runtime dashboard command for machine evidence before rendering status.
+
+For fiction continuity and chapter metadata, run `project_state.py --root ROOT --book Book-N continuity --action audit` and `project_state.py --root ROOT --book Book-N chapter-format`. Report coverage gaps, confirmed conflicts, and review notes from [book continuity review](references/continuity-review.md). The runtime uses [continuity.py](scripts/continuity.py) and [chapter_format.py](scripts/chapter_format.py).

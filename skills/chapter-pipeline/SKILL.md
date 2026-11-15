@@ -3,7 +3,7 @@ name: chapter-pipeline
 description: "Run a declared chapter production profile from scene briefing through drafting, evidence reconciliation, review, and any authorized repair. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.5.0"
+  version: "1.7.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -44,6 +44,8 @@ The pipeline halts before the polish step when:
    - Runs `fiction-knowledge` harvest so character belief/knowledge acquisitions and reader exposures in the drafted chapter are recorded in `Wiki/Story/Book-N/knowledge.json`.
 4. **Readiness Gate Check:**
    - Runs `gate-check` against canon, Chekhov ledger, knowledge continuity, subtext/dialogue architecture, cooling list, and prose linting.
+   - Runs the shared heading and POV format check and reconciles source-linked continuity claims against earlier chapters using the [book continuity review](../book-status/references/continuity-review.md). Refresh the evidence from the exact final chapter after any authorized changes.
+   - Checks the support for any conclusion the scene depends on. Include the cited manuscript or retained research sources in the gate's input snapshot. See [evidence that a scene depends on](../book-status/references/evidence-chain.md).
    - Outputs `_Edits/Book-N/Chapter-NNN_Gate.md`.
    - Halts on `FAIL` or on canon/continuity/knowledge/ledger `WARN`, reporting blockers with actionable fixes.
 5. **Profile-specific editorial work:**

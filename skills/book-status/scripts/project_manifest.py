@@ -21,6 +21,16 @@ def contained(root, relative):
     return path
 
 
+def numbered_chapter(book_label, number, path, predecessor_id=None):
+    return {
+        'id': 'chapter-' + _hash(f'{book_label}/{number}')[:16],
+        'display_label': f'Chapter {number}',
+        'path': path,
+        'reading_order': number,
+        'predecessor_id': predecessor_id,
+    }
+
+
 def validate(manifest, root):
     if not isinstance(manifest, dict) or manifest.get('record_type') != 'project_manifest':
         raise ValueError('invalid project manifest record_type')
@@ -95,13 +105,7 @@ def propose(root):
                 continue
             number = int(cm.group(1))
             relative = path.relative_to(root).as_posix()
-            chapters.append({
-                'id': 'chapter-' + _hash(f'{book_dir.name}/{number}')[:16],
-                'display_label': f'Chapter {number}',
-                'path': relative,
-                'reading_order': number,
-                'predecessor_id': None,
-            })
+            chapters.append(numbered_chapter(book_dir.name, number, relative))
         chapters.sort(key=lambda c: (c['reading_order'], c['path']))
         for i, chapter in enumerate(chapters):
             if i and chapter['reading_order'] == chapters[i - 1]['reading_order']:
@@ -133,27 +137,38 @@ def load(root):
     return result['manifest']
 
 
+def resolve_book(root, book_id):
+    manifest = load(root)
+    matches = [book for book in manifest['books']
+               if book['id'] == book_id or book.get('display_label') == book_id]
+    if len(matches) != 1:
+        raise ValueError(f'book must resolve uniquely through project manifest: {book_id}')
+    return matches[0]
+
+
 def chapters(root, book_id):
-    manifest = load(root)
-    book = next((b for b in manifest['books'] if b['id'] == book_id or b.get('display_label') == book_id), None)
-    if book is None:
-        raise ValueError(f'book not found in project manifest: {book_id}')
-    return sorted(book['chapters'], key=lambda c: c['reading_order'])
+    return sorted(resolve_book(root, book_id)['chapters'], key=lambda c: c['reading_order'])
 
 
-def resolve_chapter(root, book_id, selector):
-    manifest = load(root)
-    book = next((b for b in manifest['books']
-                 if b['id'] == book_id or b.get('display_label') == book_id), None)
-    if book is None:
-        raise ValueError(f'book not found in project manifest: {book_id}')
+def resolve_chapter(root, book_id, selector, *, allow_new=False):
+    book = resolve_book(root, book_id)
     value = str(selector).strip()
     matches = [chapter for chapter in book['chapters'] if value in (
         chapter.get('id'), chapter.get('display_label'), chapter.get('path'),
         Path(chapter.get('path', '')).stem)]
     if not matches and re.fullmatch(r'\d+', value):
         matches = [chapter for chapter in book['chapters']
-                   if chapter.get('display_label') in (value, f'Chapter {value}', f'Chapter-{int(value):03d}')]
+                   if chapter.get('display_label') in (value, f'Chapter {int(value)}', f'Chapter-{int(value):03d}')]
+    if not matches and allow_new and not contained(root, MANIFEST_PATH).exists():
+        match = re.fullmatch(r'(?:Chapter[- ]?)?(\d+)', value, re.I)
+        label = book.get('display_label', '')
+        if match and int(match[1]) > 0 and re.fullmatch(r'Book-\d+', label):
+            number = int(match[1])
+            path = f'Chapters/{label}/Chapter-{number:03d}.md'
+            if not contained(root, path).exists():
+                previous = [item for item in book['chapters'] if item['reading_order'] < number]
+                predecessor_id = previous[-1]['id'] if previous else None
+                return book, numbered_chapter(label, number, path, predecessor_id)
     if len(matches) != 1:
         raise ValueError(f'chapter selector is missing or ambiguous in {book_id}: {selector}')
     return book, matches[0]

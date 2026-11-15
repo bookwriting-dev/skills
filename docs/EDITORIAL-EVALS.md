@@ -9,3 +9,9 @@ Recorded strict results use opaque IDs and a frozen run manifest (including the 
 The deterministic CI gate validates runtime behavior, scope and evidence mechanics. Literary evaluation requires a blind author comparison with candidate identities hidden where practical. Author-selected full chapters and category tolerances should be fixed after the pilot, before candidate comparison. Preserve and explain every regression. Model assistance may organize findings but cannot impersonate the author's decisions.
 
 Release execution requirements: no unsupported source quotations, no edits outside authorized scope, and no future-only content in blind-reader packets. Passing those checks does not establish prose superiority. The repository ships the evaluation tool and provisional corpus; a validated author-scored baseline/candidate study remains an explicit human evaluation step.
+
+## Evidence-chain prose regressions
+
+Run `python3 tools/eval-evidence-chain.py RUN_DIR` from the library to emit two neutral packets from seven pairs of unannotated excerpts. Use a fresh review worker for each packet and pass only its contents. Each worker sees one variant of each pair. Keep the private answers outside the review context. Score the two JSON results with `python3 tools/eval-evidence-chain.py RUN_DIR --results REVIEW1.json REVIEW2.json`. The scorer checks coverage, classifications and exact source citations. Re-run from a separate directory after changing the rules to keep the baseline frozen.
+
+The November 15 pilot scored 14 of 14 before and after the changes, with zero unsupported citations in either pass. These short cases were reviewed in isolation with synthetic source material. The paired runtime tests in `make check` exercise the evidence records, revision checks, and release behavior. The pilot measures performance on this specific set of excerpts.

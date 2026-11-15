@@ -34,6 +34,8 @@ Editorial memory, knowledge, reading, and campaigns use the templates shipped wi
 
 `draft-packet --chapter N [--window 3] [--output _Edits/Book-N/packets/Chapter-NNN_DraftPacket.json]` compiles a deterministic pre-draft packet for Chapter N: scene plan metadata, extracted psychological interiority (`what_they_wont_say` and `show_dont_tell_gaps` from `Chapter_NN_Psych.md`), POV-matched voice prompts (`voice_prompt_<POV>.md` with `voice_prompt.md` fallback), chapter-sliced `relationship_checkpoints` (`chapter_start <= N <= chapter_end`), the immediate continuity tail from Chapter N-1, confirmed `knowledge_as_of` state at `[N, 0]`, applicable active `editorial_decisions`, and a rolling N-chapter `cooling_list` (somatic hotspots, repeated content 3-grams, repeated similes, and recent openers/closers with callouts and fenced blocks stripped).
 
+Packets also include the heading and POV convention and sourced claims for the scene plan's continuity keys. See [book continuity review](continuity-review.md) for the claim schema, chapter-format checks, and whole-book export coverage rules.
+
 Reading packets contain current text, reader brief, and prior sealed reaction only. Sealing requires coordinator-verified isolated input evidence. Prior checkpoints are immutable. If earlier text changes, fork a run; do not amend history. Preparation is not proof of actual model isolation.
 
 Campaign tasks use explicit files, dependency IDs, and current check metadata. Source snapshots are recovery aids, not an automatic rollback authorization. Restore only unchanged campaign output and reverse dependency order. A task can be complete while its checks subsequently become stale; status must show that distinction.

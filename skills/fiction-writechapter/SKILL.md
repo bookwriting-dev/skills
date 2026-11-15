@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled."
 metadata:
   author: Fiction Toolkit
-  version: "4.4.0"
+  version: "4.6.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -39,7 +39,11 @@ python3 .agents/skills/book-status/scripts/project_state.py \
 
 The packet resolves the target scene plan, optional `Chapter_NN_Psych.md`, the effective style-authority path (or an explicit conflict/missing status), POV-specific voice prompts, chapter-sliced relationship state, immediate continuity tail, knowledge state, active scoped decisions, and the rolling cooling list. If style authority is `CONFLICT`, stop and report both paths; do not draft against a silently selected or merged guide.
 
-Follow neighboring chapter filenames and the book's instructions. When no local convention exists, use `<book-root>/Chapters/Chapter-[NNN].md` and put the title inside the Markdown file. Never create `[WorkingTitle]_Chapters` or another independently editable copy.
+Use the packet's `chapter_format` for the heading label, source scene breaks, and POV marks. Check `continuity.claims` for the scene plan's referenced keys. Query other keys or find the earlier passage directly when a clock, object, designation, or inventory count matters and the packet has incomplete coverage. See [book continuity review](../book-status/references/continuity-review.md).
+
+Use [evidence that a scene depends on](../book-status/references/evidence-chain.md) for technical attributes, calendar windows, evidence transfers, and the limits of a character's deductions. When an earlier claim carries a support finding, inspect the sources before using it as an established premise.
+
+Save to the packet's resolved chapter path. New chapters in numbered projects without an explicit manifest use `Chapters/Book-N/Chapter-NNN.md`. Never create `[WorkingTitle]_Chapters` or another independently editable copy.
 
 If `active-context.md` is missing, use an explicit user assignment or the outline to identify the target. Create a compact active context only when the book's workflow requires one; missing tracking infrastructure must not silently change the story assignment.
 
@@ -126,6 +130,8 @@ Leave broader prose diagnosis, AI-pattern auditing, ratings, and revision recomm
 ## Save and hand off
 
 Save only to the resolved authoritative chapter path. Do not overwrite a different existing chapter or create a parallel manuscript copy.
+
+Run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` once the draft exists. Resolve reported metadata defects and rerun the check before handoff.
 
 Update `active-context.md` minimally:
 

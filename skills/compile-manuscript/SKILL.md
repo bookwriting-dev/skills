@@ -3,7 +3,7 @@ name: compile-manuscript
 description: "Compile and stitch drafted chapter files into a delivery package with customizable front matter, scene breaks, table of contents, and export formatting. Structural conversion does not imply rendered, author, or publication approval. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -19,6 +19,10 @@ Read project instructions, select book and beta/submission/publication profile, 
 Run `python3 SCRIPT --root ROOT --book Book-N --profile beta --format md --format docx --check`, adding `--config FILE` if needed. Numerically ordered authoritative Chapter-NNN.md sources must start at 1 without duplicates or gaps. Unknown or unclosed internal comments block export. Only STORYCRAFT-marked comments and storycraft-internal fences are stripped. LitRPG blocks and ordinary paragraphs remain printable. Only explicit `* * *` scene markers normalize by default; never treat arbitrary blank lines as breaks.
 
 Markdown requires Python 3 only. DOCX/EPUB require detected Pandoc; PDF also needs an explicitly configured available engine through --pdf-engine. Missing dependencies fail the requested format, never silently substitute. Do not install converters without authorization. The helper must be bundled with the skill library.
+
+Preflight checks every chapter heading and POV tag against the book's format and reruns active book-wide continuity on the exact export sources. Inspect the returned findings and coverage. For stale or missing continuity evidence, review the relevant chapters with [book continuity review](../book-status/references/continuity-review.md) and rerun preflight. Confirmed contradictions and incomplete active coverage block submission and publication. Unclear scopes and other interpretive continuity findings remain review notes. Beta exposes findings and coverage gaps in the package manifest.
+
+Preflight revalidates the sources cited by [load-bearing assertions](../book-status/references/evidence-chain.md). The export manifest binds those local source revisions, including inspected research records and retained snapshots.
 
 ## Build package
 

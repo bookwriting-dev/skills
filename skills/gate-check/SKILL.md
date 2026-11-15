@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.4.0"
+  version: "1.6.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -94,6 +94,12 @@ For a saved report, follow [state-contract.md](../book-status/references/state-c
 
 Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
 
+## Chapter formatting and book continuity
+
+Use the [book continuity review](../book-status/references/continuity-review.md). Run `chapter-format --chapter SELECTOR` with `project_state.py` and treat its findings as mechanical failures. Verify each marked POV against the actual prose. For fiction, capture the source hash, review the complete chapter, and record its sourced continuity claims before the final audit. Then run `continuity --action audit --chapter SELECTOR` and cite the competing passages for confirmed contradictions. Review unresolved ordering, time anchors, and count scope as editorial notes. Use the returned input paths in saved review evidence. After any repair, recheck the format, refresh continuity evidence from the resulting prose, and rerun the audit.
+
 ## Knowledge gate
+
+For scenes that depend on evidence or specific technical conditions, use [evidence that a scene depends on](../book-status/references/evidence-chain.md). Audit from the unannotated prose before reconciling the records. Check consequential assertions about earlier events, technical conditions, and inferences against their sources. Report stale or missing support as a gate blocker when the assertion is presented as established and the plot depends on it.
 
 Audit actions/dialogue against sourced knowledge acquisitions in story time, and reader exposure separately in reading order. Report premature knowledge with exact action/acquisition quotes. A supported deduction or intentional false belief is not a contradiction. Missing/stale ledger coverage is explicitly UNKNOWN and cannot clear the knowledge pillar. Knowledge WARN blocks pipeline completion until reconciled.

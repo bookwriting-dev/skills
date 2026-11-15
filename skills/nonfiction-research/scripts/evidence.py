@@ -26,7 +26,9 @@ def audit(root: Path, record_path: Path) -> dict:
     record_path = record_path.resolve()
     if not record_path.is_relative_to(root):
         raise ValueError('evidence record path escapes project root')
-    record = json.loads(record_path.read_text(encoding='utf-8'))
+    record_bytes = record_path.read_bytes()
+    record = json.loads(record_bytes.decode('utf-8'))
+    inputs = {record_path.relative_to(root).as_posix(): sha256(record_bytes)}
     required_envelope = ('record_type', 'schema_version', 'record_id', 'project_id', 'producer', 'operation_id')
     missing_envelope = [field for field in required_envelope if not record.get(field)]
     if missing_envelope:
@@ -43,6 +45,7 @@ def audit(root: Path, record_path: Path) -> dict:
     raw_subject = subject.read_bytes()
     text = raw_subject.decode('utf-8')
     text_hash = sha256(raw_subject)
+    inputs[subject.relative_to(root).as_posix()] = text_hash
     stale_subject = text_hash != record.get('subject_sha256')
 
     sources = record.get('sources', [])
@@ -70,12 +73,19 @@ def audit(root: Path, record_path: Path) -> dict:
                 source.get('source_revision') or source.get('source_sha256') or source.get('version')):
             source_errors.append(f'{sid}: inspected source has no revision/version identity')
         source_revision = source.get('source_revision') or source.get('source_sha256') or source.get('version')
+        snapshot_text = None
         if source.get('snapshot_path'):
             snapshot = (root / source['snapshot_path']).resolve()
-            if not snapshot.is_relative_to(root) or not snapshot.is_file():
+            if not snapshot.is_relative_to(root):
                 source_errors.append(f'{sid}: retained source snapshot is missing or outside project root')
-            elif source.get('source_sha256') != sha256(snapshot.read_bytes()):
-                source_errors.append(f'{sid}: retained source snapshot hash mismatch')
+            else:
+                snapshot_bytes = snapshot.read_bytes() if snapshot.is_file() else None
+                snapshot_hash = sha256(snapshot_bytes) if snapshot_bytes is not None else None
+                inputs[snapshot.relative_to(root).as_posix()] = snapshot_hash
+                if snapshot_hash is None or source.get('source_sha256') != snapshot_hash:
+                    source_errors.append(f'{sid}: retained source snapshot hash mismatch or missing snapshot')
+                elif snapshot.suffix.lower() in ('.md', '.txt'):
+                    snapshot_text = snapshot_bytes.decode('utf-8')
         if source.get('rights_status') not in ('permitted', 'restricted', 'unknown'):
             source_errors.append(f'{sid}: invalid or missing rights_status')
         for passage in source.get('passages', []):
@@ -83,6 +93,9 @@ def audit(root: Path, record_path: Path) -> dict:
                 source_errors.append(f'{sid}: passage requires passage_id and quote or precise locator')
             if not passage.get('source_revision') or passage.get('source_revision') != source_revision:
                 source_errors.append(f'{sid}: passage requires source_revision')
+            quote = passage.get('quote')
+            if snapshot_text is not None and quote and quote not in snapshot_text:
+                source_errors.append(f'{sid}: quoted passage is absent from the retained text snapshot')
 
     assertions = record.get('assertions', [])
     if not isinstance(assertions, list) or not assertions:
@@ -177,6 +190,10 @@ def audit(root: Path, record_path: Path) -> dict:
     return {
         'record_id': record['record_id'], 'subject_path': subject_path,
         'subject_sha256': text_hash, 'assertion_count': len(assertion_by_id),
+        'source_inputs': inputs,
+        'verified_anchors': {aid: assertion_by_id[aid]['anchor'] for aid, record in verification_by_id.items()
+                             if aid in assertion_by_id and record.get('result') == 'verified'
+                             and not blockers},
         'verification_count': len(verification_by_id), 'source_count': len(source_by_id),
         'coverage': 'COMPLETE' if coverage_valid else 'INCOMPLETE',
         'readiness': 'ELIGIBLE' if not blockers else 'INELIGIBLE',

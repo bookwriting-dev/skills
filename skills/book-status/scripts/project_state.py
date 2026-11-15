@@ -75,6 +75,206 @@ def project_manifest_module():
     return module
 
 
+def chapter_format_module():
+    p = Path(__file__).with_name('chapter_format.py')
+    spec = importlib.util.spec_from_file_location('storycraft_chapter_format', p)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def continuity_module():
+    p = Path(__file__).with_name('continuity.py')
+    spec = importlib.util.spec_from_file_location('storycraft_continuity', p)
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def manuscript_texts(root, book):
+    return {chapter['path']: path_at(root, chapter['path']).read_bytes().decode('utf-8')
+            for chapter in book['chapters']}
+
+
+def continuity_dir(book):
+    label = book.get('display_label', book['id'])
+    if not isinstance(label, str) or not re.fullmatch(r'[\w-]+', label):
+        label = book['id']
+    if not isinstance(label, str) or not re.fullmatch(r'[\w-]+', label):
+        raise ValueError('continuity requires a path-safe book ID or display label')
+    return f'_Edits/{label}/continuity'
+
+
+def support_findings(root, texts, claims):
+    runtime = continuity_module()
+    dependencies, source_texts, research_checks, findings = {}, {}, {}, []
+    research_runtime = None
+
+    def remember(name, checksum):
+        if dependencies.setdefault(name, checksum) != checksum:
+            raise ValueError(f'evidence changed during continuity review: {name}')
+
+    for claim in claims:
+        if claim['kind'] != 'support':
+            continue
+        sources = [claim]
+        issues = []
+        subject = path_at(root, claim['path'])
+        for ref in claim['references']:
+            path = path_at(root, ref['path'])
+            name = path.relative_to(root).as_posix()
+            if name not in source_texts:
+                text = texts.get(ref['path'])
+                if text is None and path.is_file():
+                    text = path.read_bytes().decode('utf-8')
+                source_texts[name] = text.splitlines() if text is not None else []
+                remember(name, runtime.source_hash(text) if text is not None else None)
+            lines = source_texts[name]
+            line, quote = ref['line'], ref['quote']
+            if dependencies[name] != ref['source_sha256'] or line > len(lines) or quote not in lines[line - 1]:
+                issues.append(f'{name}:{line} is missing, changed, or lacks the quoted passage')
+            elif path == subject and line == claim['line'] and (quote in claim['quote'] or claim['quote'] in quote):
+                issues.append(f'{name}:{line} repeats the assertion itself as support')
+            else:
+                sources.append(dict(ref, path=name, chapter_id=None))
+
+        research = claim.get('research')
+        if research:
+            path = path_at(root, research['path'])
+            name = path.relative_to(root).as_posix()
+            if name not in research_checks:
+                result = None
+                if path.is_file():
+                    if research_runtime is None:
+                        script = Path(__file__).resolve().parents[2] / 'nonfiction-research/scripts/evidence.py'
+                        spec = importlib.util.spec_from_file_location('storycraft_research_evidence', script)
+                        research_runtime = importlib.util.module_from_spec(spec)
+                        spec.loader.exec_module(research_runtime)
+                    result = research_runtime.audit(root, path)
+                    for source, checksum in result['source_inputs'].items():
+                        remember(source, checksum)
+                else:
+                    remember(name, None)
+                research_checks[name] = result
+            result = research_checks[name]
+            if dependencies[name] != research['sha256'] or not result:
+                issues.append(f'{name} is missing or its reviewed research record has changed')
+            elif result['readiness'] != 'ELIGIBLE':
+                issues.extend(result['blocking_reasons'])
+            else:
+                anchor = result['verified_anchors'].get(research['assertion_id'])
+                lines = texts[claim['path']].splitlines(keepends=True)
+                start = sum(len(line) for line in lines[:claim['line'] - 1])
+                end = start + len(lines[claim['line'] - 1])
+                if (path_at(root, result['subject_path']) != subject
+                        or result['subject_sha256'] != claim['source_sha256']
+                        or not anchor or anchor['quote'] != claim['quote']
+                        or not start <= anchor['start'] < anchor['end'] <= end):
+                    issues.append(f"{name} does not verify this exact chapter assertion and source span")
+
+        category = None
+        if issues:
+            category = 'support-evidence-invalid'
+            message = f"{claim['key']}: " + ' | '.join(issues)
+        elif claim['assessment'] != 'supported':
+            category = 'support-' + claim['assessment']
+            message = f"{claim['key']}: {claim['rationale']}"
+        if category:
+            finding = runtime.finding(category, message, sources)
+            if research:
+                finding['research'] = research
+            findings.append(finding)
+    return findings, dependencies
+
+
+def continuity_report(root, book, texts, *, chapter=None, keys=None):
+    runtime = continuity_module()
+    base = continuity_dir(book)
+    required = book.get('continuity_required', False)
+    if type(required) is not bool:
+        raise ValueError('continuity_required must be a boolean')
+    active = required or path_at(root, base).is_dir()
+    chapters = sorted(book['chapters'], key=lambda item: item['reading_order'])
+    if chapter:
+        chapters = [item for item in chapters
+                    if item['reading_order'] < chapter['reading_order']
+                    or (keys is None and item['id'] == chapter['id'])]
+    paths = {item['id']: f"{base}/{runtime.filename(item['id'])}" for item in chapters}
+    sources = list(paths.values()) + [item['path'] for item in chapters]
+    records = {}
+    for chapter_id, name in paths.items():
+        p = path_at(root, name)
+        if p.exists():
+            records[chapter_id] = load(p)
+    coverage, claims = runtime.current_claims(chapters, texts, records)
+    if keys is not None:
+        context = runtime.context(coverage, claims, set(keys))
+        findings, _ = support_findings(root, texts, context['claims'])
+        return {'active': active, **context, 'support_findings': findings}
+    support, support_inputs = support_findings(root, texts, claims)
+    findings = runtime.reconcile(claims) + support
+    if chapter:
+        findings = [finding for finding in findings
+                    if any(source['chapter_id'] == chapter['id'] for source in finding['sources'])]
+    if not active:
+        status = 'NOT_CONFIGURED'
+    elif any(finding['blocking'] for finding in findings):
+        status = 'FAIL'
+    elif any(item['status'] != 'CURRENT' for item in coverage):
+        status = 'UNKNOWN'
+    else:
+        status = 'WARN' if findings else 'PASS'
+    return {'schema_version': VERSION, 'active': active, 'status': status,
+            'coverage': coverage, 'findings': findings,
+            'source_inputs': support_inputs,
+            'inputs': sorted({project_manifest_module().MANIFEST_PATH, *sources, *support_inputs})}
+
+
+def continuity_command(root, args):
+    resolver = project_manifest_module()
+    chapter = None
+    if args.chapter:
+        book, chapter = resolver.resolve_chapter(root, args.book, args.chapter)
+    else:
+        book = resolver.resolve_book(root, args.book)
+    if args.action == 'record':
+        if not chapter or not args.spec:
+            raise ValueError('continuity record requires --chapter and --spec')
+        spec = load(Path(args.spec))
+        path = path_at(root, chapter['path'])
+        runtime = continuity_module()
+        output = path_at(root, f"{continuity_dir(book)}/{runtime.filename(chapter['id'])}")
+        text = path.read_bytes().decode('utf-8')
+        if spec.get('source_sha256') != runtime.source_hash(text):
+            raise ValueError('continuity review source changed or source_sha256 is missing')
+        if 'record_sha256' not in spec:
+            raise ValueError('continuity review requires record_sha256 from the source command')
+        runtime.validate_claims(spec.get('claims'), text)
+        record = {'schema_version': VERSION, 'chapter_id': chapter['id'],
+                  'path': chapter['path'], 'source_sha256': spec['source_sha256'],
+                  'claims': spec['claims']}
+        with locked(output):
+            if (digest(path) != spec['source_sha256']
+                    or resolver.resolve_chapter(root, args.book, args.chapter) != (book, chapter)):
+                raise ValueError('continuity review inputs changed before recording')
+            if not output.exists() or load(output) != record:
+                if digest(output) != spec['record_sha256']:
+                    raise ValueError('another review updated this continuity record; inspect its claims before retrying')
+                write(output, record)
+        return {'record': str(output.relative_to(root)), **record}
+    if args.action not in ('list', 'audit', 'context', 'source'):
+        raise ValueError('continuity action must be audit, context, source, or record')
+    if args.action == 'source':
+        if not chapter:
+            raise ValueError('continuity source requires --chapter')
+        record = f"{continuity_dir(book)}/{continuity_module().filename(chapter['id'])}"
+        return {'chapter_id': chapter['id'], 'path': chapter['path'],
+                'source_sha256': digest(path_at(root, chapter['path'])),
+                'record_sha256': digest(path_at(root, record))}
+    return continuity_report(root, book, manuscript_texts(root, book), chapter=chapter,
+                             keys=(args.key or []) if args.action == 'context' else None)
+
+
 def commit_ledger(root, logical_path, data, transaction_id, source_paths, expected_generation):
     store = ledger_store_module()
     return store.commit(root, {
@@ -632,7 +832,10 @@ def reading(root, args):
                     'isolation_status': d.get('isolation_status', 'PENDING'), 'checkpoints': n}
         chapter = d['chapters'][n]
         source = path_at(root, chapter).read_text(encoding='utf-8')
-        extracted = reader_text_module().extract(source, source=chapter, scene_break=d.get('scene_break', '* * *'))
+        scene_break = d.get('scene_break', '* * *')
+        extracted = reader_text_module().extract(
+            source, source=chapter, scene_break=scene_break,
+            pov_comment_lines=chapter_format_module().comment_lines(source, scene_break))
         packet = {'schema_version': 1, 'chapter_id': f'reading-unit-{n + 1:03}',
                   'reader_brief': d.get('reader_brief', ''), 'text': extracted['text'],
                   'reader_text_sha256': extracted['reader_text_sha256'],
@@ -877,7 +1080,11 @@ def decision_applies(decision, book, chapter_id, pov_names):
 
 def draft_packet(root, args):
     resolver = project_manifest_module()
-    book_record, chapter_record = resolver.resolve_chapter(root, args.book, args.chapter or 'Chapter 1')
+    book_record, chapter_record = resolver.resolve_chapter(root, args.book, args.chapter or 'Chapter 1', allow_new=True)
+    texts = manuscript_texts(root, book_record)
+    if chapter_record not in book_record['chapters']:
+        texts[chapter_record['path']] = ''
+        book_record = {**book_record, 'chapters': [*book_record['chapters'], chapter_record]}
     book = book_record.get('display_label', book_record['id'])
     book_chapters = sorted(book_record['chapters'], key=lambda chapter: chapter['reading_order'])
     chapter_index = book_chapters.index(chapter_record)
@@ -904,11 +1111,13 @@ def draft_packet(root, args):
                     if clean_p and clean_p not in pov_names:
                         pov_names.append(clean_p)
             scenes_count = len(re.findall(r'^##\s+Scene\s+\d+\b', stext, re.M | re.I))
+            key_line = re.search(r'^\s*(?:\*\*)?Continuity keys:(?:\*\*)?\s*([^\n]+)', stext, re.M)
             scene_info = {
                 'path': str(cand.relative_to(root)),
                 'sha256': digest(cand),
                 'scene_count': scenes_count or 1,
                 'pov_characters': pov_names,
+                'continuity_keys': [key.strip() for key in key_line[1].split(',') if key.strip()] if key_line else [],
             }
             break
 
@@ -1141,6 +1350,8 @@ def draft_packet(root, args):
              if x.get('status') == 'active' and decision_applies(x, book, chapter_scope_id, pov_names)
         ]
 
+    formatting = chapter_format_module().audit(book_record, texts, selected=chapter_record['id'])
+    keys = (scene_info or {}).get('continuity_keys', []) + (getattr(args, 'key', None) or [])
     packet = {
         'schema_version': VERSION,
         'book': book,
@@ -1157,6 +1368,8 @@ def draft_packet(root, args):
         'relationship_checkpoints': checkpoints,
         'relationship_state_as_of': relationship_as_of,
         'continuity_tail': continuity_tail,
+        'chapter_format': formatting['contract'],
+        'continuity': continuity_report(root, book_record, texts, chapter=chapter_record, keys=keys),
         'knowledge_as_of': knowledge_as_of,
         'editorial_decisions': active_decisions,
         'cooling_list': cooling_list,
@@ -1173,7 +1386,7 @@ def main():
     ap.add_argument('--root', type=Path, required=True)
     ap.add_argument('--book', default='Book-1')
     sub = ap.add_subparsers(dest='command', required=True)
-    for cmd in ('prepare', 'snapshot', 'check', 'readiness', 'validate', 'dashboard', 'disposition', 'memory', 'knowledge', 'knowledge-state', 'relationship-state', 'reading', 'campaign', 'pipeline', 'draft-packet'):
+    for cmd in ('prepare', 'snapshot', 'check', 'readiness', 'validate', 'dashboard', 'disposition', 'memory', 'knowledge', 'knowledge-state', 'relationship-state', 'reading', 'campaign', 'pipeline', 'draft-packet', 'chapter-format', 'continuity'):
         p = sub.add_parser(cmd)
         p.add_argument('--spec')
         p.add_argument('--output')
@@ -1189,8 +1402,10 @@ def main():
         p.add_argument('--scene-id')
         p.add_argument('--run', default='default')
         p.add_argument('--task')
-        p.add_argument('--chapter', default='1')
+        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity') else '1')
         p.add_argument('--window', type=int, default=3)
+        if cmd in ('continuity', 'draft-packet'):
+            p.add_argument('--key', action='append')
     a = ap.parse_args()
     root = a.root.resolve()
     if not re.fullmatch(r'[\w-]+', a.book) or not re.fullmatch(r'[\w-]+', a.run):
@@ -1215,6 +1430,18 @@ def main():
         with locked(out):
             write(out, spec)
         result = spec
+    elif a.command == 'chapter-format':
+        resolver = project_manifest_module()
+        if a.chapter:
+            book, chapter = resolver.resolve_chapter(root, a.book, a.chapter)
+        else:
+            book = resolver.resolve_book(root, a.book)
+            chapter = None
+        result = chapter_format_module().audit(book, manuscript_texts(root, book),
+                                               selected=chapter['id'] if chapter else None)
+        result['inputs'].append(resolver.MANIFEST_PATH)
+    elif a.command == 'continuity':
+        result = continuity_command(root, a)
     elif a.command == 'check':
         result = freshness(root, path_at(root, a.meta))
     elif a.command == 'readiness':

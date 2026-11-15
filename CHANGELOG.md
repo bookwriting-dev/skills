@@ -2,6 +2,14 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-15 — Source-backed evidence-chain checks
+
+Chapter reviews and export preflight reconcile calendar spans, second-precision clocks, exclusion windows, staged artifact attributes, and complete bundle inventories. Consequential assertions cite exact manuscript or canon passages and can bind inspected research to the chapter assertion it supports. Changed citations and research snapshots reopen the review. Seven paired prose cases passed in both isolated baseline and updated reviews.
+
+## 2026-11-15 — Chapter format and book continuity checks
+
+Draft packets, chapter reviews, and preflight share a heading and POV convention. Fiction reviews record source-linked claims about recurring identifiers, object states, story clocks, and scoped counts. Export reconciles active books against the exact manuscript, with confirmed conflicts and coverage gaps blocking release. Regression cases cover parcel designation, a tin seal, elapsed time, inventory counts, and mixed chapter formatting.
+
 ## 2026-11-11 — Pre-draft context & cooling packets, scene-stitched drafting, multi-POV voice firewalls, and single-source kill rules
 
 Shifts prose quality enforcement upstream into the drafting seam without adding skills to the 78-skill router, and closes the remaining deferred wiring items from the 2026-10-19 product review.

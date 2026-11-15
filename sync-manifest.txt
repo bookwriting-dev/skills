@@ -13,8 +13,14 @@ new-book.sh
 skills/book-packaging/SKILL.md
 skills/book-status/SKILL.md
 skills/book-status/assets/report-meta.schema.json
+skills/book-status/references/continuity-review.md
+skills/book-status/references/evidence-chain.md
 skills/book-status/references/state-contract.md
+skills/book-status/scripts/chapter_format.py
+skills/book-status/scripts/continuity.py
+skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
+skills/book-status/scripts/reader_text.py
 skills/burstiness-check/SKILL.md
 skills/burstiness-check/references/measure.py
 skills/canon-guard/SKILL.md
@@ -125,6 +131,8 @@ skills/nonfiction-factcheck/references/assertion-taxonomy.md
 skills/nonfiction-factcheck/references/common-failures.md
 skills/nonfiction-factcheck/references/severity-rubric.md
 skills/nonfiction-factcheck/references/verification-criteria.md
+skills/nonfiction-research/SKILL.md
+skills/nonfiction-research/scripts/evidence.py
 skills/nonfiction-structure/SKILL.md
 skills/nonfiction-structure/references/architecture-patterns.md
 skills/nonfiction-structure/references/argument-mapping.md

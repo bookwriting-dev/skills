@@ -1,0 +1,65 @@
+[
+  {
+    "id": "calendar",
+    "feedback": ["ACT-039", "ACT-044", "ACT-062"],
+    "reference": {"Chapter 2": "The transcript log carried an acquisition date of 1974-08-10. Tess verified the year against the accession book."},
+    "variants": [
+      {"status": "contradiction", "text": "The exhibit opened on 2019-11-03. Mara wrote that the verified acquisition had taken place fifty-two years earlier."},
+      {"status": "supported", "text": "The exhibit opened on 2019-11-03. Mara wrote that the verified acquisition had taken place forty-five years earlier."}
+    ]
+  },
+  {
+    "id": "delivery",
+    "feedback": ["ACT-085", "ACT-110", "ACT-131"],
+    "reference": {"Chapter 26": "The transmission ended at 05:58:42. Mara's producer made the decision at 05:59:20."},
+    "variants": [
+      {"status": "supported", "text": "Before the last file arrived, the producer and station counsel had already reviewed the story and agreed to hold it if its last source declined permission. At 05:58:42 the refusal reached her inbox. She confirmed the hold at 05:59:20."},
+      {"status": "contradiction", "text": "None of the verification could start until the final packet arrived at 05:58:42. The director's uninterrupted review of that packet lasted ninety seconds. As soon as the review ended the producer made the decision, at 05:59:20."}
+    ]
+  },
+  {
+    "id": "format",
+    "feedback": ["ACT-059", "ACT-061", "ACT-088", "ACT-090"],
+    "reference": {"Chapter 8": "The instrument recorded the preservation master at 384 kHz and 24 bits. The original master stayed unchanged in its bay."},
+    "variants": [
+      {"status": "contradiction", "text": "Tess reopened the same untouched preservation master. It was the original capture from the instrument, and its sample rate had always been 96 kHz."},
+      {"status": "supported", "text": "Tess left the preservation master in its bay and exported a separate review copy. She set the copy to 96 kHz so the small player could open it."}
+    ]
+  },
+  {
+    "id": "manifest",
+    "feedback": ["ACT-035", "ACT-092", "ACT-103", "ACT-129"],
+    "reference": {"Chapter 25": "The receipt for the sealed packet listed exactly three files: the proxy, the session log, and the checksum list. The original paper survey stayed in the archive."},
+    "variants": [
+      {"status": "supported", "text": "Mara signed out the paper survey and had it scanned. The scan went into a second packet with its own receipt. That was the packet Tess opened when she received the survey."},
+      {"status": "contradiction", "text": "Tess opened the same sealed packet described on the original receipt. A fourth file was already inside: the scan of the original paper survey. The receipt had listed every file."}
+    ]
+  },
+  {
+    "id": "callback",
+    "feedback": ["ACT-048", "ACT-054", "ACT-095", "ACT-122"],
+    "reference": {"Chapter 5": "The entire recorded exchange lasted six words. 'Get the survey from the clerk.' Tess typed those six words into the transcript."},
+    "variants": [
+      {"status": "contradiction", "text": "Tess pulled up the original, complete transcript. The witness had said, word for word, 'The field notes are gone.'"},
+      {"status": "supported", "text": "Tess told the clerk, 'The field notes are gone.' It was a lie, and she kept her finger on the actual six words in the transcript."}
+    ]
+  },
+  {
+    "id": "certificate",
+    "feedback": ["ACT-006", "ACT-040", "ACT-068", "ACT-123"],
+    "reference": {"Bench manual, rev 2": "The visual inspection certifies only the portions physically examined. A partial inspection cannot support a whole-reel finding.", "Chapter 4": "Tess examined the first twenty feet. She put the remaining tape back in its sleeve without unspooling it."},
+    "variants": [
+      {"status": "supported", "text": "Tess signed the finding after adding three words to the report: 'within examined spans.' The footer listed the first twenty feet as the inspection scope."},
+      {"status": "contradiction", "text": "Tess signed the finding. Her visual inspection of the first twenty feet had certified the whole reel free of splices. Because these were the lab's normal procedures, Mara treated the whole reel as cleared."}
+    ]
+  },
+  {
+    "id": "inference",
+    "feedback": ["ACT-021", "ACT-022", "ACT-074", "ACT-121"],
+    "reference": {"Chapter 4": "The can bore an August 1974 festival label. The acquisition card was missing. Tess found no evidence about when or in what order the recordings had been put on this tape."},
+    "variants": [
+      {"status": "unresolved", "text": "The other voice referred to an event logged in 1978. From the label alone Tess certified that no later recording session was possible. The report supplied no recording history."},
+      {"status": "supported", "text": "The other voice referred to an event logged in 1978. Tess wrote both dates down and circled the blank on the acquisition form. Without the recording history, she could call the dates suspicious and leave the finding open."}
+    ]
+  }
+]

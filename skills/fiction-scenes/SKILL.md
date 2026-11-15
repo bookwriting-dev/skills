@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.3.0"
+  version: "4.5.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -108,6 +108,10 @@ Adapt to the project's neighboring files. A useful default is:
 ```
 
 Add continuity or fact-status notes only where the drafter could otherwise contradict canon. Do not append a generic recommendations section after the plan is already usable.
+
+When a scene depends on an established identifier, object state, clock, or scoped count, put the relevant keys on a single `Continuity keys: KEY, KEY` line in the plan for the draft packet. Look up the current keys with `project_state.py --root ROOT --book Book-N continuity --action context --chapter SELECTOR` or locate their establishing passages. See [book continuity review](../book-status/references/continuity-review.md).
+
+Include the keys of decisive authorizations, evidence bundles, technical stages, and prior events when a scene depends on them. Identify what establishes the condition or supports the conclusion. See [evidence that a scene depends on](../book-status/references/evidence-chain.md).
 
 ## Full scene documents
 

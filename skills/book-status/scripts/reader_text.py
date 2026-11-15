@@ -7,7 +7,7 @@ import re
 EXTRACTOR_VERSION = 1
 
 
-def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False):
+def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_comment_lines=()):
     """Return classified reader text and a source-map/diagnostic record.
 
     Only explicitly recognized private apparatus is removed. Unknown comments,
@@ -27,7 +27,7 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False):
         if re.match(r'<!--\s*STORYCRAFT:', value, re.S):
             removed.append({'line': line, 'kind': 'private_comment'})
             return ''
-        if strip_pov and re.fullmatch(r'<!--\s*POV:.*?-->', value, flags=re.S):
+        if (strip_pov or line in pov_comment_lines) and re.fullmatch(r'<!--\s*POV:.*?-->', value, flags=re.S):
             removed.append({'line': line, 'kind': 'pov_comment'})
             return ''
         raise ValueError(f'{source}:{line}: unknown HTML comment; classify or remove it')

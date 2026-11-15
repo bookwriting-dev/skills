@@ -181,6 +181,12 @@ if [[ -n "$IMPORT_SOURCE" ]]; then
   echo "Imported raw manuscript to _Intake/Book-1/raw-manuscript/"
 fi
 
+# Activate the book-wide evidence check for newly scaffolded fiction.
+if [[ "$PROJECT_TYPE" == "fiction" ]]; then
+  mkdir -p "$TARGET/_Edits/Book-1/continuity"
+  touch "$TARGET/_Edits/Book-1/continuity/.enabled"
+fi
+
 # Non-fiction slots (the workflow template expects them for NONFICTION/HYBRID).
 if [[ "$PROJECT_TYPE" != "fiction" ]]; then
   mkdir -p "$TARGET/Wiki/Concept" "$TARGET/Wiki/Research"

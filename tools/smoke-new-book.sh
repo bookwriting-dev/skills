@@ -67,6 +67,7 @@ expect_file "$P/Wiki/Story/Book-1/kanban.md" "starter kanban board"
 expect_grep "$P/Wiki/Story/Book-1/kanban.md" "Basic Book" "title rendered into kanban board"
 expect_file "$P/.agents/skills/.storycraft-source" "version pin"
 expect_dir  "$P/Chapters/Book-1"          "chapter slot"
+expect_file "$P/_Edits/Book-1/continuity/.enabled" "fiction continuity enabled"
 expect_dir  "$P/Wiki/World/Places"        "world slot"
 expect_eq   "skill count matches library" \
   "$(find "$P/.agents/skills" -name SKILL.md | wc -l | tr -d ' ')" \

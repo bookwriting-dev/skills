@@ -2,6 +2,8 @@
 
 The portable contract ships at [state-contract.md](../skills/book-status/references/state-contract.md), alongside [project_state.py](../skills/book-status/scripts/project_state.py). It defines review preparation/finalization, freshness, finding dispositions, pipeline journals, editorial decisions, knowledge, ordered readers, revision campaigns, and pre-draft context/cooling packets (`draft-packet`). Use `python3 skills/book-status/scripts/project_state.py --help` for commands; put global --root/--book options before the command.
 
+[Book continuity review](../skills/book-status/references/continuity-review.md) defines the evidence format and commands for chapter heading and POV checks and whole-book reconciliation.
+
 Report verdict and freshness are independent. CURRENT evidence establishes which inputs were checked, not literary correctness. Legacy reports are UNKNOWN. Directory inventory changes and expected missing inputs participate in invalidation. All writes remain within the resolved project root. There is no network or provider API dependency.
 
 The runtime is an explicit bundled dependency, declared as metadata.bundled-dependencies in consuming skills and checked by lint. Full scaffolded libraries contain it. Individually copied skills without that dependency must report incomplete installation and UNKNOWN evidence. All new records use JSON schema_version 1; existing promise YAML remains owned by the existing ledger skills.
