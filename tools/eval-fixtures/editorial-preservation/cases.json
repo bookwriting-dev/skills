@@ -1,5 +1,25 @@
 {
   "schema_version": 1,
+  "corpus_status": "provisional-needs-author-review",
+  "category_tolerances": {
+    "fragment": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "repetition": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "metaphor": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "dialect": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "quiet-ending": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "interiority": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "pov": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "numeric": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "knowledge": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "negation": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "sensory": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "silence": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "subtext-unsaid": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "dialogue-interview": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "micro-friction": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "relationship-checkpoint": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"},
+    "chapter-interaction": {"max_harmful_edit_rate": 0.0, "min_localization_rate": 1.0, "status": "provisional-needs-author-review"}
+  },
   "cases": [
     {
       "id": "01-keep",
@@ -11,6 +31,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -23,6 +44,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -35,6 +57,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -47,6 +70,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -59,6 +83,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -71,6 +96,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -83,6 +109,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -95,6 +122,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -107,6 +135,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -119,6 +148,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -131,6 +161,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -143,6 +174,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -155,6 +187,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -167,6 +200,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -179,6 +213,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -191,6 +226,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -203,6 +239,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -215,6 +252,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -227,6 +265,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -239,6 +278,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -251,6 +291,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -263,6 +304,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -275,6 +317,7 @@
       "defect_spans": [],
       "rationale": "Preserve deliberate scene function and voice.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -287,6 +330,7 @@
       ],
       "rationale": "Repair the supported defect with minimal scope.",
       "rules": "Close limited POV; deliberate fragments, dialect, silence and quiet hooks are permitted.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -299,6 +343,7 @@
       "defect_spans": [],
       "rationale": "Preserve physical action carrying the psych pass's unsaid blame ('I still blame you for the fire') without speaking it.",
       "rules": "Close limited POV; honor Chapter_NN_Psych.md What they won't say constraints through physical action and subtext.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -311,6 +356,7 @@
       ],
       "rationale": "Flag spoken or narrated exposition of a thought designated as 'What they won't say' in the chapter psych pass.",
       "rules": "Close limited POV; honor Chapter_NN_Psych.md What they won't say constraints through physical action and subtext.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -323,6 +369,7 @@
       "defect_spans": [],
       "rationale": "Preserve asymmetric dialogue deflection where a question is answered with pressure instead of compliance.",
       "rules": "Dialogue is action under pressure; avoid 3+ consecutive cooperative question-answer interview pairs.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -335,6 +382,7 @@
       ],
       "rationale": "Repair three consecutive cooperative Q&A pairs that flatten speaker stakes into an interview.",
       "rules": "Dialogue is action under pressure; avoid 3+ consecutive cooperative question-answer interview pairs.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -347,6 +395,7 @@
       "defect_spans": [],
       "rationale": "Preserve earned micro-friction where the turn costs a concrete price before access is granted.",
       "rules": "Every scene turn requires micro-friction (a failed tactic, deflection, or raised cost) rather than instant cooperative concession.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -359,6 +408,7 @@
       ],
       "rationale": "Repair un-earned cooperative concession that bypasses scene resistance.",
       "rules": "Every scene turn requires micro-friction (a failed tactic, deflection, or raised cost) rather than instant cooperative concession.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -371,6 +421,7 @@
       "defect_spans": [],
       "rationale": "Preserve interaction matching the active chapter relationship checkpoint (uneasy truce).",
       "rules": "Honor the active chapter-sliced relationship_checkpoints entry in Wiki/Characters/.",
+      "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
     {
@@ -383,6 +434,67 @@
       ],
       "rationale": "Flag contradiction against the active chapter relationship checkpoint.",
       "rules": "Honor the active chapter-sliced relationship_checkpoints entry in Wiki/Characters/.",
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "17-chapter-keep",
+      "category": "chapter-interaction",
+      "source": "The lamp smoked against the ledger glass. Mara reached for the bottom drawer.\n\nJo\u2019s boot wedged the drawer half an inch shut. \u201cWho sent you down the stairs?\u201d\n\n\u201cNot tonight.\u201d Mara set the charred shipping receipt beside his knuckles without looking at his face.",
+      "protected_spans": [
+        "Not tonight.",
+        "Jo\u2019s boot wedged the drawer half an inch shut.",
+        "set the charred shipping receipt beside his knuckles without looking at his face"
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve deliberate two-word fragment, earned micro-friction blocking easy access, and physical action carrying unsaid blame.",
+      "rules": "Close limited POV; honor Chapter_NN_Psych.md unsaid constraints, earned micro-friction, and deliberate voice fragments.",
+      "split": "held_out",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "17-chapter-fix",
+      "category": "chapter-interaction",
+      "source": "The lamp smoked against the ledger glass. It was not fear but a tapestry of visceral dread.\n\nJo silently remembered his childhood oath never to trust a harbor clerk, though Mara could only watch his face.\n\n\u201cI am angry at you,\u201d Mara said, her voice tight because anger gripped her chest.",
+      "protected_spans": [],
+      "defect_spans": [
+        "It was not fear but a tapestry of visceral dread.",
+        "Jo silently remembered his childhood oath never to trust a harbor clerk",
+        "because anger gripped her chest."
+      ],
+      "rationale": "Flag AIism paradiastole/forbidden vocabulary, head-hopping POV leak in Mara's limited POV, and show-then-tell emotion-body formula.",
+      "rules": "Close limited POV (Mara); avoid AI tells, POV head-hopping, and emotion-body tell formulas.",
+      "split": "held_out",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "18-chapter-keep",
+      "category": "chapter-interaction",
+      "source": "Rain found the split in Ren\u2019s boot on the lock wall. He curled his toes against the cold.\n\n\u201cWhere did the manifest go?\u201d Mara asked. Ren scraped tar from his thumb. \u201cBarge four leaves at slack water.\u201d\n\nHe pocketed the brass key and listened to the gate chains settle. Tomorrow the harbor master would count the seals.",
+      "protected_spans": [
+        "He curled his toes against the cold.",
+        "Barge four leaves at slack water.",
+        "Tomorrow the harbor master would count the seals."
+      ],
+      "defect_spans": [],
+      "rationale": "Preserve grounded sensory detail, asymmetric dialogue deflection under pressure, and quiet forward-pulling chapter ending.",
+      "rules": "Close limited POV (Ren); prefer concrete sensory action, dialogue pressure, and understated scene endings.",
+      "split": "held_out",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "18-chapter-fix",
+      "category": "chapter-interaction",
+      "source": "Rain fell along the lock wall. Because of the with.\n\n\u201cWhere is the manifest?\u201d \u201cIn the strongbox.\u201d \u201cWho holds the key?\u201d \u201cThe clerk.\u201d \u201cWill he open it?\u201d \u201cYes.\u201d\n\nRen told himself he did not resent his brother, which was the exact secret he had sworn never to mention.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Because of the with.",
+        "\u201cWho holds the key?\u201d \u201cThe clerk.\u201d \u201cWill he open it?\u201d \u201cYes.\u201d",
+        "which was the exact secret he had sworn never to mention."
+      ],
+      "rationale": "Flag ungrammatical fragment, three consecutive cooperative Q&A pairs creating an interview exchange, and flat narration of an unsaid secret.",
+      "rules": "Close limited POV (Ren); repair broken fragments, inert Q&A interviews, and narrated exposition of What they won't say secrets.",
+      "split": "held_out",
       "label_status": "provisional-needs-author-review"
     }
   ]

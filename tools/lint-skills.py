@@ -173,6 +173,40 @@ def main() -> int:
             if expected_ref not in body:
                 findings.append(Finding('error', f'skills/{name}/SKILL.md', f'must reference single-source rule file `{expected_ref}`'))
 
+    EDITOR_LAYER_REFS = {
+        "fiction-aiism-editor": "../fiction-aiism-editor/references/aiism-criteria.md",
+        "fiction-prose-editor": "../fiction-prose-editor/references/prose-criteria.md",
+        "fiction-line-editor": "../fiction-line-editor/references/agent-instructions.md",
+    }
+    full_editor = skills.get("fiction-full-editor")
+    if full_editor:
+        fe_text = (full_editor["dir"] / "SKILL.md").read_text(encoding="utf-8")
+        fe_fm, fe_body = parse_frontmatter(fe_text)
+        fe_deps = [d.strip() for d in fe_fm.get("metadata", {}).get("bundled-dependencies", "").split(",") if d.strip()]
+        for dep, ref in EDITOR_LAYER_REFS.items():
+            if dep not in fe_deps:
+                findings.append(Finding("error", "skills/fiction-full-editor/SKILL.md", f"must declare `{dep}` in metadata.bundled-dependencies"))
+            if ref not in fe_body:
+                findings.append(Finding("error", "skills/fiction-full-editor/SKILL.md", f"must link layer criteria `{ref}`"))
+
+    layer_headings: dict[str, str] = {}
+    for layer_skill, rel_ref in EDITOR_LAYER_REFS.items():
+        ref_path = SKILLS / rel_ref.removeprefix("../")
+        if not ref_path.is_file():
+            continue
+        ref_rel = str(ref_path.relative_to(ROOT))
+        for raw in ref_path.read_text(encoding="utf-8").splitlines():
+            if not raw.startswith("### "):
+                continue
+            heading = re.sub(r"^###\s+(?:\d+\.\s*)?", "", raw).strip()
+            heading = re.sub(r"\s*\([^)]*\)\s*$", "", heading).strip().lower()
+            if layer_skill == "fiction-line-editor" and heading in {"aiisms", "narrative fragments", "telling over showing"}:
+                findings.append(Finding("error", ref_rel, f"cross-layer contamination heading `{heading}` belongs to another editor layer"))
+            if heading in layer_headings and layer_headings[heading] != ref_rel:
+                findings.append(Finding("error", ref_rel, f"duplicate editor layer heading `{heading}` already owned by `{layer_headings[heading]}`"))
+            else:
+                layer_headings[heading] = ref_rel
+
     # Text corpus for orphan + phantom scans (references included).
     for d in skill_dirs:
         for f in sorted(d.rglob("*.md")):

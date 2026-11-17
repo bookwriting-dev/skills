@@ -19,9 +19,13 @@ def main():
     ap.add_argument('--mapping', type=Path, help='private opaque-ID map; never place in candidate-visible packets')
     ap.add_argument('--skill', default='fiction-full-editor')
     ap.add_argument('--baseline-ref')
+    ap.add_argument('--split', choices=['all', 'calibration', 'held_out'], default='all')
     a = ap.parse_args()
-    cases = json.loads((ROOT/'tools/eval-fixtures/editorial-preservation/cases.json').read_text())['cases']
+    corpus_data = json.loads((ROOT/'tools/eval-fixtures/editorial-preservation/cases.json').read_text())
+    cases = corpus_data['cases']
+    tolerances = corpus_data.get('category_tolerances', {})
     if a.packets:
+        packet_cases = [c for c in cases if a.split == 'all' or c.get('split', 'calibration') == a.split]
         a.packets.mkdir(parents=True, exist_ok=True)
         skillpath = f'skills/{a.skill}/SKILL.md'
         def read_source(name):
@@ -42,7 +46,7 @@ def main():
         collect(skillpath)
         hashes = {name: hashlib.sha256(content.encode()).hexdigest() for name,content in bundle.items()}
         mapping = {}
-        for c in cases:
+        for c in packet_cases:
             opaque_id = secrets.token_urlsafe(18)
             mapping[opaque_id] = c['id']
             packet = dict(schema_version=1, case_id=opaque_id, source=c['source'], rules=c['rules'], skill=skill,
@@ -56,7 +60,7 @@ def main():
         private_bytes = (json.dumps({'schema_version': 1, 'mapping': mapping,
                                      'warning': 'private scoring data; never expose to candidate'}, indent=2)+'\n').encode()
         private.write_bytes(private_bytes)
-        print(json.dumps({'packets': len(cases), 'candidate_visible_labels': False,
+        print(json.dumps({'packets': len(packet_cases), 'split': a.split, 'candidate_visible_labels': False,
                           'private_manifest': str(private),
                           'mapping_sha256': hashlib.sha256(private_bytes).hexdigest()}))
     if a.results:
@@ -166,8 +170,13 @@ def main():
             stats['cases'] += 1
             stats['protected'] += bool(c['protected_spans']); stats['defects'] += bool(c['defect_spans'])
             findings = r.get('findings', [])
-            category = categories.setdefault(c['category'], {'cases':0,'findings':0})
+            category = categories.setdefault(
+                c['category'],
+                {'cases': 0, 'findings': 0, 'protected': 0, 'harmful': 0, 'defects': 0, 'detected': 0},
+            )
             category['cases'] += 1; category['findings'] += len(findings)
+            category['protected'] += int(bool(c['protected_spans']))
+            category['defects'] += int(bool(c['defect_spans']))
             stats['findings'] += len(findings)
             valid = []
             for f in findings:
@@ -189,6 +198,8 @@ def main():
             stats['localized_findings'] += len(localized)
             stats['detected'] += bool(localized)
             stats['harmful'] += bool(protected_hits)
+            category['detected'] += int(bool(localized))
+            category['harmful'] += int(bool(protected_hits))
         human_judgments = data.get('human_judgments', [])
         if not isinstance(human_judgments, list):
             coverage['invalid'].append({'reason': 'human_judgments must be an array'})
@@ -282,7 +293,28 @@ def main():
         stats['author_unscored'] = stats['author_judgments'] - stats['author_scored']
         author_status = ('recorded' if complete_author_coverage else
                          'pending' if not stats['author_scored'] else 'partial')
+        tolerance_failures = []
+        for cat_name, cat_stats in sorted(categories.items()):
+            cat_stats['localization_rate'] = cat_stats['detected'] / cat_stats['defects'] if cat_stats['defects'] else None
+            cat_stats['harmful_edit_rate'] = cat_stats['harmful'] / cat_stats['protected'] if cat_stats['protected'] else None
+            tol = tolerances.get(cat_name)
+            if not tol:
+                continue
+            max_harm = tol.get('max_harmful_edit_rate')
+            min_loc = tol.get('min_localization_rate')
+            if cat_stats['harmful_edit_rate'] is not None and max_harm is not None and cat_stats['harmful_edit_rate'] > max_harm:
+                tolerance_failures.append({
+                    'category': cat_name, 'metric': 'harmful_edit_rate',
+                    'actual': cat_stats['harmful_edit_rate'], 'threshold': max_harm,
+                })
+            if cat_stats['localization_rate'] is not None and min_loc is not None and cat_stats['localization_rate'] < min_loc:
+                tolerance_failures.append({
+                    'category': cat_name, 'metric': 'localization_rate',
+                    'actual': cat_stats['localization_rate'], 'threshold': min_loc,
+                })
         print(json.dumps(dict(schema_version=1,coverage=coverage,counts=stats,categories=categories,
+                              category_tolerances=tolerances,
+                              tolerance_failures=tolerance_failures,
                               localization_rate=stats['detected']/stats['defects'] if stats['defects'] else None,
                               harmful_edit_rate=stats['harmful']/stats['protected'] if stats['protected'] else None,
                               author_acceptance=stats['author_accepted']/stats['author_scored'] if stats['author_scored'] else None,

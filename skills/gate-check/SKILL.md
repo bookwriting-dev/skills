@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.6.0"
+  version: "1.7.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -28,8 +28,8 @@ Every gate run systematically evaluates up to 7 pillars:
    - Any setups resolved here must be correctly retired.
 4. **Voice, POV, Subtext & Dialogue Integrity:**
    - Adherence to designated POV (Third Limited, First, etc.) and POV-matched `voice_prompt_<POV>.md` / `voice_prompt.md` with zero POV slips or head-hopping.
-    - Subtext compliance against `Wiki/Psych/Book-N/Chapter_NN_Psych.md` when present: characters must not speak aloud or narrate as flat summary any thought listed under **What they won't say**. For **Show-Don't-Tell Gaps**, assess whether the chosen channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—fits the voice and moment. Bodily cues are optional; do not fail a chapter for choosing another earned channel.
-    - Dialogue architecture (`fiction-dialogue`): dialogue reflects speaker register and unequal knowledge. Carry any scene-plan conversation form and pressure-source exception into the gate. Consecutive direct answers are not a failure by count alone; inspect whether the exchange changes knowledge, risk, permission, status, commitment, or available action. A declared form does not excuse a truly inert exchange, and arbitrary inserted evasion is not a repair.
+   - Subtext compliance against `Wiki/Psych/Book-N/Chapter_NN_Psych.md` when present: characters must not speak aloud or narrate as flat summary any thought listed under **What they won't say**. For **Show-Don't-Tell Gaps**, assess whether the chosen channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—fits the voice and moment. Bodily cues are optional; do not fail a chapter for choosing another earned channel.
+   - Dialogue architecture (`fiction-dialogue`): dialogue reflects speaker register and unequal knowledge. Carry any scene-plan conversation form and pressure-source exception into the gate. Consecutive direct answers are not a failure by count alone; inspect whether the exchange changes knowledge, risk, permission, status, commitment, or available action. A declared form does not excuse a truly inert exchange, and arbitrary inserted evasion is not a repair.
 5. **Mechanical, Cooling List & Machine Cadence Lint:**
    - Tricolon (rule-of-three) saturation rate.
    - "Not X but Y" negation density.
@@ -44,6 +44,26 @@ Every gate run systematically evaluates up to 7 pillars:
    - Verifies stat arithmetic (points earned vs allocated), level curve milestones, skill unlock prerequisites, derived pool calculations (HP/MP), and status box format.
 
 ---
+
+## Procedure
+
+1. **Step 1: Capture Input Evidence & Load Author Decisions**
+   - For a saved gate report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`prepare`): capture inputs BEFORE review, including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
+   - Consult applicable active `editorial-memory` decisions before proposing style repairs, preserving deliberate choices within their stated scope while keeping correctness checks binding. Include scoped decisions verbatim in any worker briefs; never generalize a local rejection.
+
+2. **Step 2: Run Format, Continuity & Evidence-Chain Checks**
+   - Follow [book continuity review](../book-status/references/continuity-review.md): run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` and treat its findings as mechanical failures. Verify each marked POV against the actual prose.
+   - Capture the source hash, review the complete unannotated chapter, and record sourced continuity claims (`continuity --action record`) before running `continuity --action audit --chapter SELECTOR`. Cite competing passages for confirmed contradictions and record unresolved ordering, time anchors, and count scope as editorial notes.
+   - For scenes that depend on earlier events, technical conditions, or inferences, check consequential assertions against their sources using [evidence that a scene depends on](../book-status/references/evidence-chain.md), including cited manuscript or retained research sources in the gate's input snapshot. Report stale or missing support as a gate blocker when the plot depends on it.
+
+3. **Step 3: Audit Knowledge & Story Pillars**
+   - Audit character actions and dialogue against sourced knowledge acquisitions in story time (`knowledge-state --observer CHARACTER --story-order N`), and reader exposure separately in reading order (`--observer reader --reader-order N`). Report premature knowledge with exact action and acquisition quotes; preserve supported deductions and intentional false beliefs. Missing or stale knowledge-ledger coverage is `UNKNOWN`, and knowledge `WARN` blocks pipeline completion until reconciled.
+   - Evaluate all 7 Gate Checklist Dimensions above (including `promises.yaml` and `litrpg-audit` when applicable).
+
+4. **Step 4: Save Report, Snapshot Metadata & Route**
+   - Save `_Edits/Book-N/Chapter-NNN_Gate.md` with stable finding IDs, exact quotes, and blocking/nonblocking classification.
+   - Record `_Edits/Book-N/Chapter-NNN_Gate.meta.json` via `project_state.py snapshot` only if the inputs captured in Step 1 still match.
+   - After any authorized prose repair, recheck formatting, refresh continuity/knowledge evidence from the resulting prose, and re-run the gate — a pre-edit `PASS` never establishes post-edit readiness.
 
 ## Output Contract
 
@@ -87,19 +107,3 @@ Gate check produces a timestamped run report saved to:
 - If **FAIL (Structural / Canon / Progression)**: Route back to scene plan or `litrpg-audit` to fix mathematical contradictions.
 - If **WARN (Prose / Cadence)**: Route directly to `fiction-revise` or `kill-chapter`.
 ```
-
-## Current evidence and author decisions
-
-For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
-
-Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
-
-## Chapter formatting and book continuity
-
-Use the [book continuity review](../book-status/references/continuity-review.md). Run `chapter-format --chapter SELECTOR` with `project_state.py` and treat its findings as mechanical failures. Verify each marked POV against the actual prose. For fiction, capture the source hash, review the complete chapter, and record its sourced continuity claims before the final audit. Then run `continuity --action audit --chapter SELECTOR` and cite the competing passages for confirmed contradictions. Review unresolved ordering, time anchors, and count scope as editorial notes. Use the returned input paths in saved review evidence. After any repair, recheck the format, refresh continuity evidence from the resulting prose, and rerun the audit.
-
-## Knowledge gate
-
-For scenes that depend on evidence or specific technical conditions, use [evidence that a scene depends on](../book-status/references/evidence-chain.md). Audit from the unannotated prose before reconciling the records. Check consequential assertions about earlier events, technical conditions, and inferences against their sources. Report stale or missing support as a gate blocker when the assertion is presented as established and the plot depends on it.
-
-Audit actions/dialogue against sourced knowledge acquisitions in story time, and reader exposure separately in reading order. Report premature knowledge with exact action/acquisition quotes. A supported deduction or intentional false belief is not a contradiction. Missing/stale ledger coverage is explicitly UNKNOWN and cannot clear the knowledge pillar. Knowledge WARN blocks pipeline completion until reconciled.

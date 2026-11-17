@@ -1158,6 +1158,57 @@ class Workflow(unittest.TestCase):
         self.assertIn('folded the receipt', ngrams)
         self.assertNotIn('ZORBAXICUS', json.dumps(pkt3).upper())
 
+    def test_editorial_eval_category_tolerances_and_held_out_split(self):
+        corpus = json.loads((ROOT / 'tools/eval-fixtures/editorial-preservation/cases.json').read_text())
+        self.assertEqual(corpus['corpus_status'], 'provisional-needs-author-review')
+        cases = corpus['cases']
+        self.assertEqual(len(cases), 36)
+        held_out = [c for c in cases if c.get('split') == 'held_out']
+        self.assertEqual(len(held_out), 4)
+        self.assertIn('chapter-interaction', corpus['category_tolerances'])
+        out_dir = self.root / 'held-out-packets'
+        r = subprocess.run(
+            [sys.executable, str(ROOT / 'tools/eval-editorial.py'), '--packets', str(out_dir), '--split', 'held_out'],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        emitted = json.loads(r.stdout)
+        self.assertEqual(emitted['packets'], 4)
+        self.assertEqual(len(list(out_dir.glob('*.json'))), 4)
+
+    def test_update_project_scan_dir_reports_fleet_status(self):
+        fleet = self.root / 'fleet'
+        lib_version = (ROOT / 'VERSION').read_text().strip()
+        current_proj = fleet / 'book-current'
+        current_pinned = current_proj / '.agents/skills'
+        shutil.copytree(ROOT / 'skills', current_pinned)
+        current_base = {
+            str(p.relative_to(current_pinned)): s.digest(p)
+            for p in current_pinned.rglob('*')
+            if p.is_file() and not any(part.startswith('.') for part in p.relative_to(current_pinned).parts)
+        }
+        (current_pinned / '.storycraft-base.json').write_text(json.dumps(current_base))
+        (current_pinned / '.storycraft-source').write_text(f'library: storycraft-skills\nversion: {lib_version}\n')
+
+        behind_proj = fleet / 'book-behind'
+        behind_pinned = behind_proj / '.agents/skills'
+        shutil.copytree(ROOT / 'skills', behind_pinned)
+        (behind_pinned / '.storycraft-source').write_text('library: storycraft-skills\nversion: 2026.10.01\n')
+        (behind_pinned / 'fiction-writechapter/SKILL.md').write_text('LOCAL CUSTOMIZATION')
+
+        r = subprocess.run(
+            [sys.executable, str(ROOT / 'tools/update-project.py'), '--scan-dir', str(fleet)],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        report = json.loads(r.stdout)
+        self.assertEqual(report['project_count'], 2)
+        by_name = {p['project']: p for p in report['projects']}
+        self.assertEqual(by_name['book-current']['status'], 'CURRENT')
+        self.assertEqual(by_name['book-behind']['status'], 'CONFLICT')
+        self.assertEqual(by_name['book-behind']['pinned_version'], '2026.10.01')
+        self.assertIn('fiction-writechapter/SKILL.md', by_name['book-behind']['conflict'])
+
 
 if __name__ == '__main__':
     unittest.main()

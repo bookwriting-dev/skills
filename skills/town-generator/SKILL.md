@@ -3,7 +3,7 @@ name: town-generator
 description: Generate fantasy town, city, and settlement proper names using a Markov chain model trained on place name lists. Use when user says "generate town names", "settlement names", "village names", "city names", or "town generator" for naming settlements. Do not use for character names or full settlement dossiers/profiles (use fantasy-settlement).
 metadata:
   author: Custom
-  version: "1.1.0"
+  version: "1.1.1"
   category: utilities
 ---
 
@@ -17,7 +17,7 @@ Generates fantasy town and settlement names using a Markov chain model trained o
 
 By default, generate **3 names from every list** in `data/` and present them grouped by style/culture. Do NOT ask questions first — just run it and show results.
 
-Enumerate every `data/*.txt` file. For each file, use [scripts/generate.py](scripts/generate.py) with the host's available Python interpreter and these arguments:
+Enumerate every place-name corpus in `data/*.txt` (excluding `*-prefixes.txt` helper tables such as `data/spanish-prefixes.txt`, which are used with `--prefix-file`). For each file, use [scripts/generate.py](scripts/generate.py) with the host's available Python interpreter and these arguments:
 
 ```text
 --list <data-file> --count 3 --min-len 4 --max-len 14 --order 2
@@ -41,8 +41,8 @@ The `data/*.txt` lists come from the tekeli.li onomastikon. To add or refresh a 
 
 Present output as a clean grouped list:
 
-**Anglo-Saxon** — Aldenmere, Wulfhaven, Eadburgh
-**Norse** — Grimholt, Skaldvik, Bjornstad
+**English** — Glow, Burney, Bouth
+**Norse** — Mikland, Todda, Saldeirvikss
 ...
 
 ## After Showing Results

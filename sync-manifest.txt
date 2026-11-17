@@ -126,6 +126,7 @@ skills/nonfiction-concept/references/big-idea-frameworks.md
 skills/nonfiction-concept/references/json-schema.json
 skills/nonfiction-concept/references/transformation-mapping.md
 skills/nonfiction-dev-editor/SKILL.md
+skills/nonfiction-dev-editor/references/dev-edit-criteria.md
 skills/nonfiction-factcheck/SKILL.md
 skills/nonfiction-factcheck/references/assertion-taxonomy.md
 skills/nonfiction-factcheck/references/common-failures.md

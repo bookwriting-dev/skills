@@ -47,25 +47,34 @@ def parse_frontmatter(text: str):
     fields: dict = {}
     meta: dict = {}
     block = None
+    scalar_key: str | None = None
     for raw in lines[1:end]:
         if not raw.strip():
             continue
         if raw.startswith((" ", "\t")):
-            m = re.match(r"^\s+([A-Za-z0-9_-]+):\s?(.*)$", raw)
-            if m and block == "metadata":
-                meta[m.group(1)] = _unquote(m.group(2).strip())
+            if block == "metadata":
+                m = re.match(r"^\s+([A-Za-z0-9_-]+):\s?(.*)$", raw)
+                if m:
+                    meta[m.group(1)] = _unquote(m.group(2).strip())
+            elif scalar_key is not None:
+                joined = f"{fields[scalar_key]} {raw.strip()}".strip()
+                fields[scalar_key] = _unquote(joined)
             continue
         m = re.match(r"^([A-Za-z0-9_-]+):\s?(.*)$", raw)
         if not m:
             continue
         key, val = m.group(1), m.group(2).strip()
-        if val == "":
+        if key == "metadata" and val == "":
             block = key
-            if key == "metadata":
-                fields["metadata"] = meta
+            scalar_key = None
+            fields["metadata"] = meta
         else:
             block = None
-            fields[key] = _unquote(val)
+            scalar_key = key
+            if val in ("", ">", "|", ">-", "|-"):
+                fields[key] = ""
+            else:
+                fields[key] = _unquote(val)
     fields.setdefault("metadata", meta)
     body = "\n".join(lines[end + 1 :])
     return fields, body

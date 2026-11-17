@@ -8,12 +8,13 @@
 #   make smoke      scaffold a throwaway project end-to-end and assert its tree
 
 PYTHON ?= python3
+BOOKS_DIR ?= $(HOME)/Projects/Books
 
 # Never leave __pycache__ behind: `make check` should not dirty the tree, and a
 # stray bytecode dir under skills/ would show up in sync-check.sh's filesystem diff.
 export PYTHONDONTWRITEBYTECODE := 1
 
-.PHONY: help check lint inventory compile eval smoke eval-editorial export-eval
+.PHONY: help check lint inventory compile eval smoke eval-editorial export-eval status-projects
 
 help:
 	@echo "make check      CI gate (lint + inventory freshness + syntax + eval + smoke)"
@@ -22,6 +23,7 @@ help:
 	@echo "make compile    syntax-check all scripts (Python + shell, no bytecode)"
 	@echo "make eval       run the scripts against fixtures with known defects"
 	@echo "make smoke      scaffold a project end-to-end and assert the tree"
+	@echo "make status-projects  scan BOOKS_DIR for pinned library version drift"
 
 # CI runs this target — keep the recipe here the single source of the gate, so
 # the Makefile can never drift out of sync with what CI actually enforces.
@@ -52,3 +54,6 @@ eval-editorial:
 
 export-eval:
 	$(PYTHON) tools/eval-exports.py
+
+status-projects:
+	$(PYTHON) tools/update-project.py --scan-dir "$(BOOKS_DIR)"

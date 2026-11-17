@@ -3,7 +3,7 @@ name: fiction-line-editor
 description: Focused sentence-level line editing for fiction prose (voice, cliches, repetition, POV violations, awkward constructions). Use fiction-full-editor for general sentence editing; use this skill only when isolating the line-craft and voice layer without running full craft/AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "5.3.0"
+  version: "5.4.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -16,18 +16,19 @@ Focused sentence-level line editing using focused workers when supported. Each w
 
 The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.md", "Chapters/Chapter-5.md").
 
-## Step 1: Find Paths and Measure
+## Step 1: Find Paths, Capture Input Evidence & Load Author Decisions
 
 1. Parse the request argument to determine the chapter. Accept number, filename, or path.
 2. Search the project files for the chapter (e.g., `**/Chapter-5*`). If not found, ask.
-3. Search for the project's review guide: `**/review_guide.md`. Fall back to `**/style_guide.md`.
+3. Search for the project's review guide (`**/review_guide.md`), style guide (`**/style_guide.md`), and scoped `editorial-memory` records (`Wiki/Style/editorial-decisions.json`). Load applicable active editorial decisions before proposing repairs (preserving deliberate choices within their stated scope while keeping correctness checks binding).
 4. Get the chapter's line count using the host's available file or line-count operation.
+5. For a saved report, capture input evidence BEFORE review using [project_state.py](../book-status/scripts/project_state.py) (`prepare`) per [state-contract.md](../book-status/references/state-contract.md), including the chapter, style/review references, active editorial decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic passes never edit source prose.)
 
 ## Step 2: Read Criteria
 
 Read [references/agent-instructions.md](references/agent-instructions.md).
 
-Store its contents — you will inject them into each worker prompt.
+Store its contents — you will inject them into each worker prompt alongside the applicable scoped editorial decisions.
 
 ## Step 3: Launch Focused Workers
 
@@ -43,15 +44,16 @@ Launch all chunks in parallel when the host supports workers; otherwise process 
 >
 > 1. Read the review/style guide at: {guide_path} — note project-specific rules, forbidden words, POV requirements, character voice patterns. If the file is not found, use general fiction craft principles.
 > 2. Read the chapter using offset={start - 1} and limit=40: {chapter_path}
-> 3. Check every line against ALL of the following criteria:
+> 3. Apply this scoped author-decision block, including intentional KEEP examples: {applicable_editorial_decisions}. Do not generalize local decisions beyond their stated scope.
+> 4. Check every line against ALL of the following criteria:
 >
 > {paste the full contents of agent-instructions.md here}
 >
-> 4. Return your findings in this EXACT format. Return NOTHING if no issues found in your chunk:
+> 5. Return your findings in this EXACT format with stable finding IDs (`LE-NNN`), exact quotes, and blocking/nonblocking classification. Return NOTHING if no issues found in your chunk:
 >
 > ```
 > **Line {N}:** `exact quoted text`
-> Category: [Narrative Fragments | Cliches | AIisms | Repetition | Telling Over Showing | Awkward Constructions | POV Violations | Voice Violations | Paired Adjectives | Style Guide Violations]
+> Category: [Cliches and Tired Phrasing | Repetition | Awkward Constructions | POV Violations | Voice Violations | Paired Adjectives for Mood | Style Guide Violations]
 > Problem: [why it's a problem]
 > Fix: [specific replacement text]
 > ```
@@ -67,19 +69,10 @@ Collect all worker results. Group issues by category. Sort by line number within
 
 ---
 
-### Narrative Fragments
+### Cliches and Tired Phrasing
 [issues sorted by line number]
 
-### Cliches and Tired Phrasing
-[issues]
-
-### AIisms
-[issues]
-
 ### Repetition
-[issues]
-
-### Telling Over Showing
 [issues]
 
 ### Awkward Constructions
@@ -91,7 +84,7 @@ Collect all worker results. Group issues by category. Sort by line number within
 ### Voice Violations
 [issues]
 
-### Paired Adjectives
+### Paired Adjectives for Mood
 [issues]
 
 ### Style Guide Violations
@@ -104,15 +97,10 @@ Collect all worker results. Group issues by category. Sort by line number within
 
 Skip any category with zero findings.
 
-## Step 5: Save and Report
+## Step 5: Save, Snapshot Evidence & Report
 
 1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
-2. Save report as `Chapter-NNN_LineEdit.md` (three-digit number matching the chapter).
-3. Tell the user: location, issue count, top 3 most common categories.
-4. Offer to apply approved items with `fiction-revise`.
-
-## Current evidence and author decisions
-
-For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
-
-Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
+2. Save report as `Chapter-NNN_LineEdit.md` (three-digit number matching the chapter), preserving stable finding IDs and exact quotes.
+3. Run `project_state.py --root ROOT snapshot` to record `_Edits/Book-N/Chapter-NNN_LineEdit.meta.json` only if the captured inputs from Step 1 still match.
+4. Tell the user: location, issue count, top 3 most common categories.
+5. Offer to apply approved items with `fiction-revise` (which logs dispositions and requires fresh post-edit review evidence before completion).

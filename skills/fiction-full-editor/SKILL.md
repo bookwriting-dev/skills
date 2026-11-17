@@ -3,8 +3,8 @@ name: fiction-full-editor
 description: Default comprehensive fiction editing pass combining AIism detection, prose craft mechanics, and line editing into a single scan. Preferred over individual single-layer scanners (line-editor, prose-editor, aiism-editor). Uses paragraph- and scene-aware contextual packets. Use when user says "full edit", "edit chapter", "line edit", "check prose", "polish writing", or asks for general sentence-level editing.
 metadata:
   author: Fiction Toolkit
-  version: "1.4.0"
-  bundled-dependencies: book-status
+  version: "1.5.0"
+  bundled-dependencies: book-status, fiction-aiism-editor, fiction-prose-editor, fiction-line-editor
   category: fiction-editing
 ---
 
@@ -16,12 +16,13 @@ Runs every micro-level check in a single pass. Each focused worker scans complet
 
 The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.md").
 
-## Step 1: Find Paths and Measure
+## Step 1: Find Paths, Capture Input Evidence & Load Author Decisions
 
 1. Parse the request argument to determine the chapter.
 2. Search the project files for the chapter (e.g., `**/Chapter-5*`). If not found, ask.
-3. Search for the project's review guide (`**/review_guide.md`) AND style guide (`**/style_guide.md`). Use whichever exist.
+3. Search for the project's review guide (`**/review_guide.md`), style guide (`**/style_guide.md`), and scoped `editorial-memory` records (`Wiki/Style/editorial-decisions.json`). Use whichever exist, and load applicable active editorial decisions before proposing style repairs (preserving deliberate choices within their stated scope while keeping correctness checks binding; never generalize a local rejection).
 4. Resolve chapter identity/path through the project resolver when present. Read the complete chapter and identify paragraph, scene, verse, quotation, and literal-block boundaries. If both legacy style-guide names exist and conflict, preserve both and report the authority conflict rather than choosing silently.
+5. For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`prepare`): capture inputs BEFORE review, including every consumed chapter, plan, canon/style reference, relevant ledger, active editorial decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic passes still never edit source prose.)
 
 ## Step 2: Read All Criteria
 
@@ -107,15 +108,10 @@ Collect all worker results. Deduplicate any issues flagged by overlapping criter
 
 Skip empty categories and sections.
 
-## Step 5: Save and Report
+## Step 5: Save, Snapshot Evidence & Report
 
 1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
-2. Save as `Chapter-NNN_FullEdit.md` (three-digit number matching the chapter).
-3. Perform a complete integration read of the chapter after merging/deduplicating findings; do not infer chapter readiness or publication approval from a diagnostic report. Tell the user the report location, issue count, leading categories, and any unresolved limitations.
-4. Offer to apply approved items with `fiction-revise`.
-
-## Current evidence and author decisions
-
-For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
-
-Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
+2. Save as `Chapter-NNN_FullEdit.md` (three-digit number matching the chapter), using stable finding IDs with exact quotes and blocking/nonblocking classification.
+3. Run `project_state.py --root ROOT snapshot` to record `_Edits/Book-N/Chapter-NNN_FullEdit.meta.json` only if the captured inputs from Step 1 still match per [state-contract.md](../book-status/references/state-contract.md).
+4. Perform a complete integration read of the chapter after merging/deduplicating findings; do not infer chapter readiness or publication approval from a diagnostic report. Tell the user the report location, issue count, leading categories, and any unresolved limitations.
+5. Offer to apply approved items with `fiction-revise` (which records applied source quotes and before/after hashes in the disposition ledger; any subsequent prose edit invalidates prior gate evidence).

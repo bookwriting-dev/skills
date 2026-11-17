@@ -3,7 +3,7 @@ name: name-generator
 description: Generate character and people proper names using a Markov chain model trained on culture/style name lists. Use when user says "generate character names", "character names", "people names", "create names", "fantasy names", or "name generator" for characters. Do not use for settlements, towns, or geographic places.
 metadata:
   author: Custom
-  version: "1.4.0"
+  version: "1.4.1"
   category: utilities
 ---
 
@@ -27,14 +27,15 @@ Enumerate every `data/*.txt` file. For each file, use [scripts/generate.py](scri
 --list <data-file> --count 3 --min-len 4 --max-len 12 --order 2
 ```
 
-Use the data filename without `.txt` as the culture heading.
+Use the data filename without `.txt` as the culture heading (multi-part filenames produce hyphenated headings such as **English-modern** or **Japanese-female** during a full sweep; [references/culture-map.md](references/culture-map.md) maps setting cultures to specific corpus files).
 
 When the caller needs names from a *specific* culture rather than a full sweep, read [references/culture-map.md](references/culture-map.md) to match the setting's culture to the right `data/` list (or lists), then generate from those lists only. The culture map is what the world-building skills consult when they route name generation here.
 
 Present the output as a clean grouped list, e.g.:
 
-**Anglo** — Wulfstan, Eadric, Aethelmere
-**Aztec** — Coyotl, Xiuhtla, Huitzin
+**Anglo** — Godegifu, Wine, Wearidund
+**Aztec** — Matzon, Tetli, Tont
+**Italian** — Aeufo, Appaolana, Anatino
 ...
 
 ## After Showing Results

@@ -102,13 +102,15 @@ Run these skills in order unless the user skips a step:
 1. `nonfiction-concept` → `Wiki/Concept/thesis.md`
 2. `nonfiction-audience` → `Wiki/Concept/audience.md`
 3. `nonfiction-structure` → `Wiki/Concept/structure.md`
-4. `nonfiction-chapter-plan` → `Wiki/Outline/Book-N/plan.md`
-5. `nonfiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-6. `nonfiction-factcheck` → `_Edits/Book-N/Chapter-NNN_FactCheck.md`
-7. `nonfiction-clarity-edit` → `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`
-8. `promise-tracker` → `Wiki/Story/Book-N/promises.yaml` (track claims/promises as chapters land)
-9. `review-panel` → `Wiki/Review/` (personas; per part and before calling the book done)
-10. `drift-check` → book-level audit at part boundaries
+4. `nonfiction-research` → `Wiki/Research/` (`sources.yaml` + `claims-matrix.md`)
+5. `nonfiction-chapter-plan` → `Wiki/Outline/Book-N/plan.md`
+6. `nonfiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
+7. `nonfiction-dev-editor` → `_Edits/Book-N/Chapter-NNN_DevEdit.md`
+8. `nonfiction-factcheck` → `_Edits/Book-N/Chapter-NNN_FactCheck.md`
+9. `nonfiction-clarity-edit` → `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`
+10. `promise-tracker` → `Wiki/Story/Book-N/promises.yaml` (track claims/promises as chapters land)
+11. `review-panel` → `Wiki/Review/` (personas; per part and before calling the book done)
+12. `drift-check` → book-level audit at part boundaries
 
 For a second book, refresh the shared concept/structure/audience in `Wiki/Concept/` as needed; the book starts at its own chapter plan in `Wiki/Outline/Book-N/`.
 
@@ -159,6 +161,21 @@ Route editing and review tasks using this decision tree:
 - **Book-level drift / argument coherence / thesis alignment:** `drift-check` across part boundaries and chapters.
 - **Reader reaction / persona reads:** `review-panel` for act- and book-level QA (it ships non-fiction seats); `reader-persona-review` for a quick scored archetype pulse on a single chapter.
 
+## Evidence, editorial memory, and book-wide revision
+
+| Skill | Role |
+|---|---|
+| `editorial-memory` | Explicit scoped author decisions; keep/reject history and reusable preferences. |
+| `fiction-knowledge` | Sourced character beliefs, secret acquisition, and reader exposure in story/reading order. |
+| `sequential-read` | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
+| `revision-campaign` | Dependent book/series revision tasks, snapshots, safe resume, and current verification. |
+
+Drafting and review load applicable editorial decisions and current knowledge evidence. After draft generation, reconcile promise and knowledge harvest before gating. All changed prose requires a fresh final gate after polish. Review reports capture input hashes before review and emit metadata only if those inputs still match afterward. Status and the board show CURRENT/STALE/UNKNOWN separately from PASS/WARN/FAIL. Legacy reports remain UNKNOWN until re-reviewed. Pending blocking findings or campaign work prevent Done.
+
+For fiction chapter gates, validate heading and POV metadata and review the chapter for source-linked identifiers, object state changes, clock anchors, and scoped counts. Run book-wide continuity before submission or publication. Use the installed [book continuity review](.agents/skills/book-status/references/continuity-review.md) instructions.
+
+For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. Required checks for non-fiction/hybrid projects are configured explicitly (FactCheck and ClarityEdit for the non-fiction workflow); a clarity report's existence alone cannot mark Done. Existing project conventions and current user instructions retain authority.
+
 ## Skill index
 
 ### Fiction skills
@@ -173,7 +190,7 @@ Route editing and review tasks using this decision tree:
 
 **Shape the book:** `fiction-outline`, `fiction-divergence`, `fiction-scenes`, `fiction-style`, `fiction-writechapter`
 
-**Workflow & Orchestration:** `chapter-pipeline`, `gate-check`, `book-status`, `kanban-board`, `canon-guard`, `book-reverse-engineer`
+**Workflow & Orchestration:** `chapter-pipeline`, `gate-check`, `book-status`, `kanban-board`, `canon-guard`, `book-reverse-engineer`, `editorial-memory`, `revision-campaign`
 
 **Review the story (decision tree):**
 - Blind voice read: `coldread`
@@ -181,7 +198,8 @@ Route editing and review tasks using this decision tree:
 - Comprehensive chapter gate: `fiction-reviewchapter` (full review), `gate-check` (lighter checklist; the one `chapter-pipeline` runs)
 - LitRPG numeric & stat audit: `litrpg-audit` (also runs in `gate-check`)
 - Chekhov promise ledger: `fiction-promises`
-- Reader persona panel: `review-panel` (act/book QA), `reader-persona-review` (quick chapter pulse)
+- Knowledge & secret continuity: `fiction-knowledge`
+- Reader persona panel: `review-panel` (act/book QA), `reader-persona-review` (quick chapter pulse), `sequential-read` (ordered blind reading)
 - Multi-book consistency: `series-continuity`
 
 **Edit the prose (decision tree):**
@@ -212,7 +230,8 @@ Route editing and review tasks using this decision tree:
 - Comprehensive chapter gate: `nonfiction-factcheck` + `nonfiction-clarity-edit`
 - Fact & evidence verification: `nonfiction-factcheck`
 - Promise / claim ledger: `promise-tracker`
-- Reader persona panel: `review-panel` (act/book QA), `reader-persona-review` (quick chapter pulse)
+- Reader persona panel: `review-panel` (act/book QA), `reader-persona-review` (quick chapter pulse), `sequential-read` (ordered blind reading)
+- Editorial preferences & coordinated revision: `editorial-memory`, `revision-campaign`
 
 **Edit the prose (decision tree):**
 - Default full sentence edit: `nonfiction-clarity-edit`
@@ -231,20 +250,3 @@ Route editing and review tasks using this decision tree:
 **Make your own:** `skill-builder`
 
 (End of file)
-
-
-
-## Evidence, editorial memory, and book-wide revision
-
-| Skill | Role |
-|---|---|
-| `editorial-memory` 1.0.0 | Explicit scoped author decisions; keep/reject history and reusable preferences. |
-| `fiction-knowledge` 1.0.0 | Sourced character beliefs, secret acquisition, and reader exposure in story/reading order. |
-| `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
-| `revision-campaign` 1.0.0 | Dependent book/series revision tasks, snapshots, safe resume, and current verification. |
-
-Drafting and review load applicable editorial decisions and current knowledge evidence. After draft generation, reconcile promise and knowledge harvest before gating. All changed prose requires a fresh final gate after polish. Review reports capture input hashes before review and emit metadata only if those inputs still match afterward. Status and the board show CURRENT/STALE/UNKNOWN separately from PASS/WARN/FAIL. Legacy reports remain UNKNOWN until re-reviewed. Pending blocking findings or campaign work prevent Done.
-
-For fiction chapter gates, validate heading and POV metadata and review the chapter for source-linked identifiers, object state changes, clock anchors, and scoped counts. Run book-wide continuity before submission or publication. Use the installed [book continuity review](.agents/skills/book-status/references/continuity-review.md) instructions.
-
-For a reading-experience test, use sequential-read; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use revision-campaign; inspect interrupted work before reuse. Compile a beta/submission/publication package with compile-manuscript after current checks. Required checks for non-fiction/hybrid projects are configured explicitly (FactCheck and ClarityEdit for the non-fiction workflow); a clarity report's existence alone cannot mark Done. Existing project conventions and current user instructions retain authority.

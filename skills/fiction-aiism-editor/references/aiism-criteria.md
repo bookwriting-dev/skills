@@ -79,7 +79,6 @@ Inanimate things (cities, buildings, rooms, weather, the world) must NOT be give
 - Stacked abstract nouns: "grief and gratitude and something he couldn't name"
 - Mirroring constructions: "Not the [X] of [Y], but the [X] of [Z]"
 - Emotional math: "equal parts [X] and [Y]"
-- The "beat of silence" / "loaded silence" / "heavy silence" cliche cluster
 
 ### Self-Announcing Narration (the docent)
 The narration pointing at its own construction — telling the reader how well told the

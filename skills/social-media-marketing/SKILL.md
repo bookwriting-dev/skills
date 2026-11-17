@@ -3,7 +3,7 @@ name: social-media-marketing
 description: "Plan and write Facebook, Instagram, and TikTok marketing for a book: launch campaigns (pre-launch, launch week, post-launch) and ongoing content, organic-first with an optional paid-ads layer. Produces a marketing strategy, content calendar, captions, video scripts, and hashtag sets. Use when user says 'social media plan', 'launch campaign', 'BookTok', 'TikTok script', 'Instagram Reels', 'Facebook post', 'content calendar', 'promote my book', or 'run ads for my book'. Not for blurbs, query letters, or cover briefs (use book-packaging)."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.0.1"
   category: cross-cutting
   output-format: markdown
 ---
@@ -20,7 +20,7 @@ Search the project for these, and read whatever exists:
 - `**/Wiki/Style/audience.md` — target reader, content boundaries.
 - `**/Wiki/Story/synopsis.md` or `**/Wiki/Story/Book-N/synopsis.md` — premise, hook, stakes.
 - `**/Wiki/Concept/` or the non-fiction concept and audience files — thesis, reader promise, transformation. (Non-fiction)
-- `docs/packaging/Book-N.md` or `**/Wiki/Story/Book-N/packaging.md` — blurb, logline, comp titles, keywords. Reuse these; do not reinvent the pitch.
+- `**/Wiki/Story/Book-N/packaging.md` — blurb, logline, comp titles, keywords. Reuse these; do not reinvent the pitch.
 - `**/Wiki/Marketing/` — any earlier strategy or calendar, so a new run extends it instead of replacing it.
 
 If there is no genre or audience file, tell the user: "No genre or audience profile found. Run `fiction-genre` and `fiction-audience` (or `nonfiction-concept` and `nonfiction-audience`) first, or give me the genre, target reader, and comp titles directly." Do not stop if the user supplies them.

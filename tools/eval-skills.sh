@@ -151,5 +151,43 @@ else
   fi
 fi
 
+# --- 3. generator & frontmatter behavior ---------------------------------
+
+echo "eval: generator corpus parsing & multi-line frontmatter"
+
+if TOWN_PREFIX_OUT="$(python3 "$LIBRARY_DIR/skills/town-generator/scripts/generate.py" \
+    --list "$LIBRARY_DIR/skills/town-generator/data/spanish-prefixes.txt" \
+    --count 5 --min-len 2 --max-len 14 --order 1 --seed 7)"; then
+  ok "town-generator generate.py runs on spanish-prefixes.txt"
+else
+  bad "town-generator generate.py runs on spanish-prefixes.txt"
+  TOWN_PREFIX_OUT=""
+fi
+
+if [[ -n "$TOWN_PREFIX_OUT" ]] && python3 - "$TOWN_PREFIX_OUT" <<'PY' >/dev/null 2>&1
+import re, sys
+lines = [l for l in sys.argv[1].splitlines() if l.strip()]
+assert len(lines) == 5, lines
+for l in lines:
+    assert "\t" not in l and "#" not in l and not re.search(r"[0-9]", l), l
+PY
+then ok "town-generator strips comments and tab weights from weighted prefix lists"
+else bad "town-generator emitted raw comments, tabs, or weights from spanish-prefixes.txt"
+fi
+
+if python3 - "$LIBRARY_DIR" <<'PY' >/dev/null 2>&1
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path(sys.argv[1]) / "tools"))
+from skill_lib import load_skills
+skills = load_skills()
+for name in ("burstiness-check", "fragment-hunter", "levelup", "skill-builder"):
+    desc = skills[name]["description"]
+    assert len(desc) > 120 and desc.endswith((".", '"')), (name, len(desc), desc)
+PY
+then ok "skill_lib.py parses full multi-line frontmatter descriptions"
+else bad "skill_lib.py truncated one or more multi-line descriptions"
+fi
+
 echo "eval-skills: $PASS passed, $FAIL failed"
 [[ "$FAIL" -eq 0 ]] || exit 1

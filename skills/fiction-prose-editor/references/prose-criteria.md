@@ -45,13 +45,6 @@ Check every line in your assigned chunk against ALL of the following categories.
 - Flag three-beat descriptive phrases
 - Functional/literal lists are fine ("guns, ammo, and food")
 
-### Paired Adjectives for Mood
-- "dark and foreboding"
-- "cold and unforgiving"
-- "warm and inviting"
-- "quiet and still"
-- Fix: Pick the stronger adjective, or find one specific descriptor that does both jobs.
-
 ### Gerund Chains
 - Two or more comma-linked -ing actions: "Running forward, dodging bullets, he reached the door"
 - These create simultaneous-action confusion and feel mechanical

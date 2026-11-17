@@ -44,7 +44,14 @@ def generate_name(model: dict, order: int, min_len: int, max_len: int, max_attem
 
 def load_names(path: Path) -> list[str]:
     text = path.read_text(encoding="utf-8")
-    names = [line.strip() for line in text.splitlines() if line.strip()]
+    names = []
+    for raw in text.splitlines():
+        line = raw.strip()
+        if not line or line.startswith("#"):
+            continue
+        token = line.split("\t", 1)[0].strip()
+        if token:
+            names.append(token)
     if not names:
         print(f"Error: no names found in {path}", file=sys.stderr)
         sys.exit(1)

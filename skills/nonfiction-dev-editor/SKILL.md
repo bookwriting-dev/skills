@@ -3,30 +3,76 @@ name: nonfiction-dev-editor
 description: "Diagnose argument architecture, thesis scaffolding, chapter-level conceptual progression, cognitive load, and evidence density in non-fiction drafts before prose edits. Use when user says 'nonfiction developmental edit', 'review argument flow', 'check thesis structure', 'audit conceptual progression', or 'nonfiction dev editor'."
 metadata:
   author: Storycraft Skills
-  version: "1.1.0"
-  bundled-dependencies: book-status
+  version: "1.2.0"
+  bundled-dependencies: book-status, nonfiction-clarity-edit
   category: nonfiction-editing
 ---
 
 # Non-Fiction Developmental Editor
 
-Evaluates the structural coherence, persuasive progression, and intellectual pacing of non-fiction chapters. Identifies logical leaps, unsupported assumptions, front-loaded abstraction, and uneven evidence density.
+Evaluates the structural coherence, persuasive progression, and intellectual pacing of non-fiction chapters or chapter ranges, and when explicitly authorized repairs `Wiki/Outline/Book-N/plan.md`. Matches the deliverable to the user's request instead of automatically generating a long report.
 
-## Diagnostic Dimensions
+## Authority and Scope
 
-1. **Thesis Scaffolding:** Does each section logically build on the preceding section toward the chapter takeaway?
-2. **Evidence-to-Assertion Ratio:** Are strong normative or empirical claims backed by immediate, proportionate examples or data?
-3. **Abstraction Ladder Movement:** Does the text smoothly oscillate between high-level theory and concrete, real-world case studies?
-4. **Cognitive Load & Reader Fatigue:** Are complex terms introduced with necessary grounding, or does conceptual density cause reader drop-off?
-5. **Signposting & Chapter Handoffs:** Does the chapter set expectations early and deliver clean conceptual transitions to the next chapter?
+Follow the user's current instruction first, then project `AGENTS.md`, `Wiki/Concept/`, `Wiki/Research/`, and existing workflow rules. Developmental work concerns thesis alignment, argument causality, evidence proportionality, prerequisite sequencing, cognitive load, and inter-chapter handoffs. It does not authorize sentence-level rewriting (`nonfiction-clarity-edit`), unverified fact claims (`nonfiction-factcheck`), or inventing sources.
 
-## Output
+## Choose a Mode
 
-Outputs developmental analysis report to:
-`_Edits/Book-N/Chapter-NNN_DevEdit.md`.
+- **Quick verdict:** For targeted questions ("Does this chapter prove its claim?", "Is Section 3 a tangent?"). Answer directly in conversation; do not save a report file.
+- **Focused diagnosis:** For one chapter when analysis is requested without a saved report. Surface the highest-impact structural findings and concrete restructuring moves.
+- **Edit in place:** When explicitly asked to revise or restructure `Wiki/Outline/Book-N/plan.md` (not prose). Diagnose internally, update the chapter's `plan.md` section, verify alignment with `structure.md`, and summarize the structural changes.
+- **Full developmental report:** When the user requests a saved dev edit/report over a chapter or range, or when `chapter-pipeline` (`full_editorial_candidate`) requires durable evidence at `_Edits/Book-N/Chapter-NNN_DevEdit.md`.
 
-## Current evidence and author decisions
+## Step 1: Load Context & Capture Input Evidence
 
-For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
+1. Resolve the target chapter (`Chapters/Book-N/Chapter-NNN.md`) or chapter range through the project manifest/layout.
+2. Read the core planning and research context proportional to the request:
+   - `Wiki/Outline/Book-N/plan.md` (the chapter's claim, evidence blocks, rhetorical mode, transitions, and `evidence_needed` notes)
+   - `Wiki/Concept/thesis.md`, `Wiki/Concept/audience.md`, and `Wiki/Concept/structure.md`
+   - `Wiki/Research/claims-matrix.md` and `Wiki/Research/sources.yaml` (when empirical claims or citations appear)
+   - Immediate predecessor/successor chapters or plan sections to check handoffs and redundancy
+   - Applicable active `editorial-memory` decisions (`Wiki/Style/editorial-decisions.json`), preserving deliberate structural/voice choices within their stated scope while keeping factual and correctness checks binding.
+3. For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`prepare`): capture inputs BEFORE analysis (target chapter(s), `plan.md`, `Wiki/Concept/` files, relevant `Wiki/Research/` files, active editorial decision file including its absence, and this skill's rules). (No sidecar is required for a conversational verdict; diagnostic modes never edit source prose.)
 
-Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
+## Step 2: Run the Argument-Spine & Background-Noise Tests
+
+Before auditing micro-pacing or clarity mechanics, test the chapter's structural backbone:
+
+1. **Reader's starting state:** What belief, misconception, or practical problem does the target reader (`audience.md`) bring into this chapter?
+2. **Core chapter claim:** Can the chapter's central assertion or takeaway be stated in one falsifiable or actionable sentence matching `plan.md`?
+3. **Causal / logical turn:** What evidence, mechanism, or counterargument forces the reader to update that belief?
+4. **Proof vs. assertion test:** Are load-bearing claims backed by primary evidence/cases rather than repeated assertions?
+5. **Reader transformation:** What concrete capability, mental model, or open question (`promises.yaml`) is different at chapter end?
+6. **Cut test:** What would the book's overall thesis (`thesis.md`) lose if this chapter vanished or merged into an adjacent chapter?
+
+Classify every major section using the **Background-Noise Test** in [references/dev-edit-criteria.md](references/dev-edit-criteria.md) (`Driver`, `Evidence Support`, `Grounding Example`, `Tangential Excursion`, `Redundant Restatement`).
+
+## Step 3: Evaluate the 5 Developmental Dimensions
+
+Read [references/dev-edit-criteria.md](references/dev-edit-criteria.md) and cross-reference the chapter-scale structural layers against:
+- [abstraction-criteria.md](../nonfiction-clarity-edit/references/abstraction-criteria.md) (concept-to-concrete oscillation across whole sections)
+- [cognitive-load-criteria.md](../nonfiction-clarity-edit/references/cognitive-load-criteria.md) (concept budget, prerequisite order, and section fatigue)
+- [signposting-criteria.md](../nonfiction-clarity-edit/references/signposting-criteria.md) (promised roadmap integrity and structural transitions)
+
+Evaluate all five dimensions:
+1. **Thesis Scaffolding & Mode Fit:** Each section builds logically toward the chapter takeaway without violating the planned rhetorical mode.
+2. **Evidence-to-Assertion Proportion:** Empirical/normative claims match their backing; ungrounded gaps are flagged for `nonfiction-research`; counterarguments are steel-manned.
+3. **Abstraction Ladder Movement:** Whole sections neither float in pure theory for pages nor dump raw anecdotes without synthesis.
+4. **Cognitive Load & Prerequisite Sequencing:** Terms and frameworks appear only after necessary grounding for `audience.md`.
+5. **Signposting & Inter-Chapter Handoffs:** Opening expectations match delivered structure, and ending bridges cleanly to Chapter `N+1`.
+
+If running focused workers on a multi-chapter range, pass each worker its exact chapter/plan paths, [references/dev-edit-criteria.md](references/dev-edit-criteria.md) verbatim, and the applicable scoped `editorial-memory` block verbatim.
+
+## Step 4: Save Report, Snapshot Metadata & Route
+
+1. For full report mode, save `_Edits/Book-N/Chapter-NNN_DevEdit.md` (creating `_Edits/Book-N/` if absent) using only sections with actionable findings:
+   - One-sentence structural verdict (`PASS` / `REVISE_PLAN` / `REORDER_SECTIONS`)
+   - Argument Spine & Section Classification table (`Driver` / `Support` / `Example` / `Tangent` / `Redundant`)
+   - Findings ranked by structural impact with stable finding IDs (`NFDEV-001`, etc.), exact section/quote evidence, and `blocking` / `nonblocking` classification
+   - Prioritized structural repairs (`merge`, `split`, `reorder`, `cut`, `supply evidence`)
+   - Strengths to preserve
+2. Finalize `_Edits/Book-N/Chapter-NNN_DevEdit.meta.json` via `project_state.py --root ROOT snapshot` only if the inputs captured in Step 1 still match.
+3. Route repairs explicitly:
+   - Structural defects (missing argument steps, broken sequencing, wrong rhetorical framing) go back to `nonfiction-chapter-plan` (`Wiki/Outline/Book-N/plan.md`) followed by a re-draft in `nonfiction-writechapter` — do **not** try to patch structural holes with line edits.
+   - Missing primary citations or unverified data route to `nonfiction-research`.
+   - Once structure and evidence are sound, route prose verification to `nonfiction-factcheck` followed by `nonfiction-clarity-edit`.
