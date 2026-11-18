@@ -93,7 +93,23 @@ def continuity_module():
 
 def manuscript_texts(root, book):
     return {chapter['path']: path_at(root, chapter['path']).read_bytes().decode('utf-8')
-            for chapter in book['chapters']}
+            for chapter in book['chapters'] if path_at(root, chapter['path']).is_file()}
+
+
+def chapter_report_paths(root, book, chapter, check=None):
+    resolver = project_manifest_module()
+    folder = path_at(root, f'_Edits/{book}')
+    stem = resolver.report_stem(chapter)
+    legacy = resolver.legacy_report_stem(chapter)
+    suffix = f'_{check}.meta.json' if check else '_*.meta.json'
+    primary = sorted(folder.glob(stem + suffix))
+    if check and primary:
+        return primary
+    if legacy != stem:
+        for path in sorted(folder.glob(legacy + suffix)):
+            if any(item.get('path') == chapter['path'] for item in load(path).get('inputs', [])):
+                primary.append(path)
+    return primary or ([folder / (stem + suffix)] if check else [])
 
 
 def continuity_dir(book):
@@ -472,12 +488,13 @@ def document(path, key):
 
 def scope_dimensions(scope):
     if isinstance(scope, dict):
-        return {
+        dimensions = {
             'book_id': scope.get('book_id') or scope.get('book'),
             'chapter_id': scope.get('chapter_id') or scope.get('chapter'),
             'pov_id': scope.get('pov_id') or scope.get('pov'),
             'passage_id': scope.get('passage_id') or scope.get('passage'),
         }
+        return {key: value for key, value in dimensions.items() if value is not None}
     if not isinstance(scope, str):
         return None
     if scope == 'series':
@@ -578,9 +595,11 @@ def knowledge(root, args):
     pos = [int(x) for x in args.position.split('.')]
     field = 'reader_position' if args.observer == 'reader' else 'story_position'
     state = {}
-    superseded = {i for e in events if e['current'] and e['confirmed'] for i in e.get('supersedes', [])}
-    for e in sorted(events, key=lambda x: x[field]):
-        if e['current'] and e['confirmed'] and e['id'] not in superseded and e['observer'] == args.observer and e[field] <= pos:
+    visible = [event for event in events if event['current'] and event['confirmed']
+               and event['observer'] == args.observer and event[field] <= pos]
+    superseded = {item for event in visible for item in event.get('supersedes', [])}
+    for e in sorted(visible, key=lambda x: x[field]):
+        if e['id'] not in superseded:
             state[e['fact_id']] = e
     return state
 
@@ -741,6 +760,8 @@ def campaign(root, args):
             for t in tasks.values():
                 t['status'] = 'pending'
                 t['before'] = evidence(root, t['files'])
+                if 'expected_inputs' in t and t['before'] != t['expected_inputs']:
+                    raise ValueError('campaign source differs from the approved input: ' + t['id'])
                 for e in t['before']:
                     if e['kind'] != 'file':
                         raise ValueError('task files must be explicit files')
@@ -879,17 +900,28 @@ def reading(root, args):
 
 
 def dashboard(root, book):
+    resolver = project_manifest_module()
+    book_record = resolver.resolve_book(root, book)
+    workflow = resolver.workflow(root, book_record)
     chapters = []
-    for draft in sorted((root / 'Chapters' / book).glob('Chapter-*.md')):
+    for chapter in sorted(book_record['chapters'], key=lambda item: item['reading_order']):
+        draft = path_at(root, chapter['path'])
+        reports = chapter_report_paths(root, book, chapter)
+        required = [chapter_report_paths(root, book, chapter, check)[0]
+                    for check in workflow['required_checks']]
         checks = []
-        for meta in sorted((root / '_Edits' / book).glob(draft.stem + '_*.meta.json')):
-            m = load(meta)
-            result = readiness(root, meta, [str(draft.relative_to(root))])
-            status = freshness(root, meta)
-            blocking = result['blocking_findings']
-            checks.append(dict(path=str(meta.relative_to(root)), blocking=blocking,
-                               readiness=result['readiness'], **status))
-        chapters.append(dict(chapter=str(draft.relative_to(root)), checks=checks))
+        for meta in sorted(set(reports + required)):
+            result = readiness(root, meta, [chapter['path']])
+            status = freshness(root, meta) if meta.is_file() else {
+                'freshness': 'UNKNOWN', 'verdict': 'UNKNOWN', 'reasons': result['blocking_reasons']}
+            checks.append(dict(path=str(meta.relative_to(root)), blocking=result.get('blocking_findings', []),
+                               required=meta in required, readiness=result['readiness'], **status))
+        chapters.append(dict(chapter=chapter['path'], chapter_id=chapter['id'],
+                             display_label=chapter.get('display_label', chapter['id']),
+                             report_stem=resolver.report_stem(chapter), draft_exists=draft.is_file(),
+                             ready=draft.is_file() and all(item['readiness'] == 'ELIGIBLE'
+                                                           for item in checks if item['required'])
+                             and not any(item['blocking'] for item in checks), checks=checks))
     campaigns = []
     for p in (root / '_Edits' / book / 'campaigns').glob('*/campaign.json'):
         d = load(p)
@@ -904,7 +936,8 @@ def dashboard(root, book):
         current = (evidence(root, list(expected)) == sorted(expected.values(), key=lambda e: e['path']) and
                    all(t['status'] == 'complete' for t in d['tasks']) and checks_ready)
         campaigns.append(dict(path=str(p.relative_to(root)), current=current, tasks=d['tasks']))
-    return dict(chapters=chapters, campaigns=campaigns)
+    return dict(chapters=chapters, campaigns=campaigns, **workflow,
+                missing_chapters=resolver.missing_chapters(root, book_record))
 
 
 def pipeline_step_reusable(root, step):
@@ -1063,19 +1096,137 @@ def parse_psych(path):
     return {'what_they_wont_say': unsaid, 'show_dont_tell_gaps': gaps}
 
 
-def decision_applies(decision, book, chapter_id, pov_names):
+def decision_applies(decision, book_ids, chapter_ids, pov):
     """Resolve documented legacy scopes and explicit intersection scopes."""
     required = scope_dimensions(decision.get('scope'))
     if required is None:
         return False
-    context = {'book_id': book, 'chapter_id': chapter_id}
-    for pov in pov_names:
-        candidate = dict(context, pov_id=pov)
-        if all(candidate.get(key) == value for key, value in required.items()):
-            return True
-    return not required or all(context.get(key) == value for key, value in required.items()
-                               if key in ('book_id', 'chapter_id')) and not any(
-                                   key in required for key in ('pov_id', 'passage_id'))
+    context = {'book_id': book_ids, 'chapter_id': chapter_ids, 'pov_id': (pov,)}
+    return all(value in context.get(key, ()) for key, value in required.items())
+
+
+def style_policy(root, args):
+    resolver = project_manifest_module()
+    book = resolver.find_book(resolver.load(root), args.book) or {}
+    names = ('Wiki/Style/review_guide.md', 'Wiki/Style/Review Guide.md')
+    if book.get('review_authority'):
+        names = (book['review_authority'],)
+    choices = [name for name in names if path_at(root, name).is_file()]
+    hashes = {name: digest(path_at(root, name)) for name in choices}
+    if len(set(hashes.values())) > 1:
+        raise ValueError('conflicting review guides: ' + ', '.join(choices))
+    if not choices and book.get('review_authority'):
+        raise ValueError('declared review guide is missing: ' + names[0])
+    guide = path_at(root, choices[0]).read_text(encoding='utf-8') if choices else ''
+    sections = re.split(r'^##[ \t]+([^\n]+)\n', guide, flags=re.M)
+    sections = dict(zip((name.strip().lower() for name in sections[1::2]), sections[2::2]))
+
+    def fields(section, name):
+        return [match.strip() for match in re.findall(
+            rf'^[ \t]*[-*][ \t]+(?:\*\*)?{name}(?:\*\*)?:(?:\*\*)?[ \t]*(.+)$',
+            sections.get(section, ''), re.M | re.I)]
+
+    def limit(name, default):
+        values = fields('simile rule', name)
+        if not values:
+            return default
+        if len(values) == 1:
+            value = values[0].strip('"')
+            if value.lower() == 'unlimited':
+                return None
+            if re.fullmatch(r'[0-9]+', value):
+                return int(value)
+        raise ValueError(f'{name} in the review guide must be one nonnegative integer or unlimited')
+
+    chapter_limit = limit('max_per_chapter', 3)
+    policy = {
+        'review_guide': choices[0] if choices else None,
+        'inputs': list(names),
+        'simile': {'max_per_chapter': chapter_limit, 'max_per_paragraph': limit('max_per_paragraph', 1),
+                   'keep_examples': [value for value in fields('simile rule', 'keep_example')
+                                     if not value.startswith('[')]},
+        'punctuation': {key: value[-1] for key in ('em_dash', 'fragments')
+                        if (value := fields('punctuation', key)) and not value[-1].startswith('[')},
+    }
+    if args.simile_count is not None:
+        if args.simile_count < 0:
+            raise ValueError('simile count must be nonnegative')
+        policy['chapter_simile_budget_exceeded'] = chapter_limit is not None and args.simile_count > chapter_limit
+    return policy
+
+
+def pov_labels(text):
+    values = re.findall(r'^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?POV(?:\*\*)?:(?:\*\*)?[ \t]*(.+)$',
+                        text, re.M | re.I)
+    names = (name.strip(' *').split('(')[0].strip()
+             for value in values for name in re.split(r'[,/|]| and ', value, flags=re.I))
+    return list(dict.fromkeys(name for name in names if name and name.lower() != 'none'))
+
+
+def scene_contexts(text, psych_povs, roster, multi):
+    sections = list(re.finditer(r'^#{2,4}[ \t]+Scene[ \t]+(\d+)\b[^\n]*', text, re.M | re.I))
+    chapter_povs = pov_labels(text[:sections[0].start()]) if sections else pov_labels(text)
+    scopes = [(sec[1], text[sec.end():sections[index + 1].start() if index + 1 < len(sections) else len(text)])
+              for index, sec in enumerate(sections)] or [('1', '')]
+    named = {pov for _, body in scopes for pov in pov_labels(body)}
+    # An opening label in a mixed-POV chapter cannot assign every later scene.
+    fallback = chapter_povs or psych_povs
+    if named - set(fallback) and fallback:
+        fallback = []
+    if not fallback and len(roster) == 1 and not multi:
+        fallback = roster
+    result = []
+    ids = set()
+    for number, body in scopes:
+        scene_id = f'scene-{int(number)}'
+        if scene_id in ids:
+            raise ValueError(f'duplicate scene number in plan: {number}')
+        ids.add(scene_id)
+        labels = pov_labels(body) or fallback
+        pov = labels[0] if len(labels) == 1 else None
+        scope = {'id': scene_id, 'pov': pov,
+                 'pov_status': 'RESOLVED' if pov else 'UNRESOLVED' if multi or labels or named else 'UNSPECIFIED'}
+        for field in ('story_order', 'reader_order'):
+            label = field.replace('_', ' ')
+            match = re.search(rf'^[ \t]*(?:-[ \t]+)?(?:\*\*)?{label}:(?:\*\*)?[ \t]*(\d+)[ \t]*$',
+                              body, re.M | re.I)
+            if match:
+                scope[field] = int(match[1])
+        result.append(scope)
+    return result
+
+
+def scene_knowledge(root, book, chapter_num, scene, args, *, global_ledger, legacy_ledger, first):
+    pov = scene['pov']
+    observers = [pov, 'reader'] if pov else ['reader']
+    if global_ledger:
+        data = {'_coverage': {'status': 'PARTIAL', 'note': 'missing events do not establish ignorance'}}
+        for field, observer in zip(('story_order', 'reader_order'), (pov, 'reader')):
+            if not observer:
+                continue
+            position = scene.get(field, getattr(args, field, None) if first else None)
+            if position is None:
+                data[observer] = {'status': 'CHRONOLOGY_UNRESOLVED', 'reason': f'scene has no explicit {field}'}
+            else:
+                data[observer] = knowledge_event_state(root, argparse.Namespace(
+                    action='as-of', observer=observer, story_order=position, reader_order=position, spec=None))
+        return data
+    if not legacy_ledger:
+        return {}
+    if chapter_num is None:
+        return {'_coverage': {'status': 'PARTIAL'}, '_story_time': {'status': 'CHRONOLOGY_UNRESOLVED'}}
+    result = {}
+    for observer in observers:
+        # Legacy records use chapter/scene/beat coordinates. Character knowledge stays
+        # at chapter entry when the plan has no explicit chronology for later scenes.
+        position = f'{chapter_num}.0'
+        if observer == 'reader' and not first:
+            position = f'{chapter_num}.{scene["id"].removeprefix("scene-")}.0'
+        known = knowledge(root, argparse.Namespace(
+            book=book, action='as-of', observer=observer, position=position))
+        if known:
+            result[observer] = known
+    return result
 
 
 def draft_packet(root, args):
@@ -1083,7 +1234,6 @@ def draft_packet(root, args):
     book_record, chapter_record = resolver.resolve_chapter(root, args.book, args.chapter or 'Chapter 1', allow_new=True)
     texts = manuscript_texts(root, book_record)
     if chapter_record not in book_record['chapters']:
-        texts[chapter_record['path']] = ''
         book_record = {**book_record, 'chapters': [*book_record['chapters'], chapter_record]}
     book = book_record.get('display_label', book_record['id'])
     book_chapters = sorted(book_record['chapters'], key=lambda chapter: chapter['reading_order'])
@@ -1096,7 +1246,7 @@ def draft_packet(root, args):
 
     # 1. Scene plan
     scene_info = None
-    pov_names = []
+    stext = ''
     scene_candidates = ([path_at(root, chapter_record['scene_plan_path'])]
                         if chapter_record.get('scene_plan_path') else [])
     if ch_num is not None:
@@ -1105,24 +1255,17 @@ def draft_packet(root, args):
     for cand in scene_candidates:
         if cand.is_file():
             stext = cand.read_text(encoding='utf-8')
-            for pm in re.finditer(r'(?:\*\*POV:\*\*|^POV:)\s*([^\n|]+)', stext, re.M | re.I):
-                for raw_p in re.split(r'[,/]| and ', pm.group(1)):
-                    clean_p = raw_p.strip().split('(')[0].strip()
-                    if clean_p and clean_p not in pov_names:
-                        pov_names.append(clean_p)
-            scenes_count = len(re.findall(r'^##\s+Scene\s+\d+\b', stext, re.M | re.I))
             key_line = re.search(r'^\s*(?:\*\*)?Continuity keys:(?:\*\*)?\s*([^\n]+)', stext, re.M)
             scene_info = {
                 'path': str(cand.relative_to(root)),
                 'sha256': digest(cand),
-                'scene_count': scenes_count or 1,
-                'pov_characters': pov_names,
                 'continuity_keys': [key.strip() for key in key_line[1].split(',') if key.strip()] if key_line else [],
             }
             break
 
     # 2. Psych pass
     psych_info = None
+    psych_povs = []
     psych_candidates = ([path_at(root, chapter_record['psych_path'])]
                         if chapter_record.get('psych_path') else [])
     if ch_num is not None:
@@ -1130,11 +1273,9 @@ def draft_packet(root, args):
                                  root / 'Wiki' / 'Psych' / book_record.get('display_label', book) / f'Chapter_{ch_num:03d}_Psych.md'))
     for cand in psych_candidates:
         if cand.is_file():
-            ptext = cand.read_text(encoding='utf-8')
-            for pm in re.finditer(r'\*\*POV:\*\*\s*([^\n,]+)', ptext):
-                clean_p = pm.group(1).strip()
-                if clean_p and clean_p not in pov_names:
-                    pov_names.append(clean_p)
+            # Psych notes often put the POV character's age after the name.
+            psych_povs = [name for name in pov_labels(cand.read_text(encoding='utf-8'))
+                          if not re.fullmatch(r'(?:age[ \t]+)?\d+(?:[ \t]+years?[ \t]+old)?', name, re.I)]
             psych_info = {
                 'path': str(cand.relative_to(root)),
                 'sha256': digest(cand),
@@ -1145,14 +1286,18 @@ def draft_packet(root, args):
     # 3. Style guide & multi-POV voice prompts
     style_authority = project_manifest_module().resolve_style_guide(root, book)
     style_path = path_at(root, style_authority['path']) if style_authority.get('status') == 'RESOLVED' else None
+    roster = []
+    multi = False
     if style_path and style_path.is_file():
         sg_text = style_path.read_text(encoding='utf-8')
-        for key in ('pov_1', 'pov_2', 'pov_3', 'pov_4'):
-            km = re.search(rf'^{key}:\s*["\']?([^"\'\n]+)["\']?', sg_text, re.M)
-            if km:
-                val = km.group(1).strip()
-                if val and val.lower() != 'none' and val not in pov_names:
-                    pov_names.append(val)
+        names = re.findall(r'^pov_\d+:[ \t]*["\']?([^"\'\n]+)', sg_text, re.M)
+        roster = list(dict.fromkeys(name.strip() for name in names if name.strip().lower() not in ('', 'none')))
+        multi = len(roster) > 1 or bool(re.search(r'^pov_mode:[ \t]*["\']?(?:dual|multi)\b', sg_text, re.M | re.I))
+    scenes = scene_contexts(stext, psych_povs, roster, multi)
+    pov_names = list(dict.fromkeys(scene['pov'] for scene in scenes if scene['pov']))
+    multi = multi or len(pov_names) > 1
+    if scene_info:
+        scene_info.update(scene_count=len(scenes), pov_characters=pov_names)
     voice_prompts = []
     seen_vp = set()
     style_dir = root / 'Wiki' / 'Style'
@@ -1161,13 +1306,13 @@ def draft_packet(root, args):
         slug_first = slug_full.split('_')[0]
         for cand_name in (f'voice_prompt_{slug_full}.md', f'voice_prompt_{slug_first}.md',
                           f'voice_prompt_{slug_full.lower()}.md', f'voice_prompt_{slug_first.lower()}.md'):
-            vp = style_dir / cand_name
+            vp = path_at(root, style_dir / cand_name)
             if vp.is_file() and vp not in seen_vp:
                 seen_vp.add(vp)
                 voice_prompts.append({'pov': pov, 'path': str(vp.relative_to(root)), 'sha256': digest(vp)})
                 break
     default_vp = style_dir / 'voice_prompt.md'
-    if default_vp.is_file() and default_vp not in seen_vp:
+    if not multi and default_vp.is_file() and default_vp not in seen_vp:
         voice_prompts.append({'pov': 'default', 'path': str(default_vp.relative_to(root)), 'sha256': digest(default_vp)})
 
     # 4. Active relationship checkpoints for Chapter N
@@ -1184,7 +1329,7 @@ def draft_packet(root, args):
 
     # 5. Immediate continuity tail from Chapter-(N-1)
     continuity_tail = None
-    predecessor_id = chapter_record.get('predecessor_id')
+    predecessor_id = resolver.predecessor(book_record, chapter_record)
     predecessor = next((item for item in book_chapters if item.get('id') == predecessor_id), None)
     if predecessor is None and ch_num is not None and ch_num > 1:
         predecessor_path = f'Chapters/{book}/Chapter-{ch_num - 1:03d}.md'
@@ -1284,48 +1429,21 @@ def draft_packet(root, args):
         'recent_closers': recent_closers,
     }
 
-    # 7. Knowledge state as of start of Chapter N
-    k_path = root / 'Wiki' / 'Story' / book / 'knowledge.json'
-    knowledge_as_of = {}
-    global_knowledge_path = root / 'Wiki' / 'Story' / 'knowledge-events.json'
+    # 7. Apply only the narrator's knowledge and author preferences to each scene.
     ledger_store = ledger_store_module()
-    global_knowledge = ledger_store.load_ledger(root, 'Wiki/Story/knowledge-events.json')
-    if global_knowledge is None and k_path.is_file():
-        kd = document(k_path, 'events')
-        if ch_num is None:
-            knowledge_as_of['_coverage'] = {'status': 'PARTIAL', 'note': 'legacy integer chronology cannot resolve this display label'}
-            knowledge_as_of['_story_time'] = {'status': 'CHRONOLOGY_UNRESOLVED',
-                                              'reason': 'manifest identity has no explicit story-time mapping'}
-        else:
-            events = [dict(e, current=source_valid(root, e)) for e in kd['events']]
-            superseded = {i for e in events if e['current'] and e['confirmed'] for i in e.get('supersedes', [])}
-            observers = sorted({e.get('observer') for e in events if e.get('observer')})
-            for obs in observers:
-                field = 'reader_position' if obs == 'reader' else 'story_position'
-                obs_state = {}
-                for e in sorted(events, key=lambda x: x[field]):
-                    if e['current'] and e['confirmed'] and e['id'] not in superseded and e['observer'] == obs and e[field] <= [ch_num, 0]:
-                        obs_state[e['fact_id']] = e
-                if obs_state:
-                    knowledge_as_of[obs] = obs_state
-    elif global_knowledge is not None:
-        knowledge_as_of['_coverage'] = {'status': 'PARTIAL',
-                                        'note': 'missing events do not establish ignorance'}
-        if getattr(args, 'story_order', None) is None:
-            knowledge_as_of['_story_time'] = {'status': 'CHRONOLOGY_UNRESOLVED',
-                                              'reason': 'packet has no explicit story order'}
-        else:
-            for pov in pov_names:
-                query = argparse.Namespace(action='as-of', observer=pov,
-                    story_order=args.story_order, reader_order=getattr(args, 'reader_order', None), spec=None)
-                knowledge_as_of[pov] = knowledge_event_state(root, query)
-        if getattr(args, 'reader_order', None) is None:
-            knowledge_as_of['reader'] = {'status': 'CHRONOLOGY_UNRESOLVED',
-                                         'reason': 'packet has no explicit reading order'}
-        else:
-            query = argparse.Namespace(action='as-of', observer='reader', story_order=None,
-                reader_order=args.reader_order, spec=None)
-            knowledge_as_of['reader'] = knowledge_event_state(root, query)
+    global_knowledge = ledger_store.load_ledger(root, 'Wiki/Story/knowledge-events.json') is not None
+    legacy_knowledge = path_at(root, f'Wiki/Story/{book}/knowledge.json').is_file()
+    ed_path = path_at(root, 'Wiki/Style/editorial-decisions.json')
+    decisions = [item for item in document(ed_path, 'decisions')['decisions'] if item.get('status') == 'active']
+    book_ids = (book, book_record['id'])
+    chapter_ids = (chapter_scope_id, chapter_record['id'])
+    for index, scene in enumerate(scenes):
+        scene['voice_prompts'] = [item for item in voice_prompts if item['pov'] in (scene['pov'], 'default')]
+        scene['knowledge_as_of'] = scene_knowledge(root, book, ch_num, scene, args,
+                                                  global_ledger=global_knowledge,
+                                                  legacy_ledger=legacy_knowledge, first=index == 0)
+        scene['editorial_decisions'] = [item for item in decisions
+                                        if decision_applies(item, book_ids, chapter_ids, scene['pov'])]
 
     # 8. Optional series-wide relationship state requires explicit story order.
     relationship_as_of = []
@@ -1340,16 +1458,6 @@ def draft_packet(root, args):
                                            position=args.story_order, scene_id=getattr(args, 'scene_id', None))
                 relationship_as_of.append(relationship_state(root, query))
 
-    # 9. Applicable active editorial decisions
-    ed_path = root / 'Wiki' / 'Style' / 'editorial-decisions.json'
-    active_decisions = []
-    if ed_path.is_file():
-        ed = document(ed_path, 'decisions')
-        active_decisions = [
-            x for x in ed['decisions']
-             if x.get('status') == 'active' and decision_applies(x, book, chapter_scope_id, pov_names)
-        ]
-
     formatting = chapter_format_module().audit(book_record, texts, selected=chapter_record['id'])
     keys = (scene_info or {}).get('continuity_keys', []) + (getattr(args, 'key', None) or [])
     packet = {
@@ -1359,9 +1467,11 @@ def draft_packet(root, args):
         'chapter_number': label,
         'chapter_id': chapter_record['id'],
         'chapter_path': chapter_record['path'],
+        'report_stem': resolver.report_stem(chapter_record),
         'reading_order': chapter_record['reading_order'],
         'predecessor_id': predecessor_id,
         'scene_plan': scene_info,
+        'scenes': scenes,
         'psych': psych_info,
         'style_authority': style_authority,
         'voice_prompts': voice_prompts,
@@ -1370,8 +1480,9 @@ def draft_packet(root, args):
         'continuity_tail': continuity_tail,
         'chapter_format': formatting['contract'],
         'continuity': continuity_report(root, book_record, texts, chapter=chapter_record, keys=keys),
-        'knowledge_as_of': knowledge_as_of,
-        'editorial_decisions': active_decisions,
+        'knowledge_as_of': scenes[0]['knowledge_as_of'],
+        'editorial_decisions': list({item['id']: item for scene in scenes
+                                     for item in scene['editorial_decisions']}.values()),
         'cooling_list': cooling_list,
     }
     if getattr(args, 'output', None):
@@ -1386,7 +1497,9 @@ def main():
     ap.add_argument('--root', type=Path, required=True)
     ap.add_argument('--book', default='Book-1')
     sub = ap.add_subparsers(dest='command', required=True)
-    for cmd in ('prepare', 'snapshot', 'check', 'readiness', 'validate', 'dashboard', 'disposition', 'memory', 'knowledge', 'knowledge-state', 'relationship-state', 'reading', 'campaign', 'pipeline', 'draft-packet', 'chapter-format', 'continuity'):
+    for cmd in ('prepare', 'snapshot', 'check', 'readiness', 'validate', 'dashboard', 'workflow', 'style-policy',
+                'register-chapters', 'disposition', 'memory', 'knowledge', 'knowledge-state',
+                'relationship-state', 'reading', 'campaign', 'pipeline', 'draft-packet', 'chapter-format', 'continuity'):
         p = sub.add_parser(cmd)
         p.add_argument('--spec')
         p.add_argument('--output')
@@ -1406,6 +1519,8 @@ def main():
         p.add_argument('--window', type=int, default=3)
         if cmd in ('continuity', 'draft-packet'):
             p.add_argument('--key', action='append')
+        if cmd == 'style-policy':
+            p.add_argument('--simile-count', type=int)
     a = ap.parse_args()
     root = a.root.resolve()
     if not re.fullmatch(r'[\w-]+', a.book) or not re.fullmatch(r'[\w-]+', a.run):
@@ -1440,8 +1555,28 @@ def main():
         result = chapter_format_module().audit(book, manuscript_texts(root, book),
                                                selected=chapter['id'] if chapter else None)
         result['inputs'].append(resolver.MANIFEST_PATH)
+        if chapter:
+            result.update(chapter_id=chapter['id'], chapter_path=chapter['path'],
+                          report_stem=resolver.report_stem(chapter))
     elif a.command == 'continuity':
         result = continuity_command(root, a)
+    elif a.command == 'workflow':
+        resolver = project_manifest_module()
+        result = resolver.workflow(root, resolver.resolve_book(root, a.book))
+        result['inputs'] = ['AGENTS.md', resolver.MANIFEST_PATH]
+    elif a.command == 'style-policy':
+        result = style_policy(root, a)
+    elif a.command == 'register-chapters':
+        if not a.spec:
+            raise ValueError('register-chapters requires --spec')
+        resolver = project_manifest_module()
+        path = path_at(root, resolver.MANIFEST_PATH)
+        with locked(path):
+            current = resolver.load(root)
+            old = json.dumps(current, sort_keys=True)
+            result = resolver.register(root, a.book, load(Path(a.spec)), current)
+            if not path.is_file() or json.dumps(result, sort_keys=True) != old:
+                write(path, result)
     elif a.command == 'check':
         result = freshness(root, path_at(root, a.meta))
     elif a.command == 'readiness':

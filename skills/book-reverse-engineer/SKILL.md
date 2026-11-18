@@ -3,7 +3,7 @@ name: book-reverse-engineer
 description: "Reverse-engineer an existing finished or undisciplined draft manuscript into Storycraft canon (Wiki/), scene outlines, Chekhov promises, voice profile, and defect findings. Use when user says 'reverse engineer', 'retrofit book', 'import manuscript', 'bring existing book into storycraft', 'analyze existing draft', 'rebuild undisciplined book', or 'audit raw manuscript'."
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: cross-cutting
   output-format: markdown
 ---
@@ -33,17 +33,17 @@ Run `scripts/manuscriptkit.py` to inspect units and word counts:
 python3 .agents/skills/book-reverse-engineer/scripts/manuscriptkit.py <source-path>
 ```
 
-If the manuscript is a single file, split and export the units into `Chapters/Book-N/Chapter-NNN.md` so that the prose is organized into the standard project structure:
+Preview the chapter split and destination without writing prose. The preview includes front matter, the original line ranges, and any proposed replacements.
 
 ```bash
-python3 .agents/skills/book-reverse-engineer/scripts/manuscriptkit.py <source-path> --export-chapters Chapters/Book-N
+python3 .agents/skills/book-reverse-engineer/scripts/manuscriptkit.py <source-path> --export-chapters Chapters/Book-N --preview
 ```
 
 ---
 
 ## Step 2: Generate the Analysis Report (Read-Only)
 
-Read through the chapters in `Chapters/Book-N/` (or `_Intake/Book-N/raw-manuscript/`) and write `_Edits/Book-N/reverse-analysis.md` following [references/reverse-schema.md](references/reverse-schema.md).
+Read the source and use the previewed chapter ranges (or the split chapter files in `_Intake/Book-N/raw-manuscript/`) and write `_Edits/Book-N/reverse-analysis.md` following [references/reverse-schema.md](references/reverse-schema.md).
 
 Cover every section thoroughly:
 
@@ -86,7 +86,9 @@ Stop and present the findings to the user:
 
 ## Step 4: Import into Storycraft Spine
 
-Once the user approves the analysis, run the import pass to populate the project's permanent file structure:
+Use the approved preview and run the same command without `--preview`. The importer keeps `FrontMatter.md` beside the chapters and records the imported hashes. A rerun preserves author edits. For a reported conflict, show the diff and keep the edited file with `--keep FILE` or pass the author's approved `--replace FILE:CURRENT_SHA256:INCOMING_SHA256`. Use `missing` in place of a missing current hash. If an import was interrupted, inspect the staged operation and use `--export-chapters DIR --recover` to resume it.
+
+After the approved prose import completes, populate the project's permanent file structure.
 
 1. **Populate `Wiki/Characters/`:**
    - Write one file per significant character (`Wiki/Characters/<Name>.md`) based on the reviewed roster.

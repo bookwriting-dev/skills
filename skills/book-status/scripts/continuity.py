@@ -147,9 +147,9 @@ def current_claims(chapters, texts, records):
     for chapter in chapters:
         path, chapter_id = chapter['path'], chapter['id']
         record = records.get(chapter_id)
-        sha256 = source_hash(texts[path])
+        sha256 = source_hash(texts[path]) if path in texts else None
         status = 'MISSING'
-        if record is not None:
+        if record is not None and sha256 is not None:
             status = 'STALE'
             if (record.get('chapter_id'), record.get('path'), record.get('source_sha256')) == (chapter_id, path, sha256):
                 validate_claims(record.get('claims'), texts[path])

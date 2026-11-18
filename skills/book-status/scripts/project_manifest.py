@@ -6,7 +6,13 @@ import re
 from pathlib import Path
 
 SCHEMA_VERSION = 1
+PLANNED_SCHEMA_VERSION = 2
 MANIFEST_PATH = '.storycraft/project.json'
+TYPE_CHECKS = {
+    'FICTION': ('Gate',),
+    'NONFICTION': ('FactCheck', 'ClarityEdit'),
+    'HYBRID': ('Gate', 'FactCheck', 'ClarityEdit'),
+}
 
 
 def _hash(value):
@@ -34,7 +40,8 @@ def numbered_chapter(book_label, number, path, predecessor_id=None):
 def validate(manifest, root):
     if not isinstance(manifest, dict) or manifest.get('record_type') != 'project_manifest':
         raise ValueError('invalid project manifest record_type')
-    if manifest.get('schema_version') != SCHEMA_VERSION:
+    version = manifest.get('schema_version')
+    if version not in (SCHEMA_VERSION, PLANNED_SCHEMA_VERSION):
         raise ValueError(f"unsupported project manifest schema_version: {manifest.get('schema_version')}")
     if not manifest.get('project_id') or not isinstance(manifest.get('books'), list):
         raise ValueError('manifest requires project_id and books')
@@ -56,7 +63,7 @@ def validate(manifest, root):
             if not isinstance(path, str) or not path:
                 raise ValueError(f'chapter {cid} requires a path')
             resolved = contained(root, path)
-            if not resolved.is_file():
+            if not resolved.is_file() and (version == SCHEMA_VERSION or resolved.exists()):
                 raise ValueError(f'chapter {cid} path does not exist: {path}')
             canonical = resolved.relative_to(Path(root).resolve()).as_posix()
             if canonical in canonical_paths:
@@ -105,6 +112,9 @@ def propose(root):
                 continue
             number = int(cm.group(1))
             relative = path.relative_to(root).as_posix()
+            if number < 1:
+                unresolved.append(f'chapter number must be positive: {relative}')
+                continue
             chapters.append(numbered_chapter(book_dir.name, number, relative))
         chapters.sort(key=lambda c: (c['reading_order'], c['path']))
         for i, chapter in enumerate(chapters):
@@ -113,7 +123,7 @@ def propose(root):
             if i:
                 chapter['predecessor_id'] = chapters[i - 1]['id']
         books.append({'id': book_dir.name.lower(), 'display_label': book_dir.name,
-                      'chapters': chapters})
+                      'chapter_order': 'conventional', 'chapters': chapters})
     manifest = {
         'record_type': 'project_manifest', 'schema_version': SCHEMA_VERSION,
         'record_id': 'manifest-' + _hash(str(root))[:16],
@@ -137,13 +147,194 @@ def load(root):
     return result['manifest']
 
 
-def resolve_book(root, book_id):
-    manifest = load(root)
+def conventional_book(book_id):
+    return {'id': book_id.lower(), 'display_label': book_id,
+            'chapter_order': 'conventional', 'chapters': []}
+
+
+def find_book(manifest, book_id):
     matches = [book for book in manifest['books']
                if book['id'] == book_id or book.get('display_label') == book_id]
-    if len(matches) != 1:
+    if len(matches) == 1:
+        return matches[0]
+
+
+def resolve_book(root, book_id):
+    manifest = load(root)
+    book = find_book(manifest, book_id)
+    saved = contained(root, MANIFEST_PATH).exists()
+    if book is None and not saved and re.fullmatch(r'Book-[1-9]\d*', book_id):
+        if any(contained(root, f'{area}/{book_id}').is_dir()
+               for area in ('_Intake', 'Wiki/Outline', 'Wiki/Story')):
+            return conventional_book(book_id)
+    if book is None:
         raise ValueError(f'book must resolve uniquely through project manifest: {book_id}')
-    return matches[0]
+    if 'chapter_order' not in book and manifest.get('producer', {}).get('name') == 'storycraft-project-resolver':
+        book = dict(book, chapter_order='conventional')
+    if not saved or book.get('chapter_order') != 'conventional':
+        return book
+    # Older adopted manifests may predate drafts saved manually in the conventional tree.
+    current = propose(root)
+    observed = find_book(current['manifest'], book_id)
+    if observed is None:
+        return book
+    label = book.get('display_label', book['id'])
+    conflicts = [message for message in current['unresolved']
+                 if f'/{label}/' in message or message.endswith(f' in {label}')]
+    if conflicts:
+        raise ValueError('conventional chapter layout is ambiguous: ' + '; '.join(conflicts))
+    known = {chapter['path'] for chapter in book['chapters']}
+    merged = book['chapters'] + [chapter for chapter in observed['chapters'] if chapter['path'] not in known]
+    orders = [chapter['reading_order'] for chapter in merged]
+    if len(set(orders)) != len(orders):
+        raise ValueError(f'multiple chapter paths claim the same reading order in {label}')
+    return dict(book, chapters=merged)
+
+
+def predecessor(book, chapter):
+    ordered = sorted(book['chapters'], key=lambda item: item['reading_order'])
+    if book.get('chapter_order') != 'conventional' and 'predecessor_id' in chapter:
+        return chapter['predecessor_id']
+    previous = [item for item in ordered if item['reading_order'] < chapter['reading_order']]
+    return previous[-1]['id'] if previous else None
+
+
+def register(root, book_id, specification, current):
+    """Add expected chapters while preserving the IDs of adopted drafts."""
+    book = find_book(current, book_id)
+    if book is None:
+        if not re.fullmatch(r'Book-[1-9]\d*', book_id):
+            raise ValueError('a new book needs a Book-N identifier')
+        book = conventional_book(book_id)
+        current['books'].append(book)
+    else:
+        resolved = resolve_book(root, book_id)
+        book.update(resolved)
+    label = book.get('display_label', book_id)
+    additions = specification.get('chapters')
+    if not isinstance(additions, list) or not additions:
+        raise ValueError('registration needs a nonempty chapters array')
+    order = specification.get('chapter_order', book.get('chapter_order', 'declared'))
+    if order not in ('conventional', 'declared'):
+        raise ValueError('chapter_order must be conventional or declared')
+    if book.get('chapter_order') == 'conventional' and order == 'declared':
+        for chapter in book['chapters']:
+            chapter.pop('predecessor_id', None)
+    book['chapter_order'] = order
+    by_path = {chapter['path']: chapter for chapter in book['chapters']}
+    registered = set()
+    replace_expected = specification.get('replace_expected', False)
+    if type(replace_expected) is not bool:
+        raise ValueError('replace_expected must be boolean')
+    for claim in additions:
+        if not isinstance(claim, dict):
+            raise ValueError('expected a chapter object')
+        if set(claim) - {'number', 'id', 'display_label', 'path', 'reading_order', 'predecessor_id',
+                          'scene_plan_path', 'psych_path', 'report_stem'}:
+            raise ValueError('unknown chapter registration field')
+        if 'number' in claim:
+            number = claim['number']
+            if type(number) is not int or number < 1:
+                raise ValueError('chapter number must be a positive integer')
+            default_path = f'Chapters/{label}/Chapter-{number:03d}.md'
+            default = numbered_chapter(label, number, default_path)
+            default.pop('predecessor_id')
+            existing = by_path.get(claim.get('path', default_path))
+            entry = dict(existing or default, **{key: val for key, val in claim.items() if key != 'number'})
+        else:
+            if not all(claim.get(key) for key in ('id', 'display_label', 'path')) or 'reading_order' not in claim:
+                raise ValueError('custom chapter requires id, display_label, path and reading_order')
+            entry = claim
+        if not isinstance(entry['path'], str):
+            raise ValueError('chapter path must be a relative Markdown path')
+        path = Path(entry['path'])
+        if path.is_absolute() or '..' in path.parts or path.suffix.lower() != '.md':
+            raise ValueError('chapter path must be a relative Markdown path')
+        entry = dict(entry, path=path.as_posix())
+        registered.add(entry['path'])
+        old = by_path.get(entry['path'])
+        if old:
+            if old['id'] != entry['id']:
+                raise ValueError(f"chapter path already belongs to {old['id']}: {entry['path']}")
+            if old['reading_order'] != entry['reading_order'] or old.get('display_label') != entry.get('display_label'):
+                raise ValueError(f"registered chapter differs from existing authority: {entry['path']}")
+            old.update(entry)
+        else:
+            book['chapters'].append(entry)
+            by_path[entry['path']] = entry
+    if replace_expected:
+        book['chapters'] = [chapter for chapter in book['chapters']
+                            if chapter['path'] in registered or contained(root, chapter['path']).is_file()]
+    book['chapters'].sort(key=lambda chapter: chapter['reading_order'])
+    current['schema_version'] = PLANNED_SCHEMA_VERSION
+    return validate(current, root)
+
+
+def workflow(root, book, required_checks=None):
+    """Apply the project type and explicit overrides consistently at every gate."""
+    instructions = contained(root, 'AGENTS.md')
+    project_type = 'FICTION'
+    if instructions.is_file():
+        declared = [item.upper() for item in re.findall(
+            r'^This project is:[ \t]*(?:\*\*)?([A-Z]+)\b',
+            instructions.read_text(encoding='utf-8'), re.M | re.I)]
+        if declared:
+            if len(set(declared)) != 1 or declared[0] not in TYPE_CHECKS:
+                raise ValueError('invalid project type declaration in AGENTS.md')
+            project_type = declared[0]
+    required = required_checks if required_checks is not None else book.get('required_checks', list(TYPE_CHECKS[project_type]))
+    if not isinstance(required, list) or not required or not all(
+            isinstance(name, str) and re.fullmatch(r'[A-Za-z]+', name) for name in required):
+        raise ValueError('required_checks must name at least one configured check')
+    return {'project_type': project_type, 'required_checks': list(dict.fromkeys(required))}
+
+
+def report_stem(chapter):
+    override = chapter.get('report_stem')
+    if override is not None:
+        if not isinstance(override, str) or not re.fullmatch(r'[\w-]+', override):
+            raise ValueError('invalid chapter report_stem')
+        return override
+    numbered = re.fullmatch(r'Chapter[- ]0*(\d+)', chapter.get('display_label', ''))
+    if numbered:
+        return f'Chapter-{int(numbered[1]):03}'
+    identifier = chapter['id']
+    return identifier if re.fullmatch(r'[\w-]+', identifier) else 'chapter-' + _hash(identifier)[:16]
+
+
+def legacy_report_stem(chapter):
+    match = re.search(r'\d+', chapter.get('display_label', ''))
+    number = int(match[0]) if match else chapter['reading_order']
+    return f'Chapter-{number:03}'
+
+
+def outline_paths(book):
+    label = book.get('display_label', book['id'])
+    return [f'Wiki/Outline/{label}/{name}.md' for name in ('outline', 'plan')]
+
+
+def missing_chapters(root, book):
+    missing = [{'label': chapter.get('display_label', chapter['id']), 'path': chapter['path']}
+               for chapter in sorted(book['chapters'], key=lambda item: item['reading_order'])
+               if not contained(root, chapter['path']).is_file()]
+    if book.get('chapter_order') != 'conventional':
+        return missing
+    orders = sorted({chapter['reading_order'] for chapter in book['chapters']})
+    last = orders[-1] if orders else 0
+    for name in outline_paths(book):
+        path = contained(root, name)
+        if path.is_file():
+            numbers = re.findall(r'^#{1,3}[ \t]+Chapter[ \t]+(\d+)(?=[ \t:\n]|$)',
+                                 path.read_text(encoding='utf-8'), re.M | re.I)
+            if numbers:
+                last = max(last, max(map(int, numbers)))
+    label = book.get('display_label', book['id'])
+    for before, after in zip([0, *orders], [*orders, last + 1]):
+        if after == before + 2:
+            missing.append({'label': f'Chapter {before + 1}', 'path': f'Chapters/{label}/Chapter-{before + 1:03d}.md'})
+        elif after > before + 2:
+            missing.append({'label': f'Chapters {before + 1} through {after - 1}'})
+    return missing
 
 
 def chapters(root, book_id):
@@ -159,18 +350,18 @@ def resolve_chapter(root, book_id, selector, *, allow_new=False):
     if not matches and re.fullmatch(r'\d+', value):
         matches = [chapter for chapter in book['chapters']
                    if chapter.get('display_label') in (value, f'Chapter {int(value)}', f'Chapter-{int(value):03d}')]
-    if not matches and allow_new and not contained(root, MANIFEST_PATH).exists():
+    if not matches and allow_new and book.get('chapter_order') == 'conventional':
         match = re.fullmatch(r'(?:Chapter[- ]?)?(\d+)', value, re.I)
         label = book.get('display_label', '')
         if match and int(match[1]) > 0 and re.fullmatch(r'Book-\d+', label):
             number = int(match[1])
             path = f'Chapters/{label}/Chapter-{number:03d}.md'
             if not contained(root, path).exists():
-                previous = [item for item in book['chapters'] if item['reading_order'] < number]
-                predecessor_id = previous[-1]['id'] if previous else None
-                return book, numbered_chapter(label, number, path, predecessor_id)
+                chapter = numbered_chapter(label, number, path)
+                return book, dict(chapter, predecessor_id=predecessor(book, chapter))
     if len(matches) != 1:
-        raise ValueError(f'chapter selector is missing or ambiguous in {book_id}: {selector}')
+        suggestion = '; register planned chapters with register-chapters' if allow_new else ''
+        raise ValueError(f'chapter selector is missing or ambiguous in {book_id}: {selector}{suggestion}')
     return book, matches[0]
 
 

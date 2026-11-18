@@ -1,9 +1,9 @@
 ---
 name: fiction-writechapter
-description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled."
+description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.6.0"
+  version: "4.7.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -12,6 +12,10 @@ metadata:
 # Write Chapter
 
 Draft the assigned chapter without redesigning the story or running a full editorial pass. The book's instructions and Wiki are authoritative; the scene plan owns the chapter's causal, emotional, genre, arc, and motif obligations.
+
+## Opening-scene trial
+
+For “try my opening scene”, “draft a sample opening,” or an explicit request to promote a trial, follow the [opening-scene trial](references/opening-scene.md). It uses the supplied premise, POV, and difficult choice to write one intake sample. Normal chapter drafting starts below.
 
 ## Authority and scope
 
@@ -37,6 +41,8 @@ python3 .agents/skills/book-status/scripts/project_state.py \
   --output _Edits/Book-N/packets/Chapter-NNN_DraftPacket.json
 ```
 
+When an authorized draft target is new, register it with `project_state.py --root ROOT --book Book-N register-chapters --spec SPEC.json`. Reuse its chapter ID when it already appears in the plan. Assemble the packet again after registration. Custom projects supply an explicit chapter entry with its authorized destination.
+
 The packet resolves the target scene plan, optional `Chapter_NN_Psych.md`, the effective style-authority path (or an explicit conflict/missing status), POV-specific voice prompts, chapter-sliced relationship state, immediate continuity tail, knowledge state, active scoped decisions, and the rolling cooling list. If style authority is `CONFLICT`, stop and report both paths; do not draft against a silently selected or merged guide.
 
 Use the packet's `chapter_format` for the heading label, source scene breaks, and POV marks. Check `continuity.claims` for the scene plan's referenced keys. Query other keys or find the earlier passage directly when a clock, object, designation, or inventory count matters and the packet has incomplete coverage. See [book continuity review](../book-status/references/continuity-review.md).
@@ -49,7 +55,7 @@ If `active-context.md` is missing, use an explicit user assignment or the outlin
 
 ## Use a focused writing worker
 
-When isolated workers are supported, use one focused worker for the chapter so its context contains only relevant book material. Give it the resolved paths, the compiled `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json`, and the instructions below. If workers are unavailable, follow the same instructions directly.
+When isolated workers are supported, use one focused worker for the chapter so its context contains only relevant book material. Give the worker the relevant `scenes` entry, shared continuity context, and the instructions below. When viewpoints differ, brief each scene using its own voice prompt, knowledge, and scoped editorial decisions. Resolve an `UNRESOLVED` viewpoint before drafting that scene. If workers are unavailable, follow the same instructions directly.
 
 Pointing a worker at a rules file does not make that file binding: naming only some mechanical rules in the brief turns the unnamed ones into a whitelist the worker is free to violate. In every drafting brief, either quote every binding mechanical rule from the style and review guides verbatim, or state that every rule in those files is binding whether or not the brief quotes it. After the draft returns, search the prose for the rules the brief did not name before accepting the completion check — the worker's own compliance tally will mirror what the brief named.
 
@@ -61,7 +67,7 @@ Write the assigned chapter as finished prose.
 
 Read, in this order:
 
-1. `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json` (pre-resolved continuity tail, active `relationship_checkpoints`, `what_they_wont_say` / `show_dont_tell_gaps`, `knowledge_as_of`, active `editorial_decisions`, and the `cooling_list`).
+1. The relevant scene entry from the compiled draft packet, plus the applicable shared continuity tail, relationship checkpoints, interior beats, and cooling list. Use that entry's voice prompts, knowledge state, and editorial decisions.
 2. Relevant current-status and continuity sections from `active-context.md`.
 3. The target scene plan or beats.
 4. The target outline entry only when the scene plan does not fully state the required outcome.
@@ -145,4 +151,4 @@ Return the chapter path, title, word count, and any genuine canon blocker. Offer
 
 ## Editorial decisions and current continuity
 
-Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. For fiction, consult current confirmed knowledge events from Wiki/Story/Book-N/knowledge.json as of this scene. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.
+Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. Consult the scene entry's confirmed knowledge events at the applicable story position. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.

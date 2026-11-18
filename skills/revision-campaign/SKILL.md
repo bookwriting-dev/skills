@@ -3,7 +3,7 @@ name: revision-campaign
 description: "Coordinate a book or series revision through impact analysis, dependent tasks, verified edits, and resumable checkpoints. Use when the user says revise this across the book, make the betrayal earned, run a revision campaign, or resume the book revision."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
   category: cross-cutting
   bundled-dependencies: book-status
 ---
@@ -21,6 +21,8 @@ Read all assigned manuscript units in order. Consult applicable canon, knowledge
 ## Build dependent tasks
 
 Each task has a stable safe ID, explicit source files, depends_on IDs, acceptance conditions, edit scope, and authorization. Source files must be individual project-relative files. Reject cycles or missing dependencies. Record requested outcome and preservation constraints at campaign level. Initialize with `project_state.py --root ROOT --book Book-N campaign --run ID --action init --spec CAMPAIGN.json`. Initialization snapshots targeted files and records their content hashes. No source editing occurs during init.
+
+A campaign initialized from `beta-feedback` preserves selected comments and their edition and source evidence. Treat selection for planning as a pending task. Start revision when the writer requests that work.
 
 ## Execute authorized work
 

@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.5.0"
+  version: "4.6.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -100,12 +100,15 @@ Adapt to the project's neighboring files. A useful default is:
 - **Why this chapter cannot be cut:** ...
 
 ## Scene 1
+- **POV:** [Single viewpoint name for this scene]
 - **Goal:** ...
 - **Action and turn:** [specific beat-by-beat action]
 - **Interior movement:** [surface / underneath / where POV lands]
 - **Consequence or hook:** ...
 - **Conversation form / pressure source (when relevant):** ...
 ```
+
+Name one POV per scene when a chapter changes viewpoint or the book has several narrators. A single viewpoint declared for the chapter may cover each scene that inherits it. When using the series knowledge ledger, record the established integer **Story order:** and **Reader order:** under the relevant scene so the draft packet reads knowledge at the right moment.
 
 Add continuity or fact-status notes only where the drafter could otherwise contradict canon. Do not append a generic recommendations section after the plan is already usable.
 

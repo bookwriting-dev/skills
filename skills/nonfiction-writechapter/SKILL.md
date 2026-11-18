@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
@@ -32,6 +32,8 @@ Use the project or chapter named by the user. Otherwise infer the selected book 
 Resolve the book root, target chapter plan, target outline entry, style guide, voice guidance, previous authoritative chapter, and exact output path. Read the outline only when it adds information missing from the chapter plan.
 
 Follow neighboring chapter filenames and the book's instructions. When no local convention exists, use `<book-root>/Chapters/Chapter-[NNN].md` and put the title inside the Markdown file. Never create `[WorkingTitle]_Chapters` or another independently editable copy.
+
+For a new authorized target, use [project_state.py](../book-status/scripts/project_state.py) with `register-chapters --spec SPEC.json` to register its intended destination. The existing book plan or manifest supplies the chapter's ID and reading order.
 
 ## Use a focused writing worker
 

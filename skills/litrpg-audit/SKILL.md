@@ -3,7 +3,7 @@ name: litrpg-audit
 description: "Deterministic numeric and progression continuity audit for LitRPG chapters — checks stat math, level curves, skill prerequisites, resource expenditure, inventory continuity, and status box accuracy against the ledger. Use when user says 'audit stats', 'litrpg audit', 'check stat math', 'verify progression', 'stat continuity', 'audit chapter numbers', or as part of gate-check."
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -12,7 +12,7 @@ metadata:
 
 A mechanical, deterministic continuity checker for LitRPG chapters. Parses drafted chapter prose, extracts status boxes, stat gains, skill uses, and XP awards, and validates them against `Wiki/World/Systems/ledger.yaml` and `Wiki/World/Systems/system-rules.md`.
 
-Never relies on hallucinated mental arithmetic. Runs a standalone Python script to ensure that character progression is mathematically sound and that reader audits will find zero calculation errors.
+Runs a Python check against the committed ledger. It labels incomplete evidence separately for each rule, including unbound actors and missing entering state.
 
 ## Arguments
 
@@ -26,7 +26,7 @@ The request argument: one chapter reference (e.g., "1", "Chapter-001", "Chapter-
 2. Search for the project's progression ledger at:
    - `Wiki/World/Systems/ledger.yaml`
    - or `Wiki/Story/Book-N/ledger.yaml`
-3. Search for the system rules file at `Wiki/World/Systems/system-rules.md`.
+3. Use the structured system rules in the same ledger. The audit requires PyYAML to read it.
 
 ---
 
@@ -44,19 +44,7 @@ Capture the JSON output.
 
 ## Step 3: Evaluate Audit Findings
 
-Read [references/audit-rules.md](references/audit-rules.md) to categorize findings:
-
-1. **Violations (Hard Fails):**
-   - Unearned attribute points (allocated > earned).
-   - Use of locked/unlearned skills in combat.
-   - Contradictions in derived pools (HP/MP calculations not matching formulas).
-2. **Warnings:**
-   - Stat-dump paralysis (>25 line status boxes).
-   - Unregistered skills or unexplained resource recovery.
-3. **Notices:**
-   - Level milestones detected; XP delta ready for ledger commit.
-
----
+Read [references/audit-rules.md](references/audit-rules.md) and report checked rules, their source evidence, WARN and FAIL findings, and any unverified rule. Resolve missing data before claiming complete progression coverage.
 
 ## Step 4: Save Report
 
@@ -70,8 +58,7 @@ Read [references/audit-rules.md](references/audit-rules.md) to categorize findin
 ## Summary
 - **Violations:** [Count]
 - **Warnings:** [Count]
-- **Level-Ups Detected:** [Details]
-- **Skills Unlocked:** [Details]
+- **Rule Results:** [Skill unlocks, XP, stats, pools, resources, inventory, action state, and display length]
 
 ## Findings
 [Detailed bullet points with exact line numbers and quotes]
@@ -85,7 +72,7 @@ Read [references/audit-rules.md](references/audit-rules.md) to categorize findin
 
 ## Step 5: Update the Ledger (On Clean Runs)
 
-If the audit passes and the chapter contains approved level-ups, stat allocations, or newly learned skills:
+If the writer authorized ledger changes, the audit passes, and the chapter contains approved level-ups, stat allocations, or newly learned skills:
 - Update `Wiki/World/Systems/ledger.yaml` under `chapters.Chapter-NNN` with the ending `state_out`.
 - Synchronize `Wiki/Characters/<Name>_sheet.md` if an attribute milestone was reached.
 

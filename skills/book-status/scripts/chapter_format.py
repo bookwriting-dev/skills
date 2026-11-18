@@ -92,6 +92,7 @@ def audit(book, texts, selected=None):
     if selected is not None:
         target = next(chapter for chapter in chapters if chapter['id'] == selected)
         chapters = [chapter for chapter in chapters if chapter['reading_order'] <= target['reading_order']]
+    chapters = [chapter for chapter in chapters if chapter['path'] in texts]
     parsed = {chapter['id']: metadata(texts[chapter['path']], scene_break) for chapter in chapters}
     inferred = None
     if style is None:
@@ -114,7 +115,7 @@ def audit(book, texts, selected=None):
         heading, slots = parsed[chapter_id]
         label = chapter.get('display_label')
         if label and (not heading or not re.match(rf'^{re.escape(label)}(?:$|\s+[—–-]\s+|:\s+)', heading[1])):
-            line, quote = (heading[0], heading[2]) if heading else slots[0][0]
+            line, quote = (heading[0], heading[2]) if heading else (slots[0][0] if slots else (1, ''))
             findings.append(finding('chapter-heading', path, line, quote, f'Expected a level-one heading beginning with {label!r}.'))
         for position, marker in slots:
             if marker is None:

@@ -3,7 +3,7 @@ name: nonfiction-factcheck
 description: "Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/Book-N/."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.4.0"
+  version: "1.5.0"
   bundled-dependencies: book-status
   category: nonfiction-editing
   output-format: markdown
@@ -118,6 +118,8 @@ Collect all worker results. Deduplicate by line number (the same assertion flagg
 ```
 
 Skip empty sections.
+
+For manifest-managed chapters use the `chapter_path` and `report_stem` returned by `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR`. Keep the normal report suffix and its companion metadata under `_Edits/Book-N/`. Numbered chapters retain their usual names.
 
 ## Step 6: Save and Report
 

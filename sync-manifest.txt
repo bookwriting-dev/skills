@@ -1,5 +1,7 @@
 .github/workflows/ci.yml
+CHANGELOG.md
 Makefile
+README.md
 VERSION
 docs/DEVELOPER.md
 docs/EDITORIAL-EVALS.md
@@ -10,7 +12,11 @@ docs/STATE-CONTRACT.md
 docs/USER.md
 docs/VERIFICATION-2026-11-01.md
 new-book.sh
+skills/beta-feedback/SKILL.md
+skills/beta-feedback/scripts/beta_feedback.py
 skills/book-packaging/SKILL.md
+skills/book-reverse-engineer/SKILL.md
+skills/book-reverse-engineer/scripts/manuscriptkit.py
 skills/book-status/SKILL.md
 skills/book-status/assets/report-meta.schema.json
 skills/book-status/references/continuity-review.md
@@ -28,6 +34,7 @@ skills/chapter-pipeline/SKILL.md
 skills/coldread/SKILL.md
 skills/compile-manuscript/SKILL.md
 skills/compile-manuscript/assets/export-config.json
+skills/compile-manuscript/scripts/beta_exchange.py
 skills/compile-manuscript/scripts/compile_manuscript.py
 skills/drift-check/SKILL.md
 skills/drift-check/references/drift.py
@@ -80,6 +87,7 @@ skills/fiction-writechapter/assets/active-context-template.md
 skills/fiction-writechapter/references/active-context-guide.md
 skills/fiction-writechapter/references/common-pitfalls.md
 skills/fiction-writechapter/references/json-active-context-schema.json
+skills/fiction-writechapter/references/opening-scene.md
 skills/fiction-writechapter/references/universal-quality-rules.md
 skills/fragment-hunter/SKILL.md
 skills/gate-check/SKILL.md
@@ -89,6 +97,7 @@ skills/kill-acronym/references/acronym.md
 skills/kill-chapter/SKILL.md
 skills/kill-chapter/references/opinion-personification.md
 skills/kill-chapter/references/person-who.md
+skills/kill-chapter/references/simile.md
 skills/kill-chapter/references/the-whole.md
 skills/kill-crutch/SKILL.md
 skills/kill-flat/SKILL.md
@@ -103,6 +112,10 @@ skills/kill-soft/SKILL.md
 skills/kill-the-whole/SKILL.md
 skills/levelup/SKILL.md
 skills/litrpg-audit/SKILL.md
+skills/litrpg-audit/references/audit-rules.md
+skills/litrpg-audit/scripts/stat_audit.py
+skills/litrpg-system/SKILL.md
+skills/litrpg-system/assets/ledger-template.yaml
 skills/name-generator/SKILL.md
 skills/nominalization-hunt/SKILL.md
 skills/nonfiction-audience/SKILL.md
@@ -167,6 +180,7 @@ templates/book-premise.md
 templates/kanban-board.md
 templates/series-brief.md
 tools/compile-check.py
+tools/editorial_study.py
 tools/eval-editorial.py
 tools/eval-exports.py
 tools/eval-fixtures/chapter-callouts.md
@@ -176,11 +190,13 @@ tools/eval-fixtures/promises-ledger.yaml
 tools/eval-fixtures/storycraft-book/Chapters/Book-1/Chapter-001.md
 tools/eval-fixtures/storycraft-book/Chapters/Book-1/Chapter-002.md
 tools/eval-fixtures/storycraft-book/Chapters/Book-1/Chapter-003.md
+tools/eval-routing.py
 tools/eval-skills.sh
 tools/gen-inventory.py
 tools/lint-skills.py
 tools/skill_lib.py
 tools/smoke-new-book.sh
+tools/test-storycraft-improvements.py
 tools/test-storycraft-state.py
 tools/update-project.py
 tools/update-project.sh

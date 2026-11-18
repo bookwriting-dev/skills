@@ -2,6 +2,14 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-17 — Manuscript integrity, scene voice, and beta feedback
+
+- Preview and safely repeat manuscript imports. Preserve front matter, resolve edited chapters with revision-bound diffs, and recover interrupted writes.
+- Register expected chapters and interludes before drafting. Publication checks the roster, and drafting, status, the board, and export share the project type's review defaults.
+- Give each scene its narrator's voice, story-time knowledge, and scoped editorial decisions. Resolve simile and punctuation guidance from the review guide and offer an intake-only opening-scene trial.
+- Check LitRPG abilities in character and event order and report measured progression checks and gaps in evidence.
+- Match Word comments and pasted notes to archived beta editions and carry selected comments into revision tasks. Add live routing evaluations and a matched, blind full-chapter evaluation workflow.
+
 ## 2026-11-16 — Integrated state procedures, isolated editor layers, non-fiction pipeline depth, generator/frontmatter fixes, and fleet/benchmark tooling
 
 Addresses five structural improvements across the 78-skill library and toolchain:

@@ -1,339 +1,522 @@
 #!/usr/bin/env python3
-"""Deterministic LitRPG numeric and progression continuity auditor.
-
-Verifies chapter text against canonical system rules and ledger.yaml:
-- Attribute point arithmetic (earned vs allocated)
-- Level-up XP thresholds and triggers
-- Status box calculations (HP/MP/SP vs attributes)
-- Skill unlock verification (no unearned skills used in combat)
-- Resource pool exhaustion / casting limits
-- Inventory and loot continuity
-
-Usage:
-    python3 stat_audit.py <path/to/chapter.md> [--ledger <path/to/ledger.yaml>] [--rules <path/to/system-rules.md>] [--json]
-"""
-import sys
-import os
-import re
+"""Audit chapter progression against the committed LitRPG ledger and cited events."""
+import argparse
+import ast
+from collections import defaultdict, Counter
+import importlib.util
 import json
 from pathlib import Path
+import re
 
 
-def load_simple_yaml(path):
-    """Minimal stdlib YAML parser for key-value and simple nested maps/lists in ledger.yaml."""
-    if not os.path.exists(path):
+RULES = ('skill_unlock', 'stat_points', 'xp', 'derived_pools', 'resources', 'inventory',
+         'incapacitation', 'status_length')
+HARD_RULES = {'skill_unlock', 'stat_points', 'derived_pools', 'incapacitation'}
+LEDGERS = ('Wiki/World/Systems/ledger.yaml', 'Wiki/World/ledger.yaml', 'ledger.yaml')
+EVENTS = {'unlock', 'use_skill', 'allocate', 'level_up', 'xp_gain', 'status', 'spend',
+          'recover', 'gain_item', 'lose_item', 'incapacitate', 'revive', 'act'}
+
+
+def number(value):
+    return value if type(value) is int and value >= 0 else None
+
+
+def key(name):
+    return ' '.join(str(name).replace('_', ' ').casefold().split())
+
+
+def chapter_number(value):
+    match = re.fullmatch(r'(?:Chapter[- ]?)?(\d+)(?:\.md)?', str(value), re.I)
+    return int(match[1]) if match else None
+
+
+def locate_ledger(chapter, explicit):
+    for root in chapter.parents:
+        if (root / 'Wiki').is_dir() or (root / '.storycraft').is_dir():
+            book = next((part for part in chapter.relative_to(root).parts
+                         if re.fullmatch(r'Book-\d+', part)), None)
+            candidates = [*LEDGERS]
+            if book:
+                candidates.insert(1, f'Wiki/Story/{book}/ledger.yaml')
+            if explicit:
+                return root, explicit
+            store = ledger_module()
+            pointer = store.current_pointer(root) if store is not None else None
+            committed = (pointer or {}).get('ledgers', {})
+            return root, next((root / path for path in candidates if path in committed or (root/path).is_file()), None)
+    candidates = [root / name for root in chapter.parents[:3] for name in LEDGERS]
+    return None, explicit or next((path for path in candidates if path.is_file()), None)
+
+
+def ledger_module():
+    path = Path(__file__).resolve().parents[2] / 'book-status/scripts/ledger_store.py'
+    if not path.is_file():
         return None
-    data = {}
-    current_section = None
-    sub_section = None
-    sub_sub_section = None
-    
-    with open(path, "r", encoding="utf-8") as f:
-        for line in f:
-            raw = line.rstrip()
-            if not raw or raw.strip().startswith("#"):
-                continue
-            
-            indent = len(raw) - len(raw.lstrip())
-            stripped = raw.strip()
-            
-            if indent == 0 and stripped.endswith(":"):
-                current_section = stripped[:-1].strip()
-                data[current_section] = {}
-                sub_section = None
-                sub_sub_section = None
-            elif indent == 2 and current_section and stripped.endswith(":"):
-                sub_section = stripped[:-1].strip()
-                data[current_section][sub_section] = {}
-                sub_sub_section = None
-            elif indent == 4 and current_section and sub_section and stripped.endswith(":"):
-                sub_sub_section = stripped[:-1].strip()
-                data[current_section][sub_section][sub_sub_section] = {}
-            elif ":" in stripped:
-                k, v = stripped.split(":", 1)
-                k = k.strip()
-                v = v.strip().strip('"').strip("'")
-                
-                # Try parsing numeric or boolean
-                if v.lower() == "true":
-                    val = True
-                elif v.lower() == "false":
-                    val = False
-                elif v.isdigit():
-                    val = int(v)
-                else:
-                    try:
-                        val = float(v)
-                    except ValueError:
-                        val = v
-                
-                if sub_sub_section and current_section and sub_section:
-                    data[current_section][sub_section][sub_sub_section][k] = val
-                elif sub_section and current_section:
-                    data[current_section][sub_section][k] = val
-                elif current_section:
-                    data[current_section][k] = val
-            elif stripped.startswith("- ") and current_section and sub_section:
-                val = stripped[2:].strip().strip('"').strip("'")
-                if not isinstance(data[current_section][sub_section], list):
-                    data[current_section][sub_section] = []
-                data[current_section][sub_section].append(val)
-                
-    return data
+    spec = importlib.util.spec_from_file_location('storycraft_litrpg_ledger', path)
+    store = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(store)
+    return store
 
 
-def find_ledger_file(chapter_path):
-    """Search for ledger.yaml relative to chapter directory."""
-    p = Path(chapter_path).resolve()
-    # Check parent dirs
-    for parent in [p.parent, p.parent.parent, p.parent.parent.parent]:
-        candidates = [
-            parent / "Wiki" / "World" / "Systems" / "ledger.yaml",
-            parent / "Wiki" / "World" / "ledger.yaml",
-            parent / "ledger.yaml",
-        ]
-        # Also check Book-N subfolder
-        for cand in candidates:
-            if cand.exists():
-                return str(cand)
-    return None
+def ledger_bytes(path, root):
+    if root and path.is_relative_to(root):
+        store = ledger_module()
+        if store is None:
+            raise ValueError('book-status ledger helper is missing from this installation')
+        raw = store.load_ledger_bytes(root, path.relative_to(root).as_posix())
+        if raw is not None:
+            return raw
+    return path.read_bytes()
 
 
-def extract_system_blocks(text):
-    """Extract markdown blockquotes or callouts containing system notifications."""
+def yaml_mapping(raw, path):
+    try:
+        import yaml
+    except ImportError as exc:
+        raise ValueError('PyYAML is required to read the progression ledger') from exc
+    try:
+        document = yaml.safe_load(raw)
+    except yaml.YAMLError as exc:
+        raise ValueError(f'cannot read YAML ledger {path}: {exc}') from exc
+    if not isinstance(document, dict):
+        raise ValueError(f'{path} needs a YAML mapping')
+    return document
+
+
+def system_blocks(lines):
+    """Only classify game displays. An ordinary quotation is reader prose."""
     blocks = []
-    lines = text.splitlines()
-    in_block = False
-    current_block = []
-    
-    for i, line in enumerate(lines, 1):
-        stripped = line.strip()
-        if stripped.startswith(">"):
-            in_block = True
-            current_block.append((i, stripped.lstrip(">").strip()))
-        else:
-            if in_block:
-                if current_block:
-                    blocks.append(current_block)
-                    current_block = []
-                in_block = False
-    if in_block and current_block:
-        blocks.append(current_block)
+    current = []
+    for n, line in enumerate([*lines, ''], 1):
+        if line.lstrip().startswith('>'):
+            current.append((n, line.lstrip()[1:].strip()))
+        elif current:
+            content = '\n'.join(text for _, text in current)
+            if re.match(r'\[!(?:system|alert|skill|quest|status|level|item|stat)\b', content, re.I) or re.search(
+                    r'^(?:\*{0,2})(?:level up|health|hp|mp|sp|str|agility|skill unlocked)\b', content, re.I | re.M):
+                blocks.append(current)
+            current = []
     return blocks
 
 
-def audit_chapter(chapter_path, ledger_path=None, rules_path=None):
-    if not os.path.exists(chapter_path):
-        return {"error": f"Chapter file not found: {chapter_path}"}
-        
-    with open(chapter_path, "r", encoding="utf-8") as f:
-        content = f.read()
-        
-    if not ledger_path:
-        ledger_path = find_ledger_file(chapter_path)
-        
-    ledger_data = load_simple_yaml(ledger_path) if ledger_path else None
-    
-    findings = {
-        "chapter": chapter_path,
-        "ledger_found": bool(ledger_path),
-        "ledger_path": ledger_path,
-        "system_blocks_count": 0,
-        "violations": [],
-        "warnings": [],
-        "notices": [],
-        "detected_stats": {},
-        "detected_skills": [],
-        "detected_level_ups": [],
-        "xp_mentions": [],
-    }
-    
-    # 1. System Block Extraction & Analysis
-    blocks = extract_system_blocks(content)
-    findings["system_blocks_count"] = len(blocks)
-    
-    for block in blocks:
-        block_text = " ".join([line[1] for line in block])
-        line_num = block[0][0]
-        
-        # Detect Level-Up
-        lvl_match = re.search(r'(?:level\s+(?:up!?|reached|is)|reached\s+(?:\*\*|)?level|current\s+level)\s*[:\*\s]*(\d+)(?:\s*->\s*(\d+))?', block_text, re.IGNORECASE)
-        if not lvl_match and re.search(r'level\s+up!?', block_text, re.IGNORECASE):
-            lvl_match = re.search(r'\blevel\b\s*[:\*\s]*(\d+)', block_text, re.IGNORECASE)
-        if lvl_match:
-            old_lvl = lvl_match.group(1)
-            new_lvl = lvl_match.group(2) if (lvl_match.lastindex and lvl_match.lastindex >= 2 and lvl_match.group(2)) else old_lvl
-            findings["detected_level_ups"].append({
-                "line": line_num,
-                "text": block_text[:80],
-                "full_text": block_text,
-                "level": int(new_lvl)
-            })
-            
-        # Detect Attribute Deltas (e.g. STR: 12 -> 14 (+2) or Strength +2)
-        attr_deltas = re.findall(r'\b(STR|AGI|DEX|CON|END|INT|WIS|WIL|CHA|LCK|Strength|Agility|Constitution|Intelligence|Wisdom|Charisma|Luck)\b[^\d\+\-]*(\d+)?\s*(?:->|\+)\s*(\d+)', block_text, re.IGNORECASE)
-        for ad in attr_deltas:
-            attr_name = ad[0].upper()
-            findings["detected_stats"][attr_name] = ad[2]
-            
-        # Detect Skill Unlocks
-        skill_match = re.search(r'(?:skill\s+(?:acquired|unlocked|learned|upgraded))\s*[:\*\s]*([^\|\n\.\>]+)', block_text, re.IGNORECASE)
-        if skill_match:
-            skill_name = skill_match.group(1).strip().strip("*").strip()
-            findings["detected_skills"].append({
-                "line": line_num,
-                "skill": skill_name
-            })
-            
-    # 2. General Prose XP & Stat Mention Scan
-    xp_matches = re.finditer(r'\b(?:\+?\s*(\d+[\d,]*)\s*(?:XP|EXP|Experience))\b', content, re.IGNORECASE)
-    for m in xp_matches:
-        val_str = m.group(1).replace(",", "")
-        findings["xp_mentions"].append(int(val_str))
-        
-    # 3. Check Arithmetic & Ledger Consistency
-    if ledger_data:
-        system_rules = ledger_data.get("system_rules", {})
-        stat_pts_per_lvl = system_rules.get("stat_points_per_level", 5)
-        
-        # Check level up point consistency
-        if findings["detected_level_ups"]:
-            for lu in findings["detected_level_ups"]:
-                target_lvl = lu["level"]
-                search_scope = lu.get("full_text", lu["text"])
-                allocated_points = 0
-                
-                # Check patterns like: "+5 points", "+5 free points", "Points: +5", "Points: **+5**"
-                pt_matches = re.findall(r'(?:\+|\b)(\d+)\s*(?:\*\*)?\s*(?:points|free points|unassigned|attribute points)', search_scope, re.IGNORECASE)
-                if not pt_matches:
-                    pt_matches = re.findall(r'(?:points|attribute points|unassigned)\s*[:\*\s]*\+?(\d+)', search_scope, re.IGNORECASE)
-                    
-                for pm in pt_matches:
-                    allocated_points += int(pm)
-                    
-                if allocated_points > 0 and allocated_points != stat_pts_per_lvl:
-                    findings["warnings"].append({
-                        "line": lu["line"],
-                        "type": "STAT_POINT_MISMATCH",
-                        "message": f"Level up awarded {allocated_points} points, but system rules declare {stat_pts_per_lvl} points per level."
-                    })
-                    
-        # Check Character Skill Legality
-        known_skills = set()
-        for char_name, cdata in ledger_data.get("characters", {}).items():
-            if isinstance(cdata, dict):
-                skills_list = cdata.get("skills", [])
-                if isinstance(skills_list, list):
-                    for s in skills_list:
-                        if isinstance(s, dict) and "name" in s:
-                            known_skills.add(s["name"].lower())
-                        elif isinstance(s, str):
-                            known_skills.add(s.lower())
-                            
-        # Scan combat casting phrases: "cast [Skill]", "activated [Skill]", "invoked [Skill]"
-        cast_matches = re.finditer(r'\b(?:cast|casted|activated|invoked|channeled)\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)\b', content)
-        for cm in cast_matches:
-            invoked = cm.group(1).strip()
-            # If known_skills is populated and invoked skill isn't in it and wasn't unlocked in this chapter
-            if known_skills and invoked.lower() not in known_skills:
-                # Check if it was unlocked in this chapter
-                unlocked_here = any(invoked.lower() in ds["skill"].lower() for ds in findings["detected_skills"])
-                if not unlocked_here:
-                    findings["notices"].append({
-                        "type": "UNREGISTERED_SKILL_INVOCATION",
-                        "skill": invoked,
-                        "message": f"Skill '{invoked}' was invoked but is not recorded in ledger.yaml skills list or unlocked in this chapter."
-                    })
-
-    else:
-        findings["notices"].append({
-            "type": "NO_LEDGER_FILE",
-            "message": "No ledger.yaml found. Auditing against internal chapter consistency only."
-        })
-        
-    # Check for Stat-Dump Paralysis (> 25 consecutive lines inside system blockquote)
-    for block in blocks:
-        if len(block) > 25:
-            findings["warnings"].append({
-                "line": block[0][0],
-                "type": "STAT_DUMP_PARALYSIS",
-                "message": f"System block exceeds 25 lines ({len(block)} lines). Reader fatigue risk; consider using condensed delta format."
-            })
-            
-    findings["status"] = "FAIL" if findings["violations"] else ("WARN" if findings["warnings"] else "PASS")
-    return findings
-
-
-def format_markdown_report(report):
-    lines = [
-        f"# LitRPG Progression Audit: {os.path.basename(report['chapter'])}",
-        f"**Status:** {report['status']} | **System Blocks:** {report['system_blocks_count']} | **Ledger:** {'Loaded' if report['ledger_found'] else 'None'}",
-        "",
-        "## Summary",
-        f"- **Violations:** {len(report['violations'])}",
-        f"- **Warnings:** {len(report['warnings'])}",
-        f"- **Notices:** {len(report['notices'])}",
-        f"- **Level-Ups Detected:** {len(report['detected_level_ups'])}",
-        f"- **Skills Unlocked:** {len(report['detected_skills'])}",
-        "",
-    ]
-    
-    if report["violations"]:
-        lines.append("## Violations (Hard Fail)")
-        for v in report["violations"]:
-            lines.append(f"- **Line {v.get('line', '?')}:** [{v.get('type')}] {v.get('message')}")
-        lines.append("")
-        
-    if report["warnings"]:
-        lines.append("## Warnings")
-        for w in report["warnings"]:
-            lines.append(f"- **Line {w.get('line', '?')}:** [{w.get('type')}] {w.get('message')}")
-        lines.append("")
-        
-    if report["notices"]:
-        lines.append("## Notices & Tracked State")
-        for n in report["notices"]:
-            lines.append(f"- [{n.get('type')}] {n.get('message')}")
-        lines.append("")
-        
-    if report["detected_level_ups"]:
-        lines.append("## Detected Level-Ups")
-        for lu in report["detected_level_ups"]:
-            lines.append(f"- Line {lu['line']}: Level {lu['level']} -> `{lu['text']}`")
-        lines.append("")
-        
-    return "\n".join(lines)
-
-
-if __name__ == "__main__":
-    if len(sys.argv) < 2 or sys.argv[1] in ("-h", "--help", "help"):
-        print("Usage: python3 stat_audit.py <path/to/chapter.md> [--ledger <ledger.yaml>] [--json]")
-        sys.exit(0 if len(sys.argv) >= 2 and sys.argv[1] in ("-h", "--help", "help") else 1)
-        
-    chapter_arg = sys.argv[1]
-    if not os.path.exists(chapter_arg):
-        sys.exit(f"error: Chapter file not found: {chapter_arg}")
-        
-    ledger_arg = None
-    output_json = False
-    
-    i = 2
-    while i < len(sys.argv):
-        if sys.argv[i] == "--ledger" and i + 1 < len(sys.argv):
-            ledger_arg = sys.argv[i + 1]
-            i += 2
-        elif sys.argv[i] == "--json":
-            output_json = True
-            i += 1
+def skill_records(character):
+    skills = character.get('skills')
+    if not isinstance(skills, list):
+        return None
+    records = {}
+    for entry in skills:
+        if isinstance(entry, str):
+            records[key(entry)] = {}
+        elif isinstance(entry, dict) and isinstance(entry.get('name'), str):
+            records[key(entry['name'])] = entry
         else:
-            i += 1
-            
-    res = audit_chapter(chapter_arg, ledger_arg)
-    if output_json:
-        print(json.dumps(res, indent=2))
+            return None
+    return records
+
+
+def actor_index(characters):
+    aliases = defaultdict(set)
+    for name, data in characters.items():
+        if not isinstance(data, dict):
+            raise ValueError(f'invalid character record: {name}')
+        display = name.replace('_', ' ')
+        names = [display, display.split()[0], *data.get('aliases', [])]
+        for alias in names:
+            aliases[key(alias)].add(name)
+    return {alias: next(iter(names)) for alias, names in aliases.items() if len(names) == 1}
+
+
+def text_events(lines, actors, displays, default_actor):
+    """Recover clearly named actions and display fields with exact line evidence."""
+    out = []
+    names = sorted(actors, key=len, reverse=True)
+    subjects = '|'.join(re.escape(name).replace(r'\ ', '[ _]+') for name in names)
+    skill_use = re.compile(
+        rf"\b(?P<actor>(?i:{subjects}|he|she|they|I)|[A-Z][\w'’-]*)\s+"
+        r"(?i:cast|casts|casted|invoked|invokes|activated|activates|channeled)\s+"
+        r"(?P<skill>[A-Z][\w'’-]*(?:[ -]+[A-Z][\w'’-]*){0,5})\b"
+    )
+    for n, line in enumerate(lines, 1):
+        if not line.lstrip().startswith('>'):
+            for match in skill_use.finditer(line):
+                out.append(dict(type='use_skill', actor=actors.get(key(match['actor'])),
+                                skill=match['skill'], line=n, quote=match[0]))
+    for block in displays:
+        for n, text in block:
+            evidence = {'line': n, 'quote': lines[n-1].strip(), 'actor': default_actor}
+            text = text.replace('**', '')
+            named = re.search(r'^(?:character|actor)\s*:\s*(.+)$', text, re.I)
+            if named:
+                default_actor = actors.get(key(named[1]))
+                continue
+            unlock = re.search(r'\bskill\s+(?:unlocked|acquired|learned)\s*:\s*([^|]+)', text, re.I)
+            if unlock:
+                out.append(dict(evidence, type='unlock', skill=unlock[1].strip()))
+            level = re.search(r'\blevel\s+(?:up!?|reached)\s*[:*\s]+(?:\d+\s*(?:->|→)\s*)?(\d+)', text, re.I)
+            if level:
+                out.append(dict(evidence, type='level_up', level=int(level[1])))
+            xp = re.search(r'\+([\d,]+)\s*(?:XP|EXP)\b', text, re.I)
+            if xp:
+                out.append(dict(evidence, type='xp_gain', amount=int(xp[1].replace(',', ''))))
+            allocation = re.search(r'\b([A-Z]{2,4})\s*:?\s*(?:\d+\s*(?:→|->)\s*\d+\s*\()?\+(\d+)\b', text)
+            if allocation and allocation[1] not in ('HP', 'MP', 'SP', 'XP', 'EXP'):
+                out.append(dict(evidence, type='allocate', attribute=allocation[1], amount=int(allocation[2])))
+            pools = dict((pool.upper(), int(maximum or value)) for pool, value, maximum
+                         in re.findall(r'\b(?:Max\s+)?(HP|MP|SP)\s*:\**\s*(\d+)(?:\s*/\s*(\d+))?', text, re.I))
+            if pools:
+                out.append(dict(evidence, type='status', pools=pools))
+    return out
+
+
+def event_list(record, actors, chapter, lines, displays):
+    default = actors.get(key(record.get('character', '')))
+    if default is None and len(set(actors.values())) == 1:
+        default = next(iter(actors.values()))
+    extracted = text_events(lines, actors, displays, default)
+    supplied = []
+    for event in record.get('events', []):
+        if not isinstance(event, dict):
+            raise ValueError('progression events must be mappings')
+        kind = event.get('type') or ('xp_gain' if 'xp_gain' in event else None)
+        if kind is None:
+            continue
+        if kind not in EVENTS:
+            raise ValueError(f'unknown progression event type: {kind}')
+        row = dict(event, type=kind, actor=actors.get(key(event['actor'])) if 'actor' in event else default)
+        if 'xp_gain' in event:
+            row['amount'] = event['xp_gain']
+        line = event.get('line')
+        if line is not None:
+            quote = event.get('quote')
+            if type(line) is not int or not 1 <= line <= len(lines) or not isinstance(quote, str) or not quote or quote not in lines[line-1]:
+                raise ValueError(f'{chapter.name}: progression event has stale line/quote evidence')
+        supplied.append(row)
+    # Same text and declared event describe a single state transition.
+    anchors = {(entry['line'], entry['type']) for entry in supplied if 'line' in entry}
+    # Legacy aggregate event lists rarely name lines. A display match to the same XP
+    # gain still needs reconciliation before combining those two interpretations.
+    legacy_xp = any(row['type'] == 'xp_gain' and 'line' not in row for row in supplied)
+    extracted = [row for row in extracted if (row['line'], row['type']) not in anchors
+                 and not (legacy_xp and row['type'] == 'xp_gain')]
+    return sorted(supplied + extracted, key=lambda row: (row.get('line', 0), 'line' not in row))
+
+
+def xp_threshold(rules, level):
+    if level is None or level < 2:
+        return None
+    table = rules.get('xp_thresholds', {})
+    if isinstance(table, dict) and (value := table.get(level, table.get(str(level)))) is not None:
+        return number(value)
+    base = number(rules.get('xp_base'))
+    if base and rules.get('xp_model') == 'quadratic':
+        return base * (level - 1) ** 2
+    growth = number(rules.get('xp_growth'))
+    if base and growth and rules.get('xp_model') == 'exponential':
+        return base * growth ** (level - 2)
+    return None
+
+
+def pool_max(formula, state):
+    if not isinstance(formula, dict) or not all(type(coefficient) is int for coefficient in formula.values()):
+        return None
+    values = {'level': state['level'], **state['attributes']}
+    if any(field != 'base' and number(values.get(field)) is None for field in formula):
+        return None
+    return sum(coefficient * (1 if field == 'base' else values[field])
+               for field, coefficient in formula.items())
+
+
+def markdown_pools(text):
+    """Read the additive formulas generated by the original system-rules template."""
+    def terms(node):
+        if isinstance(node, ast.Constant) and type(node.value) is int:
+            return {'base': node.value}
+        if isinstance(node, ast.Name):
+            return {'level' if node.id.casefold() == 'level' else node.id.upper(): 1}
+        if not isinstance(node, ast.BinOp):
+            raise ValueError('unsupported arithmetic')
+        left = terms(node.left)
+        right = terms(node.right)
+        if isinstance(node.op, ast.Mult) and len(left) == 1 and 'base' in left:
+            return {field: value * left['base'] for field, value in right.items()}
+        if isinstance(node.op, ast.Mult) and len(right) == 1 and 'base' in right:
+            return {field: value * right['base'] for field, value in left.items()}
+        if isinstance(node.op, (ast.Add, ast.Sub)):
+            sign = -1 if isinstance(node.op, ast.Sub) else 1
+            return {field: left.get(field, 0) + sign * right.get(field, 0)
+                    for field in left.keys() | right.keys()}
+        raise ValueError('unsupported arithmetic')
+
+    pools = {}
+    for pool, formula in re.findall(r'\b(HP|MP|SP)\):\*\*[ \t]*\x60([^\x60\n]+)\x60', text):
+        try:
+            pools[pool] = terms(ast.parse(formula, mode='eval').body)
+        except (SyntaxError, ValueError):
+            continue
+    return pools
+
+
+def states(characters, record, n):
+    result = {}
+    participants = record.get('participants', {})
+    for name, sheet in characters.items():
+        own = participants.get(name, {})
+        entrance = own.get('state_in', record.get('state_in', {}) if name == record.get('character') else {})
+        if number(sheet.get('state_chapter')) == n:
+            entrance = dict(sheet, **entrance)
+        skills = skill_records(sheet)
+        available = {}
+        unknown = set()
+        for skill, details in (skills or {}).items():
+            unlock = chapter_number(details.get('unlocked_chapter'))
+            if unlock is not None and unlock < n:
+                available[skill] = details
+            elif unlock is None or unlock == n:
+                unknown.add(skill)
+        inventory = entrance.get('inventory')
+        result[name] = {
+            'skills': available, 'registry': skills, 'unknown_skills': unknown,
+            'level': number(entrance.get('level', entrance.get('current_level'))),
+            'xp': number(entrance.get('xp', entrance.get('total_xp'))),
+            'unspent': number(entrance.get('unspent_stats', entrance.get('unspent_stat_points'))),
+            'attributes': dict(entrance.get('attributes', {})),
+            'resources': {key(k): v for k, v in entrance.get('resources', {}).items()},
+            'inventory': {key(k): v for k, v in inventory.items()} if isinstance(inventory, dict) else None,
+            'incapacitated': entrance.get('incapacitated'),
+        }
+    return result
+
+
+def compare_state_out(record, actors, checks):
+    for actor, state in actors.items():
+        default = record.get('state_out', {}) if actor == record.get('character') else {}
+        ending = record.get('participants', {}).get(actor, {}).get('state_out', default)
+        for label, field, rule in (
+            ('inventory', 'inventory', 'inventory'), ('resources', 'resources', 'resources'),
+            ('xp', 'xp', 'xp'), ('level', 'level', 'xp'), ('unspent_stats', 'unspent', 'stat_points'),
+        ):
+            if label not in ending:
+                continue
+            expected, tracked = ending[label], state[field]
+            if isinstance(expected, dict):
+                expected = {key(name): value for name, value in expected.items() if value != 0}
+                if isinstance(tracked, dict):
+                    tracked = {name: value for name, value in tracked.items() if value != 0}
+            status = ('UNVERIFIED' if tracked is None else 'PASS' if tracked == expected
+                      else 'FAIL' if rule in HARD_RULES else 'WARN')
+            checks[rule].append({'type': rule.upper(), 'status': status, 'line': None,
+                                 'message': f'{actor}: ending {label} is {expected!r}, ledger transitions give {tracked!r}'})
+
+
+def audit_events(events, actors, rules, checks):
+    def result(category, status, message, event):
+        checks[category].append({'status': status, 'type': category.upper(), 'message': message,
+                                 'line': event.get('line'), 'quote': event.get('quote')})
+
+    incoming_unlocks = Counter((event['actor'], key(event.get('skill', '')))
+                               for event in events if event['type'] == 'unlock')
+    anchored_spends = {(event['actor'], event.get('line'), key(event.get('resource', '')))
+                       for event in events if event['type'] == 'spend' and event.get('line') is not None}
+    unanchored_unlocks = set()
+    for event in events:
+        actor, kind = event.get('actor'), event['type']
+        state = actors.get(actor)
+        amount = number(event.get('amount'))
+        skill = key(event.get('skill', ''))
+        category = dict(unlock='skill_unlock', use_skill='skill_unlock', allocate='stat_points',
+                        level_up='xp', xp_gain='xp', status='derived_pools', spend='resources',
+                        recover='resources', gain_item='inventory', lose_item='inventory',
+                        incapacitate='incapacitation', revive='incapacitation', act='incapacitation')[kind]
+        if state is None:
+            result(category, 'UNVERIFIED', 'cannot identify the acting character', event)
+            continue
+
+        def record(status, message, check=category):
+            result(check, status, f'{actor}: {message}', event)
+
+        if kind in ('act', 'use_skill'):
+            if state['incapacitated'] is None:
+                record('UNVERIFIED', 'incapacitation state before action is unknown', 'incapacitation')
+            else:
+                record('FAIL' if state['incapacitated'] else 'PASS',
+                       'acting while incapacitated' if state['incapacitated'] else 'action while able', 'incapacitation')
+        if kind in ('incapacitate', 'revive'):
+            state['incapacitated'] = kind == 'incapacitate'
+            record('PASS', f'{kind} state recorded')
+        elif kind == 'unlock':
+            incoming_unlocks[(actor, skill)] -= 1
+            if 'line' not in event:
+                unanchored_unlocks.add((actor, skill))
+            details = (state['registry'] or {}).get(skill, {})
+            level = number(event.get('requires_level', details.get('requires_level')))
+            prerequisites = event.get('requires', details.get('requires', []))
+            if not skill or (level is not None and state['level'] is None):
+                record('UNVERIFIED', 'skill name or prerequisite state is missing')
+            elif (level is not None and state['level'] < level) or any(key(item) not in state['skills'] for item in prerequisites):
+                record('FAIL', f'prerequisites unmet for {event["skill"]}')
+            else:
+                state['skills'][skill] = details
+                state['unknown_skills'].discard(skill)
+                record('PASS', f'{event["skill"]} unlocked')
+        elif kind == 'use_skill':
+            if skill in state['skills'] and ('line' not in event or (actor, skill) not in unanchored_unlocks):
+                record('PASS', f'{event["skill"]} was available at use')
+                detail = state['skills'][skill]
+                resource = key(detail.get('cost_type', ''))
+                cost = number(detail.get('cost'))
+                if resource and cost and (actor, event.get('line'), resource) not in anchored_spends:
+                    if type(state['resources'].get(resource)) is not int:
+                        record('UNVERIFIED', f'entering {resource} is missing for the skill cost', 'resources')
+                    else:
+                        state['resources'][resource] -= cost
+                        remaining = state['resources'][resource]
+                        record('WARN' if remaining < 0 else 'PASS',
+                               f'{event["skill"]} spends {cost} {resource}, leaving {remaining}', 'resources')
+            elif (incoming_unlocks[(actor, skill)] > 0 or
+                  (skill and state['registry'] is not None and skill not in state['unknown_skills']
+                   and (actor, skill) not in unanchored_unlocks)):
+                record('FAIL', f'{event["skill"]} was not unlocked at use')
+            else:
+                record('UNVERIFIED', f'unlock position for {event.get("skill", "skill")} is unknown')
+        elif kind == 'xp_gain':
+            if amount is None or state['xp'] is None:
+                record('UNVERIFIED', 'earned or entering XP is missing')
+            else:
+                state['xp'] += amount
+                record('PASS', f'XP increases to {state["xp"]}')
+        elif kind == 'level_up':
+            level = number(event.get('level'))
+            threshold = xp_threshold(rules, level)
+            if threshold is None or state['xp'] is None or state['level'] is None:
+                record('UNVERIFIED', 'level threshold or prior XP/level is missing')
+                state['level'] = level
+                state['unspent'] = None
+            elif state['xp'] < threshold or level <= state['level']:
+                record('WARN', f'level {level} requires {threshold} XP and an increase from level {state["level"]}')
+            else:
+                per_level = number(rules.get('stat_points_per_level'))
+                if state['unspent'] is not None and per_level is not None:
+                    state['unspent'] += (level - state['level']) * per_level
+                else:
+                    state['unspent'] = None
+                state['level'] = level
+                record('PASS', f'level {level} meets the XP threshold')
+        elif kind == 'allocate':
+            if state['unspent'] is None or amount is None:
+                record('UNVERIFIED', 'available stat points or allocation is missing')
+            elif amount > state['unspent']:
+                record('FAIL', f'allocates {amount} points with {state["unspent"]} available')
+            else:
+                state['unspent'] -= amount
+                attribute = event.get('attribute', '')
+                if attribute in state['attributes']:
+                    state['attributes'][attribute] += amount
+                record('PASS', f'allocates {amount} earned points')
+        elif kind == 'status':
+            for pool, printed in event.get('pools', {}).items():
+                expected = pool_max(rules.get('pool_formulas', {}).get(pool.upper()), state)
+                if expected is None or number(printed) is None:
+                    record('UNVERIFIED', f'{pool} formula, attributes, or printed value is missing')
+                else:
+                    record('PASS' if expected == printed else 'FAIL', f'{pool} printed {printed}, expected {expected}')
+        elif kind in ('spend', 'recover'):
+            resource = key(event.get('resource', ''))
+            previous = state['resources'].get(resource)
+            if not resource or type(previous) is not int or amount is None:
+                record('UNVERIFIED', f'prior {resource} or amount is missing')
+            else:
+                remaining = previous - amount if kind == 'spend' else previous + amount
+                record('WARN' if remaining < 0 else 'PASS', f'{resource} changes from {previous} to {remaining}')
+                state['resources'][resource] = remaining
+        elif kind in ('gain_item', 'lose_item'):
+            inventory = state['inventory']
+            item = key(event.get('item', ''))
+            previous = number(inventory.get(item, 0)) if inventory is not None else None
+            if not item or amount is None or previous is None:
+                record('UNVERIFIED', 'inventory before the transfer or transferred quantity is missing')
+            else:
+                remaining = previous + amount if kind == 'gain_item' else previous - amount
+                record('WARN' if remaining < 0 else 'PASS', f'{item} count changes from {previous} to {remaining}')
+                inventory[item] = remaining
+
+
+def audit_chapter(chapter_path, ledger_path=None, rules_path=None):
+    chapter = Path(chapter_path).resolve()
+    lines = chapter.read_text(encoding='utf-8').splitlines()
+    displays = system_blocks(lines)
+    checks = {rule: [] for rule in RULES}
+    for block in displays:
+        checks['status_length'].append(dict(status='WARN' if len(block) > 25 else 'PASS',
+                                           type='STAT_DUMP_PARALYSIS', line=block[0][0],
+                                           message=f'system display contains {len(block)} lines (limit 25)'))
+    n = chapter_number(chapter.stem)
+    coverage_issue = None
+    ledger = None
+    try:
+        project, ledger = locate_ledger(chapter, Path(ledger_path).resolve() if ledger_path else None)
+    except (ValueError, OSError, TypeError) as exc:
+        coverage_issue = str(exc)
+    if not ledger:
+        coverage_issue = coverage_issue or 'progression ledger is missing'
+    elif n is None:
+        coverage_issue = 'chapter number is required for unlock chronology'
     else:
-        print(format_markdown_report(res))
-        
-    if res.get("status") == "FAIL":
-        sys.exit(1)
-    sys.exit(0)
+        try:
+            data = yaml_mapping(ledger_bytes(ledger, project), ledger)
+            characters = data.get('characters')
+            if not isinstance(characters, dict) or not characters:
+                raise ValueError('ledger needs a nonempty characters mapping')
+            record = data.get('chapters', {}).get(f'Chapter-{n:03}', {})
+            rules = dict(data.get('system_rules', {}))
+            explicit_path = Path(rules_path) if rules_path else None
+            if explicit_path and explicit_path.suffix.lower() in ('.yaml', '.yml'):
+                explicit = yaml_mapping(explicit_path.read_bytes(), explicit_path)
+                rules = explicit.get('system_rules', explicit)
+            elif explicit_path or (project and 'pool_formulas' not in rules):
+                source = explicit_path or project / 'Wiki/World/Systems/system-rules.md'
+                if source.is_file() or explicit_path:
+                    rules['pool_formulas'] = markdown_pools(source.read_text(encoding='utf-8'))
+            actors = actor_index(characters)
+            events = event_list(record, actors, chapter, lines, displays)
+            actor_states = states(characters, record, n)
+            audit_events(events, actor_states, rules, checks)
+            compare_state_out(record, actor_states, checks)
+        except (ValueError, OSError, KeyError, TypeError, AttributeError) as exc:
+            coverage_issue = str(exc)
+    verdicts = {}
+    for rule, findings in checks.items():
+        statuses = {item['status'] for item in findings}
+        verdicts[rule] = next((status for status in ('FAIL', 'WARN', 'UNVERIFIED', 'PASS') if status in statuses),
+                              'UNVERIFIED' if coverage_issue and rule != 'status_length' else 'NOT_APPLICABLE')
+    findings = [item for items in checks.values() for item in items]
+    hard = [item for item in findings if item['status'] == 'FAIL' and item['type'].lower() in HARD_RULES]
+    warnings = [item for item in findings if item['status'] in ('WARN', 'UNVERIFIED')]
+    if coverage_issue:
+        warnings.append(dict(type='AUDIT_COVERAGE', message=coverage_issue))
+    return dict(chapter=str(chapter_path), ledger_found=bool(ledger), ledger_path=str(ledger) if ledger else None,
+                status='FAIL' if hard else 'WARN' if warnings else 'PASS',
+                system_blocks_count=len(displays), violations=hard, warnings=warnings, notices=[],
+                rule_results=verdicts, checked_evidence=checks)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('chapter')
+    parser.add_argument('--ledger')
+    parser.add_argument('--rules', help='explicit YAML rules or legacy Markdown pool formulas')
+    parser.add_argument('--json', action='store_true')
+    args = parser.parse_args()
+    report = audit_chapter(args.chapter, args.ledger, args.rules)
+    if args.json:
+        print(json.dumps(report, indent=2, ensure_ascii=False))
+    else:
+        print(f'# LitRPG progression audit\n\n**Status:** {report["status"]}')
+        for rule, verdict in report['rule_results'].items():
+            print(f'- {rule}: {verdict}')
+        for finding in report['violations'] + report['warnings']:
+            print(f'- {finding.get("line") or "ledger"} — {finding["message"]}')
+    return 1 if report['status'] == 'FAIL' else 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

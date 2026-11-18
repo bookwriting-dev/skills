@@ -3,7 +3,7 @@ name: fiction-style
 description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or when the plan-the-book sequence reaches the style + voice step (after scene plans, alongside fiction-voiceprompt)."
 metadata:
   author: Fiction Toolkit
-  version: "7.2.0"
+  version: "7.3.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -88,6 +88,8 @@ Use [references/review-guide-schema.json](references/review-guide-schema.json) a
 - **thematic_checklist**: derived from the theme file's motifs and central_question if available; otherwise from the synopsis
 - All other fields: use the universal rules in the schema as the base; adjust for this project's genre and tone
 
+Preserve author-set punctuation and simile fields during regeneration. A simile limit may be a nonnegative integer or `unlimited`. Record a KEEP example only when the author supplied or approved it.
+
 Write the file with scalar fields (title, genre, pov, tone) in frontmatter and every structured field as a `##` section. Lists of structured objects become labeled sub-bullets, one bold field label per line, so they stay grep-able. For example:
 
 ```markdown
@@ -145,6 +147,8 @@ tone: "[tone descriptor]"
 
 ## Simile Rule
 - **max_per_chapter:** 3
+- **max_per_paragraph:** 1
+- **keep_example:** [Exact comparison the author has approved, with context]
 - **character_filters:** [per-character simile lens rules]
 
 ## Repetition

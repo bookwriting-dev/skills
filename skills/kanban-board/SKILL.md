@@ -3,7 +3,7 @@ name: kanban-board
 description: "Render and maintain a per-book Kanban production board at Wiki/Story/Book-N/kanban.md: one card per chapter in columns Backlog, Ready, Drafting, Review, Done, derived mechanically from the book outline, scene plans, chapter drafts, and gate/review reports. Use when user says 'kanban', 'show the board', 'chapter board', 'update the board', 'what is in progress', or 'where am I in this book'. Read-only diagnostic except for the board file itself; never edits chapters, scene plans, canon, or reports. Works for fiction and non-fiction."
 metadata:
   author: Storycraft Skills
-  version: "1.1.0"
+  version: "1.2.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -61,6 +61,7 @@ Flags: `no-scene-plan`, `no-outline-entry`, `unapplied-review-findings` (unresol
    ambiguous); honor an explicit book ("show the book 2 board"). If neither
    outline nor chapters exist for the book, say so and stop.
 2. **Collect evidence.** For each chapter number N:
+   - use `project_state.py --root ROOT --book Book-N dashboard` from [book-status](../book-status/scripts/project_state.py) for chapter IDs, expected and missing chapters, required reviews, and current readiness;
    - outline entry in `Wiki/Outline/Book-N/outline.md`;
    - scene plan `Wiki/Outline/Book-N/Chapter_NN_Scene.md`;
    - draft `Chapters/Book-N/Chapter-NNN.md` plus its word count;
@@ -69,7 +70,7 @@ Flags: `no-scene-plan`, `no-outline-entry`, `unapplied-review-findings` (unresol
      `PASS` / `WARN` / `FAIL`);
    - the book's promise ledger `Wiki/Story/Book-N/promises.yaml` (overdue
      count for the header, if present).
-3. **Place cards** by the column table, ties toward the earlier column.
+3. **Place cards** by the column table. Use the dashboard's `ready` verdict, current campaign state, and effective required reviews for Done.
 4. **Render the board** (template below) with a one-line header: book, refresh
    date, per-column counts, overdue-promise count.
 5. **Write** `Wiki/Story/Book-N/kanban.md` (create the folder if needed) and

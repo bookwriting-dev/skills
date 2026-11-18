@@ -1,9 +1,9 @@
 ---
 name: fiction-reviewchapter
-description: "Review chapters against style guide, characters, and world for actionable edits. Use when user says 'review chapter', 'edit chapter', 'check my chapter', or after writing. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
+description: "Review chapters against style guide, characters, and world for actionable edits. Use when the writer asks to review a chapter, check a chapter, or suggest changes. Applying numbered fixes goes through fiction-revise. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.11.0"
+  version: "2.12.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -189,10 +189,10 @@ Apply [evidence that a scene depends on](../book-status/references/evidence-chai
 
 ### Step 6: Audit the Chekhov ledger
 
-If `{{LEDGER_PATH}}` is "not found", skip this step and note: "No promise ledger found — run `fiction-promises` to start tracking setups." Otherwise read the whole ledger and:
+If `{{LEDGER_PATH}}` is "not found", skip this step and note: "No promise ledger found — run `fiction-promises` to start tracking setups." Otherwise read the ledger for evidence. A review request authorizes a report. Put proposed ledger changes in the report for the existing harvest workflow.
 
-1. **Harvest new promises.** Read this chapter as a reader, not as the author — what did it tell you to remember? An object introduced with more detail than the scene needs, a question asked and left, a skill mentioned in passing, a threat, a debt, a stranger named with weight. Add each to the ledger with: `id` (next sequential `P` number, continuing the ledger's own numbering — the ledger's scripts key on it, and a harvested promise without one prints as `?` in every report), `promise` (reader-side phrasing, e.g. "the locked drawer in Elena's study"), `introduced_ch`, `kind`, `weight` (whisper/plain/loud), and a required `payoff_by_ch` — an undated promise is one nobody will remember to pay. If the honest answer is "not this book", set `deferred_to_series: true` and confirm it appears in the inter-book promise map in `Wiki/Story/series-arc.md`.
-2. **Record payoffs.** Anything this chapter pays on the page gets `paid_in_ch` and `paid_how` — both fields or neither. A payoff must be on the page: a gun that goes off in the author's head between chapters is still loaded.
+1. **Harvest new promises.** Read this chapter as a reader, not as the author — what did it tell you to remember? An object introduced with more detail than the scene needs, a question asked and left, a skill mentioned in passing, a threat, a debt, a stranger named with weight. Propose each addition in the report with: `id` (next sequential `P` number, continuing the ledger's own numbering — the ledger's scripts key on it, and a harvested promise without one prints as `?` in every report), `promise` (reader-side phrasing, e.g. "the locked drawer in Elena's study"), `introduced_ch`, `kind`, `weight` (whisper/plain/loud), and a required `payoff_by_ch` — an undated promise is one nobody will remember to pay. If the honest answer is "not this book", set `deferred_to_series: true` and confirm it appears in the inter-book promise map in `Wiki/Story/series-arc.md`.
+2. **Record payoffs.** For each payoff on the page, propose `paid_in_ch` and `paid_how` — both fields or neither. A payoff must be on the page: a gun that goes off in the author's head between chapters is still loaded.
 3. **Report what's due.** In the review output, list OVERDUE (payoff_by_ch earlier than the next chapter), DUE NEXT CHAPTER, and undated promises. Overdue means the reader is already owed this: either it is paid in the next chapter or the payoff is deliberately re-planned and the date moved with a note in the ledger. Silently moving a deadline is how a promise stays permanently eighteen chapters away. Report ledger changes among the Proposed Edits tagged `[Ledger]`.
 
 ### Step 7: Verify Every Claim on the Page

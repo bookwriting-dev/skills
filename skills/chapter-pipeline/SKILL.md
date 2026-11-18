@@ -3,18 +3,18 @@ name: chapter-pipeline
 description: "Run a declared chapter production profile from scene/plan briefing through drafting, evidence reconciliation, review, and any authorized repair across fiction, non-fiction, and hybrid books. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.8.0"
+  version: "1.9.0"
   bundled-dependencies: book-status, nonfiction-research
   category: fiction-writing
 ---
 
 # Chapter Pipeline Orchestrator
 
-Coordinates a declared chapter workflow for **FICTION**, **NONFICTION**, or **HYBRID** projects and reports exactly which stages ran. Detect the project type from `AGENTS.md` (or `Wiki/Concept/` vs. `Wiki/Psych/`) before dispatching stage skills. A completed pipeline is not author approval or publication approval. Default to `draft_verified`; use a more extensive profile only when requested or explicitly configured.
+Coordinates a declared chapter workflow for **FICTION**, **NONFICTION**, or **HYBRID** projects and reports exactly which stages ran. Read the project type and required reviews from `project_state.py --root ROOT --book Book-N workflow` before dispatching. The command honors the scaffolded project type and any per-book review override. A completed pipeline is not author approval or publication approval. Default to `draft_verified`; use a more extensive profile only when requested or explicitly configured.
 
 ## Completion profiles and operation mode
 
-- **`draft_verified`**: current draft, applicable plan/canon checks, reconciled relevant ledgers, and a current gate (`gate-check` for fiction; `nonfiction-factcheck` + `nonfiction-clarity-edit` for non-fiction; both for hybrid). Do not describe this as a developmental repair, full line edit, independent read, or publication-ready chapter.
+- **`draft_verified`**: current draft, applicable plan/canon checks, reconciled relevant ledgers, and every current review named by the resolved workflow policy. Do not describe this as a developmental repair, full line edit, independent read, or publication-ready chapter.
 - **`full_editorial_candidate`**: complete draft read; developmental diagnosis (`fiction-dev-editor` or `nonfiction-dev-editor`); authorized developmental repairs (plan updates via `fiction-scenes`/`nonfiction-chapter-plan` or in-scope repairs via `fiction-revise`); immutable developmental checkpoint; distinct paragraph/scene-aware line or clarity pass (`fiction-full-editor` or `nonfiction-clarity-edit`); continuous reread of the resulting full chapter; immediate predecessor/current seam reread when a predecessor exists; ledger/evidence reconciliation; and current final checks. A report without an applied repair does not satisfy a repair stage. An explicit justified no-change disposition is required when a stage finds nothing to change.
 - **`independent_editorial_gate`**: first provide only approved reader-facing text and spoiler-free brief to a fresh isolated reader context; preserve the actual permitted-input manifest and seal first reactions before exposing production notes. Then run the informed assessment and required full-profile stages. If the host cannot verify isolation, mark that stage `PENDING` with `ISOLATION_UNAVAILABLE`; do not simulate an independent result. Review-only mode returns proposals without claiming applied repairs.
 
@@ -41,6 +41,7 @@ The pipeline halts before downstream polish when:
    - Halts on major beat/plan/evidence gaps (see Halt conditions); minor gaps are noted and carried forward.
 
 2. **Step 2: Pre-Draft Packet & Drafting**
+   - Register a new authorized target with `project_state.py --root ROOT --book Book-N register-chapters --spec SPEC.json` using the plan's ID, reading order, and destination. The draft packet resolves the canonical path and report stem. Use the scene-specific POV entry for fiction drafting.
    - Compiles `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json` via `project_state.py --root ROOT --book Book-N draft-packet --chapter N` (bundling POV-specific voice prompts or style authority, active relationship checkpoints, psych subtext constraints, confirmed knowledge state, active scoped `editorial-memory` decisions, and the rolling 3-chapter cooling list).
    - **Fiction:** invokes `fiction-writechapter` with the compiled draft packet, scene brief, voice prompt(s) (`fiction-voiceprompt`), and preceding chapter context.
    - **Non-Fiction:** invokes `nonfiction-writechapter` with the compiled draft packet, `Wiki/Outline/Book-N/plan.md` chapter section, `Wiki/Research/` source excerpts, and preceding chapter transition context.
@@ -52,9 +53,10 @@ The pipeline halts before downstream polish when:
    - **Non-Fiction & Hybrid:** runs `promise-tracker` on the drafted chapter to register promised explanations, counterarguments, and thesis payoffs in `Wiki/Story/Book-N/promises.yaml`, and builds/validates the chapter assertion evidence record `_Edits/Book-N/evidence/Chapter-NNN.json` using `nonfiction-research` and [evidence.py](../nonfiction-research/scripts/evidence.py) (`--root ROOT --record _Edits/Book-N/evidence/Chapter-NNN.json`). Hybrid narrative chapters also run `fiction-knowledge` harvest.
 
 4. **Step 4: Readiness Gate Check**
-   - **Fiction:** runs `gate-check` against canon, Chekhov ledger, knowledge continuity, subtext/dialogue architecture, cooling list, and prose linting, outputting `_Edits/Book-N/Chapter-NNN_Gate.md` + `.meta.json`. Runs `project_state.py ... chapter-format` and reconciles source-linked continuity claims against earlier chapters using [book continuity review](../book-status/references/continuity-review.md) and [evidence that a scene depends on](../book-status/references/evidence-chain.md).
-   - **Non-Fiction:** runs `nonfiction-factcheck` (`_Edits/Book-N/Chapter-NNN_FactCheck.md` + `.meta.json`) first to verify every claim, statistic, and quote against inspected `Wiki/Research/` sources and `evidence.py`, followed by `nonfiction-clarity-edit` (`_Edits/Book-N/Chapter-NNN_ClarityEdit.md` + `.meta.json`) as the required non-fiction gate pair.
-   - **Hybrid:** requires both the applicable `gate-check` pillars and `nonfiction-factcheck` + `nonfiction-clarity-edit` checks.
+   - Run the reviews specified by `workflow`. Use the manifest-resolved report stem under `_Edits/Book-N/` and capture the policy inputs with the report.
+   - `Gate` invokes `gate-check` for canon, promise, knowledge, and prose checks. Run chapter-format and the [book continuity review](../book-status/references/continuity-review.md), including [evidence that a scene depends on](../book-status/references/evidence-chain.md).
+   - `FactCheck` invokes `nonfiction-factcheck` against the inspected sources and `evidence.py`. When both checks are required, run it before `ClarityEdit`, which invokes `nonfiction-clarity-edit`.
+   - Use the project's documented producer for a custom check. Mark it pending if the producer or current evidence is missing.
    - Refresh evidence from the exact final chapter after any authorized changes. Halts on `FAIL` or on canon/continuity/knowledge/factual/ledger `WARN`, reporting blockers with actionable fixes.
 
 5. **Step 5: Profile-specific editorial work**

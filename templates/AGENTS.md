@@ -59,6 +59,10 @@ If Wiki and a draft disagree, Wiki wins until the user explicitly changes canon.
 
 There are two doors into a book project:
 
+### Try an opening scene
+
+“Try my opening scene” routes to the trial mode of `fiction-writechapter`. Use the premise, viewpoint, and difficult choice to write one sample in `_Intake/Book-N/`. An explicit request to promote the sample starts normal chapter planning and review.
+
 ### Path A: Greenfield (Starting from a new idea or brief)
 
 1. Review or fill `_Intake/series-brief.md` (and `_Intake/Book-1/premise.md`). Drop stray brainstorms or voice dictations into `_Intake/Book-1/raw-notes/`.
@@ -130,7 +134,7 @@ When inventing proper nouns or locations, route to the specific generator:
 
 ## Editing
 
-Do not run a kill pass or full edit unless the user asked for revision.
+Route “review chapter 5” and “show what you would change first” to `fiction-reviewchapter` for findings. Route “clean this chapter in place” to `kill-chapter`. Route “apply fixes 1 and 3” to `fiction-revise` with exactly those approved items. Resolve contradictory instructions in favor of the stated review-only or editing scope.
 
 Structural review findings — required beats missing or misfired, wrong POV architecture, a canon breach baked through the chapter — are not editing jobs: fix the scene plan or brief and re-draft the chapter with `fiction-writechapter` (fiction) or `nonfiction-writechapter` (non-fiction). Editing passes are for localizable problems.
 
@@ -174,7 +178,7 @@ Drafting and review load applicable editorial decisions and current knowledge ev
 
 For fiction chapter gates, validate heading and POV metadata and review the chapter for source-linked identifiers, object state changes, clock anchors, and scoped counts. Run book-wide continuity before submission or publication. Use the installed [book continuity review](.agents/skills/book-status/references/continuity-review.md) instructions.
 
-For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. Required checks for non-fiction/hybrid projects are configured explicitly (FactCheck and ClarityEdit for the non-fiction workflow); a clarity report's existence alone cannot mark Done. Existing project conventions and current user instructions retain authority.
+For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. Use `project_state.py --root ROOT --book Book-N workflow` for the reviews required by drafting, the board, and export. The scaffolded project type supplies defaults and the book manifest can override them. Use `beta-feedback` to import real reader comments against the beta export ID and plan selected revisions. Existing project conventions and current user instructions retain authority.
 
 ## Skill index
 
@@ -214,7 +218,7 @@ For a reading-experience test, use `sequential-read`; private canon and future t
 - Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
 **Publish & Package:**
-- Manuscript compile & export: `compile-manuscript`
+- Manuscript delivery and real reader feedback: `compile-manuscript`, `beta-feedback`
 - Marketing & publishing kit: `book-packaging`
 - Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 
@@ -243,7 +247,7 @@ For a reading-experience test, use `sequential-read`; private canon and future t
 - Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
 **Publish & Package:**
-- Manuscript compile & export: `compile-manuscript`
+- Manuscript delivery and real reader feedback: `compile-manuscript`, `beta-feedback`
 - Marketing & publishing kit: `book-packaging`
 - Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 

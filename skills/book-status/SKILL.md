@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate check results, word counts, open Chekhov promises, and stylistic drift metrics across books and chapters. Use when user asks 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', or 'show project status'."
 metadata:
   author: Storycraft Skills
-  version: "1.9.0"
+  version: "1.10.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -36,7 +36,7 @@ For the per-chapter workflow view — where each chapter sits between scene plan
 1. **Step 1: Resolve Project & Validate State Runtime**
    - Resolve project identities and canonical chapter/style paths through [project_manifest.py](scripts/project_manifest.py); preview legacy-layout adoption with `python3 tools/project-manifest.py ROOT preview` and only apply when explicitly requested.
    - Run `python3 .agents/skills/book-status/scripts/project_state.py --root ROOT --book Book-N validate` and `dashboard` to gather machine-verified freshness, unresolved blocking finding IDs, and migration state under [references/state-contract.md](references/state-contract.md) and [assets/report-meta.schema.json](assets/report-meta.schema.json).
-   - Scan `Chapters/Book-N/` for word totals and sequential numbering.
+   - Read the dashboard's `required_checks`, each chapter's readiness, and `missing_chapters`. Use the resolved chapter paths for word totals.
 
 2. **Step 2: Inspect Chapter Format & Continuity Coverage**
    - For fiction projects, run `project_state.py --root ROOT --book Book-N chapter-format` and `project_state.py --root ROOT --book Book-N continuity --action audit` using [chapter_format.py](scripts/chapter_format.py) and [continuity.py](scripts/continuity.py).

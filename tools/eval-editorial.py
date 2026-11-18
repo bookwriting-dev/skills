@@ -3,13 +3,10 @@
 import argparse
 import hashlib
 import json
-import posixpath
-import re
 from pathlib import Path
-import secrets
-import subprocess
 
-ROOT = Path(__file__).resolve().parent.parent
+from editorial_study import (DEFAULT_CORPUS, author_judgments, blind_review, document_hash,
+                              load_corpus, prepare_packets, run_study, spans)
 
 
 def main():
@@ -20,49 +17,31 @@ def main():
     ap.add_argument('--skill', default='fiction-full-editor')
     ap.add_argument('--baseline-ref')
     ap.add_argument('--split', choices=['all', 'calibration', 'held_out'], default='all')
+    ap.add_argument('--corpus', type=Path, default=DEFAULT_CORPUS)
+    ap.add_argument('--configuration', type=Path, help='model and host settings for a matched study')
+    ap.add_argument('--candidate-ref')
+    ap.add_argument('--repeats', type=int, default=2)
+    ap.add_argument('--run-study', type=Path, help='execute a frozen study with the configured Codex model')
+    ap.add_argument('--output-results', type=Path, help='write or resume recorded study results')
+    ap.add_argument('--blind-review', type=Path, help='write anonymized author review material for --results')
+    ap.add_argument('--author-scores', type=Path, help='author ratings keyed by the blind review IDs')
     a = ap.parse_args()
-    corpus_data = json.loads((ROOT/'tools/eval-fixtures/editorial-preservation/cases.json').read_text())
+    if a.run_study:
+        if not a.packets or not a.output_results or a.results:
+            ap.error('--run-study requires --packets and --output-results')
+        print(json.dumps(run_study(a.run_study, a.packets, a.output_results)))
+        return
+    if a.output_results:
+        ap.error('--output-results requires --run-study')
+    if (a.blind_review or a.author_scores) and not a.results:
+        ap.error('blind review and author scores require --results')
+    corpus_data = load_corpus(a.corpus)
     cases = corpus_data['cases']
     tolerances = corpus_data.get('category_tolerances', {})
     if a.packets:
-        packet_cases = [c for c in cases if a.split == 'all' or c.get('split', 'calibration') == a.split]
-        a.packets.mkdir(parents=True, exist_ok=True)
-        skillpath = f'skills/{a.skill}/SKILL.md'
-        def read_source(name):
-            return subprocess.check_output(['git', 'show', f'{a.baseline_ref}:{name}'], cwd=ROOT, text=True) if a.baseline_ref else (ROOT/name).read_text()
-        skill = read_source(skillpath)
-        bundle = {}
-        def collect(name):
-            if name in bundle:
-                return
-            content = read_source(name)
-            bundle[name] = content
-            for linked in re.findall(r'\]\(([^)#]+\.md)(?:#[^)]*)?\)', content):
-                if '://' not in linked and not linked.startswith('/'):
-                    resolved = posixpath.normpath(posixpath.join(posixpath.dirname(name), linked))
-                    if not resolved.startswith('skills/'):
-                        raise ValueError('evaluation rule link escapes skills: ' + resolved)
-                    collect(resolved)
-        collect(skillpath)
-        hashes = {name: hashlib.sha256(content.encode()).hexdigest() for name,content in bundle.items()}
-        mapping = {}
-        for c in packet_cases:
-            opaque_id = secrets.token_urlsafe(18)
-            mapping[opaque_id] = c['id']
-            packet = dict(schema_version=1, case_id=opaque_id, source=c['source'], rules=c['rules'], skill=skill,
-                          source_sha256=hashlib.sha256(c['source'].encode()).hexdigest(),
-                          skill_sha256=hashlib.sha256(skill.encode()).hexdigest(), rule_sources=bundle,
-                          rule_hashes=hashes,
-                          task='Return findings with exact source offsets, quote, proposed replacement, and reason. Preserve deliberate choices.')
-            (a.packets/(opaque_id+'.json')).write_text(json.dumps(packet,indent=2)+'\n')
-        # Keep the identity mapping outside the candidate packet directory.
-        private = a.packets.parent / ('.' + a.packets.name + '-private-manifest.json')
-        private_bytes = (json.dumps({'schema_version': 1, 'mapping': mapping,
-                                     'warning': 'private scoring data; never expose to candidate'}, indent=2)+'\n').encode()
-        private.write_bytes(private_bytes)
-        print(json.dumps({'packets': len(packet_cases), 'split': a.split, 'candidate_visible_labels': False,
-                          'private_manifest': str(private),
-                          'mapping_sha256': hashlib.sha256(private_bytes).hexdigest()}))
+        if a.configuration and (not a.baseline_ref or not a.candidate_ref or a.repeats < 2):
+            ap.error('a matched study needs baseline and candidate refs and at least two repetitions')
+        print(json.dumps(prepare_packets(a, corpus_data)))
     if a.results:
         data = json.loads(a.results.read_text())
         manifest = data.get('manifest', data)
@@ -71,6 +50,7 @@ def main():
         by_id = {c['id']: c for c in cases}
         strict = 'expected_case_ids' in manifest or 'variants' in manifest or any('repeat_index' in r for r in data.get('results', []))
         opaque_to_case = {}
+        variant_labels = {}
         if strict:
             if not a.mapping:
                 raise ValueError('strict scoring requires the private opaque-ID mapping via --mapping')
@@ -78,6 +58,7 @@ def main():
             if not isinstance(private_map, dict):
                 raise ValueError('private opaque-ID mapping must be a JSON object')
             opaque_to_case = private_map.get('mapping', {})
+            variant_labels = private_map.get('variants', {})
             if hashlib.sha256(a.mapping.read_bytes()).hexdigest() != manifest.get('mapping_sha256'):
                 raise ValueError('private mapping hash does not match frozen run manifest')
             if (not isinstance(opaque_to_case, dict) or not opaque_to_case or
@@ -100,6 +81,11 @@ def main():
                 raise ValueError('manifest variants must be a nonempty unique list')
             if not set(expected_cases).issubset(opaque_to_case):
                 coverage['invalid'].append({'reason': 'manifest contains IDs absent from private opaque mapping'})
+            if manifest.get('study_version') == 1:
+                if manifest.get('corpus_sha256') != document_hash(corpus_data):
+                    coverage['invalid'].append({'reason': 'frozen corpus hash mismatch'})
+                if set(variant_labels) != set(variants) or set(variant_labels.values()) != {'baseline', 'candidate'}:
+                    coverage['invalid'].append({'reason': 'frozen variants do not match the private study map'})
             frozen_fields = ('run_id', 'corpus_sha256', 'source_hashes', 'configuration',
                              'skill_hashes', 'packet_hashes', 'span_policy', 'permissions',
                              'permitted_context', 'mapping_sha256')
@@ -115,9 +101,10 @@ def main():
             }
             if manifest.get('source_hashes') != expected_source_hashes:
                 coverage['invalid'].append({'reason': 'source hash manifest mismatch'})
-            configuration_sha256 = hashlib.sha256(
-                json.dumps(manifest.get('configuration', {}), sort_keys=True, separators=(',', ':')).encode()
-            ).hexdigest()
+            configuration = manifest.get('configuration', {})
+            configuration_sha256 = (document_hash(configuration) if manifest.get('study_version') == 1 else
+                                    hashlib.sha256(json.dumps(configuration, sort_keys=True,
+                                                               separators=(',', ':')).encode()).hexdigest())
             coordinates = [(case, variant, repeat) for case in expected_cases
                            for variant in variants for repeat in range(1, manifest['repeat_count'] + 1)]
             seen = {}
@@ -143,19 +130,34 @@ def main():
                     if result.get('configuration_sha256') != configuration_sha256:
                         coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'configuration hash mismatch'})
                     packet_hashes = manifest.get('packet_hashes') if isinstance(manifest.get('packet_hashes'), dict) else {}
-                    if not result.get('packet_sha256') or packet_hashes.get(result.get('case_id')) != result.get('packet_sha256'):
+                    expected_packet = packet_hashes.get(result.get('case_id'))
+                    if isinstance(expected_packet, dict):
+                        expected_packet = expected_packet.get(result['variant'])
+                    if not result.get('packet_sha256') or expected_packet != result.get('packet_sha256'):
                         coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'packet hash mismatch'})
                     if not result.get('attempt_id'):
                         coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'missing attempt_id'})
             coverage['missing'] = [list(c) for c in coordinates if c not in seen]
             coverage['status'] = 'COMPLETE' if not any(coverage[k] for k in ('missing','duplicates','unknown','invalid')) else 'INCOMPLETE'
+        if a.blind_review:
+            if not strict or coverage['invalid'] or coverage['duplicates'] or coverage['unknown']:
+                raise ValueError('blind reviews require strictly bound, unambiguous run results')
+            blind_review(a.blind_review, manifest, selected, opaque_to_case, by_id)
+            print(json.dumps({'review_file': str(a.blind_review), 'coverage': coverage}))
+            return
         categories = {}
+        variant_stats = {}
         stats = dict(findings=0,localized_findings=0,repair_judgments=0,successful_repairs=0,cases=0,protected=0,harmful=0,defects=0,detected=0,unsupported_quotes=0,author_scored=0,author_accepted=0,failed_runs=0,scored_outputs=0,author_judgments=0)
         # In strict runs, score exactly the first recorded attempt per frozen
         # coordinate. Duplicate retries remain visible as coverage failures,
         # but cannot replace a terminal failure or improve the denominator.
         scoring_results = list(selected.values()) if strict else results
         for r in scoring_results:
+            variant = variant_stats.setdefault(r.get('variant', 'diagnostic'), {
+                'scored_outputs': 0, 'failed_runs': 0, 'defects': 0, 'defects_caught': 0,
+                'protected_spans': 0, 'protected_spans_targeted': 0,
+                'author_scores': {}, 'author_reviewed_repairs': 0, 'fixes_kept': 0,
+            })
             case_id = r.get('id') if not strict else opaque_to_case.get(r.get('case_id'))
             if strict and case_id not in by_id:
                 continue
@@ -165,8 +167,10 @@ def main():
             c = by_id[case_id]
             if r.get('status') == 'failed':
                 stats['failed_runs'] += 1
+                variant['failed_runs'] += 1
                 continue
             stats['scored_outputs'] += 1
+            variant['scored_outputs'] += 1
             stats['cases'] += 1
             stats['protected'] += bool(c['protected_spans']); stats['defects'] += bool(c['defect_spans'])
             findings = r.get('findings', [])
@@ -191,8 +195,15 @@ def main():
                     stats['unsupported_quotes'] += 1
                 else:
                     valid.append((f, (f.get('start'), f.get('end')) if strict else (c['source'].find(quote), c['source'].find(quote)+len(quote))))
-            defect_ranges = [(c['source'].find(d), c['source'].find(d)+len(d)) for d in c['defect_spans'] if d in c['source']]
-            protected_ranges = [(c['source'].find(p), c['source'].find(p)+len(p)) for p in c['protected_spans'] if p in c['source']]
+            defect_ranges = spans(c['source'], c['defect_spans'])
+            protected_ranges = spans(c['source'], c['protected_spans'])
+            variant['defects'] += len(defect_ranges)
+            variant['defects_caught'] += sum(any(span[0] < end and start < span[1] for _, span in valid)
+                                             for start, end in defect_ranges)
+            variant['protected_spans'] += len(protected_ranges)
+            variant['protected_spans_targeted'] += sum(
+                any(span[0] < end and start < span[1] and finding.get('replacement') != finding['quote']
+                    for finding, span in valid) for start, end in protected_ranges)
             localized = [(f, span) for f, span in valid if any(span[0] < end and start < span[1] for start, end in defect_ranges)]
             protected_hits = [(f, span) for f, span in valid if any(span[0] < end and start < span[1] for start, end in protected_ranges)]
             stats['localized_findings'] += len(localized)
@@ -204,7 +215,12 @@ def main():
         if not isinstance(human_judgments, list):
             coverage['invalid'].append({'reason': 'human_judgments must be an array'})
             human_judgments = []
+        if a.author_scores:
+            if not strict:
+                raise ValueError('author scores require a frozen study')
+            human_judgments += list(author_judgments(a.author_scores, manifest, selected))
         seen_judgments = set()
+        valid_author_judgments = []
         for judgment in human_judgments:
             if not isinstance(judgment, dict) or judgment.get('evaluator_role') != 'author' or not judgment.get('evaluator_id'):
                 coverage['invalid'].append({'reason': 'human judgment must identify an actual author evaluator'})
@@ -231,6 +247,15 @@ def main():
             if type(judgment.get('accepted')) is bool:
                 stats['author_scored'] += 1
                 stats['author_accepted'] += judgment['accepted']
+                valid_author_judgments.append(judgment)
+                variant = variant_stats.get(judgment.get('variant', 'diagnostic'))
+                if variant is not None:
+                    dimension = variant['author_scores'].setdefault(judgment['dimension'], {'reviewed': 0, 'accepted': 0})
+                    dimension['reviewed'] += 1
+                    dimension['accepted'] += int(judgment['accepted'])
+                    if judgment.get('kept_findings') is not None:
+                        variant['author_reviewed_repairs'] += 1
+                        variant['fixes_kept'] += len(judgment['kept_findings'])
         semantic_judgments = data.get('semantic_judgments', [])
         if not isinstance(semantic_judgments, list):
             coverage['invalid'].append({'reason': 'semantic_judgments must be an array'})
@@ -256,8 +281,8 @@ def main():
             start, end, quote = finding.get('start'), finding.get('end'), finding.get('quote')
             if (not case or type(start) is not int or type(end) is not int or
                     not (0 <= start < end <= len(case['source'])) or case['source'][start:end] != quote or
-                    not any(start < case['source'].find(span) + len(span) and case['source'].find(span) < end
-                            for span in case['defect_spans'] if span in case['source'])):
+                    not any(start < upper and lower < end
+                            for lower, upper in spans(case['source'], case['defect_spans']))):
                 coverage['invalid'].append({'coordinate': list(coordinate),
                                             'reason': 'semantic repair judgment does not target a valid localized defect'})
                 continue
@@ -276,7 +301,7 @@ def main():
             expected_outputs = {coordinate for coordinate, result in selected.items()
                                 if result.get('status') == 'complete'}
             covered = {}
-            for judgment in human_judgments:
+            for judgment in valid_author_judgments:
                 coordinate = (judgment.get('case_id'), judgment.get('variant'), judgment.get('repeat_index'))
                 if type(judgment.get('accepted')) is bool:
                     covered.setdefault(coordinate, set()).add(judgment.get('dimension'))
@@ -284,7 +309,7 @@ def main():
                 set(required_dimensions).issubset(covered.get(coordinate, set()))
                 for coordinate in expected_outputs)
         release_blockers = []
-        if not strict or coverage['status'] != 'COMPLETE':
+        if not strict or coverage['status'] != 'COMPLETE' or (manifest.get('study_version') and stats['failed_runs']):
             release_blockers.append('complete strict execution coverage is not established')
         if not conditions_valid:
             release_blockers.append('predeclared release conditions are missing or not all PASS')
@@ -313,6 +338,7 @@ def main():
                     'actual': cat_stats['localization_rate'], 'threshold': min_loc,
                 })
         print(json.dumps(dict(schema_version=1,coverage=coverage,counts=stats,categories=categories,
+                              by_variant={variant_labels.get(label, label): values for label, values in variant_stats.items()},
                               category_tolerances=tolerances,
                               tolerance_failures=tolerance_failures,
                               localization_rate=stats['detected']/stats['defects'] if stats['defects'] else None,

@@ -3,7 +3,7 @@ name: fiction-full-editor
 description: Default comprehensive fiction editing pass combining AIism detection, prose craft mechanics, and line editing into a single scan. Preferred over individual single-layer scanners (line-editor, prose-editor, aiism-editor). Uses paragraph- and scene-aware contextual packets. Use when user says "full edit", "edit chapter", "line edit", "check prose", "polish writing", or asks for general sentence-level editing.
 metadata:
   author: Fiction Toolkit
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status, fiction-aiism-editor, fiction-prose-editor, fiction-line-editor
   category: fiction-editing
 ---
@@ -32,6 +32,8 @@ Read ALL three reference files and combine their contents:
 - [line-edit criteria](../fiction-line-editor/references/agent-instructions.md)
 
 Combine them into a single criteria block for the worker prompts.
+
+Use `project_state.py --root ROOT --book Book-N style-policy` from [book-status](../book-status/scripts/project_state.py) to resolve the review guide's simile limits, approved examples, and fragment and dash rules. Capture the returned guide inputs with saved findings. Count confirmed similes once across the whole chapter before assigning chunks. Pass the count, limits and applicable scoped author decisions to each worker. A count above the limit prompts review. Each suggested cut needs an exact quote and a passage-specific reason about voice, clarity, or repetition.
 
 ## Step 3: Launch Focused Workers
 

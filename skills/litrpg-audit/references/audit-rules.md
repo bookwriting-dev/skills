@@ -1,39 +1,18 @@
-# LitRPG Numeric Audit & Continuity Rules
+# LitRPG progression evidence and verdicts
 
-Deterministic rules enforced by `stat_audit.py` and `litrpg-audit`.
+The audit reads the committed progression ledger, or a legacy standalone YAML ledger. Each chapter can provide a default character, entering and ending state, and an ordered event list. Multiple characters can use separate state records under participants and name the actor on each event.
 
-## 1. Audit Dimensions & Severity Rubric
+For entering state, use level, xp, unspent_stats, attributes, resources, inventory, and incapacitated as applicable. The chapter-specific values establish the starting point. A present-day sheet may supply the starting point when state_chapter matches the audited chapter. Skill entries use name, unlocked_chapter, optional requires_level or requires, and optional cost_type and cost.
 
-### Hard Violations (Blocks Gate Approval)
-1. **Stat Point Inflation:**
-   - Allocating more attribute points than the level gain warrants (e.g. gaining 1 level but allocating +8 points when the rule is 5).
-2. **Ghost Skill Usage:**
-   - Casting an active spell or skill that has never been unlocked or learned in canon.
-3. **Derived Pool Contradiction:**
-   - A printed status box displaying HP or MP that does not match the canonical formulas based on the character's current attributes.
-4. **Dead Character Action:**
-   - A character whose health reached 0 or who suffered fatal trauma acting without resurrection mechanics.
+The audit reads named prose casts and recognized system displays. A display can carry an Actor or Character label, followed by skill, level, stat, or pool lines. Use typed events for other transitions, including allocate, level_up, xp_gain, unlock, use_skill, status, spend, recover, gain_item, lose_item, incapacitate, revive, and act. Include line and exact quote when reconciling a transition with manuscript prose. Earlier events authorize later actions. For an unlock in the current chapter, record when the actor acquired it.
 
-### Warnings (Requires Revision or Approval)
-1. **Stat-Dump Paralysis:**
-   - Status screens exceeding 25 lines in standard chapter prose, creating reading fatigue.
-2. **Resource Overdraft:**
-   - Casting high-cost spells consecutively without mentioning mana potions, ambient mana absorption, or rest periods.
-3. **Item Vanishing / Duplication:**
-   - Equipped weapons or unique loot vanishing from chapter inventory without an in-text trade, break, or drop.
-4. **XP Threshold Mismatch:**
-   - Triggering a level up on an encounter that yielded far fewer XP than required by the level curve.
+Set cumulative XP thresholds for the level being reached in xp_thresholds. Quadratic ledgers use xp_base times the square of the previous level and exponential ledgers also need xp_growth. Define derived pools as coefficient maps in pool_formulas. For example, HP can use base 50, CON 10, and level 5. A status event supplies pools as a map of printed maximums.
 
-### Notices (Informational Tracking)
-1. **Unregistered Skill Invocation:**
-   - Using a skill name that is not yet formally indexed in `ledger.yaml` (suggests ledger update needed).
-2. **Level Progression Milestones:**
-   - Records current level and detected XP gains for state-keeper synchronization.
+## Apply findings
 
----
+- **FAIL** covers unearned stats, missing skill prerequisites, proven premature use, mismatched derived pools, or acting while incapacitated.
+- **WARN** covers unsupported level advances, negative resources or inventories, and displays longer than 25 lines.
+- **UNVERIFIED** identifies an applicable check that needs more evidence, such as the acting character or entering mana. Preserve it as an unresolved warning in the gate.
+- **NOT_APPLICABLE** means the supplied chapter evidence contains no event for that rule. Inspect prose not represented by structured events when its progression affects continuity.
 
-## 2. Remediation Routing
-
-- If **Hard Violation:** Re-calculate stat allocation or revise combat sequence before re-running `gate-check`.
-- If **Stat-Dump Paralysis:** Convert full character sheet into a condensed delta status box using `references/stat-box-guide.md`.
-- If **Missing from Ledger:** Run `state-keeper` or update `Wiki/World/Systems/ledger.yaml` to register newly acquired skills and state transitions.
+Use the exact text and ledger entries in the report. Reconcile incomplete or ambiguous transitions before updating approved canon or character sheets.

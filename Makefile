@@ -14,7 +14,7 @@ BOOKS_DIR ?= $(HOME)/Projects/Books
 # stray bytecode dir under skills/ would show up in sync-check.sh's filesystem diff.
 export PYTHONDONTWRITEBYTECODE := 1
 
-.PHONY: help check lint inventory compile eval smoke eval-editorial export-eval status-projects
+.PHONY: help check lint inventory inventory-check compile eval smoke eval-editorial eval-routing export-eval status-projects
 
 help:
 	@echo "make check      CI gate (lint + inventory freshness + syntax + eval + smoke)"
@@ -23,6 +23,7 @@ help:
 	@echo "make compile    syntax-check all scripts (Python + shell, no bytecode)"
 	@echo "make eval       run the scripts against fixtures with known defects"
 	@echo "make smoke      scaffold a project end-to-end and assert the tree"
+	@echo "make eval-routing  run the live Codex routing evaluation"
 	@echo "make status-projects  scan BOOKS_DIR for pinned library version drift"
 
 # CI runs this target — keep the recipe here the single source of the gate, so
@@ -44,6 +45,8 @@ compile:
 eval:
 	bash tools/eval-skills.sh
 	$(PYTHON) tools/test-storycraft-state.py
+	$(PYTHON) tools/test-storycraft-improvements.py
+	$(PYTHON) tools/eval-routing.py --check-fixtures
 
 smoke:
 	bash tools/smoke-new-book.sh
@@ -52,8 +55,12 @@ smoke:
 eval-editorial:
 	$(PYTHON) tools/eval-editorial.py --packets /tmp/storycraft-editorial-packets
 
+eval-routing:
+	$(PYTHON) tools/eval-routing.py --live $(ROUTING_ARGS)
+
 export-eval:
 	$(PYTHON) tools/eval-exports.py
+	$(PYTHON) tools/test-storycraft-improvements.py StorycraftImprovements.test_returned_word_comments_match_anchored_edition
 
 status-projects:
 	$(PYTHON) tools/update-project.py --scan-dir "$(BOOKS_DIR)"

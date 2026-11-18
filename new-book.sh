@@ -230,6 +230,7 @@ if [[ -n "$IMPORT_SOURCE" ]]; then
   echo "  3. Review _Edits/Book-1/reverse-analysis.md, approve canon decisions, then run the import pass."
 elif [[ "$PROJECT_TYPE" == "fiction" ]]; then
   echo "  2. Fill out or add notes to _Intake/series-brief.md (or drop notes in _Intake/Book-1/raw-notes/)"
+  echo "     To try the voice first, ask for an opening-scene sample under _Intake/Book-1/."
   echo "  3. Planning skills in order (they ingest _Intake first): fiction-genre, fiction-audience, fiction-theme, fiction-synopsis, fiction-series-outline"
   echo "  4. Then characters, world, outline, divergence, psych, scenes, style + voiceprompt, writechapter, reviewchapter"
 elif [[ "$PROJECT_TYPE" == "nonfiction" ]]; then

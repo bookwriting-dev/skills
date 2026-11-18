@@ -3,7 +3,7 @@ name: kill-simile
 description: Hunt explain-it similes and meta-comparison crutches ("the way", "a way", "the kind", "a kind", "as if", "like") across a chapter and reword or cut them so the reader infers instead of being told (parallel focused workers, edits in place). Use when user says "kill-simile", "kill similes", or "cut the explain-it comparisons".
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
@@ -21,6 +21,8 @@ concrete file list first.
 ## Single-source rule-set (What to fix vs. keep)
 
 Read [simile.md](../kill-chapter/references/simile.md) before triaging or launching workers. That file is the single source of truth for FIX/KEEP criteria, examples, and triage patterns shared with `kill-chapter`; pass its contents verbatim to every focused worker so single-pass and full-chapter sweeps never drift.
+
+Resolve approved examples and limits with `project_state.py --root ROOT --book Book-N style-policy`. Count actual similes once for the chapter. Keep deliberate comparisons within the author’s scope and justify each proposed deletion on the page.
 
 ## Procedure
 

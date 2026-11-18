@@ -7,7 +7,7 @@ Check every line in your assigned chunk against ALL of the following categories.
 - Staccato lists used as atmosphere: "Dust. Silence. Nothing."
 - Sentence fragments masquerading as description
 - **Exception:** Dialogue can have fragments (natural speech). Life-or-death battle scenes get limited fragment allowance.
-- **Test:** Does it have a subject and a verb? If not, flag it.
+- Check the resolved fragment rule, scoped decisions, and how the fragment works in its paragraph before recommending a change.
 
 ### Choppy Constructions
 - Colon-list constructions: "Three things: first, second, third."
@@ -32,8 +32,8 @@ Check every line in your assigned chunk against ALL of the following categories.
 - **Fix:** break the run — shorten one sentence hard, expand another, or combine two
 
 ### Simile Overuse
-- Flag any paragraph with 2+ similes
-- Flag chapters with more than 3 total similes
+- Review paragraphs and chapters over the resolved guide's limits. The defaults are one per paragraph and three per chapter. Treat an author-approved example or scoped KEEP as deliberate in its stated context.
+- Cite the passage effect when suggesting a cut, such as explaining an emotion the action already shows or importing a comparison outside the viewpoint.
 - Weak similes that don't add voice or clarity should be replaced with:
   - Concrete physical details
   - Cause-and-effect observations

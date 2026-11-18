@@ -3,8 +3,8 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.7.0"
-  bundled-dependencies: book-status
+  version: "1.8.0"
+  bundled-dependencies: book-status, litrpg-audit
   category: fiction-editing
 ---
 
@@ -41,7 +41,7 @@ Every gate run systematically evaluates up to 7 pillars:
 7. **LitRPG & Numeric Continuity (Conditional Gate):**
    - When the project defines a system (`Wiki/World/Systems/`) or is classified as LitRPG / Progression Fantasy:
    - Run `python3 .agents/skills/litrpg-audit/scripts/stat_audit.py Chapters/Book-N/Chapter-NNN.md`.
-   - Verifies stat arithmetic (points earned vs allocated), level curve milestones, skill unlock prerequisites, derived pool calculations (HP/MP), and status box format.
+   - Inspect `rule_results` for points, level thresholds, skills, pools, resources, inventory, incapacitation and display length. Record source-linked violations as FAIL and unresolved progression coverage as WARN on the continuity pillar. Read the [audit rules](../litrpg-audit/references/audit-rules.md) when the ledger cannot resolve one of the checks.
 
 ---
 
@@ -64,6 +64,8 @@ Every gate run systematically evaluates up to 7 pillars:
    - Save `_Edits/Book-N/Chapter-NNN_Gate.md` with stable finding IDs, exact quotes, and blocking/nonblocking classification.
    - Record `_Edits/Book-N/Chapter-NNN_Gate.meta.json` via `project_state.py snapshot` only if the inputs captured in Step 1 still match.
    - After any authorized prose repair, recheck formatting, refresh continuity/knowledge evidence from the resulting prose, and re-run the gate — a pre-edit `PASS` never establishes post-edit readiness.
+
+For manifest-managed chapters use the `chapter_path` and `report_stem` returned by `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR`. Keep the normal report suffix and its companion metadata under `_Edits/Book-N/`. Numbered chapters retain their usual names.
 
 ## Output Contract
 

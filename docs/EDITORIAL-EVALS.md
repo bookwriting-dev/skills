@@ -15,3 +15,32 @@ Release execution requirements: no unsupported source quotations, no edits outsi
 Run `python3 tools/eval-evidence-chain.py RUN_DIR` from the library to emit two neutral packets from seven pairs of unannotated excerpts. Use a fresh review worker for each packet and pass only its contents. Each worker sees one variant of each pair. Keep the private answers outside the review context. Score the two JSON results with `python3 tools/eval-evidence-chain.py RUN_DIR --results REVIEW1.json REVIEW2.json`. The scorer checks coverage, classifications and exact source citations. Re-run from a separate directory after changing the rules to keep the baseline frozen.
 
 The November 15 pilot scored 14 of 14 before and after the changes, with zero unsupported citations in either pass. These short cases were reviewed in isolation with synthetic source material. The paired runtime tests in `make check` exercise the evidence records, revision checks, and release behavior. The pilot measures performance on this specific set of excerpts.
+
+
+## Private full-chapter study
+
+Keep private pilot material outside the library checkout. Choose three full chapters that cover a quiet ending, a viewpoint handoff, and a deliberate voice choice. Edit the annotations before comparing versions. The corpus JSON has a cases array. Each case supplies id, category, source_file relative to the corpus file, rules, protected_spans, and defect_spans. Use exact strings for unique passages, or give start, end, and quote for a repeated passage. Offsets count Unicode code points. Keep a separate configuration file with host and the exact model. The built-in live runner accepts host codex. Use a model name for repeatable runs or default to exercise the local CLI's selection.
+
+The following commands use variables for paths in a private directory. Set BASELINE and CANDIDATE to the exact Git revisions you want to compare.
+
+```bash
+python3 tools/eval-editorial.py --corpus "$CORPUS" --packets "$PACKETS" \
+  --baseline-ref "$BASELINE" --candidate-ref "$CANDIDATE" \
+  --configuration "$CONFIGURATION" --repeats 2
+
+python3 tools/eval-editorial.py --run-study "$STUDY" --packets "$PACKETS" \
+  --output-results "$RESULTS"
+
+python3 tools/eval-editorial.py --corpus "$CORPUS" --results "$RESULTS" \
+  --mapping "$PRIVATE_MAP" --blind-review "$BLIND"
+```
+
+The first command prints the frozen study manifest and private map paths. Give the model just the assigned packet. The live runner uses fresh Codex sessions and records the first outcome per case, version, and repeat. An interrupted run can resume from its results file. For another host, record results against the same frozen manifest and packet hashes. Choose a host authorized to receive the chapters before starting a live run.
+
+Give the author the blind review file. Save ratings as JSON with evaluator_id and a ratings array. Each rating has a review_id, dimension, accepted boolean, and reason. Rate useful_repair and voice_preserved for each output. In the useful_repair rating, list the one-based finding numbers you would keep in kept_findings. An explicit empty list records a review with zero repairs selected. Run the scoring command again with `--author-scores "$RATINGS"` in place of `--blind-review "$BLIND"`. It reports defects caught, proposals touching protected spans, and author-accepted repairs by version. The pilot's human ratings are still pending until the author supplies them.
+
+## Skill routing in Codex
+
+`make eval-routing` runs six ordinary-language requests in disposable scaffolded books using the installed Codex CLI. It checks tool evidence for the skill read or invoked and compares actual chapter, report, and intake files. A host may replay recorded observations through `tools/eval-routing.py --score FILE`. The offline fixture and scorer check runs with `make check`. Use `ROUTING_ARGS='--case opening --output /tmp/storycraft-routing.json'` to run and record one live case. Default live runs use the host's selected model.
+
+The November 17 verification used Codex CLI 0.169.0 on synthetic books. All six routing cases passed. Both review phrasings left chapter prose unchanged. The cleanup kept the closing image and the numbered-edit case applied exactly the two selected fixes. The opening trial wrote its intake sample, and beta intake anchored a note and wrote its feedback record. A synthetic matched editorial run completed four recorded attempts with identical baseline and candidate revisions to verify the runner. The private author's comparison remains pending.

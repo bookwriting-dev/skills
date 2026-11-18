@@ -3,7 +3,7 @@ name: fiction-prose-editor
 description: Focused prose craft mechanics check for fiction (narrative fragments, choppy constructions, S-V-O chains, simile density, rule-of-threes, show-vs-tell). Use fiction-full-editor for general sentence editing; use this skill only when specifically isolating structural prose mechanics without voice or AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -29,6 +29,8 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 Read [references/prose-criteria.md](references/prose-criteria.md).
 
 Store its contents — you will inject them into each worker prompt alongside the applicable scoped editorial decisions.
+
+Use `project_state.py --root ROOT --book Book-N style-policy` from [book-status](../book-status/scripts/project_state.py) to resolve the review guide's simile limits, approved examples, and fragment and dash rules. Capture the returned guide inputs with saved findings. Count confirmed similes once across the whole chapter before assigning chunks. Pass the count, limits and applicable scoped author decisions to each worker. A count above the limit prompts review. Each suggested cut needs an exact quote and a passage-specific reason about voice, clarity, or repetition.
 
 ## Step 3: Launch Focused Workers
 

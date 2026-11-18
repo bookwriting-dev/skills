@@ -3,7 +3,7 @@ name: kill-chapter
 description: One-pass cleanup bot that strips the recurring model-generated prose crutches from a chapter by running seven kill passes consecutively — similes, person-who constructions, opinion personification, "the whole of X", generic filler words, "soft", and "flat". Each pass fans out parallel focused workers, edits in place deletion-first, and verifies. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
 metadata:
   author: Fiction Toolkit
-  version: "2.2.0"
+  version: "2.3.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -38,6 +38,8 @@ Run these in sequence. Each has its single-source rule-set in `references/` (sha
 6. **soft** — `references/soft.md`
 7. **flat** — `references/flat.md`
 
+Resolve the book’s simile limits, fragment and dash rules with `project_state.py --root ROOT --book Book-N style-policy`. Count chapter-wide patterns once before dispatch. Pass the resolved policy and scoped author decisions to each worker. Use chapter-level limits as prompts to inspect individual passages.
+
 ## Per-pass procedure (identical each time)
 
 1. From the resolved file list, use the host's available text search to identify files containing the pass's target token(s); skip files that
@@ -47,8 +49,7 @@ Run these in sequence. Each has its single-source rule-set in `references/` (sha
    worker per group in parallel when the host supports workers; otherwise process the groups sequentially.
 3. Each worker gets: its exact file list; the pass's rule-set verbatim; the deletion-first
    rule; instruction to read each file in full context (20-line chunks, or a full sentence
-   per hit) before judging; the global style rules (no em dashes except to interrupt
-   dialogue; complete grounded sentences; no metaphorical math/analytical language). It makes
+   per hit) before judging, and the current book’s style rules and approved KEEP examples. It makes
    the minimal in-place edit, touching ONLY the target token and nothing else on the line,
    and returns a per-file verdict list (each hit tagged KEEP-reason / DELETED / REWORDED,
    with before→after for changes).

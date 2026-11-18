@@ -3,7 +3,8 @@ name: fiction-outline
 description: "Generate the chapter-by-chapter outline at Wiki/Outline/Book-N/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "5.4.0"
+  version: "5.5.0"
+  bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
 ---
@@ -165,7 +166,10 @@ When adding the new checkpoint, close the prior open span by setting its `chapte
 
 ---
 
-## Step 3: Present and Confirm
+## Step 3: Register Expected Chapters and Confirm
+
+Use [project_state.py](../book-status/scripts/project_state.py) with `--root ROOT --book Book-N register-chapters --spec SPEC.json` to record the intended chapters of an authorized book plan. For a numbered plan the spec is `{"schema_version":1,"chapters":[{"number":1},{"number":2}]}` with the actual planned numbers. For custom ordering use the top-level `"chapter_order":"declared"` and supply `id`, `display_label`, `path`, and `reading_order` for each custom chapter or interlude. Reuse existing IDs and destinations. Register only the target for a focused planning request. Surface any conflict with existing authority before handoff.
+
 
 Show the worker's summary and ask: "What should I change?"
 

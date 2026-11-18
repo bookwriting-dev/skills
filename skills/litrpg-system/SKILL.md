@@ -3,7 +3,7 @@ name: litrpg-system
 description: "Design, balance, and document LitRPG and progression fantasy mechanics — system rules, attribute formulas, level-up curves, class trees, skill costs, encounter scaling, and character sheets. Use when user says 'design litrpg system', 'create game mechanics', 'balance litrpg', 'build class tree', 'litrpg system', 'power curve', 'system bible', or after choosing LitRPG in fiction-genre."
 metadata:
   author: Fiction Toolkit
-  version: "1.0.0"
+  version: "1.1.0"
   category: fiction-writing
 ---
 
@@ -79,7 +79,7 @@ Scaffold from [assets/system-rules-template.md](assets/system-rules-template.md)
 
 For each protagonist:
 1. Create a companion character sheet at `Wiki/Characters/<Character_Name>_sheet.md` using [assets/character-sheet-template.md](assets/character-sheet-template.md) matching starting Level 1 (or story entry level) stats.
-2. Initialize or update `Wiki/World/Systems/ledger.yaml` using [assets/ledger-template.yaml](assets/ledger-template.yaml) with starting attributes, skills, and starting chapter state.
+2. Initialize or update `Wiki/World/Systems/ledger.yaml` using [assets/ledger-template.yaml](assets/ledger-template.yaml) with starting attributes, timed skill unlocks, and starting chapter state. Include structured XP thresholds and pool formulas and use the auditable transition fields from the ledger template.
 
 ---
 

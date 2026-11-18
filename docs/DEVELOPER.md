@@ -23,7 +23,7 @@ of `skills/` at `.agents/skills/` when scaffolded (a real `cp -R`, not a symlink
 every project versions its own library and can fork it freely. Changes here do not
 propagate to existing projects automatically — that is by design.
 
-Scale today: **78 skills** — 42 inherited from upstream at the fork point, 36 added
+Scale today: **79 skills** — 42 inherited from upstream at the fork point, 37 added
 since the fork. See the generated inventory for current category counts.
 
 ## Repository layout
@@ -313,4 +313,4 @@ those skills anyway.
 
 Read [STATE-CONTRACT.md](STATE-CONTRACT.md), [MIGRATION.md](MIGRATION.md), and [EDITORIAL-EVALS.md](EDITORIAL-EVALS.md) before changing the new shared records. The project-local runtime is owned by book-status and consumers declare metadata.bundled-dependencies. This is an explicit internal-library dependency; scripts do not import development-only tools from a book project. Lint verifies dependency existence.
 
-`make check` now also executes tools/test-storycraft-state.py for state/race/legacy handling, author memory, false beliefs/flashbacks, isolated packet boundaries, campaign dependencies/recovery, migration preservation, and source-safe Markdown delivery. `make export-eval` performs actual DOCX/EPUB/PDF conversion with Pandoc and Typst in its explicit CI job. `make eval-editorial` prepares model-neutral packets; author-scored literary outcomes remain distinct from mechanical CI success.
+`make check` now also executes tools/test-storycraft-state.py for state/race/legacy handling, author memory, false beliefs/flashbacks, isolated packet boundaries, campaign dependencies/recovery, migration preservation, and source-safe Markdown delivery. `make export-eval` performs actual DOCX/EPUB/PDF conversion with Pandoc and Typst in its explicit CI job. `make eval-editorial` prepares model-neutral packets. Run `make eval-routing` to verify live skill selection and actual file changes against disposable books. CI runs the routing fixture and scorer checks locally. Matched editorial studies and author scoring use the separate workflow in [EDITORIAL-EVALS.md](EDITORIAL-EVALS.md).

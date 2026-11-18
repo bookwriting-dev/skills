@@ -13,6 +13,7 @@ import time
 import zipfile
 import sys
 sys.dont_write_bytecode = True
+import beta_exchange
 
 
 def state_module():
@@ -80,14 +81,19 @@ def main():
     resolver = manifest_module()
     manifest_hash = s.digest(s.path_at(root, resolver.MANIFEST_PATH))
     book_record = resolver.resolve_book(root, a.book)
+    missing = resolver.missing_chapters(root, book_record)
+    missing_paths = {item['path'] for item in missing if 'path' in item}
     chapters = []
     for chapter in sorted(book_record['chapters'], key=lambda c: c['reading_order']):
+        if chapter['path'] in missing_paths:
+            continue
         source_path = s.path_at(root, chapter['path'])
         if cfg.get('chapter_dir') and not source_path.is_relative_to(s.path_at(root, cfg['chapter_dir'])):
             raise ValueError('manifest chapter is outside configured chapter_dir: ' + chapter['path'])
         chapters.append((chapter['reading_order'], source_path, chapter))
     if not chapters:
-        raise ValueError('project manifest has no chapters for ' + a.book)
+        labels = ', '.join(item['label'] for item in missing)
+        raise ValueError('no drafted chapters for ' + a.book + (f'; missing {labels}' if labels else ''))
     formats = list(dict.fromkeys(a.format or ['md']))
     pandoc = shutil.which('pandoc')
     if any(f != 'md' for f in formats) and not pandoc:
@@ -95,18 +101,21 @@ def main():
     engine = a.pdf_engine or cfg.get('pdf_engine')
     if 'pdf' in formats and (not engine or not shutil.which(engine)):
         raise ValueError('PDF requires an explicitly configured available PDF engine')
-    warnings = []
-    required = cfg.get('required_checks', ['Gate'])
-    if not isinstance(required, list) or not required or not all(re.fullmatch(r'[A-Za-z]+', c) for c in required):
-        raise ValueError('required_checks must name at least one configured check')
-    for n, p, chapter_record in chapters:
-        match = re.search(r'(\d+)', chapter_record.get('display_label', ''))
-        legacy_number = int(match.group(1)) if match else n
+    warnings = [f"missing expected chapter: {item['label']}" for item in missing]
+    workflow = resolver.workflow(root, book_record, cfg.get('required_checks'))
+    required = workflow['required_checks']
+    required_meta = []
+    review_results = []
+    for _, p, chapter_record in chapters:
         for check in required:
-            meta = s.path_at(root, f'_Edits/{a.book}/Chapter-{legacy_number:03}_{check}.meta.json')
+            meta = s.chapter_report_paths(root, a.book, chapter_record, check)[0]
+            required_meta.append(meta)
             status = s.readiness(root, meta, [str(p.relative_to(root))], profile=cfg.get('completion_profile', 'draft_verified'))
+            review_results.append({'chapter': chapter_record['id'], 'check': check,
+                                   'metadata': str(meta.relative_to(root)), **status})
             if status['readiness'] != 'ELIGIBLE':
-                warnings.append(f'{p.name}: {check} {status}')
+                reason = ', '.join(status['blocking_reasons'])
+                warnings.append(f'{p.name}: {check} {status["readiness"]} ({reason})')
     dash = s.dashboard(root, a.book)
     for chapter in dash['chapters']:
         for check in chapter['checks']:
@@ -118,26 +127,32 @@ def main():
     for cp in (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'):
         if any(t['status'] != 'complete' for t in s.load(cp)['tasks']):
             warnings.append('unfinished campaign: ' + str(cp.relative_to(root)))
-    names = [str(p.relative_to(root)) for _, p, _ in chapters]
-    names += cfg.get('front_matter', []) + cfg.get('back_matter', [])
+    import_dir = f'Chapters/{a.book}'
+    import_receipt = f'{import_dir}/.storycraft-import.json'
+    imported_front = f'{import_dir}/FrontMatter.md'
+    front_matter = cfg.get('front_matter')
+    if front_matter is None:
+        receipt = s.path_at(root, import_receipt)
+        front_matter = ([imported_front] if receipt.is_file()
+                        and 'FrontMatter.md' in s.load(receipt).get('files', {}) else [])
+    back_matter = cfg.get('back_matter', [])
+    order = front_matter + [str(p.relative_to(root)) for _, p, _ in chapters] + back_matter
+    names = list(order)
     if cfg.get('reference_doc'):
         names.append(cfg['reference_doc'])
     before = s.evidence(root, names)
     if any(e.get('sha256') is None for e in before):
         raise ValueError('missing source/front/back matter')
-    validation_names = list(names) + [resolver.MANIFEST_PATH]
+    validation_names = [*names, resolver.MANIFEST_PATH, 'AGENTS.md', import_receipt, *missing_paths]
+    if book_record.get('chapter_order') == 'conventional':
+        validation_names.extend(resolver.outline_paths(book_record))
     validation_names.append(s.continuity_dir(book_record))
-    for _, _, chapter_record in chapters:
-        match = re.search(r'(\d+)', chapter_record.get('display_label', ''))
-        legacy_number = int(match.group(1)) if match else chapter_record['reading_order']
-        for check in required:
-            meta_name = f'_Edits/{a.book}/Chapter-{legacy_number:03}_{check}.meta.json'
-            validation_names.append(meta_name)
-            meta_path = s.path_at(root, meta_name)
-            if meta_path.is_file():
-                meta_record = s.load(meta_path)
-                if isinstance(meta_record.get('report'), str):
-                    validation_names.append(meta_record['report'])
+    for meta_path in required_meta:
+        validation_names.append(str(meta_path.relative_to(root)))
+        if meta_path.is_file():
+            meta_record = s.load(meta_path)
+            if isinstance(meta_record.get('report'), str):
+                validation_names.append(meta_record['report'])
     disposition_path = f'_Edits/{a.book}/decisions.jsonl'
     validation_names.append(disposition_path)
     validation_names.extend(str(p.relative_to(root)) for p in
@@ -177,22 +192,24 @@ def main():
         raise ValueError('release checks incomplete: ' + '; '.join(blockers))
     # Assemble and validate reader-facing content before either preflight returns
     # or a converter is invoked. This keeps deterministic content failures equal.
-    order = cfg.get('front_matter', []) + [str(p.relative_to(root)) for _, p, _ in chapters] + cfg.get('back_matter', [])
     parts = []
     for name in order:
         raw = source_texts[name] if name in source_texts else s.path_at(root, name).read_text(encoding='utf-8')
-        parts.append(clean(raw, cfg.get('scene_break', '* * *'), name,
-                           formatting['pov_comment_lines'].get(name, ())))
-    text = '\n\n'.join(parts)
+        parts.append((name, clean(raw, cfg.get('scene_break', '* * *'), name,
+                                  formatting['pov_comment_lines'].get(name, ()))))
+    text = '\n\n'.join(part for _, part in parts)
     if (s.evidence(root, validation_names) != validation_before
             or s.evidence(root, names) != before
             or s.digest(s.path_at(root, resolver.MANIFEST_PATH)) != manifest_hash
             or resolver.resolve_book(root, a.book) != book_record
+            or resolver.missing_chapters(root, book_record) != missing
+            or resolver.workflow(root, book_record, cfg.get('required_checks')) != workflow
             or (a.config and s.digest(a.config) != config_sha256)):
         raise ValueError('source or required readiness evidence changed during preflight')
     reader_text_hash = hashlib.sha256(text.encode('utf-8')).hexdigest()
     plan = {'schema_version': 1, 'sources': before, 'profile': a.profile, 'formats': formats,
             'warnings': warnings, 'unchecked_preview': a.unchecked_preview,
+            'missing_chapters': missing, **workflow, 'reviews': review_results,
             'format_findings': formatting['findings'], 'continuity': continuity,
             'pandoc': subprocess.check_output([pandoc, '--version'], text=True).splitlines()[0] if pandoc else None,
             'pdf_engine': engine, 'config': cfg, 'config_sha256': config_sha256,
@@ -213,10 +230,18 @@ def main():
             stage = Path(tmp)
             md = stage / 'manuscript-combined.md'
             md.write_text(text)
+            exchange = None
+            if a.profile == 'beta':
+                exchange = beta_exchange.build_map(parts, {record['path']: record for _, _, record in chapters},
+                                                   manuscript_hashes)
             for fmt in formats:
                 target = stage / ('manuscript-combined.' + fmt)
                 if fmt != 'md':
-                    cmd = [pandoc, str(md), '--from=markdown', '--standalone', '-o', str(target)]
+                    source, source_format = md, 'markdown'
+                    if exchange is not None and fmt == 'docx':
+                        source = beta_exchange.docx_input(pandoc, stage, exchange)
+                        source_format = 'json'
+                    cmd = [pandoc, str(source), '--from=' + source_format, '--standalone', '-o', str(target)]
                     if cfg.get('title'):
                         cmd += ['--metadata', 'title=' + cfg['title']]
                     if cfg.get('toc', a.profile != 'submission'):
@@ -225,15 +250,26 @@ def main():
                         cmd += ['--pdf-engine', engine]
                     if cfg.get('reference_doc') and fmt == 'docx':
                         cmd += ['--reference-doc', str(s.path_at(root, cfg['reference_doc']))]
-                    subprocess.run(cmd, check=True, capture_output=True)
+                    converted = subprocess.run(cmd, capture_output=True, text=True)
+                    if converted.returncode:
+                        raise ValueError(f'Pandoc {fmt} conversion failed: {converted.stderr.strip()}')
+                    if exchange is not None and fmt == 'docx':
+                        source.unlink()
+                        beta_exchange.bind_word_passages(target, exchange)
                 verify(target, fmt)
                 plan['structural_checks'][fmt] = 'PASS'
             if (s.evidence(root, validation_names) != validation_before
-                    or resolver.resolve_book(root, a.book) != book_record):
+                    or resolver.resolve_book(root, a.book) != book_record
+                    or resolver.missing_chapters(root, book_record) != missing):
                 raise ValueError('source or required readiness evidence changed during export; rerun preflight')
             if a.config and hashlib.sha256(a.config.read_bytes()).hexdigest() != config_sha256:
                 raise ValueError('export configuration changed during conversion; rerun preflight')
             plan['outputs'] = {p.name: s.digest(p) for p in stage.iterdir() if p.suffix[1:] in formats}
+            if exchange is not None:
+                beta_map = stage / 'beta-passages.json'
+                s.write(beta_map, exchange)
+                plan['beta_feedback'] = {'export_id': exchange['export_id'],
+                                         'map': beta_map.name, 'sha256': s.digest(beta_map)}
             plan['delivery_status'] = 'PREVIEW_UNCHECKED' if a.unchecked_preview else 'BUILT_PENDING_RENDERED_REVIEW'
             s.write(stage / 'export-manifest.json', plan)
             # Keep previous package recoverable until the entire new package is valid.

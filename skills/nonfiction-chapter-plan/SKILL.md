@@ -3,7 +3,8 @@ name: nonfiction-chapter-plan
 description: "Create or revise non-fiction chapter plans. Each chapter's claim, evidence, transition, and reader takeaway. The non-fiction equivalent of fiction-scenes/psych — replaces beat sheets with argument architecture. Use when structuring a chapter's logical flow before drafting."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
+  bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -133,6 +134,10 @@ For each structured block, populate the fields required by the project's generat
 Handle a single chapter or focused revision directly unless an isolated worker would clearly improve a large-context or multi-chapter task. Consider one worker for a substantial range or large research corpus; use one when book instructions require isolation. Do not delegate merely because the capability exists.
 
 When using a worker, tell it the selected mode, exact target path, permitted side effects, authority order, and whether it may create reports. The coordinating agent must review the actual edited artifact before reporting completion.
+
+## Register expected chapters
+
+Use [project_state.py](../book-status/scripts/project_state.py) with `--root ROOT --book Book-N register-chapters --spec SPEC.json` to record the intended chapters of an authorized book plan. For a numbered plan the spec is `{"schema_version":1,"chapters":[{"number":1},{"number":2}]}` with the actual planned numbers. For custom ordering use the top-level `"chapter_order":"declared"` and supply `id`, `display_label`, `path`, and `reading_order` for each custom chapter or interlude. Reuse existing IDs and destinations. Register only the target for a focused planning request. Surface any conflict with existing authority before handoff.
 
 ## Revision verification
 

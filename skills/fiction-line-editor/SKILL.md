@@ -3,7 +3,7 @@ name: fiction-line-editor
 description: Focused sentence-level line editing for fiction prose (voice, cliches, repetition, POV violations, awkward constructions). Use fiction-full-editor for general sentence editing; use this skill only when isolating the line-craft and voice layer without running full craft/AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "5.4.0"
+  version: "5.5.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -29,6 +29,8 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 Read [references/agent-instructions.md](references/agent-instructions.md).
 
 Store its contents — you will inject them into each worker prompt alongside the applicable scoped editorial decisions.
+
+Resolve punctuation through `project_state.py --root ROOT --book Book-N style-policy` and include its guide inputs and scoped author decisions. Apply the book’s dash rule to each passage.
 
 ## Step 3: Launch Focused Workers
 

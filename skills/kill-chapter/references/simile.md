@@ -11,7 +11,7 @@ instead of letting the image work.
 - Abstract vehicles: "like a promise," "like something ending" add no image. Cut or ground in a concrete vehicle.
 
 **KEEP:**
-- A fresh, concrete simile that adds an image the prose didn't already have (sparingly, a couple per chapter at most).
+- A fresh, concrete simile that adds an image the prose didn't already have (apply the current review guide’s limit and approved examples).
 - In-voice idiomatic comparisons a character would actually speak.
 - Literal "like" (preference) and "as" (temporal/causal: "as he turned").
 
