@@ -335,6 +335,20 @@ class EditionExchange(unittest.TestCase):
         self.assertIn('source', error.lower())
         self.assertFalse(fresh.exists(), 'stale approval created manuscript files')
 
+    @unittest.skipUnless(PANDOC, 'Pandoc is required to split a reviewed EPUB unit')
+    def test_author_can_split_a_spine_unit_at_a_quoted_paragraph(self):
+        source = self.root / 'source.epub'
+        source_epub(source)
+        preview = self.cli(IMPORT, source)
+        chapter = next(unit for unit in preview['units'] if unit['title']=='Chapter 1')
+        chapter['split_before'] = [{'quote':'across the bay.', 'title':'Crossing', 'role':'narrative'}]
+        selection = self.write('selection.json',json.dumps(preview))
+        self.cli(IMPORT,source,'--selection',selection,'--export-chapters',self.chapters)
+        roster = self.state('dashboard')['chapters']
+        self.assertEqual([r['display_label'] for r in roster][:4],['Prologue','Chapter 1','Crossing','Chapter 2'])
+        self.assertNotIn('across the bay.',(self.root/roster[1]['chapter']).read_text())
+        self.assertIn('across the bay.',(self.root/roster[2]['chapter']).read_text())
+
     def test_fixed_layout_and_encrypted_inputs_explain_unsupported_preview(self):
         source = self.root / 'source.epub'
         source_epub(source)

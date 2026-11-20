@@ -3,7 +3,7 @@ name: book-reverse-engineer
 description: "Reverse-engineer an existing finished or undisciplined draft manuscript into Storycraft canon (Wiki/), scene outlines, Chekhov promises, voice profile, and defect findings. Use when user says 'reverse engineer', 'retrofit book', 'import manuscript', 'preview an EPUB', 'bring existing book into storycraft', 'analyze existing draft', 'rebuild undisciplined book', or 'audit raw manuscript'."
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: cross-cutting
   output-format: markdown
@@ -40,7 +40,7 @@ Preview the chapter split and destination without writing prose. The preview inc
 python3 .agents/skills/book-reverse-engineer/scripts/manuscriptkit.py <source-path> --export-chapters Chapters/Book-N --preview
 ```
 
-For a reflowable EPUB 2 or 3, [epub_intake.py](scripts/epub_intake.py) follows the spine and reads NCX or XHTML navigation, including fragments inside a shared chapter file. Review every proposed unit, including prologues, interludes, epilogues, notes, front and back matter. Save the preview JSON to correct the units array before import. Keep its source_sha256 and all unit IDs. Reorder entries, edit titles, choose narrative/front/back/navigation/omit, or set merge_into to the preceding retained unit's ID. Pass the saved file with --selection FILE to preview and apply the same reviewed grouping. Encrypted content and fixed-layout editions require an accessible reflowable source.
+For a reflowable EPUB 2 or 3, [epub_intake.py](scripts/epub_intake.py) follows the spine and reads NCX or XHTML navigation, including fragments inside a shared chapter file. Review every proposed unit, including prologues, interludes, epilogues, notes, front and back matter. Save the preview JSON to correct the units array before import. Keep its source_sha256 and all unit IDs. Reorder entries, edit titles, choose narrative/front/back/navigation/omit, or set merge_into to the preceding retained unit's ID. To split a unit, add a split_before array to its entry. Each split names the new title, an optional role and a unique quote from its first paragraph. List splits in reading order. Pass the saved file with --selection FILE to preview and apply the same reviewed grouping. Encrypted content and fixed-layout editions require an accessible reflowable source.
 
 The import keeps its original EPUB intact and registers narrative sections in reading order. The receipt includes front/back matter and illustration hashes. Existing local edits use the ordinary import conflict workflow. Use the registered labels or chapter IDs throughout the subsequent analysis. Inspect the original and the preview together when heading structure is ambiguous.
 

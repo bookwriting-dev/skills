@@ -219,6 +219,37 @@ def convert(pub):
     return records, resources
 
 
+ROLES = {'front', 'narrative', 'back', 'navigation', 'omit'}
+
+
+def split_reviewed(record, cuts):
+    """Split only at a uniquely quoted reader paragraph in the reviewed unit."""
+    content = record['content']
+    pieces = []
+    start = 0
+    part = record
+    for cut in cuts:
+        quote = cut.get('quote', '').strip()
+        title = cut.get('title', '').strip()
+        role = cut.get('role', record['role'])
+        index = content.find(quote)
+        if not title or role not in ROLES or not quote or index < 0 or index != content.rfind(quote):
+            raise ValueError('each EPUB split needs a title, a valid role and a unique source quote')
+        # Split at the start of the quoted paragraph, keeping any preceding text on the correct side.
+        separator = content.rfind('\n\n', 0, index)
+        boundary = separator + 2 if separator >= 0 else 0
+        earlier = content[start:boundary].strip()
+        if boundary <= start or not re.sub(r'\[\]\{#[^}]+\}', '', earlier).strip():
+            raise ValueError('EPUB split would create an empty or out-of-order reading unit')
+        pieces.append(dict(part, content=earlier))
+        fragment = record['fragment'] + ':split:' + quote
+        part = dict(record, id=anchor(record['source'], fragment), title=title, role=role,
+                    fragment=record['fragment'], split_quote=quote)
+        start = boundary
+    pieces.append(dict(part,content=content[start:].strip()))
+    return pieces
+
+
 def analyze(path, selection=None):
     sha = hashlib.sha256(path.read_bytes()).hexdigest()
     metadata = {}
@@ -248,15 +279,17 @@ def analyze(path, selection=None):
         for choice in changes:
             record = dict(by_id[choice['id']])
             record.update({k:choice[k] for k in ('title','role') if k in choice})
-            if record['role'] not in ('front','narrative','back','navigation','omit') or not record['title'].strip():
+            if record['role'] not in ROLES or not record['title'].strip():
                 raise ValueError('invalid reading unit title or role')
             join = choice.get('merge_into')
             if join:
+                if choice.get('split_before'):
+                    raise ValueError('use either merge_into or split_before on a reviewed unit')
                 if not edited or edited[-1]['id'] != join:
                     raise ValueError('merge_into must name the preceding retained unit')
                 edited[-1]['content'] += '\n\n' + record['content']
             else:
-                edited.append(record)
+                edited.extend(split_reviewed(record,choice.get('split_before',[])))
         records = edited
     files, units = {}, []
     for r in records:

@@ -253,7 +253,7 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `book-reverse-engineer` 1.3.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
+| `book-reverse-engineer` 1.4.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.9.0 | Profiled chapter workflow for fiction, non-fiction, and hybrid books: draft verification by default; full candidate stages require developmental repair/checkpoint, distinct line or clarity pass, integration/seam reads, ledger/evidence reconciliation, and final checks. |
 | `gate-check` 1.9.0 | Comprehensive chapter readiness & continuity gate with integrated format, continuity, evidence-chain, and knowledge audits. |
 | `book-status` 1.14.0 | Manifest-resolved draft packets, shared readiness, continuity/format audits, versioned operation journals, and committed ledger generations. |

@@ -2,6 +2,10 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-19 — Let authors split an EPUB unit at a quoted paragraph
+
+A reviewed import can split a combined spine unit even when the source book supplies no chapter heading or contents entry at the boundary. Unique source quotations keep the split reproducible and preserve the original EPUB.
+
 ## 2026-11-19 — Add act and book editorial reviews, reader walkthroughs and narrator sheets
 
 Editors can compare character names and long absences, simulate a scene cut, and check geography against quoted evidence. A fresh nonfiction reader can attempt a chapter exercise in isolation. Narrator sheets preserve author-approved series readings and first appearances. Reread packets also retain archived illustrations and referenced notes when the rest of a chapter is omitted.
