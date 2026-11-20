@@ -264,8 +264,8 @@ hand-written catalog's versions honest against it.)
 | `series-continuity` 1.2.0 | Audits multi-book consistency across Book 1 through Book N using continuity, knowledge, relationship, and deferred-promise ledgers. |
 | `reader-persona-review` 1.1.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
-| `compile-manuscript` 1.8.0 | Builds staged delivery packages, checks expected chapters, and records the beta edition's passage map. |
-| `beta-feedback` 1.3.0 | Imports real beta feedback from Word or pasted notes, resolves passages, and hands selected findings to a revision campaign. |
+| `compile-manuscript` 1.9.0 | Builds staged delivery packages, checks expected chapters, and records the beta edition's passage map. |
+| `beta-feedback` 1.4.0 | Imports real beta feedback from Word or pasted notes, resolves passages, and hands selected findings to a revision campaign. |
 | `book-packaging` 1.3.0 | Generates marketing kits at `Wiki/Story/Book-N/packaging.md` verified against manuscript word counts and export manifests: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.1 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
 | `promise-tracker` 1.2.0 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |

@@ -133,6 +133,10 @@ def audit(path, expected=None, source_links=None):
 def markdown_links(pandoc, text):
     import subprocess
     proc = subprocess.run([pandoc,'-f','markdown','-t','json'],input=text,text=True,capture_output=True,check=True)
+    return source_links(json.loads(proc.stdout))
+
+
+def source_links(document):
     links = []
     def inline_text(node):
         if isinstance(node,list):
@@ -155,7 +159,7 @@ def markdown_links(pandoc, text):
         elif isinstance(node,list):
             for child in node:
                 visit(child)
-    visit(json.loads(proc.stdout)['blocks'])
+    visit(document['blocks'])
     return links
 
 

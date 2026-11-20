@@ -36,6 +36,67 @@ def note_scene(note, sections):
     return found[0] if len(found)==1 else None
 
 
+def pandoc_document(pandoc, text):
+    result = subprocess.run([pandoc,'-f','markdown','-t','json'],input=text,text=True,
+                            capture_output=True,check=True)
+    return json.loads(result.stdout)
+
+
+def ast_nodes(value):
+    if isinstance(value,dict):
+        if 't' in value:
+            yield value
+        yield from ast_nodes(value.get('c',[]))
+    elif isinstance(value,list):
+        for child in value:
+            yield from ast_nodes(child)
+
+
+def anchors(document):
+    ids = set()
+    for node in ast_nodes(document['blocks']):
+        content = node.get('c')
+        if node['t']=='Header':
+            attrs = content[1]
+        elif node['t'] in {'Span','Div','Table','Code','CodeBlock','Figure','Image','Link'}:
+            attrs = content[0]
+        else:
+            continue
+        if isinstance(attrs,list) and attrs and isinstance(attrs[0],str) and attrs[0]:
+            ids.add(attrs[0])
+    return ids
+
+
+def omitted_destinations(pandoc, excerpt, target):
+    requested = {fragment for _,fragment in epub_navigation.source_links(excerpt)}
+    missing = requested - anchors(excerpt)
+    if not missing:
+        return {}
+    # Check the frozen full book before telling a reader that an omitted target exists.
+    full = pandoc_document(pandoc,'\n\n'.join(s['reader_text'] for s in target['sections']))
+    missing &= anchors(full)
+    labels = defaultdict(list)
+    for section in target['sections']:
+        if not missing:
+            break
+        for fragment in missing & anchors(pandoc_document(pandoc,section['reader_text'])):
+            labels[fragment].append(section['label'])
+    return {fragment: (places[0] if len(places)==1 else '') for fragment in sorted(missing)
+            for places in [labels[fragment]]}
+
+
+def label_omitted_links(document, destinations):
+    for node in ast_nodes(document['blocks']):
+        if node['t']!='Link':
+            continue
+        attrs,label,(href,_) = node['c']
+        if not href.startswith('#') or href[1:] not in destinations:
+            continue
+        location = destinations[href[1:]]
+        message = f'(see {location} in the full beta)' if location else '(see the full beta)'
+        node.update(t='Span',c=[attrs,[*label,{'t':'Space'},{'t':'Str','c':message}]])
+
+
 def build(root, book, old, target_id, reader):
     reader = reader.strip()
     if not reader or old['export_id']==target_id or old.get('target_edition'):
@@ -140,19 +201,26 @@ def build(root, book, old, target_id, reader):
                 raise ValueError('archived beta illustration changed: '+name)
         switches = ['--standalone','--metadata','lang='+target.get('language','und'),'--metadata','title=Changes since your last beta','--resource-path='+str(images)]
         docx = stage/'reread.docx'
+        text = '\n\n'.join(v for _,v in parts)
+        epub_source = pandoc_document(pandoc,text)
+        omitted = omitted_destinations(pandoc,epub_source,target)
+        label_omitted_links(epub_source,omitted)
         source = beta_exchange.docx_input(pandoc,stage,packet)
+        if omitted:
+            word_source = json.loads(source.read_text())
+            label_omitted_links(word_source,omitted)
+            source.write_text(json.dumps(word_source,ensure_ascii=False))
         subprocess.run([pandoc,str(source),'-f','json',*switches,'-o',str(docx)],check=True,capture_output=True)
         source.unlink()
         beta_exchange.bind_word_passages(docx,packet)
-        text = '\n\n'.join(v for _,v in parts)
         epub = stage/'reread.epub'
-        subprocess.run([pandoc,'-f','markdown',*switches,'-o',str(epub)],input=text,text=True,check=True,capture_output=True)
-        expected, report = epub_navigation.audit(epub,source_links=epub_navigation.markdown_links(pandoc,text))
+        subprocess.run([pandoc,'-f','json',*switches,'-o',str(epub)],input=json.dumps(epub_source),text=True,check=True,capture_output=True)
+        expected, report = epub_navigation.audit(epub,source_links=epub_navigation.source_links(epub_source))
         state.write(stage/'epub-navigation.json',expected)
         path = stage/'beta-passages.json'
         state.write(path,packet)
         meta = {'schema_version':1,'reader':reader,'baseline_edition':old['export_id'],'target_edition':target_id,
-                'packet_id':packet['export_id'],'changes':dict(counts),'epub_navigation':report,
+                'packet_id':packet['export_id'],'changes':dict(counts),'omitted_link_destinations':omitted,'epub_navigation':report,
                 'beta_feedback':{'export_id':packet['export_id'],'map':path.name,'sha256':state.digest(path)}}
         state.write(stage/'export-manifest.json',meta)
         stage.rename(out)

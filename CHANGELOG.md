@@ -2,6 +2,10 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-19 — Preserve cross-references in changed-scene packets
+
+When a revised scene points into an omitted chapter, its Word and EPUB packets identify the destination in the archived full beta. Links between included passages still work. The regression sends an illustrated imported chapter through a real reread export and verifies its navigation.
+
 ## 2026-11-19 — Let authors split an EPUB unit at a quoted paragraph
 
 A reviewed import can split a combined spine unit even when the source book supplies no chapter heading or contents entry at the boundary. Unique source quotations keep the split reproducible and preserve the original EPUB.

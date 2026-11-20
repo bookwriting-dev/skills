@@ -534,6 +534,34 @@ class EditionExchange(unittest.TestCase):
         ET.SubElement(note, HTML + 'a', {'href': return_href, 'role': 'doc-backlink'}).text = 'Return'
         verify_mutation('wrong-existing-return', note_name, docs[note_name])
 
+    @unittest.skipUnless(PANDOC, 'Pandoc is required for a linked reread packet')
+    def test_scene_links_to_an_omitted_chapter_identify_the_full_beta_destination(self):
+        self.intake()
+        old = self.export('epub','docx')['beta_feedback']['export_id']
+        ch = self.state('draft-packet','--chapter','Chapter 1')
+        source = self.root / ch['chapter_path']
+        source.write_text(source.read_text()+'\nA second gauge floated up. [See the gauge](#included-gauge).\n'
+                          '\n## The gauge {#included-gauge}\n\nIts face was cracked.\n')
+        new = self.export('epub','docx')['beta_feedback']['export_id']
+        packet = self.cli(BETA,'--root',self.root,'--export',old,'--reread-to',new,'--reader','Wren')
+        self.assertEqual(packet['epub_navigation']['status'],'PASS')
+        folder = Path(packet['output'])
+        for name in ('reread.epub','reread.docx'):
+            text = package_text(folder/name)
+            self.assertIn('visit the shutter',text)
+            self.assertIn('see Chapter 2 in the full beta',text)
+            self.assertNotIn(UNITS['Chapter 2'],text)
+        self.assertEqual(self.cli(NAVIGATION,folder/'reread.epub','--expect',folder/'epub-navigation.json')['status'],'PASS')
+        docs = epub_documents(folder/'reread.epub')
+        source_name,link = next((n,a) for n,doc in docs.items() for a in doc.iter(HTML+'a')
+                                if visible_text(a)=='See the gauge')
+        target_name,fragment = href_target(source_name,link.get('href'))
+        self.assertTrue(any(e.get('id')==fragment for e in docs[target_name].iter()))
+        checker = shutil.which('epubcheck')
+        if checker:
+            result = subprocess.run([checker,str(folder/'reread.epub')],text=True,capture_output=True)
+            self.assertEqual(result.returncode,0,result.stdout+result.stderr)
+
     @unittest.skipUnless(PANDOC, 'Pandoc is required to verify frozen reader packet media')
     def test_reread_embeds_target_image_and_note_from_an_unchanged_scene(self):
         chapter = self.write('Chapters/Book-1/Chapter-001.md',
