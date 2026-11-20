@@ -3,6 +3,11 @@ import hashlib
 import json
 import re
 import secrets
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "book-status/scripts"))
+from editions import enrich
 import subprocess
 from xml.etree import ElementTree as ET
 import zipfile
@@ -34,15 +39,15 @@ def paragraph_text(paragraph):
     return normal(''.join(pieces))
 
 
-def build_map(parts, chapter_records, source_hashes):
+def build_map(parts, chapter_records, source_hashes, scene_break="* * *"):
     sections = []
     passages = {}
     for path, text in parts:
         chapter = chapter_records.get(path, {})
         identifier = 'scu' + sha256(path.encode())[:18]
-        sections.append({'bookmark': identifier, 'chapter_id': chapter.get('id'),
+        sections.append(enrich({'bookmark': identifier, 'chapter_id': chapter.get('id'),
                          'label': chapter.get('display_label', path), 'path': path,
-                         'source_sha256': source_hashes[path], 'reader_text': text})
+                         'source_sha256': source_hashes[path], 'reader_text': text}, scene_break))
         for index, paragraph in enumerate(re.split(r'\n[ \t]*\n', text)):
             if paragraph.strip():
                 anchor = 'scm' + sha256(f'{identifier}:{index}'.encode())[:20]

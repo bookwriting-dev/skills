@@ -43,7 +43,8 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_
     for number, line in enumerate(lines, 1):
         stripped = line.strip()
         if fence:
-            if re.match(r'^\s*' + re.escape(fence) + r'\s*$', line):
+            delimiter = '```' if fence == '```storycraft-internal' else fence
+            if re.fullmatch(re.escape(delimiter[0]) + '{' + str(len(delimiter)) + ',}', stripped):
                 fence = None
             # Storycraft-internal fences are omitted; ordinary code is reader text.
             elif fence == '```storycraft-internal':

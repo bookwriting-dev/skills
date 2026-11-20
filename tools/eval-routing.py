@@ -29,6 +29,7 @@ FIXES = (
     ('It was just a little warm.', 'It was warm.'),
 )
 CASES = (
+    ('author', 'book-status', 'Start my personal read-through of the current edition. I personally finished chapter 5. Save that progress and tell me where to resume.'),
     ('review', 'fiction-reviewchapter', 'Review chapter 5.'),
     ('review-only', 'fiction-reviewchapter', 'What would you change in chapter 5? Show me the review first.'),
     ('cleanup', 'kill-chapter', 'Clean this chapter in place. In chapter 5, strip out the recurring prose crutches.'),
@@ -96,6 +97,8 @@ def trace_skills(stdout):
             continue
         command = item.get('command', '')
         observed.update(re.findall(r'(?<![\w-])skills/([a-z0-9-]+)/SKILL\.md\b', command))
+        if 'project_state.py' in command and 'author-read' in command:
+            observed.add('book-status')
         if re.search(r'skills/beta-feedback/scripts/beta_feedback\.py\b', command):
             observed.add('beta-feedback')
     return sorted(observed), model
@@ -107,7 +110,10 @@ def outcomes(root, case, before):
     draft = root / CHAPTER
     body = draft.read_text(encoding='utf-8') if draft.is_file() else ''
     values = {'changed': changed, 'chapter_unchanged': body == CHAPTER_TEXT}
-    if case == 'approved':
+    if case == 'author':
+        log = root / '_Edits/Book-1/author-read/progress.json'
+        values['author_mark'] = log.is_file() and any(mark.get('whole') for mark in json.loads(log.read_text())['marks'].values())
+    elif case == 'approved':
         exact = CHAPTER_TEXT
         for index in (0, 2):
             exact = exact.replace(*FIXES[index])
@@ -135,7 +141,10 @@ def score(record, expected):
     if skill not in record['observed_skills']:
         failures.append(f'no tool evidence that {skill} ran')
     changed = set(output['changed'])
-    if name in ('review', 'review-only'):
+    if name == 'author':
+        if not output.get('author_mark') or any(not path.startswith('_Edits/Book-1/author-read/') for path in changed):
+            failures.append('expected only explicit author read-through records for the fixture')
+    elif name in ('review', 'review-only'):
         if not output['chapter_unchanged'] or any(not path.startswith('_Edits/Book-1/') for path in changed):
             failures.append('review touched content outside its report directory')
         if name == 'review' and REPORT not in changed:

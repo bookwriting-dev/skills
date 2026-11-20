@@ -4,6 +4,8 @@ A book project using the [Open Storycraft](https://storycraft.lanternkey.fyi/) s
 
 Canon lives in `Wiki/`. Prose lives in `Chapters/`. Skills live in `.agents/skills/`. Do not invent a parallel manuscript folder, and do not treat a previous chapter as Wiki canon.
 
+For a personal read-through, use `book-status` to record the author’s chapter or quote and show changes since that edition.
+
 ## Project Type
 
 This project is: **__PROJECT_TYPE__** (FICTION, NONFICTION, or HYBRID — set by `new-book.sh --type`; edit here if the project changes).

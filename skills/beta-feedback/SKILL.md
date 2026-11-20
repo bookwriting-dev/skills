@@ -3,7 +3,7 @@ name: beta-feedback
 description: "Import comments returned by real beta readers from a Storycraft beta DOCX or pasted notes. Use when a writer asks to import beta-reader comments, review returned Word comments, group beta feedback, or turn selected beta feedback into revision tasks."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
   bundled-dependencies: book-status, compile-manuscript, revision-campaign
   category: cross-cutting
 ---
@@ -14,7 +14,7 @@ Match real reader feedback to the archived beta edition they saw. Keep reader co
 
 ## Resolve the edition
 
-Use the book, returned DOCX, or notes named by the writer. Find the beta export ID in its export manifest, including previous editions retained by [compile-manuscript](../compile-manuscript/SKILL.md). If several editions could match pasted notes, use the writer's stated edition or ask which they saw. For DOCX, use the embedded export bookmark or a supplied edition. A mismatched bookmark is a conflict.
+Use the book, returned DOCX, or notes named by the writer. Open the frozen reader edition and use its original anchors for returned notes. Find the beta export ID in its export manifest, including previous editions retained by [compile-manuscript](../compile-manuscript/SKILL.md). If several editions could match pasted notes, use the writer's stated edition or ask which they saw. For DOCX, use the embedded export bookmark or a supplied edition. A mismatched bookmark is a conflict.
 
 ## Import and report
 

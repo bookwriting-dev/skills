@@ -3,7 +3,7 @@ name: compile-manuscript
 description: "Compile and stitch drafted chapter files into a delivery package with customizable front matter, scene breaks, table of contents, and export formatting. Structural conversion does not imply rendered, author, or publication approval. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'."
 metadata:
   author: Storycraft Skills
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -30,7 +30,7 @@ Repeat without --check to export. Request formats with repeated --format md/docx
 
 The exporter stages a complete package, verifies sources did not change, and then replaces the profile output while retaining a .previous package for recovery. It never edits source chapters. Output lives under Chapters/Book-N/export/PROFILE with export-manifest.json recording ordered source hashes, configuration, converters, output hashes, and warnings.
 
-The beta profile includes an export ID and a [reader passage map](scripts/beta_exchange.py). Beta DOCX files carry the ID and passage bookmarks. Share the manuscript file with readers and retain the export manifest and passage map locally for `beta-feedback`, including previous beta editions.
+The beta profile includes an export ID and a [reader passage map](scripts/beta_exchange.py). The map freezes ordered reader scenes and paragraphs for later comparisons. Beta DOCX files carry the ID and passage bookmarks. Share the manuscript file with readers and retain the export manifest and passage map locally for `beta-feedback`, including previous beta editions.
 
 ## Verify delivery
 

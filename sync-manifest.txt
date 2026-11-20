@@ -25,6 +25,7 @@ skills/book-status/references/evidence-chain.md
 skills/book-status/references/state-contract.md
 skills/book-status/scripts/chapter_format.py
 skills/book-status/scripts/continuity.py
+skills/book-status/scripts/editions.py
 skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
 skills/book-status/scripts/prose_style.py
@@ -200,6 +201,7 @@ tools/gen-inventory.py
 tools/lint-skills.py
 tools/skill_lib.py
 tools/smoke-new-book.sh
+tools/test-author-read.py
 tools/test-storycraft-improvements.py
 tools/test-storycraft-state.py
 tools/update-project.py

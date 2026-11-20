@@ -1,9 +1,9 @@
 ---
 name: book-status
-description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', or a targeted manuscript scan for dated wording and spelled-out clock times."
+description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.11.0"
+  version: "1.12.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -58,3 +58,8 @@ For a request limited to diction or clock notation, resolve the requested manusc
 
 6. **Step 6: Render Executive Dashboard**
    - Output a structured Markdown dashboard showing verdict (`PASS`/`WARN`/`FAIL`) separately from freshness (`CURRENT`/`STALE`/`UNKNOWN`) with reasons, immediate blockers, and the first concrete blocked next action.
+
+
+## Personal read-through
+
+Use the project state CLI with the book selector followed by `author-read --action start` to freeze the current reader edition. An optional `--edition ID` selects an archived beta. On an explicit author update, run `author-read --action mark --chapter 5` for a completed chapter, or add `--quote "last line read"` for partial progress. A unique quote can identify the chapter itself. For an ambiguous quote use a longer excerpt or chapter selector. Report `--action resume` or `--action changes` against current prose or the named edition. Only credit chapters the author actually reports reading. Surface the dashboard’s personally read total separately from review readiness. [Edition comparison](scripts/editions.py)

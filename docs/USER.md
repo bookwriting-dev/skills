@@ -58,6 +58,8 @@ Choose a starting point:
 and `hybrid`, creates `Wiki/Concept/` and `Wiki/Research/` alongside the shared Wiki
 slots.
 
+Tell `book-status` “I personally finished Chapter 5” or give it the last line you read. Ask “where did I stop?” or “what changed behind my bookmark?” to compare the saved edition with current prose.
+
 ## The fiction workflow
 
 **Plan the book (once, in order):** genre → audience → theme → synopsis → series
@@ -250,7 +252,7 @@ hand-written catalog's versions honest against it.)
 | `book-reverse-engineer` 1.1.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.9.0 | Profiled chapter workflow for fiction, non-fiction, and hybrid books: draft verification by default; full candidate stages require developmental repair/checkpoint, distinct line or clarity pass, integration/seam reads, ledger/evidence reconciliation, and final checks. |
 | `gate-check` 1.9.0 | Comprehensive chapter readiness & continuity gate with integrated format, continuity, evidence-chain, and knowledge audits. |
-| `book-status` 1.11.0 | Manifest-resolved draft packets, shared readiness, continuity/format audits, versioned operation journals, and committed ledger generations. |
+| `book-status` 1.12.0 | Manifest-resolved draft packets, shared readiness, continuity/format audits, versioned operation journals, and committed ledger generations. |
 | `kanban-board` 1.2.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.2.0 | Safeguards canon from drift; semantic, knowledge, and continuity impact scan before deliberate world/character edits, handing multi-chapter repairs to `revision-campaign`. |
 | `editorial-memory` 1.0.0 | Explicit scoped author decisions; keep/reject history and reusable preferences. |
@@ -258,8 +260,8 @@ hand-written catalog's versions honest against it.)
 | `series-continuity` 1.2.0 | Audits multi-book consistency across Book 1 through Book N using continuity, knowledge, relationship, and deferred-promise ledgers. |
 | `reader-persona-review` 1.1.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
-| `compile-manuscript` 1.5.0 | Builds staged delivery packages, checks expected chapters, and records the beta edition's passage map. |
-| `beta-feedback` 1.0.0 | Imports real beta feedback from Word or pasted notes, resolves passages, and hands selected findings to a revision campaign. |
+| `compile-manuscript` 1.6.0 | Builds staged delivery packages, checks expected chapters, and records the beta edition's passage map. |
+| `beta-feedback` 1.1.0 | Imports real beta feedback from Word or pasted notes, resolves passages, and hands selected findings to a revision campaign. |
 | `book-packaging` 1.2.0 | Generates marketing kits at `Wiki/Story/Book-N/packaging.md` verified against manuscript word counts and export manifests: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.1 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
 | `promise-tracker` 1.2.0 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |

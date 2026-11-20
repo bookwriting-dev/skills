@@ -233,7 +233,7 @@ def main():
             exchange = None
             if a.profile == 'beta':
                 exchange = beta_exchange.build_map(parts, {record['path']: record for _, _, record in chapters},
-                                                   manuscript_hashes)
+                                                   manuscript_hashes, cfg.get('scene_break', formatting['contract']['scene_break']))
             for fmt in formats:
                 target = stage / ('manuscript-combined.' + fmt)
                 if fmt != 'md':

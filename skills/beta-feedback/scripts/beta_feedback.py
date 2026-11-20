@@ -28,25 +28,7 @@ WORD = exchange.WORD
 normal = exchange.normal
 
 
-def open_export(root, book, edition):
-    directory = state.path_at(root, f'Chapters/{book}/export')
-    paths = [directory / 'beta', *sorted(directory.glob('beta.previous-*'))]
-    for path in paths:
-        manifest_file = state.path_at(root, str(path / 'export-manifest.json'))
-        if not manifest_file.is_file():
-            continue
-        metadata = state.load(manifest_file).get('beta_feedback', {})
-        if metadata.get('export_id') == edition:
-            if metadata.get('map') != 'beta-passages.json':
-                raise ValueError('unknown beta passage map')
-            map_file = state.path_at(root, str(path / metadata['map']))
-            if state.digest(map_file) != metadata.get('sha256'):
-                raise ValueError('archived beta passage map changed')
-            version = state.load(map_file)
-            if version.get('export_id') != edition:
-                raise ValueError('archived beta passage map has the wrong export ID')
-            return version
-    raise ValueError(f'beta export {edition} could not be found in {book}')
+open_export = state.editions.open_beta
 
 
 def word_edition(document):

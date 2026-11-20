@@ -9,6 +9,10 @@ import os
 from pathlib import Path
 import re
 import tempfile
+import sys
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import editions
 from datetime import datetime, timezone
 
 VERSION = 1
@@ -936,7 +940,15 @@ def dashboard(root, book):
         current = (evidence(root, list(expected)) == sorted(expected.values(), key=lambda e: e['path']) and
                    all(t['status'] == 'complete' for t in d['tasks']) and checks_ready)
         campaigns.append(dict(path=str(p.relative_to(root)), current=current, tasks=d['tasks']))
-    return dict(chapters=chapters, campaigns=campaigns, **workflow,
+    base = path_at(root, f'_Edits/{book}/author-read')
+    progress = base / 'progress.json'
+    author = {'personally_read': 0, 'reported_complete': 0}
+    if progress.is_file():
+        log = load(progress)
+        if log.get('marks'):
+            report = editions.reading_status(root, book, log, base, editions.current(root, book))
+            author = {key: report[key] for key in ('personally_read', 'reported_complete', 'bookmark')}
+    return dict(chapters=chapters, campaigns=campaigns, author_read=author, **workflow,
                 missing_chapters=resolver.missing_chapters(root, book_record))
 
 
@@ -1499,7 +1511,7 @@ def main():
     sub = ap.add_subparsers(dest='command', required=True)
     for cmd in ('prepare', 'snapshot', 'check', 'readiness', 'validate', 'dashboard', 'workflow', 'style-policy',
                 'register-chapters', 'disposition', 'memory', 'knowledge', 'knowledge-state',
-                'relationship-state', 'reading', 'campaign', 'pipeline', 'draft-packet', 'chapter-format', 'continuity'):
+                'relationship-state', 'reading', 'author-read', 'campaign', 'pipeline', 'draft-packet', 'chapter-format', 'continuity'):
         p = sub.add_parser(cmd)
         p.add_argument('--spec')
         p.add_argument('--output')
@@ -1515,10 +1527,13 @@ def main():
         p.add_argument('--scene-id')
         p.add_argument('--run', default='default')
         p.add_argument('--task')
-        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity') else '1')
+        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity', 'author-read') else '1')
         p.add_argument('--window', type=int, default=3)
         if cmd in ('continuity', 'draft-packet'):
             p.add_argument('--key', action='append')
+        if cmd == 'author-read':
+            p.add_argument('--edition')
+            p.add_argument('--quote')
         if cmd == 'style-policy':
             p.add_argument('--simile-count', type=int)
     a = ap.parse_args()
@@ -1558,6 +1573,8 @@ def main():
         if chapter:
             result.update(chapter_id=chapter['id'], chapter_path=chapter['path'],
                           report_stem=resolver.report_stem(chapter))
+    elif a.command == 'author-read':
+        result = editions.author_read(root, a)
     elif a.command == 'continuity':
         result = continuity_command(root, a)
     elif a.command == 'workflow':

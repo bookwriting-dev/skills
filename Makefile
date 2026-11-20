@@ -46,6 +46,7 @@ eval:
 	bash tools/eval-skills.sh
 	$(PYTHON) tools/test-storycraft-state.py
 	$(PYTHON) tools/test-storycraft-improvements.py
+	$(PYTHON) tools/test-author-read.py
 	$(PYTHON) tools/eval-routing.py --check-fixtures
 
 smoke:
