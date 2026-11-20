@@ -520,6 +520,27 @@ class EditionExchange(unittest.TestCase):
         ET.SubElement(note, HTML + 'a', {'href': return_href, 'role': 'doc-backlink'}).text = 'Return'
         verify_mutation('wrong-existing-return', note_name, docs[note_name])
 
+    @unittest.skipUnless(PANDOC, 'Pandoc is required to verify frozen reader packet media')
+    def test_reread_embeds_target_image_and_note_from_an_unchanged_scene(self):
+        chapter = self.write('Chapters/Book-1/Chapter-001.md',
+            '# Chapter 1\n\nThe guide was wrong.[^g]\n\n![The spool](photos/spool.png)\n\n'
+            '* * *\n\nThe dog slept.\n\n[^g]: The gauge was last calibrated on Friday.\n')
+        picture = chapter.parent/'photos/spool.png'
+        picture.parent.mkdir()
+        picture.write_bytes(PNG)
+        old = self.export('md')['beta_feedback']['export_id']
+        chapter.write_text(chapter.read_text().replace('guide was wrong','guide corrected the gauge'))
+        new = self.export('md')['beta_feedback']['export_id']
+        picture.write_bytes(b'changed after the edition was frozen')
+        packet = self.cli(BETA,'--root',self.root,'--export',old,'--reread-to',new,'--reader','Remi')
+        folder = Path(packet['output'])
+        for file in ('reread.epub','reread.docx'):
+            with zipfile.ZipFile(folder/file) as archive:
+                self.assertIn(PNG,[archive.read(n) for n in archive.namelist() if n.endswith('.png')])
+                xml = b' '.join(archive.read(n) for n in archive.namelist() if n.endswith(('.xml','.xhtml')))
+                self.assertIn(b'last calibrated on Friday',xml)
+                self.assertNotIn(b'The dog slept.',xml)
+
     @unittest.skipUnless(PANDOC, 'Pandoc is required for the two-edition reader exchange')
     def test_two_reader_reread_and_native_word_comment_target_saved_revision(self):
         first = self.write('Chapters/Book-1/Chapter-001.md',

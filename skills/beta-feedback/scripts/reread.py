@@ -103,6 +103,25 @@ def build(root, book, old, target_id, reader):
         prior(rows)
     if not counts:
         append('The two editions have the same reader scenes.','Comparison')
+    # A note definition can live in an unchanged scene at the end of the chapter.
+    full_text = '\n\n'.join(section['reader_text'] for section in target['sections'])
+    definitions = {m[1]:m[0] for m in re.finditer(r'(?m)^\[\^([^]\n]+)\]:[^\n]*(?:\n(?:    |\t)[^\n]*)*',full_text)}
+    used, included = set(), set()
+    for name,content in parts:
+        if name in origins:
+            used.update(re.findall(r'\[\^([^]\n]+)\](?!:)',content))
+            included.update(re.findall(r'(?m)^\[\^([^]\n]+)\]:',content))
+    for key in sorted(used-included):
+        if key in definitions:
+            # Keep the definition in the same Pandoc input as its reference.
+            append(definitions[key],'Notes')
+    for i,(path,content) in enumerate(parts):
+        if path in origins:
+            for href,dest in sorted(target.get('resource_links',{}).items(),key=lambda v:-len(v[0])):
+                if href != dest:
+                    content = re.sub(r'(?P<prefix>\]\(\s*<?|src=["\']|\]:\s*<?)' + re.escape(href)
+                                     + r'(?=[\s)>"\']|$)',lambda m:m['prefix']+dest,content)
+            parts[i] = (path,content)
     packet = beta_exchange.build_map(parts,attrs,hashes)
     packet.update(reader=reader, baseline_edition=old['export_id'],target_edition=target_id)
     for section in packet['sections']:

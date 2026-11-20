@@ -60,6 +60,8 @@ slots.
 
 “Preview this EPUB’s reading order” shows the proposed chapters, prologue, interludes and other matter. Correct the grouping or titles before asking to import. “Give Sam the changes since the last beta” builds Word and EPUB packets with all revised or new scenes and Sam’s own prior comments. Returned Word comments attach to the edition Sam saw. A publication EPUB also checks the actual destinations of contents entries, cross-references and note links.
 
+Ask “Which character names could readers mix up?” or “Who comes back after a long absence?” at an act or whole-book review. “Could I cut this scene?” traces the first later payoff and any alternate setup. “Can she see the ferry from there?” checks the quoted scene against established geography. Ask for a narrator’s pronunciation sheet to reuse your approved readings across books. For nonfiction, “Can a first-time reader do this exercise?” runs a chapter-only walkthrough and reports exactly what the reader tried.
+
 Tell `book-status` “I personally finished Chapter 5” or give it the last line you read. Ask “where did I stop?” or “what changed behind my bookmark?” to compare the saved edition with current prose.
 
 ## The fiction workflow
@@ -201,11 +203,11 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `fiction-reviewchapter` 2.13.0 | The chapter gate: canon assertions, Chekhov ledger audit, active relationship checkpoints, psych subtext, cooling list, and prose rules → `_Edits/…_Review.md`. |
 | `litrpg-audit` 1.2.0 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
-| `fiction-dev-editor` 2.1.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
+| `fiction-dev-editor` 2.2.0 | Story-level diagnosis: plot movement, scene purpose, motivation, pacing, setup/payoff. |
 | `coldread` 1.1.0 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.3.0 | The Chekhov ledger reads committed generations and routes managed promise/related-ledger writes through atomic transactions. |
 | `fiction-knowledge` 1.0.0 | Sourced character beliefs, secret acquisition, and reader exposure in story/reading order. |
-| `review-panel` 1.2.0 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
+| `review-panel` 1.3.0 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
 | `drift-check` 1.4.0 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
 
 ### Fiction — edit the prose
@@ -243,7 +245,7 @@ hand-written catalog's versions honest against it.)
 | `nonfiction-research` 1.2.0 | Manages source/passages and chapter assertion inventories; validates evidence readiness with `scripts/evidence.py`. |
 | `nonfiction-chapter-plan` 1.3.0 | Mode-aware chapter argument/reader contract, evidence blocks, and explicit `evidence_needed` gaps. |
 | `nonfiction-writechapter` 1.4.0 | Drafts to the plan's rhetorical mode; preserves provenance and claim strength without forcing argument-first form. |
-| `nonfiction-dev-editor` 1.2.0 | Developmental review: thesis scaffolding, argument-spine & background-noise tests, abstraction/cognitive-load checks (`references/dev-edit-criteria.md`). |
+| `nonfiction-dev-editor` 1.3.0 | Developmental review: thesis scaffolding, argument-spine & background-noise tests, abstraction/cognitive-load checks (`references/dev-edit-criteria.md`). |
 | `nonfiction-factcheck` 1.5.0 | Verifies anchored assertions, records semantic inventory coverage, and derives factual readiness through the evidence contract. |
 | `nonfiction-clarity-edit` 1.5.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting using paragraph-aware context → `_Edits/…_ClarityEdit.md`. |
 
@@ -251,10 +253,10 @@ hand-written catalog's versions honest against it.)
 
 | Skill | What it does |
 |---|---|
-| `book-reverse-engineer` 1.2.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
+| `book-reverse-engineer` 1.3.0 | **Retrofit & rebuild**: analyzes existing unguided manuscript, reconstructs Wiki canon, scene outlines, Chekhov promises, voice DNA, and defect findings in `_Edits/…/findings.yaml`. |
 | `chapter-pipeline` 1.9.0 | Profiled chapter workflow for fiction, non-fiction, and hybrid books: draft verification by default; full candidate stages require developmental repair/checkpoint, distinct line or clarity pass, integration/seam reads, ledger/evidence reconciliation, and final checks. |
 | `gate-check` 1.9.0 | Comprehensive chapter readiness & continuity gate with integrated format, continuity, evidence-chain, and knowledge audits. |
-| `book-status` 1.13.0 | Manifest-resolved draft packets, shared readiness, continuity/format audits, versioned operation journals, and committed ledger generations. |
+| `book-status` 1.14.0 | Manifest-resolved draft packets, shared readiness, continuity/format audits, versioned operation journals, and committed ledger generations. |
 | `kanban-board` 1.2.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`): one card per chapter in Backlog → Ready → Drafting → Review → Done, derived mechanically from the outline, scene plans, drafts, and gate reports, with next-move routing. Regenerated view, never the source of truth. |
 | `canon-guard` 1.2.0 | Safeguards canon from drift; semantic, knowledge, and continuity impact scan before deliberate world/character edits, handing multi-chapter repairs to `revision-campaign`. |
 | `editorial-memory` 1.0.0 | Explicit scoped author decisions; keep/reject history and reusable preferences. |
@@ -262,9 +264,9 @@ hand-written catalog's versions honest against it.)
 | `series-continuity` 1.2.0 | Audits multi-book consistency across Book 1 through Book N using continuity, knowledge, relationship, and deferred-promise ledgers. |
 | `reader-persona-review` 1.1.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
-| `compile-manuscript` 1.7.0 | Builds staged delivery packages, checks expected chapters, and records the beta edition's passage map. |
-| `beta-feedback` 1.2.0 | Imports real beta feedback from Word or pasted notes, resolves passages, and hands selected findings to a revision campaign. |
-| `book-packaging` 1.2.0 | Generates marketing kits at `Wiki/Story/Book-N/packaging.md` verified against manuscript word counts and export manifests: back-cover blurbs, query letters, retail keywords, cover art briefs. |
+| `compile-manuscript` 1.8.0 | Builds staged delivery packages, checks expected chapters, and records the beta edition's passage map. |
+| `beta-feedback` 1.3.0 | Imports real beta feedback from Word or pasted notes, resolves passages, and hands selected findings to a revision campaign. |
+| `book-packaging` 1.3.0 | Generates marketing kits at `Wiki/Story/Book-N/packaging.md` verified against manuscript word counts and export manifests: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.1 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
 | `promise-tracker` 1.2.0 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |
 | `kill-hedge` 1.1.0 | Removes hedges and qualifiers that weaken claims. |

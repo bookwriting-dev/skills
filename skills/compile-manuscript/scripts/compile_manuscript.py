@@ -207,6 +207,17 @@ def main():
         raw = source_texts[name] if name in source_texts else s.path_at(root, name).read_text(encoding='utf-8')
         parts.append((name, clean(raw, cfg.get('scene_break', '* * *'), name,
                                   formatting['pov_comment_lines'].get(name, ()))))
+    resource_dirs = list(dict.fromkeys([root, *(s.path_at(root,name).parent for name in order)]))
+    local_media = beta_exchange.local_media(root,parts,resource_dirs)
+    for name in sorted(set(local_media.values())-set(names)):
+        entry = s.evidence(root,[name])[0]
+        manuscript_hashes[name] = entry['sha256']
+        names.append(name)
+        before.append(entry)
+        validation_map[name] = entry
+    before.sort(key=lambda e:e['path'])
+    validation_names = sorted(validation_map)
+    validation_before = [validation_map[name] for name in validation_names]
     text = '\n\n'.join(part for _, part in parts)
     if (s.evidence(root, validation_names) != validation_before
             or s.evidence(root, names) != before
@@ -246,18 +257,21 @@ def main():
             if a.profile == 'beta':
                 exchange = beta_exchange.build_map(parts, {record['path']: record for _, _, record in chapters},
                                                    manuscript_hashes, cfg.get('scene_break', formatting['contract']['scene_break']))
-            resource_dirs = list(dict.fromkeys([root, *(s.path_at(root,name).parent for name in order)]))
             resource_path = os.pathsep.join(str(d) for d in resource_dirs)
             if exchange is not None:
-                exchange.update(resources={}, title=title, language=language)
-                for name in assets:
+                exchange.update(resources={}, resource_links={}, title=title, language=language)
+                for href,name in local_media.items():
                     original = s.path_at(root,name)
-                    frozen = stage / 'beta-resources' / original.name
+                    digest = manuscript_hashes[name]
+                    extension = original.suffix if re.fullmatch(r'\.[A-Za-z0-9]{1,10}',original.suffix) else ''
+                    safe_name = 'epub-'+digest+extension.lower()
+                    frozen = stage / 'beta-resources' / safe_name
                     frozen.parent.mkdir(exist_ok=True)
                     shutil.copyfile(original, frozen)
-                    if s.digest(frozen) != manuscript_hashes[name]:
+                    if s.digest(frozen) != digest:
                         raise ValueError('illustration changed during export: ' + name)
-                    exchange['resources'][original.name] = s.digest(frozen)
+                    exchange['resources'][safe_name] = digest
+                    exchange['resource_links'][href] = safe_name
             for fmt in formats:
                 target = stage / ('manuscript-combined.' + fmt)
                 if fmt != 'md':

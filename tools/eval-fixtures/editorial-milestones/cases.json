@@ -1,0 +1,92 @@
+{
+  "cast": {
+    "common": {
+      "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nMara Holt, the shuttle driver, signed the bottom of the delay slip. The clerk kept the original and sent her to the back of the line.\n"
+    },
+    "variants": {
+      "two_people": {
+        "Wiki/Characters/Mara_Holt.md": "---\nname: Mara Holt\nrole: supporting\n---\n\n## role_in_story\nThe shuttle driver.\n",
+        "Wiki/Characters/Mira_Holt.md": "---\nname: Mira Holt\nrole: supporting\n---\n\n## role_in_story\nThe clerk.\n",
+        "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nMira Holt, the clerk, initialed the driver's copy and pushed it through the grille. The slip read only M. Holt. By the time the inspector arrived, both women had gone home.\n"
+      },
+      "one_person": {
+        "Wiki/Characters/Mara_Holt.md": "---\nname: Mara Holt\nrole: supporting\nalso_known_as:\n  - Mira Holt\n---\n\n## role_in_story\nThe shuttle driver.\n",
+        "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nMira Holt was the name on her old badge. Mara Holt turned it over so the clerk could match both signatures to the same shuttle driver.\n"
+      }
+    }
+  },
+  "return": {
+    "common": {
+      "Wiki/Characters/Eska_Fen.md": "---\nname: Eska Fen\nrole: supporting\nalso_known_as:\n  - Rook\n---\n\n## secret\nShe wrote the letter under the pier.\n",
+      "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nEska Fen, the ferry pilot, carried the children across without taking a fare. On the dock they called her Rook. She left her spare ferry key with June.\n",
+      "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nJune sold the last two folding chairs. The man who bought them asked for a receipt.\n",
+      "Chapters/Book-1/Chapter-003.md": "# Chapter 3\n\nThe council met in the school gym. Six hands went up to close the crossing for the winter.\n",
+      "Chapters/Book-1/Chapter-004.md": "# Chapter 4\n\nAn envelope with the town seal landed in the wrong mailbox. Its owner set it on the counter without opening it.\n",
+      "Chapters/Book-1/Chapter-005.md": "# Chapter 5\n\nJune turned the chairs to face the window. The chairman left his coat over the back of the one nearest the door.\n"
+    },
+    "variants": {
+      "bare": {
+        "Chapters/Book-1/Chapter-006.md": "# Chapter 6\n\nRook drew the meeting room door shut.\n\nShe chose the chair farthest from the window. “Somebody owes us an explanation.”\n"
+      },
+      "cued": {
+        "Chapters/Book-1/Chapter-006.md": "# Chapter 6\n\nRook drew the meeting room door shut.\n\nThe ferry pilot held out her hand for the spare key she had left with June. “They've closed my crossing.”\n"
+      }
+    }
+  },
+  "scene": {
+    "common": {
+      "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nJune took down the shutters and set the bent hinges beside the till. She could hear a cup rattling in the room overhead.\n\n* * *\n\nRuth caught June at the foot of the stairs. “The parcel token is under the blue teapot,” she said. “Don't let the clerk send you home empty-handed.”\n\n* * *\n\nAt closing time June stacked the saucers and tucked the till key in the hem of her apron.\n",
+      "Chapters/Book-1/Chapter-003.md": "# Chapter 3\n\nJune reached under the blue teapot without looking and closed her hand over the brass token. The clerk took it in exchange for the parcel.\n"
+    },
+    "variants": {
+      "sole_setup": {
+        "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nThe shop notice had turned to pulp under the leaking gutter. June brushed a curl of damp paper off the counter.\n"
+      },
+      "alternate_setup": {
+        "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nJune watched her aunt put the parcel token beneath the blue teapot. She marked the spot in her notebook before she left the shop.\n"
+      }
+    }
+  },
+  "geography": {
+    "common": {
+      "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nJune queued at the ferry landing on the east bank at Wren Lock. The ferryman took her ticket and offered her a blanket.\n"
+    },
+    "variants": {
+      "explicit_bank": {
+        "Wiki/Locations/Wren_Lock.md": "---\nname: Wren Lock\ntype: Location\nsubtype: river crossing\n---\n\n## physical_description\nThe only ferry landing at Wren Lock stands on the west bank. The east bank has no landing.\n"
+      },
+      "unspecified_bank": {
+        "Wiki/Locations/Wren_Lock.md": "---\nname: Wren Lock\ntype: Location\nsubtype: river crossing\n---\n\n## physical_description\nWren Lock has a ferry landing with a canvas shelter. The queue often reaches the river road.\n"
+      }
+    }
+  },
+  "pronunciation": {
+    "common": {
+      "Wiki/Characters/Sélin_Orre.md": "---\nname: Sélin Orre\nrole: supporting\n---\n\n## role_in_story\nShe keeps the night book.\n",
+      "Wiki/Characters/Xoë_Quell.md": "---\nname: Xoë Quell\nrole: supporting\n---\n\n## role_in_story\nShe carries the tally.\n",
+      "Wiki/Locations/Lio_Pier.md": "---\nname: Lio Pier\ntype: Location\n---\n\n## physical_description\nThe pier beside the night library.\n",
+      "Wiki/World/Terms/Nárin.md": "---\nterm: nárin\n---\n\nThe archive shorthand.\n",
+      "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nSélin Orre turned a fresh page in the night book. The library stayed open until the last lamp in the window burned out.\n",
+      "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nXoë Quell brought a tally from Lio Pier. Sélin Orre asked her to read the last figure twice. It was written in nárin.\n"
+    },
+    "variants": {
+      "approved": {},
+      "pending": {}
+    }
+  },
+  "walkthrough": {
+    "common": {
+      "Chapters/Book-1/Chapter-001.md": "# Chapter 1\n\nPOCKET-PREFACE-ONLY. The inventory covers two kinds of archive slips.\n",
+      "Chapters/Book-1/Chapter-003.md": "# Chapter 3\n\nPOCKET-AFTERWORD-ONLY. The senior attendant files the second bundle in the brass pocket.\n",
+      "Wiki/Outline/Book-1/Chapter_02_Plan.md": "# Filing lesson\n\nPLAN-COORDINATOR-ONLY. The missing archive rule is that slip 2 must go into the brass pocket.\n"
+    },
+    "variants": {
+      "missing_key": {
+        "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nFile your first archive slip. On the desk are a slip marked 2, a pencil, a log, and a sleeve with two pockets. One pocket is brass and the other is paper. Neither pocket has a number.\n\n1. Copy the number from the slip into the log.\n2. Put the slip into its assigned pocket.\n3. Write the name of that pocket next to the number in the log.\n"
+      },
+      "printed_key": {
+        "Chapters/Book-1/Chapter-002.md": "# Chapter 2\n\nFile your first archive slip. On the desk are a slip marked 2, a pencil, a log, and a sleeve with two pockets. One pocket is brass and the other is paper. Neither pocket has a number.\n\nThe archive assigns slip 1 to the paper pocket and slip 2 to the brass pocket.\n\n1. Copy the number from the slip into the log.\n2. Put the slip into its assigned pocket.\n3. Write the name of that pocket next to the number in the log.\n"
+      }
+    }
+  }
+}

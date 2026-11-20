@@ -16,7 +16,8 @@ ROOT = Path(__file__).resolve().parent.parent
 
 def hashes(base):
     return {str(p.relative_to(base)): hashlib.sha256(p.read_bytes()).hexdigest()
-            for p in base.rglob('*') if p.is_file() and not any(part.startswith('.') for part in p.relative_to(base).parts)}
+            for p in base.rglob('*') if p.is_file() and p.suffix not in ('.pyc', '.pyo')
+            and not any(part.startswith('.') or part == '__pycache__' for part in p.relative_to(base).parts)}
 
 
 def library_meta():

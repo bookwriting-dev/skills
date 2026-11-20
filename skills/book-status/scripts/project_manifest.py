@@ -156,6 +156,8 @@ def propose(root):
         'producer': {'name': 'storycraft-project-resolver', 'version': '1'},
         'books': books,
     }
+    if any(b.get('chapter_order')=='declared' for b in books):
+        manifest['schema_version'] = PLANNED_SCHEMA_VERSION
     if not unresolved:
         validate(manifest, root)
     return {'manifest': manifest, 'unresolved': unresolved}

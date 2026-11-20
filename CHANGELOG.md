@@ -2,6 +2,10 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-19 — Add act and book editorial reviews, reader walkthroughs and narrator sheets
+
+Editors can compare character names and long absences, simulate a scene cut, and check geography against quoted evidence. A fresh nonfiction reader can attempt a chapter exercise in isolation. Narrator sheets preserve author-approved series readings and first appearances. Reread packets also retain archived illustrations and referenced notes when the rest of a chapter is omitted.
+
 ## 2026-11-19 — Import reflowable EPUBs and exchange revised beta editions
 
 Authors can review spine and contents boundaries before a journaled import and send a returning reader only the changed scenes and their own earlier notes. Word bookmarks follow the revised edition. Built EPUBs now check contents, cross-references, notes and returns before publication. Reader extraction preserves ordinary code fences and physical source lines.

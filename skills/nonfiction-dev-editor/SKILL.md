@@ -1,9 +1,9 @@
 ---
 name: nonfiction-dev-editor
-description: "Diagnose argument architecture, thesis scaffolding, chapter-level conceptual progression, cognitive load, and evidence density in non-fiction drafts before prose edits. Use when user says 'nonfiction developmental edit', 'review argument flow', 'check thesis structure', 'audit conceptual progression', or 'nonfiction dev editor'."
+description: "Diagnose argument architecture, thesis scaffolding, chapter-level conceptual progression, cognitive load, and evidence density in non-fiction drafts before prose edits. Use when user says 'nonfiction developmental edit', 'review argument flow', 'check thesis structure', 'audit conceptual progression', or 'nonfiction dev editor'. Also use for fresh-reader walkthroughs of nonfiction exercises."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status, nonfiction-clarity-edit
   category: nonfiction-editing
 ---
@@ -76,3 +76,9 @@ If running focused workers on a multi-chapter range, pass each worker its exact 
    - Structural defects (missing argument steps, broken sequencing, wrong rhetorical framing) go back to `nonfiction-chapter-plan` (`Wiki/Outline/Book-N/plan.md`) followed by a re-draft in `nonfiction-writechapter` — do **not** try to patch structural holes with line edits.
    - Missing primary citations or unverified data route to `nonfiction-research`.
    - Once structure and evidence are sound, route prose verification to `nonfiction-factcheck` followed by `nonfiction-clarity-edit`.
+
+## Fresh-reader walkthrough
+
+When the author asks whether a reader can follow a chapter, or a substantial exercise needs a practical check, prepare the reader chapter with [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N walkthrough --chapter SELECTOR`. Deliver only the returned chapter and this brief to a fresh isolated reader in a clean directory. Keep outlines, Wiki files, author notes, evaluators' expectations and other chapters outside that session. Copy the packet as data. Do not let the reader inspect the book checkout.
+
+Ask the reader to follow the instructions in order using only what the chapter supplies. For an exercise that can be tried safely with disposable local materials or an in-memory simulation, actually attempt it. Record the input, actions taken and observed result. For an external, costly, sensitive or unavailable step, explain which step was reasoned through and which remains untested. On the first missing prerequisite or ambiguous decision, quote the exact step, say what information the reader had, what they needed and where they stopped. On success give the actual result and the passage that made it possible. The coordinator checks quoted evidence before suggesting the smallest clarification. If a fresh reader is unavailable, label the independent walkthrough pending.

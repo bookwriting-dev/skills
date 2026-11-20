@@ -3,7 +3,7 @@ name: review-panel
 description: "Build and run a persona review panel for fiction and non-fiction: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review. For act- and book-level QA; reader-persona-review is the lighter preset path for a quick scored pulse on a single chapter."
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -203,3 +203,7 @@ Consult applicable active editorial-memory decisions before proposing style repa
 ## Ordered reader experience
 
 For a sequential blind read, route to sequential-read. Each chapter gets a fresh isolated context with current reader-facing text and the prior sealed reader checkpoint only. No craft/continuity persona exception may expose private canon in that workflow. If isolation is unavailable, prepare packets and report pending execution. Retain the existing quick pulse and book-panel routes for their original purposes.
+
+## After the blind reactions are sealed
+
+At an act or whole-book milestone the coordinator runs the cast and reintroduction pass described in [fiction-dev-editor](../fiction-dev-editor/SKILL.md). Compare its candidate pairs and long absences with the recorded reader reactions. Quote the prior and return passages and preserve deliberate names and clear reintroductions. Keep cast lists, source evidence, continuity checks and earlier reactions out of blind packets. Request scene-removal or geography evidence for a specific finding that depends on a setup, movement or sightline.

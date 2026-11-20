@@ -11,6 +11,7 @@ import re
 import tempfile
 import sys
 
+sys.dont_write_bytecode = True
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 import editions
 from datetime import datetime, timezone
@@ -946,7 +947,7 @@ def dashboard(root, book):
     if progress.is_file():
         log = load(progress)
         if log.get('marks'):
-            report = editions.reading_status(root, book, log, base, editions.current(root, book))
+            report = editions.reading_status(root, book, log, base, editions.current(root, book, allow_empty=True))
             author = {key: report[key] for key in ('personally_read', 'reported_complete', 'bookmark')}
     return dict(chapters=chapters, campaigns=campaigns, author_read=author, **workflow,
                 missing_chapters=resolver.missing_chapters(root, book_record))

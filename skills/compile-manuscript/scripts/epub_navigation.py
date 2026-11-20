@@ -8,6 +8,7 @@ import re
 import sys
 import zipfile
 
+sys.dont_write_bytecode = True
 sys.path.insert(0,str(Path(__file__).resolve().parents[2] / 'book-status/scripts'))
 from epub_publication import Publication, local, resolve, roles, words
 

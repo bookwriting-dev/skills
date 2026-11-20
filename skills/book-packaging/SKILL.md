@@ -1,9 +1,9 @@
 ---
 name: book-packaging
-description: "Generate professional publishing and marketing packaging kits including back-cover blurb copy, query letters, loglines, Amazon retail metadata, and artist cover design briefs. Use when user says 'write book blurb', 'query letter', 'generate cover brief', 'create book metadata', or 'package book for publication'."
+description: "Generate professional publishing and marketing packaging kits including back-cover blurb copy, query letters, loglines, Amazon retail metadata, and artist cover design briefs. Use when user says 'write book blurb', 'query letter', 'generate cover brief', 'create book metadata', or 'package book for publication'. Also use for narrator pronunciation sheets and audiobook pronunciations."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -11,6 +11,8 @@ metadata:
 # Book Packaging & Marketing Kit
 
 Translates a finished or near-finished manuscript and its Storycraft canon into market-facing publishing assets: high-converting blurbs, traditional publishing query letters, retail metadata and keywords, and cover design briefs for illustrators/designers.
+
+For a pronunciation sheet alone, go directly to **Audiobook pronunciation sheet** and deliver only that requested sheet.
 
 ## Step 1: Load Project Context
 
@@ -59,3 +61,7 @@ Present the Micro and Standard blurb variants, logline, and verified word count 
 - Refine blurb tone, comps, or cover brief details.
 - Run `social-media-marketing` (which consumes `Wiki/Story/Book-N/packaging.md` directly) to build launch and ongoing social campaigns.
 - Run `compile-manuscript` if a verified `submission` or `publication` export package has not yet been generated.
+
+## Audiobook pronunciation sheet
+
+On request, run [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N pronunciation`. Present a narrator sheet ordered by first use, with the name, place or invented term, first chapter and quotation, and the author-approved pronunciation with stressed syllables in capitals. List pending readings as questions for the author. Match the series glossary and spellings in the manuscript before adding terms. Check each narrative unit for uncatalogued names, places and coined words. Include these with repeated --term arguments. The helper verifies each term against the actual text and locates its first use. Save each author's supplied reading with `pronunciation --approve "TERM" --reading "STRESSED reading"` and regenerate the sheet. Approvals live in the project's shared Wiki/Style/pronunciations.json and carry into later books when the same term and profile appear.

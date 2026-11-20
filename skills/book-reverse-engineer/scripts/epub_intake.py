@@ -31,6 +31,8 @@ def markdown(element):
 
 def limitations(z):
     reasons = []
+    if any(item.flag_bits & 1 for item in z.infolist()):
+        return ['encrypted EPUB archive requires a readable source']
     if 'META-INF/encryption.xml' in z.namelist():
         xml = ET.fromstring(z.read('META-INF/encryption.xml'))
         for data in xml.findall('.//{*}EncryptedData'):
@@ -173,7 +175,9 @@ def convert(pub):
                 starts[node] = (node.get('id', 'heading-' + str(idx + 1)), words(node))
         title_node = docs[path].find('.//{*}title')
         fallback = entries.get('') or (words(title_node) if title_node is not None else PurePosixPath(path).stem)
-        starts.pop(body, None)
+        body_entry = starts.pop(body, None)
+        if body_entry:
+            fallback = body_entry[1]
         boundaries = {node: i for i, node in enumerate(starts, 1)}
         sections = fragments(body, boundaries)
         names = {index: (frag, title, roles(node)) for node,(frag,title) in starts.items()
@@ -182,7 +186,7 @@ def convert(pub):
         for index, segment in sorted(sections.items()):
             if not words(segment) and not any(local(n.tag) in ('img','image','hr') for n in segment.iter()):
                 continue
-            frag, title, kind = names.get(index, ('', fallback, set()))
+            frag, title, kind = names.get(index, (body_entry[0] if body_entry else '', fallback, roles(body)))
             tags = kind or roles(body) or next((roles(n) for n in segment.iter() if roles(n)),set())
             role = 'navigation' if path == pub.nav else classify(title, tags)
             if item.get('linear') == 'no' and role == 'narrative':

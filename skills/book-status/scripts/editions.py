@@ -89,7 +89,7 @@ def open_beta(root, book, edition, *, with_directory=False):
     raise ValueError(f'beta export {edition} could not be found in {book}')
 
 
-def current(root, book, *, source_lines=False):
+def current(root, book, *, source_lines=False, allow_empty=False, through=None):
     import project_state as state
     resolver = state.project_manifest_module()
     record = resolver.resolve_book(root, book)
@@ -98,6 +98,8 @@ def current(root, book, *, source_lines=False):
     fmt = state.chapter_format_module()
     sections = []
     for ch in sorted(record['chapters'], key=lambda c: c['reading_order']):
+        if through is not None and ch['reading_order'] > through:
+            break
         p = state.path_at(root, ch['path'])
         if not p.is_file():
             continue
@@ -109,7 +111,7 @@ def current(root, book, *, source_lines=False):
                                 'source_sha256': extracted['raw_sha256'], 'reader_text': extracted['text']}, marker))
         if source_lines:
             sections[-1]['source_lines'] = extracted['source_lines']
-    if not sections:
+    if not sections and not allow_empty:
         raise ValueError('no drafted chapters to read')
     if resolver.resolve_book(root, book) != record or any(
             state.digest(state.path_at(root, s['path'])) != s['source_sha256'] for s in sections):
@@ -225,10 +227,10 @@ def paragraph_changes(before, after):
             for tag, i, j, k, l in diff.get_opcodes() if tag != 'equal']
 
 
-def proof(root, book, which, base):
+def proof(root, book, which, base, *, allow_empty=False):
     import project_state as state
     if which == 'current':
-        return current(root, book)
+        return current(root, book, allow_empty=allow_empty)
     if not re.fullmatch('[0-9a-f]{24}|[0-9a-f]{64}', which):
         raise ValueError('invalid edition ID')
     path = state.path_at(root, base / 'editions' / (which + '.json'))
@@ -243,6 +245,12 @@ def proof(root, book, which, base):
 
 def reading_status(root, book, log, base, target):
     baseline = {}
+    snapshots = {}
+    def snapshot(edition):
+        if edition not in snapshots:
+            snapshots[edition] = proof(root, book, edition, base)
+        return snapshots[edition]
+    new_scenes = scenes_by_key(target)
     changes, completed, bookmark = [], [], None
     histories = log.get('history', {})
     marks = dict(log.get('marks', {}))
@@ -255,20 +263,19 @@ def reading_status(root, book, log, base, target):
         if cid in targets:
             for m in reversed(records):
                 if m['whole'] and any(section_id(s) == cid and s['reader_text'] == targets[cid]['reader_text']
-                                      for s in proof(root, book, m['edition'], base)['sections']):
+                                      for s in snapshot(m['edition'])['sections']):
                     marks[cid] = m
                     break
     for cid, mark in marks.items():
         edition = mark['edition']
         if edition not in baseline:
-            old = proof(root, book, edition, base)
+            old = snapshot(edition)
             baseline[edition] = (old, scenes_by_key(old), compare(old, target))
         old, scenes, comparison = baseline[edition]
         section = next(s for s in old['sections'] if section_id(s) == cid)
         target_section = next((s for s in target['sections'] if section_id(s) == cid), None)
         if mark['whole'] and target_section and target_section['reader_text'] == section['reader_text']:
             completed.append(cid)
-        new_scenes = scenes_by_key(target)
         for item in comparison:
             a, b = item['before'], item['after']
             previous = scenes.get(a)
@@ -313,7 +320,7 @@ def reading_status(root, book, log, base, target):
     latest = log.get('marks', {}).get(log.get('last'))
     if latest:
         cid = log['last']
-        old = proof(root, book, latest['edition'], base)
+        old = snapshot(latest['edition'])
         old_sections = {section_id(s): s for s in old['sections']}
         target_sections = {section_id(s): s for s in target['sections']}
         source = old_sections[cid]
@@ -417,4 +424,4 @@ def author_read(root, args):
             return dict(mark, chapter_id=cid)
         if args.action not in ('resume', 'changes', 'status'):
             raise ValueError('unsupported author-read action')
-        return reading_status(root, args.book, log, base, proof(root, args.book, args.edition or 'current', base))
+        return reading_status(root, args.book, log, base, proof(root, args.book, args.edition or 'current', base, allow_empty=True))

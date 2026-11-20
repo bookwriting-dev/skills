@@ -28,6 +28,7 @@ skills/book-status/references/state-contract.md
 skills/book-status/scripts/chapter_format.py
 skills/book-status/scripts/continuity.py
 skills/book-status/scripts/editions.py
+skills/book-status/scripts/editorial_tools.py
 skills/book-status/scripts/epub_publication.py
 skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
@@ -194,6 +195,7 @@ tools/eval-editorial.py
 tools/eval-exports.py
 tools/eval-fixtures/chapter-callouts.md
 tools/eval-fixtures/chapter-monotone.md
+tools/eval-fixtures/editorial-milestones/cases.json
 tools/eval-fixtures/editorial-preservation/cases.json
 tools/eval-fixtures/promises-ledger.yaml
 tools/eval-fixtures/storycraft-book/Chapters/Book-1/Chapter-001.md
@@ -207,6 +209,7 @@ tools/skill_lib.py
 tools/smoke-new-book.sh
 tools/test-author-read.py
 tools/test-edition-exchange.py
+tools/test-editorial-milestones.py
 tools/test-storycraft-improvements.py
 tools/test-storycraft-state.py
 tools/update-project.py

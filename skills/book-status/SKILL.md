@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.13.0"
+  version: "1.14.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -63,3 +63,7 @@ For a request limited to diction or clock notation, resolve the requested manusc
 ## Personal read-through
 
 Use the project state CLI with the book selector followed by `author-read --action start` to freeze the current reader edition. An optional `--edition ID` selects an archived beta. On an explicit author update, run `author-read --action mark --chapter 5` for a completed chapter, or add `--quote "last line read"` for partial progress. A unique quote can identify the chapter itself. For an ambiguous quote use a longer excerpt or chapter selector. Report `--action resume` or `--action changes` against current prose or the named edition. Only credit chapters the author actually reports reading. Surface the dashboard’s personally read total separately from review readiness. [Edition comparison](scripts/editions.py)
+
+## Book-level editorial evidence
+
+[editorial_tools.py](scripts/editorial_tools.py) prepares cast and long-absence evidence, a hypothetical scene cut with earlier and later passages, a chapter-only nonfiction reader packet, or a narrator sheet. Use the corresponding editorial or packaging skill to interpret it. The importer and export checker read package spines and navigation through [epub_publication.py](scripts/epub_publication.py). These book-level checks run on request or at an act or whole-book milestone. They do not enter the list of required chapter reviews.

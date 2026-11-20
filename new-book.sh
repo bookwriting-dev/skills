@@ -105,7 +105,10 @@ rollback() {
 trap rollback ERR INT TERM
 
 # Skill library: pinned copy, not a symlink — each project versions its own.
-cp -R "$LIBRARY_DIR/skills" "$TARGET/.agents/skills"
+python3 - "$LIBRARY_DIR/skills" "$TARGET/.agents/skills" <<'PYSKILLS'
+import shutil, sys
+shutil.copytree(sys.argv[1], sys.argv[2], ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.pyo'))
+PYSKILLS
 
 # Record which library revision this project pinned, so `tools/update-project.sh`
 # (and the author) can tell at a glance when the project is behind.

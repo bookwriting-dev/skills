@@ -3,7 +3,7 @@ name: beta-feedback
 description: "Build reader-specific changed-scene reread packets and import comments returned by real beta readers from a Storycraft beta DOCX or pasted notes. Use when a writer asks to import beta-reader comments, review returned Word comments, group beta feedback, or turn selected beta feedback into revision tasks."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status, compile-manuscript, revision-campaign
   category: cross-cutting
 ---
@@ -28,4 +28,4 @@ Use --campaign RUN --select FEEDBACK_ID, repeating --select for each item the wr
 
 ## Returning beta readers
 
-For each recipient, run the helper with --export EARLIER_ID --reread-to REVISED_ID --reader "Name". Both IDs identify frozen full-book beta exports. Share the resulting reread.docx or reread.epub. Keep the passage map and manifest with the coordinator. The packet includes every new or revised scene, explains moves or removals, and quotes that recipient's earlier comments verbatim. Uncertain scene matches and unlocated notes retain their labels. For a returned Word packet use --docx FILE. For pasted EPUB comments use --export PACKET_ID --notes FILE. The importer saves the reaction against the archived revised manuscript edition, including when drafting has continued.
+For each recipient, run the helper with --export EARLIER_ID --reread-to REVISED_ID --reader "Name". [reread.py](scripts/reread.py) compares the two frozen full-book beta exports. Share the resulting reread.docx or reread.epub. Keep the passage map and manifest with the coordinator. The packet includes every new or revised scene, explains moves or removals, and quotes that recipient's earlier comments verbatim. Uncertain scene matches and unlocated notes retain their labels. For a returned Word packet use --docx FILE. For pasted EPUB comments use --export PACKET_ID --notes FILE. The importer saves the reaction against the archived revised manuscript edition, including when drafting has continued.

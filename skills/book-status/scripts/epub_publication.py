@@ -89,7 +89,14 @@ class Publication:
             if path not in self.members:
                 raise ValueError('missing EPUB member: ' + path)
             try:
-                self.cache[path] = ET.fromstring(self.archive.read(path))
+                tree = ET.fromstring(self.archive.read(path))
+                for node in tree.iter():
+                    if not node.get('id'):
+                        identifier = node.get('{http://www.w3.org/XML/1998/namespace}id') or (
+                            node.get('name') if local(node.tag)=='a' else None)
+                        if identifier:
+                            node.set('id',identifier)
+                self.cache[path] = tree
             except ET.ParseError as exc:
                 raise ValueError(f'cannot parse EPUB member {path}: {exc}') from exc
         return self.cache[path]

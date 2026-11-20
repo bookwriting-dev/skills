@@ -3,6 +3,7 @@ import hashlib
 import json
 import re
 import secrets
+from urllib.parse import unquote, urlsplit
 import sys
 from pathlib import Path
 
@@ -37,6 +38,35 @@ def paragraph_text(paragraph):
         elif node.tag in (WORD + 'tab', WORD + 'br', WORD + 'cr'):
             pieces.append(' ')
     return normal(''.join(pieces))
+
+
+def media_references(text):
+    """Inline Markdown images, reference images and local HTML image sources."""
+    markup = r'!\[[^\]\n]*\]\(\s*(?:<([^>\n]+)>|([^\s)]+))'
+    refs = {a or b for a,b in re.findall(markup,text)}
+    refs.update(re.findall(r'<img\b[^>]*?\bsrc=["\']([^"\']+)["\']',text,re.I))
+    labels = {b.casefold() or a.casefold() for a,b in re.findall(r'!\[([^\]]*)\]\[([^\]]*)\]',text)}
+    for label,a,b in re.findall(r'(?m)^\s{0,3}\[([^\]^]+)\]:\s*(?:<([^>]+)>|(\S+))',text):
+        if label.casefold() in labels:
+            refs.add(a or b)
+    return sorted(refs)
+
+
+def local_media(root, parts, directories):
+    assets = {}
+    for _,text in parts:
+        for href in media_references(text):
+            if href in assets:
+                continue
+            link = urlsplit(href)
+            if link.scheme or link.netloc or not link.path:
+                continue
+            for directory in directories:
+                path = (directory / unquote(link.path)).resolve()
+                if path.is_relative_to(root) and path.is_file():
+                    assets[href] = path.relative_to(root).as_posix()
+                    break
+    return assets
 
 
 def build_map(parts, chapter_records, source_hashes, scene_break="* * *"):

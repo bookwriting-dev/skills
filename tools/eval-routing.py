@@ -33,6 +33,10 @@ CASES = (
     ('author', 'book-status', 'Start my personal read-through of the current edition. I personally finished chapter 5. Save that progress and tell me where to resume.'),
     ('epub', 'book-reverse-engineer', 'Preview incoming.epub for import. Tell me its narrative units in reading order and keep this read-only.'),
     ('reread', 'beta-feedback', 'Prepare a Word and an EPUB for Sam to reread everything that changed between the last two beta editions. Include Sam’s original feedback.'),
+    ('cast', 'fiction-dev-editor', 'Read this act for similar character names that a reader could mix up. Identify the pair and quote their appearances. Give me your assessment here.'),
+    ('cut', 'fiction-dev-editor', 'Could I cut chapter 2 scene 2? Check what a later chapter would lose and tell me here. Keep my prose intact.'),
+    ('narrator', 'book-packaging', 'Give me an audiobook pronunciation sheet for Book 1. Show first appearances and pending readings here.'),
+    ('walkthrough', 'nonfiction-dev-editor', 'Can a first-time reader actually do the archive exercise in chapter 2? Try it with only that chapter, identify the first place the instructions stop working, and give me the result here.'),
     ('review', 'fiction-reviewchapter', 'Review chapter 5.'),
     ('review-only', 'fiction-reviewchapter', 'What would you change in chapter 5? Show me the review first.'),
     ('cleanup', 'kill-chapter', 'Clean this chapter in place. In chapter 5, strip out the recurring prose crutches.'),
@@ -56,8 +60,14 @@ def run_json(command, workdir):
 
 
 def make_fixture(root, case):
-    subprocess.run([str(ROOT / 'new-book.sh'), root.name, 'The Empty Rack'], check=True,
+    category = 'nonfiction' if case=='walkthrough' else 'fiction'
+    subprocess.run([str(ROOT / 'new-book.sh'), root.name, 'The Empty Rack', '--type', category], check=True,
                    env={**os.environ, 'BOOKS_DIR': str(root.parent)}, capture_output=True)
+    editorial = {'cast':('cast','two_people'), 'cut':('scene','sole_setup'),
+                 'narrator':('pronunciation','pending'), 'walkthrough':('walkthrough','missing_key')}
+    if case in editorial:
+        runpy.run_path(str(ROOT/'tools/test-editorial-milestones.py'))['materialize'](root,*editorial[case])
+        return
     if case == 'opening':
         return
     put(root, CHAPTER, CHAPTER_TEXT)
@@ -159,7 +169,10 @@ def score(record, expected):
     if skill not in record['observed_skills']:
         failures.append(f'no tool evidence that {skill} ran')
     changed = set(output['changed'])
-    if name=='epub':
+    if name in ('cast','cut','narrator','walkthrough'):
+        if changed or not output.get('editorial_result') or not output.get('used_evidence_tool'):
+            failures.append('expected a source-backed conversational assessment with an unchanged book')
+    elif name=='epub':
         if changed or not output.get('preview_units'):
             failures.append('preview must report all five narrative units in order without writing')
     elif name=='reread':
@@ -215,11 +228,19 @@ def live_case(binary, case, model, timeout):
         record = {'case': name, 'status': 'complete' if result.returncode == 0 else 'failed',
                   'observed': outcomes(project, name, before), 'observed_skills': skills,
                   'model': reported or model, 'seconds': round(time.monotonic() - start, 2)}
-        if name=='epub':
-            responses = [json.loads(line).get('item',{}).get('text','') for line in result.stdout.splitlines()
-                         if line.startswith('{') and json.loads(line).get('type')=='item.completed']
-            record['observed']['preview_units'] = bool(re.search(
-                r'Prologue.*?Chapter\s+1.*?Chapter\s+2.*?Interlude.*?Epilogue',' '.join(responses),re.I|re.S))
+        phrases = {'cast':('mara','mira'), 'cut':('token','teapot'), 'narrator':('sélin','xoë'),
+                   'walkthrough':('pocket','2')}
+        if name=='epub' or name in phrases:
+            items = [json.loads(line).get('item',{}) for line in result.stdout.splitlines()
+                     if line.startswith('{') and json.loads(line).get('type')=='item.completed']
+            response = ' '.join(i.get('text','') for i in items if i.get('type')=='agent_message')
+            if name=='epub':
+                record['observed']['preview_units'] = bool(re.search(
+                    r'Prologue.*?Chapter\s+1.*?Chapter\s+2.*?Interlude.*?Epilogue',response,re.I|re.S))
+            else:
+                record['observed']['editorial_result'] = all(term in response.casefold() for term in phrases[name])
+                record['observed']['used_evidence_tool'] = any('editorial_tools.py' in i.get('command','')
+                    and i.get('exit_code')==0 and i.get('type')=='command_execution' for i in items)
         if result.returncode:
             record['error'] = run_error(result.stdout, result.stderr) or 'Codex exited unsuccessfully'
         return record

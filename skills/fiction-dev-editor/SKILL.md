@@ -1,9 +1,9 @@
 ---
 name: fiction-dev-editor
-description: "Diagnose or repair fiction at the story level: plot movement, scene purpose, motivation, pacing, tension, redundancy, setup, and payoff. Use for developmental edits, plot checks, structure questions, or requests to fix background-heavy chapters; do not use for sentence-level prose editing."
+description: "Diagnose or repair fiction at the story level: plot movement, scene purpose, motivation, pacing, tension, redundancy, setup, and payoff. Use for developmental edits, plot checks, structure questions, or requests to fix background-heavy chapters; do not use for sentence-level prose editing. Also use for similar cast names, long-absent characters, hypothetical scene cuts or disputed geography."
 metadata:
   author: Fiction Toolkit
-  version: "2.1.0"
+  version: "2.2.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -129,3 +129,11 @@ For a verdict, answer the question first. For an edit, link the edited file and 
 For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
 
 Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
+
+## Cast, scene removal and geography
+
+At act boundaries or a whole-book review, use [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N cast` after any requested blind read has been sealed. The tool finds nearby appearances of distinct characters with similar names and returns after twelve intervening narrative chapters. Use `--through SELECTOR` for an act ending and `--gap N` for the author's interval. For each candidate quote both appearances and explain what a reader might misattribute. Check canonical aliases, intentional family names and the identifying cue in the return paragraph or its immediate neighbors. If the cue works, keep it. Suggest the smallest identifying detail for a confusing return. Never rename characters automatically.
+
+For a proposed cut or a disputed layout, run the same script with `scene --chapter SELECTOR --scene N`. Scene numbers start at one. In a hypothetical cut, identify what the scene changes, then read forward to its first dependent action, clue, decision or emotional turn. Quote the setup and the payoff with their locations. Search every earlier scene for a surviving alternate setup. Use chapter and scene when citing a quotation. Check its physical source line if giving a line number. The packet’s start_line identifies the first line of the entire scene. Report whether the cut holds, creates a specific gap, or has insufficient evidence. Include the smallest repair and any payoff worth preserving. Leave the manuscript untouched during the simulation.
+
+Use the geography pass when a scene depends on movement, sightlines, entrances, barriers or travel. Supply --place NAME when the scene inherits its location from earlier action. Trace the relevant positions in order, with exact quotations from the scene and any established location description or earlier scene. Call a contradiction only when both claims are explicit and cannot coexist. A missing direction, unknown door or unestablished route is an open question. Give the author one focused question where it affects the scene. These passes run on request or relevant review milestones.

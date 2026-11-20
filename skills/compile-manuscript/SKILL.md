@@ -3,7 +3,7 @@ name: compile-manuscript
 description: "Compile and stitch drafted chapter files into a delivery package with customizable front matter, scene breaks, table of contents, and export formatting. Structural conversion does not imply rendered, author, or publication approval. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'."
 metadata:
   author: Storycraft Skills
-  version: "1.7.0"
+  version: "1.8.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
