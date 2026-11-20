@@ -14,8 +14,10 @@ docs/VERIFICATION-2026-11-01.md
 new-book.sh
 skills/beta-feedback/SKILL.md
 skills/beta-feedback/scripts/beta_feedback.py
+skills/beta-feedback/scripts/reread.py
 skills/book-packaging/SKILL.md
 skills/book-reverse-engineer/SKILL.md
+skills/book-reverse-engineer/scripts/epub_intake.py
 skills/book-reverse-engineer/scripts/manuscriptkit.py
 skills/book-status/SKILL.md
 skills/book-status/assets/report-meta.schema.json
@@ -26,6 +28,7 @@ skills/book-status/references/state-contract.md
 skills/book-status/scripts/chapter_format.py
 skills/book-status/scripts/continuity.py
 skills/book-status/scripts/editions.py
+skills/book-status/scripts/epub_publication.py
 skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
 skills/book-status/scripts/prose_style.py
@@ -39,6 +42,7 @@ skills/compile-manuscript/SKILL.md
 skills/compile-manuscript/assets/export-config.json
 skills/compile-manuscript/scripts/beta_exchange.py
 skills/compile-manuscript/scripts/compile_manuscript.py
+skills/compile-manuscript/scripts/epub_navigation.py
 skills/drift-check/SKILL.md
 skills/drift-check/references/drift.py
 skills/editorial-memory/SKILL.md
@@ -202,6 +206,7 @@ tools/lint-skills.py
 tools/skill_lib.py
 tools/smoke-new-book.sh
 tools/test-author-read.py
+tools/test-edition-exchange.py
 tools/test-storycraft-improvements.py
 tools/test-storycraft-state.py
 tools/update-project.py

@@ -91,6 +91,26 @@ def validate(manifest, root):
     return manifest
 
 
+def imported_chapters(root, label):
+    path = contained(root, f'Chapters/{label}/.storycraft-import.json')
+    if not path.is_file():
+        return None
+    data = json.loads(path.read_text()).get('epub')
+    if data is None:
+        return None
+    chapters = []
+    for unit in data['units']:
+        if unit['role'] != 'narrative':
+            continue
+        filename = unit['filename']
+        if not re.fullmatch(r'(?:Chapter-\d+|Unit-[a-f0-9]{18})\.md', filename):
+            raise ValueError('invalid imported reading unit filename')
+        chapters.append({'id':unit.get('chapter_id') or 'chapter-' + _hash(label + '/' + unit['id'])[:16],
+                         'display_label':unit['title'],'path':f'Chapters/{label}/{filename}',
+                         'reading_order':len(chapters)+1, 'predecessor_id':chapters[-1]['id'] if chapters else None})
+    return chapters
+
+
 def propose(root):
     """Read an unambiguous conventional layout without writing project files."""
     root = Path(root).resolve()
@@ -102,6 +122,11 @@ def propose(root):
         match = re.fullmatch(r'Book-(\d+)', book_dir.name)
         if not match:
             unresolved.append(f'unsupported book directory label: {book_dir.relative_to(root)}')
+            continue
+        imported = imported_chapters(root, book_dir.name)
+        if imported is not None:
+            books.append({'id':book_dir.name.lower(), 'display_label':book_dir.name,
+                          'chapter_order':'declared','chapters':imported})
             continue
         chapters = []
         candidates = sorted(book_dir.glob('Chapter-*.md'))
@@ -163,6 +188,18 @@ def resolve_book(root, book_id):
     manifest = load(root)
     book = find_book(manifest, book_id)
     saved = contained(root, MANIFEST_PATH).exists()
+    if saved and re.fullmatch(r'Book-[1-9]\d*', book_id):
+        imported = imported_chapters(root, book_id)
+        if imported is not None:
+            existing = book or conventional_book(book_id)
+            registered = {c['path'] for c in existing['chapters']}
+            receipt = contained(root, f'Chapters/{book_id}/.storycraft-import.json')
+            retired = json.loads(receipt.read_text())['epub'].get('retired_paths',[])
+            if registered - {c['path'] for c in imported} - set(retired):
+                raise ValueError('imported roster conflicts with registered chapters')
+            by_path = {c['path']:c for c in existing['chapters']}
+            return dict(existing, chapter_order='declared', chapters=[
+                {**by_path.get(c['path'],{}), **c} for c in imported])
     if book is None and not saved and re.fullmatch(r'Book-[1-9]\d*', book_id):
         if any(contained(root, f'{area}/{book_id}').is_dir()
                for area in ('_Intake', 'Wiki/Outline', 'Wiki/Story')):

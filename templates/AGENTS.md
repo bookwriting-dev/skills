@@ -182,6 +182,8 @@ Drafting and review load applicable editorial decisions and current knowledge ev
 
 For fiction chapter gates, validate heading and POV metadata and review the chapter for source-linked identifiers, object state changes, clock anchors, and scoped counts. Run book-wide continuity before submission or publication. Use the installed [book continuity review](.agents/skills/book-status/references/continuity-review.md) instructions.
 
+Use `book-reverse-engineer` to preview the reading order of a reflowable EPUB or import its reviewed sections. For a returning beta reader, use `beta-feedback` to build that reader's changed-scene Word and EPUB packet from two archived editions. Use `compile-manuscript` to follow navigation and note links in the built EPUB ahead of publication.
+
 For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. Use `project_state.py --root ROOT --book Book-N workflow` for the reviews required by drafting, the board, and export. The scaffolded project type supplies defaults and the book manifest can override them. Use `beta-feedback` to import real reader comments against the beta export ID and plan selected revisions. Existing project conventions and current user instructions retain authority.
 
 ## Skill index

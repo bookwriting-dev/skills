@@ -46,6 +46,7 @@ eval:
 	bash tools/eval-skills.sh
 	$(PYTHON) tools/test-storycraft-state.py
 	$(PYTHON) tools/test-storycraft-improvements.py
+	$(PYTHON) tools/test-edition-exchange.py
 	$(PYTHON) tools/test-author-read.py
 	$(PYTHON) tools/eval-routing.py --check-fixtures
 
@@ -60,6 +61,7 @@ eval-routing:
 	$(PYTHON) tools/eval-routing.py --live $(ROUTING_ARGS)
 
 export-eval:
+	$(PYTHON) tools/test-edition-exchange.py
 	$(PYTHON) tools/eval-exports.py
 	$(PYTHON) tools/test-storycraft-improvements.py StorycraftImprovements.test_returned_word_comments_match_anchored_edition
 

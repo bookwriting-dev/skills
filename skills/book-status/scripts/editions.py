@@ -61,7 +61,7 @@ def section_id(section):
     return section.get('chapter_id') or section['path']
 
 
-def open_beta(root, book, edition):
+def open_beta(root, book, edition, *, with_directory=False):
     import project_state as state
     if not re.fullmatch(r'[a-f0-9]{24}', edition):
         raise ValueError('expected a beta edition ID')
@@ -85,11 +85,11 @@ def open_beta(root, book, edition):
             raise ValueError('archived beta passage map has the wrong export ID')
         marker = record.get('config', {}).get('scene_break', '* * *')
         version['sections'] = [s if 'scenes' in s else enrich(s, marker) for s in version['sections']]
-        return version
+        return (version,path) if with_directory else version
     raise ValueError(f'beta export {edition} could not be found in {book}')
 
 
-def current(root, book):
+def current(root, book, *, source_lines=False):
     import project_state as state
     resolver = state.project_manifest_module()
     record = resolver.resolve_book(root, book)
@@ -107,6 +107,8 @@ def current(root, book):
         sections.append(enrich({'chapter_id': ch['id'], 'path': ch['path'],
                                 'label': ch.get('display_label', ch['id']),
                                 'source_sha256': extracted['raw_sha256'], 'reader_text': extracted['text']}, marker))
+        if source_lines:
+            sections[-1]['source_lines'] = extracted['source_lines']
     if not sections:
         raise ValueError('no drafted chapters to read')
     if resolver.resolve_book(root, book) != record or any(

@@ -4,7 +4,7 @@ import hashlib
 import re
 
 
-EXTRACTOR_VERSION = 1
+EXTRACTOR_VERSION = 2
 
 
 def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_comment_lines=()):
@@ -15,6 +15,7 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_
     """
     original = text
     removed = []
+    hidden = []
     comment_start = text.find('<!--')
     comment_end = text.find('-->')
     if comment_start >= 0 and (comment_end < 0 or comment_end < comment_start):
@@ -23,6 +24,7 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_
 
     def classify_comment(match):
         value = match.group(0)
+        hidden.append((match.start(), match.end()))
         line = text.count('\n', 0, match.start()) + 1
         if re.match(r'<!--\s*STORYCRAFT:', value, re.S):
             removed.append({'line': line, 'kind': 'private_comment'})
@@ -37,32 +39,37 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_
         offset = text.find('<!--')
         line = text.count('\n', 0, offset) + 1
         raise ValueError(f'{source}:{line}: unclosed HTML comment; classify or remove it')
+    # Preserve source line coordinates even when a private comment spans several lines.
+    raw_lines = [1]
+    skip = iter(hidden)
+    span = next(skip,None)
+    for raw_line,match in enumerate(re.finditer(r'\r\n|\r|\n',original),2):
+        while span and span[1] <= match.start():
+            span = next(skip,None)
+        if not span or match.start() < span[0]:
+            raw_lines.append(raw_line)
     lines = text.splitlines()
+    source_rows = []
     out = []
     fence = None
-    for number, line in enumerate(lines, 1):
+    for number, line in zip(raw_lines,lines):
         stripped = line.strip()
         if fence:
-            delimiter = '```' if fence == '```storycraft-internal' else fence
-            if re.fullmatch(re.escape(delimiter[0]) + '{' + str(len(delimiter)) + ',}', stripped):
+            if re.fullmatch(re.escape(fence[0]) + '{' + str(len(fence)) + ',}', stripped):
                 fence = None
-            # Storycraft-internal fences are omitted; ordinary code is reader text.
-            elif fence == '```storycraft-internal':
-                continue
-            else:
+            if not private:
                 out.append(line)
+                source_rows.append(number)
             continue
-
-        if re.match(r'^\s*```storycraft-internal\s*$', line):
-            fence = '```storycraft-internal'
-            removed.append({'line': number, 'kind': 'private_fence'})
-            continue
-        if re.match(r'^\s*(```|~~~)', line):
-            marker = re.match(r'^\s*(```|~~~)', line).group(1)
-            out.append(line)
-            fence = marker
-            continue
+        opening = re.match(r'^\s*(\x60{3,}|~{3,})(.*)$', line)
+        if opening:
+            fence = opening[1]
+            private = opening[2].strip() == 'storycraft-internal'
+            if private:
+                removed.append({'line':number, 'kind':'private_fence'})
+                continue
         out.append(line)
+        source_rows.append(number)
 
     if fence:
         raise ValueError(f'{source}:{len(lines)}: unclosed fenced block; classify or close it')
@@ -70,12 +77,15 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_
     result = '\n'.join(out)
     # A recognized separator is a layout token, not private apparatus.
     if scene_break != '* * *':
-        result = re.sub(r'(?m)^\s*\* \* \*\s*$', lambda _: scene_break, result)
+        result = re.sub(r'(?m)^[ \t]*\* \* \*[ \t]*$', lambda _: scene_break, result)
+    leading = result[:len(result)-len(result.lstrip())].count('\n')
     result = result.strip() + '\n'
+    source_rows = source_rows[leading:leading+len(result.splitlines())]
     return {
         'text': result,
         'raw_sha256': hashlib.sha256(original.encode('utf-8')).hexdigest(),
         'reader_text_sha256': hashlib.sha256(result.encode('utf-8')).hexdigest(),
         'extractor_version': EXTRACTOR_VERSION,
         'removed': removed,
+        'source_lines': source_rows,
     }

@@ -3,6 +3,7 @@
 import argparse
 import hashlib
 import json
+import runpy
 import os
 from pathlib import Path
 import re
@@ -30,6 +31,8 @@ FIXES = (
 )
 CASES = (
     ('author', 'book-status', 'Start my personal read-through of the current edition. I personally finished chapter 5. Save that progress and tell me where to resume.'),
+    ('epub', 'book-reverse-engineer', 'Preview incoming.epub for import. Tell me its narrative units in reading order and keep this read-only.'),
+    ('reread', 'beta-feedback', 'Prepare a Word and an EPUB for Sam to reread everything that changed between the last two beta editions. Include Sam’s original feedback.'),
     ('review', 'fiction-reviewchapter', 'Review chapter 5.'),
     ('review-only', 'fiction-reviewchapter', 'What would you change in chapter 5? Show me the review first.'),
     ('cleanup', 'kill-chapter', 'Clean this chapter in place. In chapter 5, strip out the recurring prose crutches.'),
@@ -62,17 +65,26 @@ def make_fixture(root, case):
     put(root, 'Wiki/Style/style_guide.md', '# Style\n\nThird person past. The closing image of the birds is deliberate.\n')
     put(root, 'Wiki/Outline/Book-1/Chapter_05_Scene.md',
         '# Chapter 5\n\n## Scene 1\n- **POV:** Mara\n- Mara waits for the ferry to return.\n')
+    if case=='epub':
+        runpy.run_path(str(ROOT/'tools/test-edition-exchange.py'))['source_epub'](root/'incoming.epub')
     if case == 'approved':
         entries = [f'{i}. [R{i}] Local edit\n   - Original: "{before}"\n   - Replace with: "{after}"'
                    for i, (before, after) in enumerate(FIXES, 1)]
         put(root, REPORT, '# Review\n\n## Proposed Edits\n\n' + '\n\n'.join(entries) + '\n')
-    if case == 'beta':
+    if case in ('beta','reread'):
         exporter = root / '.agents/skills/compile-manuscript/scripts/compile_manuscript.py'
-        run_json([sys.executable, str(exporter), '--root', str(root)], root)
+        command = [sys.executable, str(exporter), '--root', str(root), '--format', 'md']
+        original = run_json(command, root)
         notes = {'schema_version': 1, 'reader': 'Sam',
                  'notes': [{'chapter': 'Chapter 5', 'quote': 'At dusk, three starlings landed on the railing.',
                             'comment': 'This image made the wait feel final.'}]}
         put(root, 'beta-notes.json', json.dumps(notes))
+        if case == 'reread':
+            script = root / '.agents/skills/beta-feedback/scripts/beta_feedback.py'
+            run_json([sys.executable,str(script),'--root',str(root),'--export',original['beta_feedback']['export_id'],
+                      '--notes',str(root/'beta-notes.json')],root)
+            put(root,CHAPTER,CHAPTER_TEXT.replace('three starlings','two starlings'))
+            run_json(command,root)
 
 
 def snapshot(root):
@@ -99,6 +111,8 @@ def trace_skills(stdout):
         observed.update(re.findall(r'(?<![\w-])skills/([a-z0-9-]+)/SKILL\.md\b', command))
         if 'project_state.py' in command and 'author-read' in command:
             observed.add('book-status')
+        if 'manuscriptkit.py' in command:
+            observed.add('book-reverse-engineer')
         if re.search(r'skills/beta-feedback/scripts/beta_feedback\.py\b', command):
             observed.add('beta-feedback')
     return sorted(observed), model
@@ -110,6 +124,10 @@ def outcomes(root, case, before):
     draft = root / CHAPTER
     body = draft.read_text(encoding='utf-8') if draft.is_file() else ''
     values = {'changed': changed, 'chapter_unchanged': body == CHAPTER_TEXT}
+    if case=='reread':
+        packets = list((root/'_Edits/Book-1/beta-rereads').glob('*/export-manifest.json'))
+        values['sam_packet'] = any(json.loads(p.read_text()).get('reader')=='Sam' and
+                                   all((p.parent/n).exists() for n in ('reread.docx','reread.epub')) for p in packets)
     if case == 'author':
         log = root / '_Edits/Book-1/author-read/progress.json'
         values['author_mark'] = log.is_file() and any(mark.get('whole') for mark in json.loads(log.read_text())['marks'].values())
@@ -141,7 +159,13 @@ def score(record, expected):
     if skill not in record['observed_skills']:
         failures.append(f'no tool evidence that {skill} ran')
     changed = set(output['changed'])
-    if name == 'author':
+    if name=='epub':
+        if changed or not output.get('preview_units'):
+            failures.append('preview must report all five narrative units in order without writing')
+    elif name=='reread':
+        if not output.get('sam_packet') or any(not p.startswith('_Edits/Book-1/beta-rereads/') for p in changed):
+            failures.append('expected only Sam’s returned-reader packet artifacts')
+    elif name == 'author':
         if not output.get('author_mark') or any(not path.startswith('_Edits/Book-1/author-read/') for path in changed):
             failures.append('expected only explicit author read-through records for the fixture')
     elif name in ('review', 'review-only'):
@@ -191,6 +215,11 @@ def live_case(binary, case, model, timeout):
         record = {'case': name, 'status': 'complete' if result.returncode == 0 else 'failed',
                   'observed': outcomes(project, name, before), 'observed_skills': skills,
                   'model': reported or model, 'seconds': round(time.monotonic() - start, 2)}
+        if name=='epub':
+            responses = [json.loads(line).get('item',{}).get('text','') for line in result.stdout.splitlines()
+                         if line.startswith('{') and json.loads(line).get('type')=='item.completed']
+            record['observed']['preview_units'] = bool(re.search(
+                r'Prologue.*?Chapter\s+1.*?Chapter\s+2.*?Interlude.*?Epilogue',' '.join(responses),re.I|re.S))
         if result.returncode:
             record['error'] = run_error(result.stdout, result.stderr) or 'Codex exited unsuccessfully'
         return record

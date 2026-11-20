@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Import a returned beta edition's comments and turn selected findings into revision tasks."""
 import argparse
+import subprocess
 import hashlib
 import importlib.util
 import json
@@ -25,6 +26,9 @@ def bundled(name, path):
 exchange = bundled('storycraft_beta_exchange', 'compile-manuscript/scripts/beta_exchange.py')
 state = bundled('storycraft_state', 'book-status/scripts/project_state.py')
 WORD = exchange.WORD
+sys.path.insert(0,str(Path(__file__).resolve().parents[2] / 'compile-manuscript/scripts'))
+import reread
+
 normal = exchange.normal
 
 
@@ -150,7 +154,7 @@ def location(note, version):
     return {'status': 'UNRESOLVED', 'reason': 'quote is absent or ambiguous in the archived export'}
 
 
-def add_notes(document, raw, version):
+def add_notes(document, raw, version, packet=None):
     records = {item['id']: item for item in document['feedback']}
     count = 0
     for note in raw:
@@ -159,7 +163,8 @@ def add_notes(document, raw, version):
         if identifier in records:
             continue
         records[identifier] = {'id': identifier, **note, 'export_id': version['export_id'],
-                               'location': location(note, version)}
+                               'location': (reread.remap(note,packet,version,location)
+                                            if packet else location(note, version))}
         count += 1
     document['feedback'] = list(records.values())
     return count
@@ -226,6 +231,8 @@ def main():
     source.add_argument('--docx', type=Path)
     source.add_argument('--notes', type=Path)
     source.add_argument('--campaign', metavar='ID')
+    source.add_argument('--reread-to', metavar='TARGET_EDITION')
+    parser.add_argument('--reader', help='recipient of a changed-scene reread packet')
     parser.add_argument('--select', action='append', default=[], metavar='FEEDBACK_ID')
     args = parser.parse_args()
     if not args.export and args.docx:
@@ -239,13 +246,23 @@ def main():
         parser.error('--campaign requires a safe run ID and one or more --select feedback IDs')
     root = args.root.resolve()
     version = open_export(root, args.book, args.export)
-    path = state.path_at(root, f'_Edits/{args.book}/beta-feedback/{args.export}.json')
+    if args.reread_to or args.reader:
+        if not args.reread_to or not args.reader:
+            parser.error('--reread-to and --reader are required together')
+        print(json.dumps(reread.build(root,args.book,version,args.reread_to,args.reader),ensure_ascii=False,indent=2))
+        return
+    packet = version if version.get('target_edition') else None
+    target = open_export(root,args.book,packet['target_edition']) if packet else version
+    path = state.path_at(root, f'_Edits/{args.book}/beta-feedback/{target["export_id"]}.json')
     if args.docx or args.notes:
         raw = (word_notes(args.docx, args.export, version['word_passages']) if args.docx
                else list(pasted_notes(args.notes)))
+        if packet:
+            for note in raw:
+                note['packet_id'] = packet['export_id']
         with state.locked(path):
             document = state.document(path, 'feedback')
-            count = add_notes(document, raw, version)
+            count = add_notes(document, raw, target, packet)
             if count or not path.exists():
                 state.write(path, document)
     else:
@@ -255,7 +272,7 @@ def main():
         print(json.dumps(draft_campaign(root, args.book, args.campaign, document, args.select),
                          indent=2, ensure_ascii=False))
     else:
-        print(json.dumps({'export_id': args.export, 'added': count, 'feedback': document['feedback'],
+        print(json.dumps({'export_id': target['export_id'], 'added': count, 'feedback': document['feedback'],
                           'groups': summarize(document)},
                          indent=2, ensure_ascii=False))
 
@@ -263,5 +280,5 @@ def main():
 if __name__ == '__main__':
     try:
         main()
-    except (ValueError, OSError, KeyError, TypeError, zipfile.BadZipFile, ET.ParseError) as exc:
+    except (ValueError, OSError, KeyError, TypeError, zipfile.BadZipFile, ET.ParseError, subprocess.CalledProcessError) as exc:
         sys.exit(str(exc))

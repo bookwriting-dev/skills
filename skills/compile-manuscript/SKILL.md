@@ -3,7 +3,7 @@ name: compile-manuscript
 description: "Compile and stitch drafted chapter files into a delivery package with customizable front matter, scene breaks, table of contents, and export formatting. Structural conversion does not imply rendered, author, or publication approval. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'."
 metadata:
   author: Storycraft Skills
-  version: "1.6.0"
+  version: "1.7.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -35,3 +35,7 @@ The beta profile includes an export ID and a [reader passage map](scripts/beta_e
 ## Verify delivery
 
 Inspect chapter completeness, meaningful scene breaks, headings, front/back matter, and internal-note removal. The script verifies container integrity; visually inspect representative DOCX/EPUB/PDF pages using host rendering tools before claiming layout approval. Publication export is a delivery artifact, not proof of editorial or retailer acceptance. Return artifact links, profile/formats, source/check warnings and whether visual verification is complete. Offer beta-reader delivery or a targeted formatting adjustment.
+
+## EPUB navigation and imported matter
+
+A preflight records EPUB navigation as PENDING. The built artifact is checked by following its actual contents, internal links, note references and any return links. The export saves epub-navigation.json alongside the EPUB. Recheck a returned file with [epub_navigation.py](scripts/epub_navigation.py) FILE --expect EXPECTATIONS. An incorrect or broken destination warns on a beta and blocks verified publication. Missing optional note returns are advisory. The exporter uses the imported book's front/back matter, illustrations, title and language by default. Supply title and language in the export configuration to override them.

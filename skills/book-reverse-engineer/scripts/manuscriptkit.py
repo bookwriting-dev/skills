@@ -24,7 +24,11 @@ import re
 import shutil
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import epub_intake
 
 HEADING_PATTERNS = [
     re.compile(r"^#{1,3}[ \t]*Chapter[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE),
@@ -152,8 +156,12 @@ def list_dir_units(directory: Path) -> tuple[list[dict], list[str]]:
     return units, warnings
 
 
-def analyze(path: str) -> dict:
+def analyze(path: str, selection=None) -> dict:
     target = locate(path)
+    if target.is_file() and target.suffix.lower() == '.epub':
+        return epub_intake.analyze(target, selection)
+    if selection:
+        raise ValueError('--selection applies to an EPUB preview')
     front_matter = ''
     if target.is_dir():
         units, warnings = list_dir_units(target)
@@ -195,6 +203,8 @@ def analyze(path: str) -> dict:
 
 
 def incoming_files(analysis_result):
+    if '_files' in analysis_result:
+        return analysis_result['_files']
     files = {}
     if analysis_result["_front_matter"].strip():
         files['FrontMatter.md'] = analysis_result["_front_matter"] + "\n"
@@ -238,13 +248,67 @@ def metadata(path, fallback=None):
     return record
 
 
+def bind_roster(result, dest):
+    """Keep previously registered IDs and paths when a new EPUB revises the same book."""
+    if '_registration' not in result or result.get('unsupported') or dest.parent.name != 'Chapters':
+        return result
+    import project_manifest as resolver
+    if not re.fullmatch(r'Book-[1-9]\d*',dest.name):
+        return result
+    root = dest.parent.parent
+    old = metadata(dest / RECEIPT, {}).get('epub',{}).get('units',[])
+    current = resolver.find_book(resolver.load(root), dest.name)
+    chapters = resolver.resolve_book(root,dest.name)['chapters'] if current else []
+    files = dict(result['_files'])
+    units = []
+    unmatched = {chapter['path']:chapter for chapter in chapters}
+    old_by_id = {u['id']:u for u in old}
+    for unit in result['units']:
+        unit = dict(unit)
+        previous = old_by_id.get(unit['id'])
+        if not previous:
+            options = [u for u in old if u['title']==unit['title'] and u['role']==unit['role']]
+            previous = options[0] if len(options)==1 else None
+        old_filename = previous['filename'] if previous else unit['filename']
+        options = [c for c in chapters if Path(c['path']).name==old_filename]
+        if not options and unit['role']=='narrative':
+            options = [c for c in chapters if c['display_label']==unit['title']]
+        if len(options)>1:
+            raise ValueError('EPUB unit matches more than one registered chapter: '+unit['title'])
+        if options:
+            chapter = options[0]
+            path = resolver.contained(root,chapter['path'])
+            if path.parent != dest or not re.fullmatch(r'(?:Chapter-\d+|Unit-[a-f0-9]{18})\.md',path.name):
+                raise ValueError('import destination contains a custom chapter path; choose a new book directory to preserve it: '+chapter['path'])
+            if chapter['path'] not in unmatched:
+                raise ValueError('two EPUB units claim the same existing chapter: '+chapter['path'])
+            unmatched.pop(chapter['path'])
+            old_filename = path.name
+            unit['chapter_id'] = chapter['id']
+        if old_filename != unit['filename'] and unit['filename'] in files:
+            if old_filename in files:
+                raise ValueError('duplicate EPUB destination: '+old_filename)
+            files[old_filename] = files.pop(unit['filename'])
+        unit['filename'] = old_filename
+        if unit['role']=='narrative':
+            unit.setdefault('chapter_id','chapter-'+resolver._hash(dest.name+'/'+unit['id'])[:16])
+        units.append(unit)
+    legacy = [c['path'] for c in unmatched.values() if Path(c['path']).name not in {u['filename'] for u in old}]
+    if legacy:
+        raise ValueError('EPUB would displace existing registered chapters; choose a separate book directory: '+', '.join(legacy))
+    previous_paths = metadata(dest / RECEIPT,{}).get('epub',{}).get('retired_paths',[])
+    retired = sorted(set(previous_paths) | set(unmatched))
+    result = dict(result,units=units,_files=files,_registration=dict(result['_registration'],units=units,retired_paths=retired))
+    return result
+
+
 def plan_import(result, dest):
     base = metadata(dest / RECEIPT, {"files": {}})["files"]
     incoming = incoming_files(result)
     entries = {}
     for name, text in incoming.items():
         current = local_bytes(dest / name)
-        new_hash = sha256(text.encode('utf-8'))
+        new_hash = sha256(text if isinstance(text, bytes) else text.encode('utf-8'))
         old_hash = sha256(current)
         if old_hash == new_hash:
             action = "unchanged"
@@ -255,7 +319,7 @@ def plan_import(result, dest):
         else:
             action = "conflict"
         entry = {"action": action, "current_sha256": old_hash, "incoming_sha256": new_hash}
-        if action in ("conflict", "update"):
+        if action in ("conflict", "update") and isinstance(text, str):
             old_lines = current.decode('utf-8', errors='replace').splitlines(keepends=True) if current else []
             entry["diff"] = "".join(difflib.unified_diff(old_lines, text.splitlines(keepends=True),
                                                           fromfile=name, tofile=f"incoming/{name}"))
@@ -283,7 +347,7 @@ def recover_import(dest):
     transaction = metadata(pending / "plan.json")
     staged = {}
     for name, entry in transaction["writes"].items():
-        if not re.fullmatch(r"(?:Chapter-\d+|FrontMatter)\.md", name):
+        if not re.fullmatch(r"(?:(?:Chapter-\d+|Unit-[a-f0-9]{18}|FrontMatter)\.md|epub-[a-f0-9]{64}\.[a-z0-9]{1,8})", name):
             raise ValueError(f"invalid import destination in journal: {name}")
         data = local_bytes(pending / name)
         current = sha256(local_bytes(dest / name))
@@ -307,6 +371,8 @@ def export_chapters(analysis_result, target_dir, *, approvals=(), keep=(), recov
     """Stage a revision-aware import and make retries converge on its recorded destinations."""
     dest = Path(target_dir).expanduser().resolve()
     if analysis_result:
+        if analysis_result.get('unsupported'):
+            raise ValueError('; '.join(analysis_result['warnings']))
         source = Path(analysis_result['source'])
         if dest == source or source.is_file() and source.parent == dest and source.name in incoming_files(analysis_result):
             raise ValueError("choose a destination that leaves the raw manuscript in place")
@@ -321,6 +387,7 @@ def export_chapters(analysis_result, target_dir, *, approvals=(), keep=(), recov
             return recover_import(dest)
         if pending.exists() or pending.is_symlink():
             raise ValueError("interrupted import exists; inspect preview and use --recover")
+        analysis_result = bind_roster(analysis_result,dest)
         entries, incoming, base = plan_import(analysis_result, dest)
         approved = {}
         for approval in approvals:
@@ -349,13 +416,16 @@ def export_chapters(analysis_result, target_dir, *, approvals=(), keep=(), recov
                 writes[name] = entry
             if action != 'preserve_local':
                 new_base[name] = entry['incoming_sha256']
-        if not writes and new_base == base:
-            return []
         receipt = {"schema_version": 1, "files": new_base}
+        if '_registration' in analysis_result:
+            receipt['epub'] = analysis_result['_registration']
+        if not writes and metadata(dest / RECEIPT, {}) == receipt:
+            return []
         with tempfile.TemporaryDirectory(prefix='.storycraft-import-stage-', dir=dest) as tmp:
             stage = Path(tmp)
             for name in writes:
-                replace_file(stage / name, incoming[name].encode('utf-8'))
+                data = incoming[name]
+                replace_file(stage / name, data if isinstance(data, bytes) else data.encode('utf-8'))
             replace_file(stage / 'plan.json', (json.dumps(
                 {"schema_version": 1, "writes": writes, "receipt": receipt}, indent=2) + "\n").encode())
             stage.rename(pending)
@@ -372,6 +442,7 @@ def main() -> None:
     parser.add_argument("--replace", action="append", default=[], metavar="FILE:CURRENT_SHA256:INCOMING_SHA256")
     parser.add_argument("--keep", action="append", default=[], metavar="FILE")
     parser.add_argument("--recover", action="store_true", help="Resume a previously staged import into --export-chapters")
+    parser.add_argument('--selection', type=Path, help='Corrected EPUB preview JSON with unit order, roles and optional merge_into')
     args = parser.parse_args()
     if (args.preview or args.recover or args.replace or args.keep) and not args.export_dir:
         parser.error("--export-chapters is required for import controls")
@@ -382,12 +453,14 @@ def main() -> None:
         return
     if not args.path:
         parser.error("a manuscript path is required")
-    result = analyze(args.path)
+    result = analyze(args.path, args.selection)
     clean_result = {k: v for k, v in result.items() if not k.startswith('_')}
     if args.export_dir:
         dest = Path(args.export_dir).expanduser().resolve()
         if dest == Path(result["source"]):
             raise ValueError("choose a chapter destination outside the source chapter directory")
+        result = bind_roster(result,dest)
+        clean_result['units'] = result['units']
         entries, _, _ = plan_import(result, dest)
         clean_result["import"] = {"destination": str(dest), "files": entries,
                                   "pending_recovery": (dest / PENDING).exists()}
@@ -399,5 +472,5 @@ def main() -> None:
 if __name__ == "__main__":
     try:
         main()
-    except (ValueError, OSError, KeyError, TypeError) as exc:
+    except (ValueError, OSError, KeyError, TypeError, zipfile.BadZipFile, epub_intake.ET.ParseError) as exc:
         sys.exit(str(exc))

@@ -2,6 +2,10 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-19 — Import reflowable EPUBs and exchange revised beta editions
+
+Authors can review spine and contents boundaries before a journaled import and send a returning reader only the changed scenes and their own earlier notes. Word bookmarks follow the revised edition. Built EPUBs now check contents, cross-references, notes and returns before publication. Reader extraction preserves ordinary code fences and physical source lines.
+
 ## 2026-11-19 — Personal read-through and frozen reader editions
 
 Record explicit author progress by chapter or quote and compare frozen reader passages with the new edition. The dashboard distinguishes personal completion from editorial readiness.

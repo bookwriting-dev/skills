@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Build manuscript exports without changing source chapters."""
 import argparse
+import os
 import hashlib
 import importlib.util
 import json
@@ -14,6 +15,7 @@ import zipfile
 import sys
 sys.dont_write_bytecode = True
 import beta_exchange
+import epub_navigation
 
 
 def state_module():
@@ -130,14 +132,22 @@ def main():
     import_dir = f'Chapters/{a.book}'
     import_receipt = f'{import_dir}/.storycraft-import.json'
     imported_front = f'{import_dir}/FrontMatter.md'
+    receipt = s.path_at(root, import_receipt)
+    imported = s.load(receipt) if receipt.is_file() else {}
+    imported_meta = imported.get('epub', {})
+    units = imported_meta.get('units', [])
+    title = cfg.get('title') or imported_meta.get('title') or book_record.get('title') or book_record['display_label']
+    language = cfg.get('language') or cfg.get('lang') or imported_meta.get('language') or 'und'
     front_matter = cfg.get('front_matter')
     if front_matter is None:
-        receipt = s.path_at(root, import_receipt)
-        front_matter = ([imported_front] if receipt.is_file()
-                        and 'FrontMatter.md' in s.load(receipt).get('files', {}) else [])
-    back_matter = cfg.get('back_matter', [])
+        front_matter = [f"{import_dir}/{unit['filename']}" for unit in units if unit['role'] == 'front']
+        if not units and 'FrontMatter.md' in imported.get('files',{}):
+            front_matter = [imported_front]
+    back_matter = cfg.get('back_matter', [f"{import_dir}/{unit['filename']}" for unit in units if unit['role']=='back'])
     order = front_matter + [str(p.relative_to(root)) for _, p, _ in chapters] + back_matter
     names = list(order)
+    assets = [f'{import_dir}/{name}' for name in imported.get('files', {}) if re.fullmatch(r'epub-[a-f0-9]{64}\.[a-z0-9]{1,8}',name)]
+    names.extend(assets)
     if cfg.get('reference_doc'):
         names.append(cfg['reference_doc'])
     before = s.evidence(root, names)
@@ -220,6 +230,8 @@ def main():
             'rendered_review': {'status': 'PENDING',
                                 'formats': {fmt: 'PENDING' for fmt in formats},
                                 'reason': 'structure checks do not inspect reader-visible layout'}}
+    if 'epub' in formats:
+        plan['epub_navigation'] = {'status':'PENDING', 'findings':[]}
     if a.check:
         print(json.dumps(plan, indent=2))
         return
@@ -234,6 +246,18 @@ def main():
             if a.profile == 'beta':
                 exchange = beta_exchange.build_map(parts, {record['path']: record for _, _, record in chapters},
                                                    manuscript_hashes, cfg.get('scene_break', formatting['contract']['scene_break']))
+            resource_dirs = list(dict.fromkeys([root, *(s.path_at(root,name).parent for name in order)]))
+            resource_path = os.pathsep.join(str(d) for d in resource_dirs)
+            if exchange is not None:
+                exchange.update(resources={}, title=title, language=language)
+                for name in assets:
+                    original = s.path_at(root,name)
+                    frozen = stage / 'beta-resources' / original.name
+                    frozen.parent.mkdir(exist_ok=True)
+                    shutil.copyfile(original, frozen)
+                    if s.digest(frozen) != manuscript_hashes[name]:
+                        raise ValueError('illustration changed during export: ' + name)
+                    exchange['resources'][original.name] = s.digest(frozen)
             for fmt in formats:
                 target = stage / ('manuscript-combined.' + fmt)
                 if fmt != 'md':
@@ -241,9 +265,13 @@ def main():
                     if exchange is not None and fmt == 'docx':
                         source = beta_exchange.docx_input(pandoc, stage, exchange)
                         source_format = 'json'
-                    cmd = [pandoc, str(source), '--from=' + source_format, '--standalone', '-o', str(target)]
+                    cmd = [pandoc, str(source), '--from=' + source_format, '--standalone', '--resource-path=' + resource_path, '-o', str(target)]
                     if cfg.get('title'):
                         cmd += ['--metadata', 'title=' + cfg['title']]
+                    elif fmt == 'epub':
+                        cmd += ['--metadata', 'title=' + title]
+                    if fmt == 'epub':
+                        cmd += ['--metadata', 'lang=' + language]
                     if cfg.get('toc', a.profile != 'submission'):
                         cmd += ['--toc']
                     if fmt == 'pdf':
@@ -258,6 +286,15 @@ def main():
                         beta_exchange.bind_word_passages(target, exchange)
                 verify(target, fmt)
                 plan['structural_checks'][fmt] = 'PASS'
+                if fmt == 'epub':
+                    expected, report = epub_navigation.audit(target, source_links=epub_navigation.markdown_links(pandoc,text))
+                    s.write(stage / 'epub-navigation.json',expected)
+                    plan['epub_navigation'] = report
+                    for finding in report['findings']:
+                        plan['warnings'].append(f"EPUB {finding['kind']}: {finding['message']}")
+                    if report['status']=='FAIL' and a.profile!='beta' and not a.unchecked_preview:
+                        raise ValueError('EPUB navigation checks failed: ' + '; '.join(
+                            f['message'] for f in report['findings'] if f['severity']=='error'))
             if (s.evidence(root, validation_names) != validation_before
                     or resolver.resolve_book(root, a.book) != book_record
                     or resolver.missing_chapters(root, book_record) != missing):
