@@ -6,6 +6,7 @@
   "forbidden_phrases": ["phrase"],
   "forbidden_words": [{ "word": "word", "note": "why forbidden" }],
   "crutch_words": [{ "word": "word", "note": "rule for use" }],
+  "diction_and_clock_time": "The passage's contemporary or period register, the book's exact clock notation, and any scoped exceptions.",
   "punctuation": {
     "em_dash": "Rule for em dash use",
     "fragments": "Rule for sentence fragments",

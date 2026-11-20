@@ -1,9 +1,9 @@
 ---
 name: book-status
-description: "Inspect manuscript health, chapter progress, gate check results, word counts, open Chekhov promises, and stylistic drift metrics across books and chapters. Use when user asks 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', or 'show project status'."
+description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.10.0"
+  version: "1.11.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -13,6 +13,8 @@ metadata:
 Provides an executive summary of manuscript health, drafting completeness, gate checks, promise debts, and stylistic health across the entire book or series.
 
 For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` from the same on-disk state this skill reads.
+
+For a request limited to diction or clock notation, resolve the requested manuscript paths and run [prose_style.py](scripts/prose_style.py) as described in [diction and clock time](references/diction-and-time.md). Return the confirmed passages and suggested edits within that scope.
 
 ## Dashboard Metrics
 

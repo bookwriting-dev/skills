@@ -2,6 +2,10 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-19 — Contemporary diction and clock times
+
+Drafting and editing now use everyday vocabulary for contemporary voices and digits for exact clock readings in narration and dialogue. The chapter scan catches examples such as “fortnight” and “ten thirty” before handoff and during review, including for books with older style guides. Reviewers check candidates in context to preserve period voices, verbatim quotations, and ordinary durations.
+
 ## 2026-11-17 — Manuscript integrity, scene voice, and beta feedback
 
 - Preview and safely repeat manuscript imports. Preserve front matter, resolve edited chapters with revision-bound diffs, and recover interrupted writes.

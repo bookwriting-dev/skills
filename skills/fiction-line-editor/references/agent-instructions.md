@@ -43,6 +43,7 @@ Check every line in your assigned chunk against ALL of the following categories.
 - Pick the stronger adjective or find a more specific descriptor
 
 ### 7. Style Guide Violations
+- Check contemporary diction and numeric clock readings in context. Quote confirmed slips and preserve established character voices, historical passages, and verbatim sources.
 - Any project-specific rules from the review/style guide
 - Punctuation bans (e.g., EM dashes in narration)
 - Any other flagged constructions from the guide

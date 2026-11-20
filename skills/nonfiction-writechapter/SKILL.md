@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
@@ -60,7 +60,7 @@ Do not load the entire research corpus, bibliography, or all chapter plans by de
 
 Before drafting, extract a compact working brief:
 
-- Voice, tone, and register constraints;
+- Voice, tone, and register constraints, including [diction and clock time](../book-status/references/diction-and-time.md) for the author’s own prose. Preserve the wording of quoted sources.
 - Opening: the mode-appropriate entry (claim/stakes, scene, question, instruction, or reference orientation);
 - Required evidence blocks in order with their turns;
 - Facts and defined terms carried from previous chapters;
@@ -133,6 +133,8 @@ Leave broader prose diagnosis, clarity editing, and fact-checking to `nonfiction
 ## Save and hand off
 
 Save only to the resolved authoritative chapter path. Do not overwrite a different existing chapter or create a parallel manuscript copy.
+
+Run the diction and clock-time scan on the saved chapter. Correct confirmed slips in the author’s prose before handoff.
 
 Update project tracking minimally:
 

@@ -20,6 +20,7 @@ IMPORT = ROOT / 'skills/book-reverse-engineer/scripts/manuscriptkit.py'
 BETA = ROOT / 'skills/beta-feedback/scripts/beta_feedback.py'
 EVAL = ROOT / 'tools/eval-editorial.py'
 AUDIT = ROOT / 'skills/litrpg-audit/scripts/stat_audit.py'
+PROSE_STYLE = ROOT / 'skills/book-status/scripts/prose_style.py'
 WORD = '{http://schemas.openxmlformats.org/wordprocessingml/2006/main}'
 
 
@@ -214,6 +215,53 @@ class StorycraftImprovements(unittest.TestCase):
         self.assertEqual(stricter['simile']['keep_examples'], ['The plank flew like a shingle.'])
         self.write(guide, policy.format('unlimited'))
         self.assertFalse(self.state('style-policy', '--simile-count', 2)['chapter_simile_budget_exceeded'])
+
+    def test_diction_and_clock_scan_respects_register_and_reports_source_spans(self):
+        chapter = self.chapter(1, '“A fortnight?” She nodded. “Meet me at ten thirty.”\n'
+                               'Whilst he waited, the old clock struck noon. They met fortnightly.')
+        original = chapter.read_bytes()
+        period = self.cli(PROSE_STYLE, chapter)[0]
+        self.assertEqual([(c['quote'], c['digits']) for c in period['candidates']], [('ten thirty', '10:30')])
+        modern = self.cli(PROSE_STYLE, '--modern', chapter)[0]['candidates']
+        self.assertEqual([c['quote'] for c in modern], ['fortnight', 'ten thirty', 'Whilst', 'fortnightly'])
+        lines = original.decode().splitlines()
+        for candidate in modern:
+            column = candidate['column'] - 1
+            self.assertTrue(lines[candidate['line'] - 1][column:].startswith(candidate['quote']))
+        self.assertEqual(chapter.read_bytes(), original)
+
+    def test_clock_readings_keep_minutes_dayparts_and_precision(self):
+        chapter = self.chapter(1, 'At seven oh five a.m., then at ten-thirty, he called.\n'
+                               'Half past four. A quarter to one. A quarter to twelve p.m.\n'
+                               '“Around five forty-five.” “Eight o’clock.” “Nine PM.”\n'
+                               'The clock read twenty-one thirty. He came at nine in the morning.\n'
+                               'She left at six\nfifteen and signed the book.')
+        clean = self.chapter(2, 'At 10:30 and 23:05. Noon or midnight. Half an hour before dawn.\n'
+                             'Wait ten minutes. Two weeks later she paid for three thirty-minute classes.\n'
+                             'He packed two twenty pound bags. She was born in nineteen thirty.\n'
+                             'She baked two in the morning and one at night.\n'
+                             'Fortnite. She had ten\n\nthirty days earlier.')
+        clocks, clean_scan = self.cli(PROSE_STYLE, '--modern', chapter, clean)
+        self.assertEqual([(c['quote'], c['digits']) for c in clocks['candidates']], [
+            ('seven oh five a.m.', '7:05 a.m.'), ('ten-thirty', '10:30'),
+            ('Half past four', '4:30'), ('A quarter to one', '12:45'), ('A quarter to twelve p.m.', '11:45 a.m.'),
+            ('five forty-five', '5:45'), ('Eight o’clock', '8:00'), ('Nine PM', '9:00 PM'),
+            ('twenty-one thirty', '21:30'), ('nine', '9:00'), ('six\nfifteen', '6:15')])
+        self.assertEqual(clean_scan, {'path': str(clean), 'candidates': []})
+
+    def test_prose_scan_skips_private_apparatus_and_quotes_original_locations(self):
+        chapter = self.write('a chapter.md', '---\ntitle: ten thirty\n---\n# Chapter 1\n'
+                             '**POV:** Fortnight\n<!-- ten thirty\nfortnight -->\n'
+                             '~~~\nfortnight at ten thirty\n~~~\n> [!SYSTEM]\n> fortnight\n'
+                             '[Tickets](https://example.org/ten-thirty)\n'
+                             '- [ ] ten thirty\nMeet at `ten thirty` or at <!-- old time --> ten thirty.\n')
+        result = self.cli(PROSE_STYLE, '--modern', chapter)[0]['candidates']
+        self.assertEqual(len(result), 1)
+        found = result[0]
+        source_lines = chapter.read_text().splitlines()
+        self.assertEqual(found['line'], len(source_lines))
+        self.assertEqual(found['column'], source_lines[-1].rindex('ten thirty') + 1)
+        self.assertEqual((found['quote'], found['digits']), ('ten thirty', '10:30'))
 
     @unittest.skipUnless(importlib.util.find_spec('yaml'), 'PyYAML is required for ledger behavior')
     def test_litrpg_each_advertised_rule_and_character_chronology(self):

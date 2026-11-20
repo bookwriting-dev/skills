@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.8.0"
+  version: "1.9.0"
   bundled-dependencies: book-status, litrpg-audit
   category: fiction-editing
 ---
@@ -31,6 +31,7 @@ Every gate run systematically evaluates up to 7 pillars:
    - Subtext compliance against `Wiki/Psych/Book-N/Chapter_NN_Psych.md` when present: characters must not speak aloud or narrate as flat summary any thought listed under **What they won't say**. For **Show-Don't-Tell Gaps**, assess whether the chosen channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—fits the voice and moment. Bodily cues are optional; do not fail a chapter for choosing another earned channel.
    - Dialogue architecture (`fiction-dialogue`): dialogue reflects speaker register and unequal knowledge. Carry any scene-plan conversation form and pressure-source exception into the gate. Consecutive direct answers are not a failure by count alone; inspect whether the exchange changes knowledge, risk, permission, status, commitment, or available action. A declared form does not excuse a truly inert exchange, and arbitrary inserted evasion is not a repair.
 5. **Mechanical, Cooling List & Machine Cadence Lint:**
+   - Apply [diction and clock time](../book-status/references/diction-and-time.md) and run its scan on the chapter. A confirmed diction or time-format slip earns a prose WARN with the quote and correction. Exclude justified uses from the warning count. Include the shared rules and scanner in saved gate inputs.
    - Tricolon (rule-of-three) saturation rate.
    - "Not X but Y" negation density.
    - Em-dash clusters (>10 in a scene).

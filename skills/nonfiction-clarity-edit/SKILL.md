@@ -3,7 +3,7 @@ name: nonfiction-clarity-edit
 description: "Default comprehensive non-fiction clarity pass: jargon density, abstraction ladder, cognitive load, and signposting, plus sentence-level mechanics. The non-fiction equivalent of fiction-full-editor. Uses paragraph- and section-aware contextual packets. Use when user says 'clarity edit', 'make it clearer', 'check readability', 'edit chapter', 'polish writing', or asks for general sentence-level editing of non-fiction."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.4.0"
+  version: "1.5.0"
   bundled-dependencies: book-status
   category: nonfiction-editing
   output-format: markdown
@@ -37,6 +37,8 @@ Read ALL four reference files and combine their contents:
 Also read the drafting-side clarity rules for known-good patterns: [clarity-rules.md](../nonfiction-writechapter/references/clarity-rules.md). Where a drafting rule and a detection criterion overlap, the detection criterion governs what gets flagged; the drafting rule supplies the fix pattern.
 
 Combine them into a single criteria block for the worker prompts.
+
+Run the [diction and clock-time scan](../book-status/references/diction-and-time.md) once on the chapter. Include the applicable rule and each passage’s candidates in its worker brief. Preserve verbatim sources and technical quantities when reviewing the author’s prose.
 
 ## Step 3: Launch Focused Workers
 

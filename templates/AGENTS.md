@@ -53,6 +53,8 @@ This repo holds a series, so everything is either **shared series canon** or **p
 
 If Wiki and a draft disagree, Wiki wins until the user explicitly changes canon. If a skill would create a proper noun that is not in Wiki, stop and say so rather than inventing it.
 
+For manuscript prose, follow the book’s established voice and its [diction and clock-time defaults](.agents/skills/book-status/references/diction-and-time.md). Contemporary voices use everyday wording such as “two weeks.” Exact clock readings use digits such as “10:30.”
+
 `_Intake/` holds authorial raw material, brainstorming, voice dictations, and external manuscripts staged for reverse-engineering. It is **inspirational and advisory**: skills read it to avoid interrogating you from scratch, but it does not override established `Wiki/` canon once formalized.
 
 ## How to start a book (FICTION)

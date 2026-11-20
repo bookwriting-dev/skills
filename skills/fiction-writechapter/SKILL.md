@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.7.0"
+  version: "4.8.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -78,7 +78,7 @@ Do not load the entire synopsis, theme, review guide, character directory, or wo
 
 Before drafting, extract a compact working brief:
 
-- POV, tense, and voice constraints (including cross-POV contrast rules when switching POVs across scenes);
+- POV, tense, and voice constraints (including cross-POV contrast rules when switching POVs across scenes). Apply [diction and clock time](../book-status/references/diction-and-time.md) to narration and dialogue, including when an older guide is silent.
 - opening physical and emotional state, plus the previous chapter's closing seam;
 - active `relationship_checkpoints` for this chapter (do not revert to Chapter 1 dynamics or jump ahead to a future checkpoint);
 - required scene outcomes, micro-friction beats (at least one failed tactic, deflection, or raised cost before each scene's turn), and ending movement;
@@ -137,7 +137,7 @@ Leave broader prose diagnosis, AI-pattern auditing, ratings, and revision recomm
 
 Save only to the resolved authoritative chapter path. Do not overwrite a different existing chapter or create a parallel manuscript copy.
 
-Run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` once the draft exists. Resolve reported metadata defects and rerun the check before handoff.
+Run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` once the draft exists. Resolve reported metadata defects and rerun the check before handoff. Run the diction and clock-time scan on the saved chapter and correct confirmed prose slips.
 
 Update `active-context.md` minimally:
 

@@ -4,6 +4,8 @@ Use the premise, viewpoint, and difficult choice from the request or the selecte
 
 Write one short scene in prose. Start with an action that puts the choice under pressure. Give the viewpoint character a stake on both sides and end on the consequence of choosing. Use the specified voice or a provisional close viewpoint. Treat new names and details as trial material until promoted.
 
+Use the shared [diction and clock-time rules](../../book-status/references/diction-and-time.md) for the trial’s voice and check the sample before returning it.
+
 Save the first sample as `_Intake/Book-N/opening-scene.md` and return its path and the decision the scene put on the page. For another trial use a numbered sibling. Edit an existing sample when asked to revise it. The sample is the only project output of trial mode.
 
 When the writer asks to promote a named trial, establish the destination and reconcile new details with existing canon. Register the chapter and use the normal scene planning, drafting, and chapter review workflow. Preserve the lines or beats the writer asked to retain.

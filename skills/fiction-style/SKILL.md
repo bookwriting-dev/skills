@@ -3,7 +3,7 @@ name: fiction-style
 description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or when the plan-the-book sequence reaches the style + voice step (after scene plans, alongside fiction-voiceprompt)."
 metadata:
   author: Fiction Toolkit
-  version: "7.3.0"
+  version: "7.4.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -42,6 +42,7 @@ Use [references/json-schema.json](references/json-schema.json) as the field chec
 Write one paragraph for the **style** field that captures:
 - POV mode and tense (from the synopsis or audience file)
 - Sentence style, rhythm, and register
+- Everyday or period vocabulary for the book’s voices and the notation for exact clock times, following [diction and clock time](../book-status/references/diction-and-time.md).
 - What is explicit and how to handle it
 - What is forbidden in register (clinical, analytical, therapeutic, etc.)
 - Sensory priorities and physical grounding
@@ -90,6 +91,8 @@ Use [references/review-guide-schema.json](references/review-guide-schema.json) a
 
 Preserve author-set punctuation and simile fields during regeneration. A simile limit may be a nonnegative integer or `unlimited`. Record a KEEP example only when the author supplied or approved it.
 
+Carry the writing guide’s diction and time convention into the review guide. Preserve any existing book-specific choices and identify the speakers, timelines, or quoted materials they cover.
+
 Write the file with scalar fields (title, genre, pov, tone) in frontmatter and every structured field as a `##` section. Lists of structured objects become labeled sub-bullets, one bold field label per line, so they stay grep-able. For example:
 
 ```markdown
@@ -110,6 +113,9 @@ tone: "[tone descriptor]"
 ## Crutch Words
 - **word:** [word]
   - **note:** [rule for use]
+
+## Diction and Clock Time
+[Applicable register, exact-time notation, and scoped author exceptions]
 
 ## Punctuation
 - **em_dash:** [rule]

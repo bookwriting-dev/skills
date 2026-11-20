@@ -20,12 +20,14 @@ skills/book-reverse-engineer/scripts/manuscriptkit.py
 skills/book-status/SKILL.md
 skills/book-status/assets/report-meta.schema.json
 skills/book-status/references/continuity-review.md
+skills/book-status/references/diction-and-time.md
 skills/book-status/references/evidence-chain.md
 skills/book-status/references/state-contract.md
 skills/book-status/scripts/chapter_format.py
 skills/book-status/scripts/continuity.py
 skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
+skills/book-status/scripts/prose_style.py
 skills/book-status/scripts/reader_text.py
 skills/burstiness-check/SKILL.md
 skills/burstiness-check/references/measure.py
@@ -58,6 +60,7 @@ skills/fiction-genre/references/fantasy-litrpg.md
 skills/fiction-knowledge/SKILL.md
 skills/fiction-knowledge/assets/event.json
 skills/fiction-line-editor/SKILL.md
+skills/fiction-line-editor/references/agent-instructions.md
 skills/fiction-outline/SKILL.md
 skills/fiction-outline/references/twist-principles.md
 skills/fiction-places/SKILL.md
@@ -75,6 +78,7 @@ skills/fiction-series-outline/SKILL.md
 skills/fiction-story-sparks/SKILL.md
 skills/fiction-style/SKILL.md
 skills/fiction-style/references/critical-donts.md
+skills/fiction-style/references/review-guide-schema.json
 skills/fiction-synopsis/SKILL.md
 skills/fiction-synopsis/references/twist-principles.md
 skills/fiction-theme/SKILL.md

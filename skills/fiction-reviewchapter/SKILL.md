@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when the writer asks to review a chapter, check a chapter, or suggest changes. Applying numbered fixes goes through fiction-revise. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.12.0"
+  version: "2.13.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -105,6 +105,7 @@ Read:
 - [references/review-criteria-detailed.md](references/review-criteria-detailed.md)
 - [references/common-issues.md](references/common-issues.md)
 - [references/panel-harvest-criteria.md](references/panel-harvest-criteria.md) — failure modes harvested from full-panel persona reads; check each against the chapter
+- [Diction and clock time](../book-status/references/diction-and-time.md). Run its chapter scan for criterion 9 and check the candidates against the voice, quotation context, and author decisions.
 
 ### Step 3: Build Review Context
 
