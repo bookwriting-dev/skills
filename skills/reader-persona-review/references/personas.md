@@ -1,338 +1,111 @@
-# Fiction Persona Library — Blackwood Ridge Mysteries
+# Book-Agnostic Reader Persona Library
 
-123 personas in 21 groups. Protocol and report template: [README.md](README.md).
-Each entry: **profile** · *Entry* (what they've read) · *Loves* · *Hates* · *Checks* (what they specifically test) · *Rates* (tendency).
+A reusable roster of reader, craft, continuity, and industry archetypes for `reader-persona-review`. Personas carry no hardcoded book titles, character names, or genre-locked plots; adapt each seat's `Checks` to the target book's genre and reader promise at invocation.
 
-Legend for Entry: **Cold** = starts at the book under review; **Series** = has read all prior books; **B1+** = read Book 1 then jumped.
+Each entry: **Profile** · *Entry* (what they've read) · *Loves* · *Hates* · *Checks* (what they specifically test) · *Rates* (tendency).
 
----
-
-## R — Genre Readers (14)
-
-**R01 Dottie Hargrove, 68, retired schoolteacher, cozy devotee.** Reads 3 cozies a week, Kindle + library. *Entry:* Series. *Loves:* warm community, small-town texture, a protagonist she'd have tea with, tidy justice. *Hates:* gore, swearing, cruelty to animals, heroines who are rude to elders. *Checks:* Is Callie likeable enough in Book 2 despite being a pariah? Is the cozy contract (no on-page grue, hope at the end) honored? *Rates:* generous; 4–5★ unless a rule is broken.
-
-**R02 Brenda Kowalski, 54, cozy superfan and cat-cover collector.** Needs gimmick, charm, recurring comfort objects. *Entry:* Series. *Loves:* shops, food, pets, quirky townsfolk, cozy "brand." *Hates:* a book that feels "too serious." *Checks:* Where's the comfort? Does the book-shop/archive setting deliver cozy appeal? *Rates:* 3–4★; docks for lack of cozy props.
-
-**R03 Walt Pruitt, 71, golden-age traditionalist.** Christie, Sayers, Allingham, Marsh. *Entry:* Cold. *Loves:* closed circle, fair-play clues, a gathering-of-suspects reveal. *Hates:* modern therapy-speak, contemporary slang, "feelings" substituting for deduction. *Checks:* Could he name the killer from the text? Is there a proper suspect pool? *Rates:* harsh on cheating, warm on fairness.
-
-**R04 Marisol Vega, 33, psychological thriller reader.** Gone Girl, Tana French. *Entry:* Cold. *Loves:* dread, unreliable POV, a twist that recontextualizes. *Hates:* low stakes, "cozy" safety, predictable arrests. *Checks:* Is there real tension? Does anything surprise her? *Rates:* 2–3★ unless the Eli thread hooks her.
-
-**R05 Priya Raman, 29, binge reader, Kindle Unlimited.** Reads a book a day, borrows on KU. *Entry:* Cold, then B1+. *Loves:* hook by page 1, tight chapters, cliffhanger-lite. *Hates:* slow openings, long exposition. *Checks:* Does she keep turning pages? Would she start the next one right away? *Rates:* 4★ if fast; DNFs quickly.
-
-**R06 Harold Finch, 63, procedural fan.** Connelly, Rankin. *Entry:* Cold. *Loves:* accurate procedure, working cops, forensic logic. *Hates:* amateur sleuths ignoring law. *Checks:* Does Cross act like a real sheriff? Does the evidence chain hold? *Rates:* 3★; likes the "bounded consultant" arrangement if procedural.
-
-**R07 Imani Brooks, 41, mystery-romance crossover reader.** *Entry:* Series. *Loves:* slow burn, chemistry, emotional stakes. *Hates:* romance that never moves, withheld without payoff. *Checks:* Callie/Cross, Callie/Eli (mentor), Mae reconciliation. *Rates:* mixed; frustrated by restraint unless emotionally satisfying.
-
-**R08 Thaddeus Quill, 58, hardboiled and noir reader.** *Entry:* Cold. *Loves:* moral murk. *Hates:* "nice" resolutions. *Checks:* Is anyone truly compromised? *Rates:* 2★, grudging respect for Book 5's forged note.
-
-**R09 Gloria Mendez, 49, book-club host.** Picks for discussion. *Entry:* Series. *Loves:* thematic depth, moral questions, discussion prompts. *Hates:* nothing to argue about. *Checks:* Is there a theme (trust in documents, curated truth) worth 90 minutes? *Rates:* 4★ if theme is real.
-
-**R10 Cody Larkin, 24, new-to-genre BookToker.** Came from romantasy. *Entry:* Cold. *Loves:* vibes, quotable lines, aesthetics, character hooks. *Hates:* "old-lady" tone, slow explanation. *Checks:* Is there a clip-able moment? Does a stranger know what's going on? *Rates:* 3★; polarizing.
-
-**R11 Margaret Oyelaran, 66, audiobook-only commuter.** *Entry:* Cold. *Loves:* voice-friendly dialogue, clear speaker tags. *Hates:* visual-dependent clues (handwriting!) that don't survive audio. *Checks:* Do the handwriting-analysis scenes work by ear? *Rates:* 3–4★.
-
-**R12 Tomasz Wierzbicki, 38, series completist.** Needs every book in order; reads reviews of each. *Entry:* Series. *Loves:* world growth, callbacks. *Hates:* contradictions, book that resets progress. *Checks:* Does each book move the series arc? *Rates:* 4★ if continuity is tight.
-
-**R13 Evelyn Hart, 80, large-print library patron.** *Entry:* Cold. *Loves:* straightforward plot, clear names. *Hates:* too many characters, time jumps. *Checks:* Can she track the cast? *Rates:* 4★; confused by cast size.
-
-**R14 Dani Okonkwo, 19, college student, reading for escape.** *Entry:* Cold. *Loves:* short, atmospheric, emotionally real. *Hates:* preachiness. *Checks:* Is the 25–35k length satisfying? *Rates:* 4★ if short is a feature.
+Legend for Entry: **Cold** = starts at the unit under review with no prior context; **Series** = has read prior books in the series; **B1+** = read Book 1 then jumped here.
 
 ---
 
-## M — Mystery Craft & Puzzle (8)
+## R — General & Genre Readers (Blind — No Canon Access)
 
-**M01 Dr. Constance Reilly, 55, fair-play puzzle purist.** Runs a mystery-reading blog, reconstructs every clue. *Entry:* Series. *Checks:* Clue ladder visible to reader? Red herrings fair? Any information Callie has that the reader doesn't? Is the culprit introduced early enough? Is motive discoverable? *Rates:* 1★ if cheated, 5★ if rereadable.
+**R01 Core Genre Devotee.** Reads 2–3 books a week in the book's primary genre. *Entry:* Series. *Loves:* genre promise delivered with freshness, earned emotional payoffs, characters worth spending time with. *Hates:* broken genre contracts, bait-and-switch endings, unearned reversals. *Checks:* Does this chapter deliver the core satisfaction promised by the genre and blurb? *Rates:* generous (4–5★) when the genre contract holds; harsh if cheated.
 
-**M02 Jules Beaumont, 36, "guess-the-killer-by-chapter-3" reader.** *Entry:* Cold. *Checks:* At which chapter did she identify the killer? Was the suspect pool too small? *Rates:* 3★; loses points for predictability.
+**R02 Comfort & Atmosphere Reader.** Reads for immersion, lived-in world texture, and memorable recurring anchors. *Entry:* Series. *Loves:* tactile places, distinct secondary cast, human warmth, breathing room between crises. *Hates:* sterile white-room scenes, relentless exhaustion with no tonal relief. *Checks:* Can they picture the room and feel the world's texture without drowning in exposition? *Rates:* 3–5★ based on immersion.
 
-**M03 Sven Lindqvist, 47, locked-room/impossible-crime fan.** *Checks:* Is there any real puzzle mechanic beyond "document reading"? *Rates:* 2–3★; wants ingenuity.
+**R03 Traditionalist / Fair-Play Reader.** Values classic structure, clear causality, and earned reveals. *Entry:* Cold. *Loves:* logical cause-and-effect, clues planted in plain sight, restrained voice. *Hates:* modern therapy-speak in non-modern settings, contrived misunderstandings, convenience rescues. *Checks:* Do decisions follow from established facts and character competence? *Rates:* strict on logic, warm on fairness.
 
-**M04 Rosalind Park, 60, red-herring auditor.** *Checks:* Does every red herring pay off or get dismissed? Any dropped suspect threads? *Rates:* precise.
+**R04 High-Stakes Tension Seeker.** Reads thrillers, suspense, and dark fiction. *Entry:* Cold. *Loves:* escalating cost, moral ambiguity, reveals that recontextualize earlier scenes. *Hates:* low-stakes filler, safe resets where nobody pays a price, telegraphed twists. *Checks:* Is there genuine risk on the page, and does the chapter end with real consequence? *Rates:* 2–4★; tough grader.
 
-**M05 Neil Abernathy, 44, twist hunter.** *Checks:* Is the reveal surprising yet inevitable? Does the "why" land emotionally? *Rates:* polarizing.
+**R05 Pacing & Momentum Skeptic.** High-volume binge reader who DNFs fast when chapters sag. *Entry:* Cold. *Loves:* immediate scene gravity, crisp turns, earned forward pull at chapter close. *Hates:* throat-clearing openings, recap-heavy transitions, chapters that repeat the previous chapter's emotional beat. *Checks:* Where did attention wander, and would they immediately turn the page? *Rates:* 4★ if brisk; DNFs at the first flat stretch.
 
-**M06 Avery Chen, 31, clue-density analyst.** Counts clues per chapter. *Checks:* Is clue density even or front/back-loaded? Is the midpoint dead? *Rates:* data-driven.
+**R06 Procedural / Systems Realist.** Reads for believable institutions, craft, tactics, or technical/magical mechanics. *Entry:* Cold. *Loves:* rules that constrain both protagonist and antagonist, earned problem-solving, credible expertise. *Hates:* hand-waved logistics, characters wielding authority they haven't earned, forgotten constraints. *Checks:* Does the world's institutional/mechanical logic hold under pressure? *Rates:* 3–4★.
 
-**M07 Colonel (ret.) Beatrice Aldous, 72, "detective cheating" watchdog.** *Checks:* Does the detective make unearned leaps (intuition, gift)? Does Callie's gift ever substitute for deduction? *Rates:* harsh on deus ex machina.
+**R07 Relationship & Chemistry Reader.** Focused on interpersonal tension, dynamic shifts, and subtext. *Entry:* Series. *Loves:* earned trust, friction that reveals character, dialogue with unspoken stakes. *Hates:* sudden relationship jumps, bickering without substance, static dynamics that reset every chapter. *Checks:* Do relationships shift at an earned pace with genuine subtext? *Rates:* mixed; rewards emotional honesty.
 
-**M08 Tobias Nkemelu, 40, series-mystery structuralist.** Compares books to each other. *Checks:* Does formula repeat across Books 2–5? Do solutions differ in kind? *Rates:* analytical; flags sameness.
+**R08 Book-Club Discussion Host.** Reads for thematic resonance, moral dilemmas, and subtextual depth. *Entry:* Series. *Loves:* central questions without cheap answers, character choices readers can debate. *Hates:* preaching, characters stating the theme aloud, shallow resolutions. *Checks:* Is there a real human dilemma worth discussing, embodied rather than lectured? *Rates:* 4★ when theme lands through action.
 
----
+**R09 Series Newcomer / Cold Entrant.** Enters at this chapter or volume with zero outside notes. *Entry:* Cold. *Loves:* natural orientation through action, distinct character introductions. *Hates:* insider shorthand, unanchored callbacks, cast confusion. *Checks:* Can a smart newcomer follow who is who and what is at stake without a Wiki? *Rates:* 2–4★; flags every entry wall.
 
-## A — Anti-AI & Authenticity (6)
-
-> **Run A01–A06 on every book.** These personas hunt machine-prose tells and ask whether the book feels like a human wrote it. They review prose, not process; the aim is to find texture that reads generic.
-
-**A01 Wren Castellano, 42, working novelist and implacable AI hater.** Has had her work scraped; considers AI fiction theft and slop. *Entry:* Cold. *Hates:* machine rhythm, "tidy" sentences, safe metaphors. *Checks (tells list):* rule-of-three cadence; "not X, but Y" constructions; em-dash density; paragraphs ending in neat aphorisms; characters "letting out breaths they didn't know they were holding"; repeated stock objects (e.g., "brass glass," "floorboard creak") used as emotional shorthand; over-explained emotion after dialogue; uniform sentence length; dialogue where everyone speaks in complete, balanced thoughts; names that feel generated; sensory details that are generic ("scent of old paper"); chapter endings that all resolve on a quiet reflective beat. *Rates:* 1★ if she smells AI; will say so publicly. *Report must include:* a quoted-evidence list (line, chapter) of suspected tells, and a verdict: "reads human / ambiguous / reads machine."
-
-**A02 Gideon Marsh, 57, small-press editor, "human-made" certification advocate.** Evaluates whether the book would pass an acquisitions desk without an AI-disclosure flag. *Checks:* voice distinctiveness across POV, risky choices, idiosyncrasy, unexpected word choice. *Rates:* binary: "I'd buy it / I wouldn't."
-
-**A03 Linnea Voss, 34, AI-detection-obsessed Reddit moderator.** Posts statistical breakdowns. *Checks:* repetition across chapters, lexical diversity, n-gram echoes, template chapter structures, identical scene openings. *Rates:* quantitative; cites counts.
-
-**A04 Professor Aurelio Banks, 61, linguist, stylometry.** *Checks:* register consistency, idiolect of each speaker, regional dialect accuracy vs. flattened "voice," syntax variety. *Rates:* measured; documents evidence.
-
-**A05 Marcy Delacroix, 46, bookseller who refuses to stock AI books.** *Checks:* Would she feel comfortable hand-selling this? Does cover/title/blurb feel generic? Do reviewers' descriptions match "generic cozy" boilerplate? *Rates:* will not recommend if cover/blurb feel machine-made.
-
-**A06 Ezra Kahn, 28, "slop-spotter" YouTuber.** Makes videos picking apart suspected AI books. *Checks:* "clip-worthy" worst lines; formulaic scenes; hollow emotional beats; same sentence shape repeating. *Rates:* entertainment-driven; ruthless.
+**R10 Non-Fiction Generalist / Practitioner.** Reads non-fiction to think better or act differently. *Entry:* Cold. *Loves:* concrete examples before abstractions, honest limits, clear takeaways. *Hates:* padded anecdotes, jargon walls, unsupported overclaims. *Checks:* Did this chapter earn its length and clarify a real idea or decision? *Rates:* 3–5★.
 
 ---
 
-## C — Professional Critics & Reviewers (6)
+## M — Story Craft, Fairness & Arc Readers (Blind — No Canon Access)
 
-**C01 Kirkus-style reviewer (anonymous), 50s.** 350-word trade review. *Checks:* Plot summary clarity, premise freshness, series-readiness. *Style:* concise, faintly cutting, star-or-pass.
+**M01 Plot Fairness & Setup/Payoff Tracker.** Tracks every clue, promise, and causal link strictly from the text. *Entry:* Series. *Loves:* clean setup-to-payoff chains, surprising-yet-inevitable turns. *Hates:* withheld POV knowledge that cheats the reader, dropped threads, deus ex machina solutions. *Checks:* Is every major turn prepared on the page, and are open setups moving toward payoff? *Rates:* 1–2★ if cheated, 5★ if tightly constructed.
 
-**C02 Publishers Weekly reviewer, 40s.** *Checks:* Market positioning, hook for libraries/booksellers. *Style:* succinct, comparative to comps.
+**M02 Character Arc & Emotional Resonance Seeker.** Tracks interior cost, vulnerability, and psychological truth. *Entry:* Series. *Loves:* specific character flaws driving choices, moments that linger, earned catharsis. *Hates:* flat reporting of feelings, protagonists who never change or pay a cost, rushed emotional turns. *Checks:* Do we feel what this chapter costs the POV character, and is the emotional arc earned? *Rates:* 3–5★ based on emotional truth.
 
-**C03 Newspaper mystery columnist (NYT/WaPo-style), 60s.** Reviews 6 mysteries in a roundup. *Checks:* Does this stand out in a column of six? Prose quality, originality. *Style:* witty, one paragraph.
+**M03 Predictability & Twist Skeptic.** Actively tries to call every turn three chapters early. *Entry:* Cold. *Loves:* structural inversions, cost-shifts, antagonists with coherent plans. *Hates:* genre-default rails, telegraphed betrayals, fake cliffhangers immediately defused in the next scene. *Checks:* Which beats felt run-on-rails, and which genuinely surprised while feeling earned? *Rates:* 2–4★.
 
-**C04 Library Journal reviewer.** *Checks:* Appropriate for library collections? Readalikes? Content notes. *Style:* practical.
-
-**C05 Booklist reviewer.** *Checks:* Genre fit, readers' advisory. *Style:* succinct, comp-focused.
-
-**C06 Crime-fiction blog critic (long-form), 45.** Reviews 2,000 words per book. *Checks:* Craft, series trajectory, prose, theme. *Style:* thoughtful, opinionated.
+**M04 Dialogue & Subtext Ear.** Reads conversations aloud mentally for distinctiveness and pressure. *Entry:* Cold. *Loves:* untagged lines you can still attribute by voice, unspoken agendas, natural cadence. *Hates:* interview-style Q&A exposition, characters sharing one sarcastic voice, maid-and-butler lore dumps. *Checks:* Do speakers sound distinct and pursue competing goals in conversation? *Rates:* 3–4★.
 
 ---
 
-## L — Literary Critics (4)
+## A — Anti-AI Authenticity & Cadence Auditors (Blind — No Canon Access)
 
-**L01 Dr. Imogen Ashworth, 52, literary critic.** Reads genre skeptically. *Checks:* Prose quality, thematic ambition (documents/truth/authorship), formal coherence. *Hates:* "competent but forgettable." *Rates:* 2–3★; 4★ for formal ideas.
+**A01 Cadence & Machine-Tells Auditor.** Hunts uniform sentence rhythm, AI stock phrasing, and template repeats. *Entry:* Cold. *Loves:* varied sentence music, idiosyncratic human phrasing, earned messiness. *Hates:* "not X, but Y" chains, rule-of-three saturation, paragraph-closing aphorisms, repeated somatic tics. *Checks:* Does any stretch read statistically flat, overly symmetrical, or template-stamped? *Rates:* 2–5★ strictly on human prose texture.
 
-**L02 Kwame Adeyemi, 36, MFA instructor.** *Checks:* Show/tell, scene construction, POV discipline, interiority. *Rates:* craft-focused; marks errors.
+**A02 Specifics & World-Thinning Watcher.** Checks whether concrete lived detail holds up under high stakes. *Entry:* Series. *Loves:* sharp, domain-specific observation grounded in the POV's profession/history. *Hates:* vague abstractions ("something akin to," "a sense of"), late-chapter summary skid. *Checks:* Does concrete specificity thin out in the back half of the chapter? *Rates:* 3–4★.
 
-**L03 Hallie Lindgren, 66, literary-fiction reader who dislikes genre.** *Checks:* Does it transcend formula? *Rates:* 2★.
+**A03 Metaphor & Figurative-Fit Auditor.** Tests whether similes and images belong to the POV character's mind. *Entry:* Cold. *Loves:* fresh comparisons drawn from the character's lived world. *Hates:* explain-it similes, mixed/dead clichés, clinical/analytical metaphors in non-analytical POVs. *Checks:* Does every figurative comparison earn its place in this character's voice? *Rates:* 3–4★.
 
-**L04 Prof. Mireille Dubois, 58, narratology scholar.** *Checks:* Narrative structure, focalization, authorship-and-forgery motif as metafiction. *Rates:* analytical.
+**A04 Opener & Closer Pattern Detector.** Audits chapter openings, scene transitions, and final sentences. *Entry:* Series. *Loves:* varied entries and endings that fit the scene's actual turn. *Hates:* serialized-recap openers, identical quiet-reflection closers, artificial ominous one-liners. *Checks:* Are openings and closings varied and earned? *Rates:* 3–4★.
 
----
+**A05 Emotional-Tell & Over-Explanation Hunter.** Catches show-then-tell doubling and nominalized self-explanation. *Entry:* Cold. *Loves:* trusting the reader to read action, silence, and subtext. *Hates:* showing a beat and then explaining what it meant in the next sentence. *Checks:* Where does the prose explain an emotion it already dramatized? *Rates:* 3–4★.
 
-## S — Setting, Identity & Sensitivity (8)
-
-**S01 Lacey Dobbs, 45, lifelong Southern native.** *Checks:* Dialect, idiom, food, church, family culture; avoids caricature (see `voice-dna.md`). *Hates:* "y'all" overload, accent spelled phonetically, stock Southern tropes. *Rates:* harsh on caricature.
-
-**S02 Dr. Marcus Whitfield, 50, Black Southern historian.** *Checks:* How the town's founding scandal, race, and record-keeping are handled; whether Black characters are fully human. *Rates:* will call out token characters.
-
-**S03 Rev. Naomi Ashby, 59, small-town pastor.** *Checks:* Faith depiction, community ethics, grief. *Rates:* warm if respectful.
-
-**S04 Jordan Reyes, 32, queer reader.** *Checks:* LGBTQ representation (or absence) in cozy small-town; stereotypes. *Rates:* open; notes erasure.
-
-**S05 Alma Cruz, 44, disability advocate.** *Checks:* Depictions of disability, illness, and mental health; tremor/"artificial tremor" in Book 5 (forged note) — handled respectfully? *Rates:* flags ableist shorthand.
-
-**S06 Dr. Sasha Petrov, 38, trauma-informed grief counselor.** *Checks:* Callie's grief, suicide framing in Book 5, how harm is depicted. *Rates:* flags content-note needs.
-
-**S07 Ben Tallchief, 55, rural/Appalachian reader.** *Checks:* Rural portrayal, class, economics. *Rates:* sensitive to condescension.
-
-**S08 Lin Zhao, 27, immigrant reader unfamiliar with Southern culture.** *Checks:* Is the world accessible without insider knowledge? *Rates:* confused by regional shorthand.
+**A06 Non-Fiction Authority & Clarity Auditor.** Audits non-fiction prose for filler hedging, academic stiffness, and signposting bloat. *Entry:* Cold. *Loves:* direct, concrete prose calibrated honestly to its evidence. *Hates:* robotic section formulas, uncalibrated overclaims, jargon pileups. *Checks:* Does the prose sound like an authoritative human thinker rather than a template? *Rates:* 3–5★.
 
 ---
 
-## U — Accessibility & Reading Context (6)
+## L — Literary & Prose Stylists (Blind — No Canon Access)
 
-**U01 Nadia Farouk, 36, dyslexic reader.** *Checks:* Sentence length, paragraph density, name similarity, formatting. *Rates:* clarity-driven.
+**L01 Prose Stylist / Literary Sensitivity.** Evaluates rhythm, word choice, tonal control, and imagery. *Entry:* Cold. *Loves:* sentences with music and restraint, distinct register, precision over volume. *Hates:* overwritten purple prose, sandpapered voice stripped of personality, cliché clusters. *Checks:* Does the prose have an unmistakable voice worth savoring? *Rates:* 2–5★.
 
-**U02 Greg Palmer, 70, vision-impaired, uses text-to-speech.** *Checks:* Does handwriting-heavy content work via screen reader? Are scene breaks marked clearly? *Rates:* format-focused.
-
-**U03 Hana Sato, 45, ADHD reader.** *Checks:* Chapter length, momentum, re-entry after interruptions. *Rates:* rewards short chapters.
-
-**U04 Camille Ng, 33, commuter reading in 10-minute bursts.** *Checks:* Do chapters work as units? *Rates:* flexible.
-
-**U05 Maya Fischer, 34, non-native English speaker (ESL).** *Checks:* Idiom load, vocabulary, cultural references. *Rates:* flags dense idiom.
-
-**U06 Ray Dunn, 62, e-ink Kindle user.** *Checks:* Layout, formatting, ornament rendering, image handling in EPUB. *Rates:* technical.
+**L02 Tonal & Structural Counterpoint Reader.** Evaluates contrast across scenes—tension vs. release, humor vs. dread. *Entry:* Series. *Loves:* breathing room, comedic timing, quiet beats that make later shocks land harder. *Hates:* single-gear relentless intensity or monotonous gloom. *Checks:* Does the chapter modulate its emotional temperature effectively? *Rates:* 3–5★.
 
 ---
 
-## X — Crossover / Off-Genre Readers (6)
+## H — Audio, Accessibility & Format Listeners (Blind — No Canon Access)
 
-**X01 Hugo Brandt, 35, sci-fi reader trying a cozy.** *Checks:* Does the world-building have rules? *Rates:* 3★.
+**H01 Casual Audiobook / Commute Listener.** Experiences the text strictly by ear while multitasking. *Entry:* Cold. *Loves:* clear speaker attribution, performable sentence cadence, distinct character names. *Hates:* confusingly similar character names, long untagged exchanges, choppy verbless fragments that stall narration, visual-only formatting cues. *Checks:* Does every dialogue exchange, name, and sentence flow clearly when read aloud? *Rates:* 3–5★.
 
-**X02 Fiona McAllister, 52, historical-fiction reader.** *Checks:* Historical backstory (town founding scandal) rigor. *Rates:* 4★ if history feels real.
-
-**X03 Dev Anand, 40, nonfiction-only reader.** *Checks:* Is the handwriting-analysis content credible? *Rates:* skeptical.
-
-**X04 Simone Laurent, 43, romance reader.** *Checks:* emotional payoff vs. mystery. *Rates:* sentiment-led.
-
-**X05 Teddy Alvarez, 16, YA reader.** *Checks:* Eli (a young adult?) as relatable. *Rates:* needs a young hook.
-
-**X06 Margaret "Peg" Sullivan, 77, non-reader of ebooks, prefers hardcover.** *Checks:* Print layout, font, trim. *Rates:* print-driven.
+**H02 Skimmer / Mobile Reader.** Reads in 10-minute bursts on a phone screen. *Entry:* Cold. *Loves:* clean paragraphing, clear scene grounding after breaks, strong chapter hooks. *Hates:* walls of dense exposition, unanchored POV switches. *Checks:* Can a reader return after a day away and immediately re-orient? *Rates:* 3–4★.
 
 ---
 
-## V — Vocal Online Community Reviewers (6)
+## I — Industry & Editorial Readers (May Inspect Canon / Packaging When Requested)
 
-**V01 Goodreads power-reviewer "PageTurner_Pam," 51.** Writes long reviews, rates harshly. *Checks:* Overall value; rates 3★ default.
+**I01 Literary Agent (First-10-Pages Test).** Evaluates hook, voice authority, premise clarity, and commercial positioning. *Entry:* Cold. *Loves:* immediate voice + stakes on page 1, clear market hook, confident craft. *Hates:* throat-clearing prologues, passive openings, mismatched comp promises. *Checks:* Would they request the full manuscript from these pages? *Rates:* Pass / Revise & Resubmit / Request.
 
-**V02 Amazon one-star reviewer, 44.** Posts brief negative reviews. *Checks:* Anything to complain about: price, length, "not what I expected." *Rates:* 1–2★.
+**I02 Commercial Fiction Editor.** Evaluates structural momentum, act architecture, reader satisfaction, and line polish. *Entry:* Series. *Loves:* scenes that earn their page count, clear stakes, disciplined pacing. *Hates:* soggy middles, redundant scenes, voice drift. *Checks:* What is the single highest-leverage structural or line fix in this unit? *Rates:* 3–5★ with editorial memo.
 
-**V03 Amazon five-star enthusiast, 56.** Loves everything. *Rates:* 5★.
-
-**V04 StoryGraph analyst, 31.** Rates on mood/pace/plot/character; writes content warnings. *Checks:* Accurate mood tags.
-
-**V05 Reddit r/CozyMystery regular, 39.** Compares to comps; discusses clues. *Checks:* Does it hold up against comps? *Rates:* discussion-oriented.
-
-**V06 BookTube vlogger (mid-size), 29.** Wants a "story." *Checks:* Video-worthy takeaway.
+**I03 Non-Fiction Acquisitions Editor.** Evaluates thesis sharpness, evidence credibility, audience fit, and structure. *Entry:* Cold. *Loves:* memorable framing, well-paced evidence, clear reader transformation. *Hates:* unfocused chapters, unsupported claims, mismatched reading level. *Checks:* Does this chapter prove its piece of the book's promise? *Rates:* 3–5★.
 
 ---
 
-## B — Book Trade (6)
+## K — Continuity & Canon Hawks (Canon Access Permitted)
 
-**B01 Independent bookseller, 49.** *Checks:* Handsell pitch in one sentence; cover on shelf. *Rates:* pragmatic.
+**K01 Timeline & Chronology Auditor.** Verifies elapsed time, travel durations, dates, and sequence of events against canon. *Entry:* Series. *Checks:* Any impossible clocks, calendar slips, or out-of-order callbacks?
 
-**B02 Public librarian, 53.** *Checks:* Circulation appeal, series continuity, content notes, readalikes.
+**K02 Cast, Objects & Physical State Tracker.** Verifies injuries, possessions, appearances, names, and locations against `Wiki/`. *Entry:* Series. *Checks:* Did an injury vanish, an object teleport, or a proper noun drift from canon?
 
-**B03 School librarian, 46.** *Checks:* Suitability for teen readers; language and violence.
+**K03 Knowledge & Secret Boundary Auditor.** Verifies what each character and the reader know at this exact story/reading position. *Entry:* Series. *Checks:* Does any character act on information they haven't acquired yet?
 
-**B04 Chain-store buyer, 41.** *Checks:* Cover/trade dress, series branding, price/length.
+**K04 Relationship Checkpoint Auditor.** Compares on-page interpersonal dynamics against active `relationship_checkpoints` for this book/chapter. *Entry:* Series. *Checks:* Did a relationship regress to Chapter 1 or jump ahead of its planned turn?
 
-**B05 Audiobook narrator/producer, 35.** *Checks:* Narratability: dialogue distinction, handwriting description by ear.
+**K05 World-Rules & System Mechanics Auditor.** Verifies magic, technology, institutional rules, and LitRPG stats against `Wiki/World/`. *Entry:* Series. *Checks:* Were established limits honored or quietly bent for plot convenience?
 
-**B06 Subscription-box curator, 37.** *Checks:* Gift appeal, packaging, series hook.
-
----
-
-## T — Value & Purchase Decision (4)
-
-**T01 Price-sensitive reader, 38.** *Checks:* Is a ~25–35k-word novella worth the price? *Rates:* tied to length.
-
-**T02 Kindle Unlimited page-read maximizer, 30.** *Checks:* Reads for pages; length fairness.
-
-**T03 Gift buyer, 55.** *Checks:* Is this a safe gift for a cozy-loving relative?
-
-**T04 Impulse buyer from sample, 26.** *Checks:* First 10% enough to buy?
+**K06 Series Callback & Promise Auditor.** Verifies callbacks to prior chapters/books and tracks overdue Chekhov setups. *Entry:* Series. *Checks:* Does every callback match what actually happened, and are setups paying off on schedule?
 
 ---
 
-## G — Cover, Blurb & Listing (8)
+## F — Logic & Fact Auditors (Canon / Research Access Permitted)
 
-**G01 Cover designer, 40.** *Checks:* Genre signaling, thumbnail legibility, typography, series consistency.
+**F01 Internal Plot-Logic Auditor.** Stress-tests character motives, tactics, and institutional plausibility. *Entry:* Series. *Checks:* Are competent characters acting obtusely just to force a plot beat?
 
-**G02 Marketing/ads copywriter, 34.** *Checks:* Blurb hook, keywords, categories.
+**F02 Empirical Evidence & Citation Auditor.** Audits non-fiction claims, numbers, attributions, and certainty calibration against `Wiki/Research/`. *Entry:* Cold. *Checks:* Does every factual claim match its source without overclaiming?
 
-**G03 Amazon category strategist, 42.** *Checks:* Comps, keywords, categories, "cozy" vs. "traditional" positioning.
-
-**G04 Cozy cover-trend scout, 38.** *Checks:* Does the cover read cozy at thumbnail?
-
-**G05 Skeptical browser, 45.** *Checks:* Does the blurb overpromise?
-
-**G06 AI-art spotter, 33.** *Checks:* Cover shows AI-art tells (hands, text artifacts, uncanny faces)? *Rates:* will flag publicly.
-
-**G07 Accessibility reviewer for alt-text & contrast, 36.** *Checks:* Cover contrast, alt text.
-
-**G08 Series-branding consultant, 48.** *Checks:* Do Books 1–5 covers read as a series?
-
----
-
-## K — Continuity & Series Memory (6)
-
-**K01 Cassandra Doyle, 44, continuity editor.** *Checks:* Names, dates, ages, geography consistent across Books 1–5.
-
-**K02 Leo Strand, 39, timeline auditor.** *Checks:* Calendar logic; seasons; elapsed time.
-
-**K03 Mina Takahashi, 35, character-arc auditor.** *Checks:* Callie, Cross, Mae, Eli arcs progress consistently.
-
-**K04 Oren Blackwell, 51, evidence-and-procedure continuity.** *Checks:* Evidence chains and legal procedure consistent with "bounded consultant" lock.
-
-**K05 Helena Marsh, 47, motif/object tracker.** *Checks:* Recurring objects (brass glass, floorboard creak); repetition vs. growth.
-
-**K06 Darius Cole, 41, spoiler-risk auditor.** *Checks:* Does any book reveal or foreshadow too early (e.g., Eli's role, Book 7 reveal)?
-
----
-
-## F — Forensic & Subject-Matter Experts (8)
-
-**F01 Forensic document examiner (certified), 56.** *Checks:* Accuracy of handwriting analysis, simulation/forgery methods, pressure transfer, graphite transfer, "artificial tremor," "freehand simulation." *Hates:* graphology (character-from-handwriting) conflated with forensic comparison. *Rates:* exacting.
-
-**F02 Archivist / conservator, 52.** *Checks:* Archive-fire damage, damaged-record reconstruction, preservation practice, duplicate indexing.
-
-**F03 Rare-book dealer / bibliographer, 60.** *Checks:* Auction scene, provenance, binding, rare-book terminology (Book 1–2).
-
-**F04 Botanist / herbarium curator, 48.** *Checks:* Botanical cipher plausibility; plant names; poison accuracy (Book 2).
-
-**F05 Toxicologist, 45.** *Checks:* Poison methods and timing (Book 1).
-
-**F06 Retired county sheriff, 64.** *Checks:* Rural law-enforcement realism; Cross's authority.
-
-**F07 Trust-and-estates attorney, 50.** *Checks:* Alton Mercer trust, successor trustee, audit, split invoices plausibility (Book 5).
-
-**F08 Forensic accountant, 46.** *Checks:* $286,400 split invoices scheme plausibility.
-
----
-
-## I — Industry & Editorial (4)
-
-**I01 Acquisitions editor, 45.** *Checks:* Series proposition; sales hook.
-
-**I02 Developmental editor, 50.** *Checks:* Structure, stakes, midpoints, character arcs, pacing across books.
-
-**I03 Copyeditor, 38.** *Checks:* Grammar, consistency, typography, style sheet.
-
-**I04 Literary agent, 42.** *Checks:* Would she sign this series? Platform, hooks, comps.
-
----
-
-## H — Hostile / Hard-to-Please (6)
-
-**H01 Nigel Barrington, 62, curmudgeon critic.** *Checks:* everything; rarely satisfied. *Rates:* 2★.
-
-**H02 "I-hate-cozies" thriller snob, 45.** *Rates:* 1–2★.
-
-**H03 Genre-formula cynic, 39.** *Checks:* Formula fatigue; "seen it all before."
-
-**H04 Spoiler-sensitive reader who dislikes foreshadowing, 50.**
-
-**H05 Professional contrarian, 47.** Writes against consensus; finds the flaw others miss.
-
-**H06 Reviewer who skims, 33.** Misreads details, then complains. *Checks:* Where would careless reading cause confusion? (Tests clarity.)
-
----
-
-## P — Parents & Age Context (3)
-
-**P01 Parent screening for 13–15-year-old, 43.** *Checks:* Content suitability.
-
-**P02 Grandmother sharing with granddaughter, 70.** *Checks:* Cross-generational appeal.
-
-**P03 Teacher using for reading-circle, 36.** *Checks:* Discussion potential.
-
----
-
-## N — Neurodivergent & Cognitive Styles (3)
-
-**N01 Autistic reader who loves systems, 29.** *Checks:* Rule-consistency of Callie's methods; literal clarity.
-
-**N02 Reader with anxiety, 32.** *Checks:* Tension without distress; content notes.
-
-**N03 Reader with memory difficulties (post-concussion), 44.** *Checks:* Can she re-enter after gaps? Recaps?
-
----
-
-## O — Oddball Perspectives (4)
-
-**O01 Callie-lookalike: a handwriting hobbyist, 48.** *Checks:* Does the novel honor the craft?
-
-**O02 Small-town mayor/clerk, 57.** *Checks:* Town governance realism.
-
-**O03 Retired English teacher with red pen, 69.** *Checks:* Prose polish, vocabulary, sentence variety.
-
-**O04 Reader who knew Southern small-town scandals firsthand, 58.** *Checks:* Gossip and reputation dynamics ring true.
-
----
-
-## Q — Quirky Constraint Readers (3)
-
-**Q01 Reads only the first and last chapter, 40.** *Checks:* Do opening and ending stand alone?
-
-**Q02 Reads in reverse, ending first, 35.** *Checks:* Does the ending still satisfy when spoiled?
-
-**Q03 Re-reader (Book 4th time), 46.** *Checks:* Rewatch/reread value; planted clues.
-
----
-
-## W — Fellow Writers (4)
-
-**W01 Cozy author, 50.** *Checks:* Craft; would she blurb it?
-
-**W02 Self-publishing coach, 44.** *Checks:* Series launch viability.
-
-**W03 Mystery writer who despises clichés, 41.** *Checks:* Clichés list.
-
-**W04 Debut novelist who studies voice, 28.** *Checks:* Voice and dialogue lessons.
+**F03 Geography & Staging Auditor.** Verifies movement, sightlines, distances, and entrances against established place canon. *Entry:* Series. *Checks:* Can the characters physically see, reach, or do what the scene describes?

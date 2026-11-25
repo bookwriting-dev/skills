@@ -3,7 +3,7 @@ name: fiction-audience
 description: "Define target reader age group, content boundaries, and structural norms. Use when user says 'define audience', 'who is this for', 'age group', 'target reader', 'content rating', or after running fiction-genre."
 metadata:
   author: Fiction Toolkit
-  version: "4.1.0"
+  version: "4.2.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -67,7 +67,7 @@ Field derivation:
 
 - **age_group**: Use the user's choice exactly. If "recommend", derive from genre/subgenre: explicit romance and dark adult content always maps to Adult.
 - **typical_reader_age**: Age range string matching the bracket.
-- **protagonist_ages**: Use `heroine` and `hero` as keys. Pull ages from `Wiki/Story/synopsis.md` if available; otherwise derive from genre conventions for the age bracket. If the story has a single protagonist, use the appropriate key only.
+- **protagonist_ages**: Map each lead character by role or name (e.g., `protagonist`, `co_lead`, or `heroine`/`hero` for romance). Pull ages from `Wiki/Story/synopsis.md` if available; otherwise derive from genre conventions for the age bracket.
 - **tone_variant**: 2 to 4 word descriptor. Derive from the genre file's tone_notes if available.
 - **content_boundaries**: Four categories: `violence`, `sexual_content`, `language`, `darkness`. Each gets a `level` (integer 1 to 5) and a `note` (20 words max describing how it functions in this specific story, not generic norms). Derive from the genre file's tropes and the story's stated tone.
 - **structural_norms**: `chapter_length_words` and `total_word_count` as [min, max] integer pairs. `pov_structure` from the synopsis POV field if available. `series_potential` from story context.
@@ -84,8 +84,8 @@ tone_variant: "Witty / Dark"
 # Audience Profile
 
 ## Protagonist Ages
-- **heroine:** 17
-- **hero:** 18
+- **protagonist:** 17
+- **co_lead (optional):** 18
 
 ## Content Boundaries
 - **violence:**

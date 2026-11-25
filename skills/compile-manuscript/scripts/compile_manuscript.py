@@ -127,7 +127,10 @@ def main():
         if not campaign['current']:
             warnings.append('campaign verification stale or incomplete: ' + campaign['path'])
     for cp in (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'):
-        if any(t['status'] != 'complete' for t in s.load(cp)['tasks']):
+        cdata = s.load(cp)
+        if cdata.get('sealed') or cdata.get('cancelled'):
+            continue
+        if any(t['status'] != 'complete' for t in cdata['tasks']):
             warnings.append('unfinished campaign: ' + str(cp.relative_to(root)))
     import_dir = f'Chapters/{a.book}'
     import_receipt = f'{import_dir}/.storycraft-import.json'

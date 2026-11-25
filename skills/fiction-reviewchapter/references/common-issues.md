@@ -8,17 +8,17 @@ Frequent problems and how to fix them.
 
 ### Missing Internal Monologue
 **Issue**: Narration is external observation without character perspective.
-**Fix**: Add character's reaction/opinion to key moments.
+**Fix**: Add the POV character's concrete perception filter or value judgment.
 **Example**:
 - Before: "The room was large and well-furnished."
-- After: "The room screamed money—the kind that wanted you to notice. She noticed."
+- After: "Silk curtains framed three tall windows, and even the chair legs were gilded—the kind of room meant to make a debtor ask for less than she was owed."
 
 ### Passive Protagonist
-**Issue**: Character observes and reacts but doesn't drive action.
-**Fix**: Give them a decision point. Even small choices show agency.
+**Issue**: Character observes and reacts but never makes a cost-bearing choice.
+**Fix**: Force a concrete decision or tactic under pressure—don't excuse passivity as "gathering information" when the scene stalls.
 **Example**:
 - Before: "The argument continued around her."
-- After: "She let them argue. Every word was information."
+- After: "She slid the ledger across the table and laid her key on top of it. Either they settled the split now, or she walked out with the manifest."
 
 ### Voice Drift
 **Issue**: Character voice changes mid-chapter without reason.
@@ -100,14 +100,14 @@ Frequent problems and how to fix them.
 
 ### AI-ism Phrases
 **Issue**: "Couldn't help but," "found herself," "a mix of"
-**Fix**: Search and replace. Rephrase directly.
+**Fix**: Search and replace. Rephrase directly as concrete perception or action.
 **Example**:
 - Before: "She couldn't help but notice his hands."
-- After: "His hands. She noticed."
+- After: "His knuckles were scraped raw across the second joint."
 
 ### Em Dash Abuse
-**Issue**: Em dashes in narrative prose.
-**Fix**: Replace with periods, commas, or colons.
+**Issue**: Em dashes overused in narrative prose when the book's `style-policy` restricts them.
+**Fix**: Replace excess narrative em dashes with periods, commas, or colons (respecting `lyrical-literary` / `historical-period` / `comic-ironic` presets).
 
 ### Rule of Threes
 **Issue**: "Cold, dark, and empty" patterns.

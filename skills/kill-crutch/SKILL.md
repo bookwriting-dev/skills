@@ -3,7 +3,7 @@ name: kill-crutch
 description: Hunt any crutch/filler word (including "soft", "flat", "just", "little", "really", "almost") across a chapter and remove bad uses while keeping literal and in-voice ones (deletion-first, parallel workers, edits in place). Use when user says "kill-crutch WORD", "kill-soft", "kill-flat", "kill the word X", or "strip filler word X".
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.3.1"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
@@ -27,8 +27,7 @@ Read [crutch.md](../kill-chapter/references/crutch.md) (and [soft.md](../kill-ch
    per group in parallel when the host supports workers; otherwise process the groups sequentially.
 3. **Each worker gets:** its exact file list; the WORD; the KEEP/FIX and deletion-first
    rules verbatim; instruction to read each file in 20-line chunks so it sees every hit in
-   full context; the global style rules (no em dashes except to interrupt dialogue; complete
-   grounded sentences; no metaphorical math/analytical language). It makes the minimal
+   full context; the resolved `style-policy` (`Wiki/Style/style_guide.md` / `review_guide.md` register preset and punctuation rules) and active scoped `editorial-memory` decisions (`Wiki/Style/editorial-decisions.json`) verbatim. It makes the minimal
    in-place edit, touching ONLY the target word, and reports a per-file verdict list: each
    hit tagged (KEPT-literal / KEPT-voice / DELETED / REWRITTEN) with before→after for changes.
 4. **Verify when all workers return** and consolidate. Search again for rewrite residue (workers

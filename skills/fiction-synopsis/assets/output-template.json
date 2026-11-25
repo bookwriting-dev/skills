@@ -5,13 +5,13 @@
   "reader_promise": "[1-2 spoiler-light sentences: what emotional and genre experience is promised, what tension sustains the read, and what satisfaction the ending owes]",
   "story_answer": "[1-2 spoiler-containing sentences: how the protagonist's final choice and the story outcome answer the central question]",
   "protagonists": {
-    "heroine": "[Name, age, origin, personality, what she wants, what she doesn't know she needs, what makes her compelling. 3-5 sentences in a distinctive register that already sounds like her.]",
-    "hero": "[Name, age, origin, personality, what he wants, what he doesn't know he needs, what makes him compelling. 3-5 sentences. The contrast with the heroine should be visible in the register.]"
+    "primary": "[Name, age, origin, personality, what they want, what they don't know they need, what makes them compelling. 3-5 sentences in a distinctive register that fits this character.]",
+    "secondary_or_foil": "[Optional second POV / deuteragonist / love interest: Name, age, origin, want, blind spot, and how their register contrasts with the primary lead.]"
   },
   "mechanism": {
-    "how_they_meet": "[The scene, the circumstances, what each notices first about the other]",
-    "how_the_deal_forms": "[What transaction or arrangement brings them into proximity. What each believes they are getting.]",
-    "his_real_reason": "[What he isn't admitting to himself about why he took her / made the deal / stayed]"
+    "inciting_collision": "[The scene or disruption that locks the protagonist into the central problem]",
+    "core_engine": "[What transaction, investigation, quest, alliance, or constraint sustains the story's forward pressure]",
+    "hidden_pressure": "[The concealed motive, flaw, or truth complicating what the characters think is happening]"
   },
   "act_1": {
     "shape": "[What happens across the first act: the game they play, what each is running, what is withheld, what the reader sees that the characters don't. 3-5 sentences.]",

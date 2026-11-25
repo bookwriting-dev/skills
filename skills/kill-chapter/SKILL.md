@@ -3,7 +3,7 @@ name: kill-chapter
 description: One-pass cleanup orchestrator running seven deletion-first kill passes consecutively in place (similes, person-who, opinion personification, "the whole of X", filler words, "soft", "flat") with parallel workers. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
 metadata:
   author: Fiction Toolkit
-  version: "2.3.1"
+  version: "2.3.2"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

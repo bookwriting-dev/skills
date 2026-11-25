@@ -3,7 +3,7 @@ name: nonfiction-clarity-edit
 description: "Default comprehensive non-fiction clarity pass: jargon density, abstraction ladder, cognitive load, and signposting, plus sentence-level mechanics. The non-fiction equivalent of fiction-full-editor. Uses paragraph- and section-aware contextual packets. Use when user says 'clarity edit', 'make it clearer', 'check readability', 'edit chapter', 'polish writing', or asks for general sentence-level editing of non-fiction."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status
   category: nonfiction-editing
   output-format: markdown
@@ -21,7 +21,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 
 1. Parse the request argument to determine the chapter.
 2. Search the project files for the chapter (e.g., `**/Chapter-5*`). If not found, ask.
-3. Search for the project's style guide (`**/style_guide.md`) and review guide (`**/review_guide.md`). Use whichever exist.
+3. Search for the project's style guide (`**/style_guide.md`), review guide (`**/review_guide.md`), and scoped `editorial-memory` records (`Wiki/Style/editorial-decisions.json`). Load applicable active editorial decisions before proposing repairs (preserving deliberate choices within their stated scope while keeping factual/correctness checks binding).
 4. Search for the chapter's plan (its `## Chapter NN` section in `Wiki/Outline/Book-N/plan.md` — the default home — or a per-chapter `**/Chapter_[NN]_Plan.md` file, or the project's planning convention from `nonfiction-chapter-plan`). The plan states the chapter's claim, evidence blocks, and required transitions — a clarity edit must not cut an argument move it mistakes for clutter, and must not pass prose that buries the plan's claim.
 5. Resolve chapter identity/path through the project resolver when present. Read the complete chapter and identify paragraph, section, quotation, and intentional-format boundaries. If style-guide authorities conflict, preserve both and report the conflict rather than choosing silently.
 
@@ -52,12 +52,13 @@ Launch all chunks in parallel when the host supports workers; otherwise process 
 >
 > 1. Read the style guide at: {style_guide_path} (if it exists)
 > 2. Read the chapter plan at: {plan_path} (if it exists) — note the chapter's claim, evidence blocks, and required transitions so argument moves are not flagged as clutter
-> 3. Read source revision {subject_sha256}. Target passage IDs and exact zero-based half-open Unicode code-point offsets: {target_passages}. Context before/after is read-only: {context_passages}.
-> 4. Check every target passage against ALL of the following criteria:
+> 3. Apply this scoped author-decision block verbatim, including intentional KEEP examples (do not generalize beyond scope): {applicable_editorial_decisions}
+> 4. Read source revision {subject_sha256}. Target passage IDs and exact zero-based half-open Unicode code-point offsets: {target_passages}. Context before/after is read-only: {context_passages}.
+> 5. Check every target passage against ALL of the following criteria:
 >
 > {paste the combined contents of all four criteria files}
 >
-> 5. Return each finding with exact quote, offsets into the exact delivered chapter string, target passage ID, reason, and smallest proposed replacement. Preserve claim strength, attribution, quantities, uncertainty, and evidence boundaries. Do not edit context-only text. Return NOTHING if no issues found:
+> 6. Return each finding with exact quote, offsets into the exact delivered chapter string, target passage ID, reason, and smallest proposed replacement. Preserve claim strength, attribution, quantities, uncertainty, and evidence boundaries. Do not edit context-only text. Return NOTHING if no issues found:
 >
 > ```
 > **Anchor:** `{start}:{end}` `exact quoted text` (passage `{passage_id}`)

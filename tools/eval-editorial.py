@@ -10,6 +10,31 @@ from editorial_study import (DEFAULT_CORPUS, author_judgments, blind_review, bli
                               run_study, spans)
 
 
+def tolerance_failures(by_variant_categories, tolerances):
+    """Evaluate category tolerances per variant so baseline failures never contaminate candidate scores."""
+    failures = []
+    for variant_name, cat_map in sorted(by_variant_categories.items()):
+        for cat_name, cat_stats in sorted(cat_map.items()):
+            cat_stats['localization_rate'] = cat_stats['detected'] / cat_stats['defects'] if cat_stats['defects'] else None
+            cat_stats['harmful_edit_rate'] = cat_stats['harmful'] / cat_stats['protected'] if cat_stats['protected'] else None
+            tol = tolerances.get(cat_name)
+            if not tol:
+                continue
+            max_harm = tol.get('max_harmful_edit_rate')
+            min_loc = tol.get('min_localization_rate')
+            if cat_stats['harmful_edit_rate'] is not None and max_harm is not None and cat_stats['harmful_edit_rate'] > max_harm:
+                failures.append({
+                    'variant': variant_name, 'category': cat_name, 'metric': 'harmful_edit_rate',
+                    'actual': cat_stats['harmful_edit_rate'], 'threshold': max_harm,
+                })
+            if cat_stats['localization_rate'] is not None and min_loc is not None and cat_stats['localization_rate'] < min_loc:
+                failures.append({
+                    'variant': variant_name, 'category': cat_name, 'metric': 'localization_rate',
+                    'actual': cat_stats['localization_rate'], 'threshold': min_loc,
+                })
+    return failures
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument('--packets', type=Path)
@@ -163,10 +188,12 @@ def main():
         # but cannot replace a terminal failure or improve the denominator.
         scoring_results = list(selected.values()) if strict else results
         for r in scoring_results:
+            v_label = variant_labels.get(r.get('variant', 'diagnostic'), r.get('variant', 'diagnostic'))
             variant = variant_stats.setdefault(r.get('variant', 'diagnostic'), {
                 'scored_outputs': 0, 'failed_runs': 0, 'defects': 0, 'defects_caught': 0,
                 'protected_spans': 0, 'protected_spans_targeted': 0,
                 'author_scores': {}, 'author_reviewed_repairs': 0, 'fixes_kept': 0,
+                'categories': {},
             })
             case_id = r.get('id') if not strict else opaque_to_case.get(r.get('case_id'))
             if strict and case_id not in by_id:
@@ -188,9 +215,15 @@ def main():
                 c['category'],
                 {'cases': 0, 'findings': 0, 'protected': 0, 'harmful': 0, 'defects': 0, 'detected': 0},
             )
-            category['cases'] += 1; category['findings'] += len(findings)
-            category['protected'] += int(bool(c['protected_spans']))
-            category['defects'] += int(bool(c['defect_spans']))
+            v_cat = variant['categories'].setdefault(
+                c['category'],
+                {'cases': 0, 'findings': 0, 'protected': 0, 'harmful': 0, 'defects': 0, 'detected': 0},
+            )
+            for bucket in (category, v_cat):
+                bucket['cases'] += 1
+                bucket['findings'] += len(findings)
+                bucket['protected'] += int(bool(c['protected_spans']))
+                bucket['defects'] += int(bool(c['defect_spans']))
             stats['findings'] += len(findings)
             valid = []
             for f in findings:
@@ -215,12 +248,15 @@ def main():
                 any(span[0] < end and start < span[1] and finding.get('replacement') != finding['quote']
                     for finding, span in valid) for start, end in protected_ranges)
             localized = [(f, span) for f, span in valid if any(span[0] < end and start < span[1] for start, end in defect_ranges)]
-            protected_hits = [(f, span) for f, span in valid if any(span[0] < end and start < span[1] for start, end in protected_ranges)]
+            protected_hits = [(f, span) for f, span in valid
+                              if f.get('replacement') != f.get('quote')
+                              and any(span[0] < end and start < span[1] for start, end in protected_ranges)]
             stats['localized_findings'] += len(localized)
             stats['detected'] += bool(localized)
             stats['harmful'] += bool(protected_hits)
-            category['detected'] += int(bool(localized))
-            category['harmful'] += int(bool(protected_hits))
+            for bucket in (category, v_cat):
+                bucket['detected'] += int(bool(localized))
+                bucket['harmful'] += int(bool(protected_hits))
         human_judgments = data.get('human_judgments', [])
         if not isinstance(human_judgments, list):
             coverage['invalid'].append({'reason': 'human_judgments must be an array'})
@@ -328,29 +364,15 @@ def main():
         stats['author_unscored'] = stats['author_judgments'] - stats['author_scored']
         author_status = ('recorded' if complete_author_coverage else
                          'pending' if not stats['author_scored'] else 'partial')
-        tolerance_failures = []
         for cat_name, cat_stats in sorted(categories.items()):
             cat_stats['localization_rate'] = cat_stats['detected'] / cat_stats['defects'] if cat_stats['defects'] else None
             cat_stats['harmful_edit_rate'] = cat_stats['harmful'] / cat_stats['protected'] if cat_stats['protected'] else None
-            tol = tolerances.get(cat_name)
-            if not tol:
-                continue
-            max_harm = tol.get('max_harmful_edit_rate')
-            min_loc = tol.get('min_localization_rate')
-            if cat_stats['harmful_edit_rate'] is not None and max_harm is not None and cat_stats['harmful_edit_rate'] > max_harm:
-                tolerance_failures.append({
-                    'category': cat_name, 'metric': 'harmful_edit_rate',
-                    'actual': cat_stats['harmful_edit_rate'], 'threshold': max_harm,
-                })
-            if cat_stats['localization_rate'] is not None and min_loc is not None and cat_stats['localization_rate'] < min_loc:
-                tolerance_failures.append({
-                    'category': cat_name, 'metric': 'localization_rate',
-                    'actual': cat_stats['localization_rate'], 'threshold': min_loc,
-                })
+        by_variant = {variant_labels.get(label, label): values for label, values in variant_stats.items()}
+        t_failures = tolerance_failures({label: values['categories'] for label, values in by_variant.items()}, tolerances)
         print(json.dumps(dict(schema_version=1,coverage=coverage,counts=stats,categories=categories,
-                              by_variant={variant_labels.get(label, label): values for label, values in variant_stats.items()},
+                              by_variant=by_variant,
                               category_tolerances=tolerances,
-                              tolerance_failures=tolerance_failures,
+                              tolerance_failures=t_failures,
                               localization_rate=stats['detected']/stats['defects'] if stats['defects'] else None,
                               harmful_edit_rate=stats['harmful']/stats['protected'] if stats['protected'] else None,
                               author_acceptance=stats['author_accepted']/stats['author_scored'] if stats['author_scored'] else None,

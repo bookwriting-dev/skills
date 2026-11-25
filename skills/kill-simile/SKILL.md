@@ -3,7 +3,7 @@ name: kill-simile
 description: Hunt explain-it similes and meta-comparison crutches ("the way", "a way", "the kind", "a kind", "as if", "like") across a chapter and reword or cut them so the reader infers instead of being told (parallel focused workers, edits in place). Use when user says "kill-simile", "kill similes", or "cut the explain-it comparisons".
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.3.1"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
@@ -31,9 +31,9 @@ Resolve approved examples and limits with `project_state.py --root ROOT --book B
    skim. If spread across many files, split into up to 6 roughly equal groups and use one
    focused worker per group in parallel when the host supports workers; otherwise process the groups sequentially.
 3. **Each worker gets:** its exact file list; the FIX/KEEP rules verbatim; instruction to
-   read each file in 20-line chunks so it judges every hit in full context; the global style
-   rules (no em dashes except to interrupt dialogue; complete grounded sentences; no
-   metaphorical math/analytical language). It makes the minimal in-place edit (prefer cutting
+   read each file in 20-line chunks so it judges every hit in full context; the resolved
+   `style-policy` (`max_per_chapter`, `keep_examples`, register preset, and punctuation rules)
+   and active scoped `editorial-memory` decisions (`Wiki/Style/editorial-decisions.json`) verbatim. It makes the minimal in-place edit (prefer cutting
    the comparison to rewriting the whole sentence) and reports a per-file verdict list: each
    hit tagged (KEPT-fresh / KEPT-voice / KEPT-literal / CUT / REWORDED) with before→after for
    changes.

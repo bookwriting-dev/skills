@@ -3,7 +3,7 @@ name: kill-passive
 description: Hunt avoidable passive voice across a chapter and convert to active voice for clarity and authority (parallel focused workers, edits in place). Targets "is/are/was/were [past participle] by", "has been [past participle]", and "gets [past participle]". Use when user says "kill-passive", "kill passive voice", "make it active", or "convert passive to active".
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   bundled-dependencies: book-status
   category: nonfiction-editing
 ---
@@ -65,8 +65,8 @@ the actor is genuinely unavailable, KEEP and note rather than invent a fake acto
 3. **Each worker gets:** its exact file list; the KEEP/FIX and active-voice rules
    verbatim (from `references/passive.md`); instruction to read a full sentence of
    context around every hit (passive detection needs whole-sentence scope); the
-   global style rules (no em dashes except to interrupt dialogue; complete grounded
-   sentences; no metaphorical math/analytical language). It converts each FIX hit to
+   book's `style_guide.md` / `review_guide.md` rules and active scoped `editorial-memory`
+   decisions (`Wiki/Style/editorial-decisions.json`) verbatim. It converts each FIX hit to
    active in place, touching ONLY the construction, and reports a per-file verdict
    list: each hit tagged (KEPT-unknown / KEPT-field / KEPT-voice / REWRITTEN-active /
    REWRITTEN-noun-voice) with before→after for changes.

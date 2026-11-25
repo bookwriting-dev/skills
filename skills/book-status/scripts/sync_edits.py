@@ -6,7 +6,10 @@ import re
 import subprocess
 
 import editions
-from state_core import digest, document, ledger_store_module, path_at, project_manifest_module
+from state_core import (
+    continuity_module, digest, document, ledger_store_module, load, path_at,
+    project_manifest_module,
+)
 from state_packets import prose_lines
 from state_reviews import chapter_report_paths, freshness
 
@@ -53,7 +56,7 @@ def prose_lines_from_text(text):
     return lines
 
 
-def _resolve_baseline(root, book_label, chapter_record, baseline_arg):
+def _resolve_baseline(root, book_label, chapter_record, baseline_arg, current_text=None):
     if baseline_arg:
         bp = Path(baseline_arg)
         if not bp.is_absolute():
@@ -62,21 +65,41 @@ def _resolve_baseline(root, book_label, chapter_record, baseline_arg):
             raise ValueError('baseline file not found: ' + str(baseline_arg))
         return bp.read_text(encoding='utf-8'), f'file:{baseline_arg}'
 
-    # Check latest frozen beta edition
-    beta_ed = editions.current(root, book_label, allow_empty=True)
-    if beta_ed:
-        unit = next((u for u in beta_ed.get('units', [])
-                     if u.get('source_path') == chapter_record['path'] or u.get('chapter_id') == chapter_record['id']), None)
-        if unit and unit.get('text'):
-            return unit['text'], f"edition:{beta_ed.get('export_id', 'beta')}"
+    # Check latest frozen beta edition archive on disk
+    beta_manifest = path_at(root, f'Chapters/{book_label}/export/beta/export-manifest.json')
+    if beta_manifest.is_file():
+        try:
+            export_id = (load(beta_manifest).get('beta_feedback') or {}).get('export_id')
+            if export_id:
+                beta_ed = editions.open_beta(root, book_label, export_id)
+                sec = next((s for s in beta_ed.get('sections', [])
+                            if s.get('path') == chapter_record['path'] or s.get('chapter_id') == chapter_record['id']), None)
+                if sec and sec.get('reader_text') is not None:
+                    return sec['reader_text'], f'edition:{export_id}'
+        except (ValueError, OSError):
+            pass
 
-    # Check git HEAD for this chapter
+    # Check git HEAD (or parent commit if the author already committed their edit)
     if (root / '.git').exists():
         proc = subprocess.run(
             ['git', 'show', f"HEAD:{chapter_record['path']}"],
             cwd=root, capture_output=True, text=True, check=False,
         )
         if proc.returncode == 0:
+            if current_text is None or proc.stdout != current_text:
+                return proc.stdout, 'git:HEAD'
+            log = subprocess.run(
+                ['git', 'log', '-n', '2', '--format=%H', '--', chapter_record['path']],
+                cwd=root, capture_output=True, text=True, check=False,
+            )
+            commits = [line.strip() for line in log.stdout.splitlines() if line.strip()]
+            if len(commits) >= 2:
+                prev = subprocess.run(
+                    ['git', 'show', f"{commits[1]}:{chapter_record['path']}"],
+                    cwd=root, capture_output=True, text=True, check=False,
+                )
+                if prev.returncode == 0:
+                    return prev.stdout, f'git:{commits[1][:7]}'
             return proc.stdout, 'git:HEAD'
 
     return None, 'none'
@@ -90,7 +113,7 @@ def sync_edits(root, book_id, chapter_selector, *, baseline=None):
     if not ch_path.is_file():
         raise ValueError('chapter file does not exist: ' + chapter_record['path'])
     current_text = ch_path.read_text(encoding='utf-8')
-    baseline_text, baseline_source = _resolve_baseline(root, book_label, chapter_record, baseline)
+    baseline_text, baseline_source = _resolve_baseline(root, book_label, chapter_record, baseline, current_text)
 
     changed_paragraphs = []
     candidates = []
@@ -145,7 +168,8 @@ def sync_edits(root, book_id, chapter_selector, *, baseline=None):
 
     # Continuity claims whose quote no longer appears
     affected_continuity = []
-    cont_file = path_at(root, f'_Edits/{book_label}/continuity/{chapter_record["id"]}.json')
+    cont_name = continuity_module().filename(chapter_record['id'])
+    cont_file = path_at(root, f'_Edits/{book_label}/continuity/{cont_name}')
     if cont_file.is_file():
         cdata = json.loads(cont_file.read_text(encoding='utf-8'))
         for claim in cdata.get('claims', []):

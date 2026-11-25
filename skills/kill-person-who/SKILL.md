@@ -3,7 +3,7 @@ name: kill-person-who
 description: Hunt the labeled subtext tic "the [quality] of a [person] who [clause]" across a chapter and rewrite it into concrete action, dialogue, or detail (deletion-first, parallel workers, edits in place). Use when user says "kill-person-who", "kill the 'of a man/woman who' tic", or flags repeated person-who phrasing.
 metadata:
   author: Fiction Toolkit
-  version: "1.2.1"
+  version: "1.2.2"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
@@ -32,8 +32,8 @@ Read [person-who.md](../kill-chapter/references/person-who.md) before triaging o
 3. **Each worker gets:** its exact file list; the pattern description, KEEP/FIX rules,
    and confirmed examples verbatim; instruction to read each file in full scene-length
    chunks (not narrow windows — needs surrounding context to invent a concrete beat); the
-   global style rules (no em dashes except to interrupt dialogue; complete grounded
-   sentences; no metaphorical math/analytical language; POV-appropriate voice). It makes
+   resolved `style-policy` (register preset, punctuation rules, POV voice) and active scoped
+   `editorial-memory` decisions (`Wiki/Style/editorial-decisions.json`) verbatim. It makes
    the minimal in-place edit per hit and reports a per-file verdict list: each hit tagged
    (KEPT-isolated / REWRITTEN) with before→after.
 4. **Verify when all workers return:** search again for the pattern across the same files — should

@@ -44,6 +44,8 @@ MARKUP = re.compile(
     r'|^[ \t]*>[ \t]*\[![\w-]+\][^\n]*(?:\n[ \t]*>[^\n]*)*'
     r'|^[ \t]*(?:(?:\*\*)?POV(?:\*\*)?:|[-*][ \t]+\[[ x]\])[^\n]*', re.M | re.S | re.I)
 
+DIALOGUE_SPAN = re.compile(r'["“][^"”\n]*["”]')
+
 
 def number_value(words):
     return sum(VALUES[word] for word in re.findall(r'[a-z]+', words.lower()))
@@ -67,8 +69,10 @@ def clock_digits(match):
     return f'{hour}:{minute:02d}{suffix}'
 
 
-def scan(text, modern):
+def scan(text, modern, *, clock_mode='digits', skip_dialogue=False):
     visible = MARKUP.sub(lambda match: re.sub(r'[^\r\n]', '\x00', match[0]), text)
+    if skip_dialogue:
+        visible = DIALOGUE_SPAN.sub(lambda match: re.sub(r'[^\r\n]', '\x00', match[0]), visible)
     newlines = [match.start() for match in re.finditer('\n', text)]
     candidates = []
 
@@ -81,15 +85,16 @@ def scan(text, modern):
     if modern:
         for match in DICTION.finditer(visible):
             add(match, 'contemporary-diction')
-    for match in CLOCK.finditer(visible):
-        if match['minute'] and COUNT_UNIT.match(visible, match.end()):
-            continue
-        # A year ("nineteen thirty") or count ("take two at night") can resemble a time.
-        prefix = visible[max(0, match.start() - 40):match.start()]
-        needs_cue = match['daypart'] or (match['hour'] and number_value(match['hour']) > 12)
-        if needs_cue and not CLOCK_CUE.search(prefix):
-            continue
-        add(match, 'clock-time', digits=clock_digits(match))
+    if clock_mode == 'digits':
+        for match in CLOCK.finditer(visible):
+            if match['minute'] and COUNT_UNIT.match(visible, match.end()):
+                continue
+            # A year ("nineteen thirty") or count ("take two at night") can resemble a time.
+            prefix = visible[max(0, match.start() - 40):match.start()]
+            needs_cue = match['daypart'] or (match['hour'] and number_value(match['hour']) > 12)
+            if needs_cue and not CLOCK_CUE.search(prefix):
+                continue
+            add(match, 'clock-time', digits=clock_digits(match))
     return sorted(candidates, key=lambda item: (item['line'], item['column']))
 
 
@@ -97,6 +102,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('chapters', nargs='+', type=Path)
     parser.add_argument('--modern', action='store_true', help='also check contemporary diction')
+    parser.add_argument('--clock-mode', choices=('digits', 'words'), default='digits',
+                        help='digits flags spelled-out clock times; words preserves spelled-out times')
+    parser.add_argument('--skip-dialogue', action='store_true',
+                        help='mask quoted dialogue spans so spoken diction and clock phrasing are preserved')
     args = parser.parse_args()
     results = []
     for path in args.chapters:
@@ -104,7 +113,8 @@ def main():
             text = path.read_bytes().decode('utf-8')
         except (OSError, UnicodeError) as exc:
             parser.exit(2, f'{path}: {exc}\n')
-        results.append({'path': str(path), 'candidates': scan(text, args.modern)})
+        results.append({'path': str(path), 'candidates': scan(
+            text, args.modern, clock_mode=args.clock_mode, skip_dialogue=args.skip_dialogue)})
     print(json.dumps(results, ensure_ascii=False, indent=2))
 
 

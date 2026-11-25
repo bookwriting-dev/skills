@@ -34,74 +34,11 @@ Read ALL of the following from this skill's `references/` folder:
 
 ## Step 3: Generate the Writing Guide
 
-**This guide is for WRITING. Its only job is to make the prose feel alive.**
+**This guide is for WRITING. Its only job is to keep the prose alive within the `SKILL.md` schema (`## Style` paragraph + YAML POV block).** Do NOT duplicate full character profiles (`Wiki/Characters/*.md`) or per-POV prompts (`Wiki/Style/voice_prompt*.md`) here; distill the baseline narrative voice into the `SKILL.md` format using the craft principles below:
 
-**Open with a bold priority statement specific to this story's protagonist and voice.**
-
-Include these sections, all adapted to this specific story:
-
-### 1. Voice & Tone
-- Narrative POV and tense
-- Core rule — one sentence defining how prose should feel
-- The protagonist's internal voice (what colors all descriptions)
-- Overall tone and how it shifts across the story
-- Reader relationship
-- **Voice firewall** — a story-specific list of language modes the prose must NOT fall into (for example: analytical, robotic, clinical, therapist-like, engineer-like, outline-like, essay-like, lore-dump-like). Include what to write instead: body, action, concrete objects, sensory pressure, and blunt internal thought.
-- Use `voice-and-pov.md` guidance
-
-### 2. POV Deep Dive
-- What the protagonist notices and why (filtered through their worldview)
-- Their internal voice under stress vs. calm
-- Example internal monologue (write 2-3 actual example sentences)
-- Age-appropriate observation patterns
-- The "Harry Potter test" — what can and cannot be described
-- Use `character-lens-filtering.md`, `age-appropriate-voice.md`, `pov-integrity.md`
-
-### 3. Character Voice References
-For each named character in the synopsis (protagonist + key cast), provide:
-- Speech pattern (cadence, vocabulary level, formality)
-- Verbal signatures (specific phrases, tics, pet words)
-- Physical tells (what they do when emotional)
-- Example dialogue (write 2-3 actual example lines)
-
-Use `voice-inheritance.md` for the three-layer model.
-
-### 4. Sentence Structure
-- 5-6 named sentence patterns with examples written for THIS story
-- When to use each (action vs. reflection vs. description)
-- What to vary to keep prose kinetic
-- Use `sentence-structure.md`
-
-### 5. Show, Don't Tell
-- How this protagonist expresses emotion (through their specific worldview)
-- Sensory details this character notices (2-3 concrete categories)
-- Example flat sentence → alive sentence (write actual examples for this story)
-
-### 6. Dialogue Guidelines
-- Attribution rules (said/asked + action beats; what's banned)
-- How to write subtext for this story's key relationships
-- Dialect or regional speech markers if applicable
-
-### 7. Genre-Specific Scene Guidance
-Include only what applies to this synopsis:
-- Use `genre-specific-scenes.md` for action/horror/comedy beats
-- Use `intimate-scenes.md` for romance/erotica if applicable (heat level, internal monologue approach, what makes it authentic to these characters)
-
-### 8. Pacing by Story Section
-- How prose rhythm should change across the story arc
-- Use `pacing-by-section.md`
-
-### 9. Quick Writing Reminders
-A single DO table — the 8-10 most important things to remember while writing THIS story.
-
-### 10. Thematic Voice
-
-**Include this section only if theme data was provided.** If no theme data is available, omit this section entirely.
-
-- **The Question This Prose Keeps Asking**: one sentence — the thematic question rendered as a writing instruction. Frame it as pressure the prose creates, not a question asked aloud. Example form: "Every scene should create pressure around whether [thematic question rendered as dramatic condition]."
-- **Motif Handling**: for each motif in the motif register, one sentence on how it should appear in prose — what physical or sensory form it takes, what register it belongs to, and how its presence should escalate as the story progresses toward the climax transformation.
-- **What This Story Must Never Say Outright**: the thematic argument rendered as a prohibition. State the argument once, then forbid it from appearing as dialogue, narration, or internal monologue. The prose must embody it; it may never declare it.
-- **Thematic Don'ts as Prose Rules**: take each item from the thematic prohibitions and restate it as a concrete, actionable writing instruction. Each entry should say what the prose must not do and what it should do instead.
+1. **Voice & Tone + Register Preset** (`tight-thriller`, `lyrical-literary`, `historical-period`, `comic-ironic`, or `omniscient-classic`): narrative POV/tense, core rule, worldview lens, and **Voice firewall** (language modes forbidden for this book, such as clinical, analytical, or outline-speak).
+2. **POV, Character Lens & Sentence Structure**: use `voice-and-pov.md`, `character-lens-filtering.md`, `age-appropriate-voice.md`, `pov-integrity.md`, `sentence-structure.md`, and `voice-inheritance.md` (character voices live in `Wiki/Characters/*.md` and `voice_prompt*.md`, never in `style_guide.md`).
+3. **Genre, Pacing & Theme Calibration**: use `genre-specific-scenes.md`, `intimate-scenes.md`, and `pacing-by-section.md`, plus active motifs and thematic prohibitions if `theme.md` was provided.
 
 ---
 

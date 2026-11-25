@@ -26,7 +26,7 @@ from state_packets import (
     scene_knowledge, style_policy,
 )
 from state_reviews import (
-    chapter_report_paths, dashboard, freshness, operation_profile_blockers,
+    chapter_report_paths, current_inputs, dashboard, freshness, operation_profile_blockers,
     pipeline_step_reusable, readiness, record_disposition, review_begin,
     review_finish,
 )
@@ -121,7 +121,7 @@ def main():
         result = spec
     elif a.command == 'snapshot':
         spec = load(Path(a.spec))
-        if not spec.get('inputs') or evidence(root, [e['path'] for e in spec['inputs']]) != spec['inputs']:
+        if not spec.get('inputs') or current_inputs(root, spec['inputs']) != spec['inputs']:
             raise ValueError('review inputs changed or pre-review evidence missing')
         report = path_at(root, spec['report'])
         if not report.is_file() or spec['verdict'] not in ('PASS', 'WARN', 'FAIL'):

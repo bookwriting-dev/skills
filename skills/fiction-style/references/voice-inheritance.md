@@ -26,7 +26,7 @@ Unique traits of the POV character that color perception.
 - Vocabulary specific to them
 - Emotional reactions
 
-**Defined in**: `characters.csv` or character profiles
+**Defined in**: `Wiki/Characters/<Name>.md` and `Wiki/Style/voice_prompt_<Name>.md`
 
 ### Layer 3: Combined Voice (The Prose)
 Where Layers 1 and 2 merge on the page.
@@ -63,25 +63,16 @@ The style guide should NOT include:
 - Backstory that shapes perception
 - Relationship dynamics
 
-**Reference these**: "See `characters.csv` for individual character voice patterns."
+**Reference these**: "See `Wiki/Characters/<Name>.md` and `Wiki/Style/voice_prompt_<Name>.md` for individual character voice patterns."
 
 ---
 
 ## How to Reference Character Voice
 
-In the generated style guide, include a section like:
+In `Wiki/Style/style_guide.md`, keep character voices out of the baseline style paragraph and point to the Wiki profiles instead:
 
 ```markdown
-## Character Voice Integration
-
-The narrative voice flexes around the POV character's personality.
-
-**For POV character voice details, see `characters.csv`:**
-- Personality column: What they're like
-- Dialogue Style column: How they speak
-- Backstory column: What shapes their worldview
-
-DO NOT duplicate personality information here.
+The narrative voice flexes around each POV character's `Wiki/Characters/<Name>.md` (`personality`, `dialogue_style`, `internal_monologue`) and `Wiki/Style/voice_prompt_<Name>.md`.
 ```
 
 ---
@@ -116,14 +107,14 @@ When writing prose:
 
 ### Example Workflow
 
-**Baseline rule** (from style guide): No em dashes in narrative. Vary sentence structure.
+**Baseline rule** (from `Wiki/Style/style_guide.md`): Keep punctuation aligned with the active register preset and vary sentence structure.
 
-**Character trait** (from characters.csv): Rowan - protective, sarcastic, 20 years old, notices tactical details first.
+**Character trait** (from `Wiki/Characters/<character>.md`): Tactical, sarcastic 20-year-old protagonist who notices exits and practical risks first.
 
 **Combined prose**:
-> The building was freezing. Rowan wondered if the IFC's budget didn't cover heat, or if Director Vale was just used to Boston winters. He counted exits while she talked. Two doors, one window. The window was painted shut.
+> The building was freezing. Kieran wondered if the bureau's budget didn't cover heat, or if Director Vale was just used to Boston winters. He counted exits while she talked. Two doors, one window. The window was painted shut.
 
-Baseline voice (no em dashes, varied sentences) + Character voice (notices cold, sarcastic thought, counts exits).
+Baseline voice (varied sentences, matching register punctuation) + Character voice (notices cold, dry interiority, counts exits).
 
 ---
 

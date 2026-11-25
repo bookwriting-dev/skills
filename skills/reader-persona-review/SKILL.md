@@ -3,7 +3,7 @@ name: reader-persona-review
 description: "Run qualitative, persona-driven reader critiques on drafted chapters or full book exports across diverse archetypes, panel presets, and criteria, generating structured critique reports and panel synthesis. Use when the user asks for 'reader persona review', 'persona feedback', 'reader test', 'panel review', 'what would readers think', 'check pacing with personas', or 'anti-AI audit with reader personas'."
 metadata:
   author: Storycraft Skills
-  version: "1.1.0"
+  version: "1.2.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -19,7 +19,7 @@ Not `review-panel`: that skill is the heavier alternative — it builds personas
 1. **Strict Information Boundary:**
    - Reader/critic personas receive *only* reader-facing text: `Chapters/Book-N/Chapter-NNN.md` or exported `manuscript-combined.md`, plus title/blurb if testing packaging.
    - Reader personas **never receive** canon bibles, scene briefs, secret mission locks, or story outlines.
-   - Only Craft & Continuity / Industry personas (Group D, E, F) may inspect bibles and world rules.
+   - Only Continuity, Logic & Industry personas (Groups `K`, `F`, `I`) may inspect bibles and world rules.
 2. **Authentic Voice & Discipline:**
    - The review is voiced in the persona's authentic perspective, vocabulary, tolerance level, and biases.
    - Hostile or critical personas remain rigorous and fair, not cartoonish strawmen.
@@ -36,9 +36,9 @@ Not `review-panel`: that skill is the heavier alternative — it builds personas
 Load personas from `references/personas.md` or project-local `docs/reader-personas/personas.md`.
 
 - **Quick Pulse (8 personas):** Rapid scan across core archetypes.
-  - `R01` (Avid Cozy/Trad Mystery Reader)
+  - `R01` (Core Genre Devotee)
   - `R05` (Pacing & Momentum Skeptic)
-  - `M01` (Plot Fairness & Puzzle Tracker)
+  - `M01` (Plot Fairness & Setup/Payoff Tracker)
   - `M02` (Character Arc & Emotional Resonance Seeker)
   - `A01` (Cadence & Machine-Tells Auditor)
   - `L01` (Prose Stylist / Literary Sensitivity)

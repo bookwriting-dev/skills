@@ -1,5 +1,6 @@
 {
   "title": "Review Guide: [Story Title]",
+  "register_preset": "tight-thriller | lyrical-literary | historical-period | comic-ironic | omniscient-classic",
   "genre": "Genre and subgenre",
   "pov": "POV mode and character names",
   "tone": "Tone descriptor",

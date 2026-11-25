@@ -3,7 +3,7 @@ name: coldread
 description: Run a blind, read-only assessment of whether one complete chapter or section (fiction or non-fiction) delivers a claimed voice, viewpoint, narrator identity, age register, or register of authority on the page. Use for cold reads, blind reads, POV checks, or "does this sound like this character?" Do not use for rule-based style audits or automatic revision.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -17,7 +17,7 @@ The value of this skill is isolation. If the reviewer receives the intended answ
 ## Establish the test
 
 1. Resolve one exact manuscript file and one stable snapshot. If multiple sources or versions plausibly match, stop and resolve source authority before reading.
-2. Establish one concise claim to test, such as `close third, eighteen-year-old Rowan` or `first-person Mara, sardonic but frightened`.
+2. Establish one concise claim to test, such as `close third, eighteen-year-old apprentice` or `first-person narrator, sardonic but frightened`.
 3. Use the user's wording when they provide the claim. Otherwise, the coordinating agent may retrieve the minimum claim from the book's governing instructions or approved profile before creating the isolated review.
 4. Do not pass the source of the claim, style rules, character history, prior verdicts, suspected lines, or desired outcome to the cold reader.
 
@@ -66,8 +66,6 @@ Treat an age-register judgment as a prose judgment, not a demographic stereotype
 - If a flagged line came from an earlier agent revision and that provenance is known, state it plainly without using authorship as a defense.
 - The test is most useful on a complete, stable chapter or scene. If run earlier, identify the snapshot as provisional.
 
-## Current evidence and author decisions
+## Current evidence and isolation boundary
 
-For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture inputs BEFORE review, then record report metadata only if those inputs still match. Include every consumed chapter, plan, canon/style reference, relevant ledger, applicable editorial decision file (including its absence), and this skill's rules. Use stable finding IDs with exact quotes and blocking/nonblocking classification. No sidecar is required for a conversational verdict.
-
-Consult applicable active editorial-memory decisions before proposing style repairs. Include the applicable scoped decision block verbatim in each focused worker brief; coordinator awareness alone is insufficient. Preserve deliberate choices within their stated scope; correctness checks remain binding. Do not generalize a local rejection. For in-place editing, record each applied finding's source quote and before/after hashes in the disposition ledger; review the resulting chapter with fresh evidence. A pre-edit PASS cannot establish post-edit readiness. Diagnostic-only skills still never edit source prose. Blind reader passes receive only reader-facing text; preference/canon checks happen in a separate coordinator pass.
+For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture ONLY the chapter text being tested (and optional permitted reader-facing packaging) in the prepared inputs BEFORE reading, then record report metadata if those inputs still match. Do NOT preload `Wiki/` canon, outlines, style/review guides, ledgers, or `editorial-decisions.json` into a blind cold read — rule/preference reconciliation belongs in the separate coordinator pass afterward.

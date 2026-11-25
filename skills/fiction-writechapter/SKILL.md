@@ -3,8 +3,8 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.9.0"
-  bundled-dependencies: book-status
+  version: "4.10.0"
+  bundled-dependencies: book-status, fiction-dialogue
   category: fiction-writing
   output-format: markdown
 ---
@@ -43,7 +43,7 @@ python3 .agents/skills/book-status/scripts/project_state.py \
 
 When an authorized draft target is new, register it with `project_state.py --root ROOT --book Book-N register-chapters --spec SPEC.json`. Reuse its chapter ID when it already appears in the plan. Assemble the packet again after registration. Custom projects supply an explicit chapter entry with its authorized destination.
 
-The packet resolves the target scene plan, optional `Chapter_NN_Psych.md`, the effective style-authority path (or an explicit conflict/missing status), POV-specific voice prompts, chapter-sliced relationship state, immediate continuity tail, knowledge state, active scoped decisions, and the rolling cooling list. If style authority is `CONFLICT`, stop and report both paths; do not draft against a silently selected or merged guide.
+The packet resolves the target scene plan, full `Chapter_NN_Psych.md` interior map (`start_state`, `beat_interior_costs`, `end_state`, `bottom_line`, `what_they_wont_say`, `show_dont_tell_gaps`), active `theme.md` motifs, current-act `surprise-ledger.md` commitments, the effective style-authority path and `style_policy` (`register_preset`, `clock_mode`, `simile`, `punctuation`), POV-specific voice prompts and `pov_lenses`, chapter-sliced relationship state, immediate continuity tail, knowledge state, active scoped decisions, and the rolling cooling list. If style authority is `CONFLICT`, stop and report both paths; do not draft against a silently selected or merged guide.
 
 Use the packet's `chapter_format` for the heading label, source scene breaks, and POV marks. Check `continuity.claims` for the scene plan's referenced keys. Query other keys or find the earlier passage directly when a clock, object, designation, or inventory count matters and the packet has incomplete coverage. See [book continuity review](../book-status/references/continuity-review.md).
 
@@ -67,18 +67,18 @@ Write the assigned chapter as finished prose.
 
 Read, in this order:
 
-1. The relevant scene entry from the compiled draft packet, plus the applicable shared continuity tail, relationship checkpoints, interior beats, and cooling list. Use that entry's voice prompts, knowledge state, and editorial decisions.
+1. The relevant scene entry from the compiled draft packet, plus the applicable shared continuity tail, relationship checkpoints, full `psych` block (`bottom_line`, `start_state`, `beat_interior_costs`, `end_state`, `what_they_wont_say`, `show_dont_tell_gaps`), `theme` motifs, `surprise_ledger` commitments, `style_policy`, `pov_lenses`, knowledge state, editorial decisions, and cooling list.
 2. Relevant current-status and continuity sections from `active-context.md`.
-3. The target scene plan or beats.
+3. The target scene plan or beats. When a scene involves substantial conversation, also apply [dialogue preflight](../fiction-dialogue/references/preflight.md) (unequal speaker stakes, subtext, avoiding interview Q&A chains).
 4. The target outline entry only when the scene plan does not fully state the required outcome.
 5. The style guide and every POV-matched voice prompt (`voice_prompt_<POV>.md` and/or `voice_prompt.md`) listed in the draft packet. Treat the stricter book-specific rule as binding.
-6. The optional psych document for full interior movement, without copying its analytical language.
+6. The optional psych document for any extra scene nuance not captured in `packet.psych`, without copying its analytical language.
 
-Do not load the entire synopsis, theme, review guide, character directory, or world directory by default. Retrieve additional Wiki context only when a scene beat, continuity question, or proper noun requires it.
+Do not load the entire synopsis, review guide, character directory, or world directory by default. Retrieve additional Wiki context only when a scene beat, continuity question, or proper noun requires it.
 
 Before drafting, extract a compact working brief:
 
-- POV, tense, and voice constraints (including cross-POV contrast rules when switching POVs across scenes). Apply [diction and clock time](../book-status/references/diction-and-time.md) to narration and dialogue, including when an older guide is silent.
+- POV, tense, `style_policy` (`register_preset` + `clock_mode`), and voice constraints (including `pov_lenses` perceptual obsessions and cross-POV contrast rules when switching POVs across scenes). Apply [diction and clock time](../book-status/references/diction-and-time.md) honoring the book's `clock_mode` (`digits` vs `words`) and dialogue voice;
 - opening physical and emotional state, plus the previous chapter's closing seam;
 - active `relationship_checkpoints` for this chapter (do not revert to Chapter 1 dynamics or jump ahead to a future checkpoint);
 - required scene outcomes, micro-friction beats (at least one failed tactic, deflection, or raised cost before each scene's turn), and ending movement;

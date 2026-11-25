@@ -3,7 +3,7 @@ name: kill-hedge
 description: Hunt hedge words and qualifiers that weaken claims (somewhat, arguably, essentially, basically, sort of, rather, quite, relatively, etc.) and cut or commit them in place (deletion-first, parallel workers). Use when user says "kill-hedge", "kill the hedges", "strip hedging words", or "reduce qualifiers".
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.1"
+  version: "1.1.2"
   bundled-dependencies: book-status
   category: nonfiction-editing
 ---
@@ -67,9 +67,9 @@ than replacing one hedge with another.
    sequentially.
 3. **Each worker gets:** its exact file list; the KEEP/FIX and deletion-first rules
    verbatim (from `references/hedge.md`); instruction to read each file in 20-line
-   chunks so it judges every hit in full context; the global style rules (no em
-   dashes except to interrupt dialogue; complete grounded sentences; no
-   metaphorical math/analytical language). It makes the minimal in-place edit,
+   chunks so it judges every hit in full context; the book's `style_guide.md` /
+   `review_guide.md` rules and active scoped `editorial-memory` decisions
+   (`Wiki/Style/editorial-decisions.json`) verbatim. It makes the minimal in-place edit,
    touching ONLY the hedge token and nothing else on the line, and reports a
    per-file verdict list: each hit tagged (KEPT-uncertainty / KEPT-voice / KEPT-idiom /
    DELETED / REWRITTEN) with before→after for changes.

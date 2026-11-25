@@ -3,11 +3,9 @@
 Check every line in your assigned chunk against ALL of the following categories.
 
 ### Narrative Fragments
-- Sentences in narrative prose that lack a subject AND a verb
-- Staccato lists used as atmosphere: "Dust. Silence. Nothing."
-- Sentence fragments masquerading as description
-- **Exception:** Dialogue can have fragments (natural speech). Life-or-death battle scenes get limited fragment allowance.
-- Check the resolved fragment rule, scoped decisions, and how the fragment works in its paragraph before recommending a change.
+- Verbless fragments in narrative prose that stall reading or confuse grammar ("Dust. Silence. Nothing.")
+- Complete short sentences (`"The door was locked."`, `"She didn't move."`) are NOT fragments — do not flag them unless part of a monotonous staccato run
+- **Exception:** Dialogue can have fragments. Check the resolved `style-policy` (`register_preset` / `punctuation.fragments`) and scoped `editorial-memory` decisions before flagging intentional rhythmic fragments in lyrical or comic presets.
 
 ### Choppy Constructions
 - Colon-list constructions: "Three things: first, second, third."
@@ -18,12 +16,12 @@ Check every line in your assigned chunk against ALL of the following categories.
 
 ### S-V-O Chains (Sentence Variety)
 - Flag runs of 3 or more consecutive simple Subject-Verb-Object sentences
-- The fix is to mix in varied structures:
-  - Prepositional phrase lead: "From the doorway, she watched..."
-  - Inverted clause: "Gone was the confidence from earlier."
-  - Compressed compound: "He checked the door, found it locked."
-  - Absolute construction: "Rifle raised, Rowan moved forward."
-  - Participial lead: "Crossing the deck, she paused."
+- The fix is to mix in varied structures (without introducing filter words or comma splices):
+  - Prepositional phrase lead: "From the doorway, Mara kept her hand on the latch..."
+  - Consequence-first lead: "Confidence didn't survive the stairwell."
+  - Compound predicate: "He checked the door and found it locked."
+  - Absolute construction: "Rifle raised, the sentry moved forward."
+  - Participial lead: "Crossing the deck, she checked the rigging."
 
 ### Cadence Flatline (Consecutive Same-Length Sentences)
 - Flag runs of 3 or more consecutive narrative sentences within a few words of the same length (e.g., 18, 20, 19, 21 words in a row) — an isochronous machine cadence the reader stops hearing
@@ -32,18 +30,14 @@ Check every line in your assigned chunk against ALL of the following categories.
 - **Fix:** break the run — shorten one sentence hard, expand another, or combine two
 
 ### Simile Overuse
-- Review paragraphs and chapters over the resolved guide's limits. The defaults are one per paragraph and three per chapter. Treat an author-approved example or scoped KEEP as deliberate in its stated context.
+- Review paragraphs and chapters against the resolved `style-policy` limits (`max_per_paragraph: 1`, and preset/guide `max_per_chapter` or ~2–3 per 1,000 words when scaled). Treat an author-approved example, `lyrical-literary` preset, or scoped KEEP as deliberate in its stated context.
 - Cite the passage effect when suggesting a cut, such as explaining an emotion the action already shows or importing a comparison outside the viewpoint.
-- Weak similes that don't add voice or clarity should be replaced with:
-  - Concrete physical details
-  - Cause-and-effect observations
-  - Character reaction or judgment
+- Weak "explain-it" similes that don't add voice or clarity should be replaced with concrete physical details, cause-and-effect observations, or character judgment.
 - Simile markers to look for: "like a", "like the", "as if", "as though"
 
 ### Rule of Threes
-- Flag "X, Y, and Z" constructions used for stylistic effect (not functional lists)
-- Flag three-beat descriptive phrases
-- Functional/literal lists are fine ("guns, ammo, and food")
+- Check `style-policy` (`tricolon` / `register_preset`): flag "X, Y, and Z" saturation when used as mechanical AI emphasis in `tight-thriller` prose
+- Functional/literal lists are fine ("guns, ammo, and food"), and comedic `"setup, setup, punch"` triples in `comic-ironic` or rhythmic parallels in `lyrical-literary` are allowed unless overused
 
 ### Gerund Chains
 - Two or more comma-linked -ing actions: "Running forward, dodging bullets, he reached the door"
@@ -57,11 +51,10 @@ Check every line in your assigned chunk against ALL of the following categories.
 - These are AI-typical emphasis patterns. State the thing directly.
 
 ### Show vs Tell
-- Labeling emotions directly: "her voice warm and curious," "his expression grim"
-- Stating quality instead of showing: "she said convincingly"
-- Emotion-body formulas: "fear gripped his chest," "dread coiled in his stomach," "anger flared in his gut"
+- Unearned generic emotion labels or quality-adverb tags: "her voice warm and curious," "his expression grim," "she said convincingly" (note: purposeful, voice-earned emotional naming in close interiority is allowed per `gate-check` when it carries judgment rather than summary padding)
+- Emotion-body stock formulas: "fear gripped his chest," "dread coiled in his stomach," "anger flared in his gut"
 - Vague emotional descriptors: "that brightness in her eyes"
-- **The show-then-tell pattern:** showing something through action/dialogue then explaining it with narration. If the action/dialogue already conveys the emotion, the follow-up explanation must be cut.
+- **The show-then-tell pattern:** showing something through action/dialogue then explaining it with narration. If the action/dialogue already conveys the emotion, cut the follow-up explanation.
 
 ### Info Dumps
 - Paragraphs of exposition with no scene anchor

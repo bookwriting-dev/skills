@@ -10,11 +10,10 @@ mechanical swap into another passive ("is thought" → "has been suggested" is n
 fix). If the actor is genuinely unavailable, KEEP and note rather than invent one.
 
 Examples:
-- "the decision was made" → "the committee made the decision"
-- "mistakes were made" → "we made the mistakes"
+- "the decision was made" → "[the committee / the named actor from context] made the decision" (never fabricate `"we"` if the author did not act!)
 - "the data gets cleaned by the pipeline" → "the pipeline cleans the data"
-- "a mistake has been identified" → "we identified a mistake"
 - "X was rejected by reviewers" → "reviewers rejected X"
+- "a mistake has been identified [in the prior audit]" → "the prior audit identified a mistake" (use the actual actor from context; if unavailable, KEEP and flag `[ACTOR_UNKNOWN]`)
 
 **KEEP (do not touch):**
 - Actor genuinely unknown or irrelevant: "the chamber was sealed," "the samples were
@@ -30,8 +29,7 @@ Examples:
   implemented."
 - `gets + past-participle` used as a passive euphemism: "the issue gets overlooked,"
   "the data gets cleaned."
-- `has/have been + past-participle` parking the actor at the end or hiding it: "a
-  mistake has been identified" → "we identified a mistake."
+- `has/have been + past-participle` parking the actor at the end or hiding it: promote the real actor named in the sentence/context, or KEEP and flag `[ACTOR_UNKNOWN]` rather than inventing `"we"`.
 - The same actor-hidden construction twice within a few lines — fix at least that one.
 
 Triage grep:

@@ -1,12 +1,27 @@
-# Critical DON'Ts
+# Critical DON'Ts & Register Presets
 
-These rules are universal. Apply to every story.
+Universal AI-slop tells apply to every story. Craft & syntax rules below flex according to the book's **Register Preset** in `Wiki/Style/style_guide.md` and `Wiki/Style/review_guide.md`.
 
 ---
 
-## Forbidden Phrases (AI-isms)
+## Register Presets (Syntax & Density Levers)
 
-These patterns mark amateur or AI-generated prose. Never use:
+Select one preset in `style_guide.md` / `review_guide.md` (defaulting to `tight-thriller` if unspecified; explicit `review_guide.md` fields override):
+
+| Lever | `tight-thriller` | `lyrical-literary` | `historical-period` | `comic-ironic` | `omniscient-classic` |
+|---|---|---|---|---|---|
+| **Narrative fragments** | Dialogue & interrupted thought only | Allowed for deliberate cadence | Minimal; dialogue only | Allowed for comedic timing | Avoid in exposition |
+| **Narrative em-dashes** | Dialogue/thought interruption only | Allowed with restraint | Allowed | Allowed | Allowed |
+| **Tricolons (Rule of 3)** | Avoid stylistic triples | Allowed when rhythmic | Allowed in period rhetoric | Allowed (`setup, setup, punch`) | Allowed |
+| **Similes** | ~3–6 per chapter (spare, voice-fit) | `unlimited` (must fit voice) | ~6–8 per chapter | ~8–10 per chapter | ~8–10 per chapter |
+| **Clock times** | Digits (`10:30`) in narration | Words (`ten thirty`) | Words (`half past four`) | Words | Words |
+| **Understatement (`quite`/`rather`)** | Cut filler softeners | Judge by voice | Allowed in period register | Allowed for ironic voice | Allowed |
+
+---
+
+## Forbidden Phrases (Universal AI-isms)
+
+These patterns mark generic or AI-generated prose regardless of preset. Never use:
 
 - "practiced precision" / "practiced ease" / "practiced [anything]"
 - "a mix of [X] and [Y]" / "a mixture of" / "a combination of"
@@ -68,22 +83,17 @@ Young characters (under 30) should not move or act like trained operatives unles
 
 ---
 
-## Punctuation Rules
+## Punctuation & Fragment Rules (Preset-Governed)
+
+Check `style-policy` (`Wiki/Style/review_guide.md` / `register_preset`) before flagging fragments or narrative em-dashes.
 
 ### EM DASHES
-- **ONLY** use when a character's speech, thought, or internal monologue is interrupted
-- Dialogue interruption: "I was just—" "No."
-- Thought interruption: She could not form a complete— Oh god.
-- **NEVER** use em dashes in narrative description
-- Replace narrative em dashes with periods, commas, or colons
-- Use commas for brief pauses, periods for full stops
+- In `tight-thriller` (strict default): use em dashes **ONLY** when a character's speech, thought, or internal monologue is interrupted; replace narrative em dashes with periods, commas, or colons.
+- In `lyrical-literary`, `historical-period`, `comic-ironic`, and `omniscient-classic` presets (or when `review_guide.md` permits): narrative em dashes are allowed with restraint (avoid $>10$ per scene or mechanical dash-per-paragraph clusters).
 
 ### FRAGMENTS
-- **NEVER** use sentence fragments in narrative prose
-- The only exception: when a character's thought, monologue, or dialogue is interrupted (use em dash)
-- Short complete sentences create urgency without breaking grammar
-- "The door was locked." NOT "The door. Locked."
-- "She could not think." NOT "Couldn't think."
+- In `tight-thriller` (strict default): avoid verbless sentence fragments in narrative prose (dialogue and interrupted thoughts remain valid; short complete sentences like `"The door was locked."` are always valid).
+- In `lyrical-literary` and `comic-ironic` presets (or when `review_guide.md` / scoped `editorial-memory` allows): intentional fragments for rhythmic or comedic punch are **KEEP**, while accidental staccato pileups (`"Dust. Silence. Nothing."`) remain flagged.
 
 ### SEMICOLONS
 - Use sparingly
@@ -209,10 +219,9 @@ Avoid excessive sensory detail that doesn't serve character or plot:
 
 ## Simile & Metaphor Limits
 
-- Maximum 2-3 similes per chapter
-- Never cluster in same paragraph
-- Each must serve character voice
-- Prefer direct description over similes
+- Check the resolved `max_per_chapter` from `style-policy` (preset defaults: `3` for `tight-thriller`, `8`–`10` for `historical-period`/`comic-ironic`/`omniscient-classic`, `unlimited` for `lyrical-literary`; or ~2–3 per 1,000 words when scaling to long chapters).
+- Never cluster weak similes in the same paragraph (`max_per_paragraph: 1`).
+- Prefer direct observation over explain-it similes (`"like a..."` used only to restate an already-shown emotion), and ensure every comparison belongs to the POV character's worldview.
 
 **Ask**: Would THIS character think this comparison?
 

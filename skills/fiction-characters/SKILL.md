@@ -3,7 +3,7 @@ name: fiction-characters
 description: "Generate one Wiki/Characters/[Name].md file per character with full profiles. Personality and dialogue_style are WRITING INSTRUCTIONS, not descriptions. Use when user says 'create characters', 'generate cast', 'build character profiles', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.2.0"
+  version: "3.3.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -56,7 +56,7 @@ Generate the character files under `Wiki/Characters/` for this project.
 
 **Name sourcing:** If any character names must be invented (not supplied by the user or the synopsis), use `name-generator` first and select from its output. Do not invent names from scratch.
 
-**Field checklist:** Cover every field in [references/json-schema.json](references/json-schema.json) for the character's role as either a frontmatter key or a `##` section in that character's Markdown file. Do not drop fields; do not rename them beyond snake_case.
+**Field checklist:** Cover every field in [references/json-schema.json](references/json-schema.json) that applies to the character's role and the book's genre as either a frontmatter key or a `##` section in that character's Markdown file. Include `chemistry_with_protagonist` and `romantic_obstacles` **only** when the story is romance or carries an active romantic subplot; omit them for non-romance genres. Do not rename included fields beyond snake_case.
 
 Also read [references/anti-flat-rules.md](references/anti-flat-rules.md): these rules govern what makes a character feel real vs. functional. Apply them to every entry.
 
@@ -79,20 +79,20 @@ One character per name in the synopsis's characters_in_play. Add any others who 
 ### Rules
 
 **Role types:**
-- `protagonist`: use all protagonist fields including internal_monologue, chemistry_with_protagonist, romantic_obstacles, relationship_dynamics
+- `protagonist`: use core protagonist fields (`physical_description`, `personality`, `dialogue_style`, `backstory`, `want`, `need`, `flaw`, `secret`, `internal_monologue`, `relationship_dynamics`); add `chemistry_with_protagonist`, `romantic_obstacles`, and `shared_history` only when the book has a romantic pairing or central duo dynamic.
 - `antagonist`: use antagonist fields: motivations, methods, power_resources, relationship_to_protagonist
 - `supporting`: use supporting fields: personality, skills_or_resources, role_in_story, relationship_to_protagonist
 - Add `also_known_as` to any character known by multiple names
 
-**Physical description**: Specific and visual. Not a catalog of features: the two or three things that a stranger would register, that the other POV character would notice first, that carry the character's status or history in their body.
+**Physical description**: Specific and visual. Not a catalog of features: the two or three things that a stranger would register, that another character would notice first, that carry the character's status or history in their body.
 
-**Personality**: This is a writing instruction. It tells the writer who this person IS, not how to categorize them. Include: what makes them funny or dangerous, their social intelligence, the wound underneath the armor, what they want badly enough to be stupid about. Also include who they are privately, what they notice, what they are insecure about, how their body reacts under stress, and the gap between what they show and what they feel. A one-line trait list ("controlled, precise, darkly amused") is a description and fails; the field must let the writer be this character from inside their skull.
+**Personality**: This is a writing instruction. It tells the writer who this person IS, not how to categorize them. Include: their defining temperament (earnest, austere, wry, volatile, analytical, warm — whatever truly fits this character and genre), their social intelligence, their core vulnerability or blind spot, and what they want badly enough to take real risks for. Also include who they are privately, what they notice first, what they are insecure about, how they respond under stress, and the gap between what they show and what they feel. A one-line trait list ("controlled, precise, darkly amused") is a description and fails; the field must let the writer inhabit this character from inside their mind.
 
-**dialogue_style**: First person [tense from the audience or synopsis file]. This field is read directly before writing any line of their POV. It must give the writer the voice: register, wit level, the gap between what they say and what they mean, what they fall back on when something costs them. Include how their internal monologue sounds, not just how they speak out loud. "She speaks precisely" is a description and fails.
+**dialogue_style**: Match the book's POV person and tense (from `style_guide.md` or `synopsis.md`). This field is read directly before writing any line of their POV or dialogue. It must give the writer the voice: register, sentence rhythm, vocabulary level, the gap between what they say and what they mean, and what they fall back on when something costs them. Include how their internal monologue sounds, not just how they speak out loud. "She speaks precisely" is a description and fails.
 
-**internal_monologue**: Protagonists only. This is the most important field for POV writing. It describes how the voice sounds in the reader's head: what it notices first, what it jokes about, where it goes quiet, how sensation arrives before the intellect. It is a writing instruction, not a character description.
+**internal_monologue**: Protagonists / POV characters only. This is the most important field for POV writing. It describes how the voice sounds in the reader's head: what it notices first (their domain/perceptual lens), where it sharpens or goes quiet, and how emotion, memory, or judgment arrives in their mind. It is a writing instruction, not a character description.
 
-**chemistry_with_protagonist**: For each protagonist: what the other one does that gets through their armor. Not "they're attracted to each other"; the specific thing, the quality or behavior that works on them despite themselves.
+**chemistry_with_protagonist** *(romance / central duo only)*: What the other lead does that gets past their defenses — the specific quality or behavior that works on them despite themselves.
 
 **relationship_dynamics**: Per named relationship in the story. How this character reads each important person: what they see, what they miss, what they won't say, what they observe and file away.
 
@@ -138,6 +138,7 @@ After the cast files are written, seed the **chapter-1** state for each meaningf
 ## relationship_checkpoints
 
 ### <Other Character Name>
+- **book:** Book-1
 - **link_type:** romantic | ally | family | rival | friend | antagonist
 - **chapter_start:** 1
 - **chapter_end:** (open)

@@ -3,7 +3,7 @@ name: fiction-style
 description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or when the plan-the-book sequence reaches the style + voice step (after scene plans, alongside fiction-voiceprompt)."
 metadata:
   author: Fiction Toolkit
-  version: "7.4.0"
+  version: "7.5.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -33,22 +33,29 @@ If `Wiki/Story/synopsis.md` does not exist: tell the user to run `fiction-synops
 
 ### Optional: run with an isolated worker
 
-To keep the main conversation context clean, you may delegate Steps 2 and 3 to one isolated worker when the host supports one. Pass it: the discovered file paths (do not paste file contents into the prompt), the working title, the exact output paths, and this skill's craft constraints. Have it read [references/agent-instructions.md](references/agent-instructions.md) for craft guidance, but the output format is the two Wiki Markdown files defined here, not JSON. The worker should return only confirmation that the files were written, not the guide contents.
+To keep the main conversation context clean, you may delegate Steps 2 and 3 to one isolated worker when the host supports one. Pass it: the discovered file paths (do not paste file contents into the prompt), the working title, the exact output paths, and this skill's craft constraints. Have it read [references/agent-instructions.md](references/agent-instructions.md) for craft guidance, keeping `Wiki/Style/style_guide.md` concise and strictly aligned to the schema below (do not duplicate full `Wiki/Characters/*.md` profiles inside `style_guide.md` — `fiction-voiceprompt` owns per-POV voice cards). The worker should return only confirmation that the files were written, not the guide contents.
 
 ## Step 2: Generate Wiki/Style/style_guide.md
 
 Use [references/json-schema.json](references/json-schema.json) as the field checklist: every field it defines must appear in this file as a frontmatter key or a `##` section.
 
+Select the `register_preset` that fits the book's `genre.md` and `theme.md`:
+- `tight-thriller` (close-POV, crisp complete sentences, minimal narrative em-dashes, modern clock digits)
+- `lyrical-literary` (voice-led fragments, restraint-governed dashes, open simile budget, word clocks)
+- `historical-period` (period syntax, narrative dashes permitted, word clocks, understatement preserved)
+- `comic-ironic` (timed triples, fragments/dashes for comedic beat, word clocks)
+- `omniscient-classic` (narrator distance, balanced dashes/triples, word clocks)
+
 Write one paragraph for the **style** field that captures:
 - POV mode and tense (from the synopsis or audience file)
-- Sentence style, rhythm, and register
-- Everyday or period vocabulary for the book’s voices and the notation for exact clock times, following [diction and clock time](../book-status/references/diction-and-time.md).
+- Sentence style, rhythm, and register preset
+- Everyday or period vocabulary for the book’s voices and the notation for exact clock times, following [diction and clock time](../book-status/references/diction-and-time.md)
 - What is explicit and how to handle it
 - What is forbidden in register (clinical, analytical, therapeutic, etc.)
 - Sensory priorities and physical grounding
 
 Critical constraints on the style paragraph:
-- No character voices. Those belong in character files.
+- No character voices. Those belong in `Wiki/Characters/` and `Wiki/Style/voice_prompt*.md`.
 - No scene instructions and nothing that dictates what happens in scenes.
 - It is injected verbatim into every chapter prompt, so keep it tight and mechanical.
 
@@ -58,19 +65,20 @@ If the theme file exists, read it for motif candidates.
 
 ### POV block
 
-Downstream skills read POV and tense from this file — `fiction-writechapter` and `fiction-voiceprompt` while drafting, the review and editing passes while checking voice; without it the voice line defaults to first-person present. Derive POV from the synopsis and record it in the frontmatter.
+Downstream skills read POV and tense from this file — `fiction-writechapter`, `draft-packet`, and `fiction-voiceprompt` while drafting, the review and editing passes while checking voice; without it the voice line defaults to first-person present. Derive POV from the synopsis and record it in the frontmatter (use `pov_mode: multi`, `pov_3`, etc., and `switching: by_scene` whenever chapters switch viewpoints per scene).
 
 Write the file with this shape:
 
 ```markdown
 ---
 title: "Style Guide: [Story Title]"
-pov_mode: single|dual
-person: first|third
+register_preset: tight-thriller|lyrical-literary|historical-period|comic-ironic|omniscient-classic
+pov_mode: single|dual|multi
+person: first|third|omniscient
 tense: past|present
 pov_1: <character>
 pov_2: <character, omit line if none>
-switching: none|by_chapter
+switching: none|by_chapter|by_scene
 ---
 
 ## Style
@@ -98,6 +106,7 @@ Write the file with scalar fields (title, genre, pov, tone) in frontmatter and e
 ```markdown
 ---
 title: "Review Guide: [Story Title]"
+register_preset: tight-thriller|lyrical-literary|historical-period|comic-ironic|omniscient-classic
 genre: "[genre and subgenre]"
 pov: "[POV mode and character names]"
 tone: "[tone descriptor]"
@@ -115,7 +124,8 @@ tone: "[tone descriptor]"
   - **note:** [rule for use]
 
 ## Diction and Clock Time
-[Applicable register, exact-time notation, and scoped author exceptions]
+- **clock_mode:** digits|words
+- **notes:** [Applicable register, exact-time notation, and scoped author exceptions]
 
 ## Punctuation
 - **em_dash:** [rule]

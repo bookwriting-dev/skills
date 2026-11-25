@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when the writer asks to review a chapter, check a chapter, or suggest changes. Applying numbered fixes goes through fiction-revise. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.14.0"
+  version: "2.15.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -26,6 +26,9 @@ Also locate these project files:
 - **Outline** (chapter purposes and trope obligations): `**/Wiki/Outline/**/outline.md`
 - **Surprise ledger** (planned divergences, when the divergence pass ran): `**/Wiki/Outline/Book-N/surprise-ledger.md` for the selected book, when present
 - **Scene plan**: the book's established beat or scene file for the reviewed chapter, when present
+- **Psych interior pass**: `**/Wiki/Psych/Book-N/Chapter_NN_Psych.md`, when present
+- **Voice prompts**: `**/Wiki/Style/voice_prompt*.md`, when present
+- **Editorial decisions**: `**/Wiki/Style/editorial-decisions.json`, when present
 - **Promise ledger** (the Chekhov ledger): `**/Wiki/Story/Book-N/promises.yaml` for the selected book, when present (maintained by `fiction-promises`)
 
 Also find the previous chapter (for continuity checking).
@@ -48,6 +51,9 @@ When the host supports isolated workers, start one with the description `Review 
   - `{{OUTLINE_PATH}}` → `Wiki/Outline/**/outline.md` path, or "not found"
   - `{{SURPRISE_LEDGER_PATH}}` → the book's `surprise-ledger.md` path, or "not found"
   - `{{SCENE_PATH}}` → scene plan or beat source for this chapter, or "not found"
+  - `{{PSYCH_PATH}}` → `Wiki/Psych/Book-N/Chapter_NN_Psych.md` path, or "not found"
+  - `{{VOICE_PROMPTS}}` → matching `Wiki/Style/voice_prompt*.md` paths, or "not found"
+  - `{{EDITORIAL_DECISIONS}}` → applicable active scoped decisions extracted from `Wiki/Style/editorial-decisions.json` verbatim, or "none"
   - `{{LEDGER_PATH}}` → the book's promises.yaml ledger path, or "not found"
   - `{{GENRE_PATH}}` → `Wiki/Style/genre.md` path, or "not found"
   - `{{SYNOPSIS_PATH}}` → `Wiki/Story/synopsis.md` path, or "not found"
@@ -84,6 +90,9 @@ You are reviewing the most recently written chapter for revision opportunities.
 - `{{OUTLINE_PATH}}` - chapter purposes, and the reviewed chapter's `trope_obligations` entry: which tropes this specific chapter owes and in which treatment
 - `{{SURPRISE_LEDGER_PATH}}` - planned divergences and chosen defaults per act (if found)
 - `{{SCENE_PATH}}` - required choices, consequences, emotional movement, motifs, arc movement, genre beats, and other chapter-specific obligations
+- `{{PSYCH_PATH}}` - interior cost, `What they won't say`, `Show-Don't-Tell Gaps`, and `Bottom Line`
+- `{{VOICE_PROMPTS}}` - POV-matched voice prompts and language firewalls
+- `{{EDITORIAL_DECISIONS}}` - applicable active scoped author decisions (preserve deliberate choices within stated scope; do not generalize)
 - `{{LEDGER_PATH}}` - the Chekhov ledger: setups awaiting payoff (audit in Step 6)
 
 **Genre contract files** (read if found):
@@ -132,7 +141,7 @@ Read:
 
 ### Step 4: Evaluate Against 10 Criteria
 
-1. **POV Voice, Subtext & Agency** - Is voice present and matched to `voice_prompt_<POV>.md` / `voice_prompt.md`? Are they active? Does the chapter honor `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (`What they won't say` kept unsaid; `Show-Don't-Tell Gaps` dramatized physically rather than reported)?
+1. **POV Voice, Subtext & Agency** - Is voice present and matched to `voice_prompt_<POV>.md` / `voice_prompt.md`? Are they active? Does the chapter honor `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (`What they won't say` kept unsaid; `Show-Don't-Tell Gaps` rendered via a fitting channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—without forcing bodily cues)?
 2. **Scene-Plan Delivery, Micro-Friction & Plot Advancement** - Are the required choices, micro-friction resistance beats (at least one deflection, failed tactic, or raised cost before each turn), consequences, chapter-specific obligations, and ending movement present without back-half summary compression?
 3. **Continuity Check** - Flows from previous? No contradictions?
 4. **Character & Relationship Checkpoint Authenticity** - Voices match? Do interactions match the active `## relationship_checkpoints` span for this chapter (`chapter_start <= N <= chapter_end`) in `Wiki/Characters/`, and does dialogue avoid 3+ consecutive interview-style Q&A pairs (`fiction-dialogue`)?

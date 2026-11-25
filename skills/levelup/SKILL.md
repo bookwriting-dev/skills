@@ -7,7 +7,7 @@ description: Filter word scan for fiction prose. Reads a chapter in 40-line sect
   strengthen immersion.
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -22,11 +22,12 @@ The request argument is a chapter reference (e.g., "258", "Chapter-258", "Chapte
 
 ---
 
-## Step 1: Find the Chapter
+## Step 1: Find the Chapter, Voice & Author Decisions
 
 1. Parse the request argument. Accept number, filename, or path.
 2. Search the project files for the chapter (e.g., `**/Chapter-258*`). If not found, ask the user.
 3. Get the line count using the host's available file or line-count operation.
+4. Locate `Wiki/Style/style_guide.md`, the applicable POV `voice_prompt*.md`, and `Wiki/Style/editorial-decisions.json` (if present). Load applicable active scoped editorial decisions so intentional filter/perception choices are preserved.
 
 ---
 
@@ -53,11 +54,12 @@ Launch all chunks in parallel when the host supports workers; otherwise process 
 > Scan ONLY lines {start} through {end}.
 >
 > 1. Read the chapter file at {chapter_path} using offset={start - 1} and limit=40.
-> 2. Apply these criteria:
+> 2. Respect the project's POV/voice guidance ({voice_prompt_path} / {style_guide_path}) and these scoped author decisions (do not generalize beyond scope): {applicable_editorial_decisions}
+> 3. Apply these criteria:
 >
 > {paste full contents of filter-word-criteria.md here}
 >
-> 3. Flag every filter word or phrase. For each hit, return EXACTLY this format:
+> 4. Flag every filter word or phrase. For each hit, return EXACTLY this format:
 >
 > ```
 > **Line {N}:** `exact quoted text containing the filter`

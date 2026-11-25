@@ -3,7 +3,7 @@ name: nominalization-hunt
 description: Find nominalized self-explanation in chapters (fiction or non-fiction) and propose concrete rewrites that restore observation, bodily response, and action or blunt thought. Use when the user says "nominalization hunt" or asks to find abstract self-explanation.
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -49,16 +49,18 @@ The prose chains abstractions into a recursive loop instead of landing in the bo
 
 ## The fix rule
 
-Every rewrite must restore the chain: **Observation → body response → action or blunt thought.**
+Every rewrite must restore concrete scene grounding: **Observation → concrete channel (action, perception, blunt thought, speech, omission, or earned physical response).**
 
-Never explain what the observation means. Never name the feeling as a noun and then handle it. Put it in hands, breath, jaw, throat, heat, hunger, silence, or movement.
+Never explain what the observation means, and never name the feeling as an abstract noun and then handle it. Vary the channel rather than defaulting every beat to somatic clichés (`jaw`, `breath`, `throat`, `chest` — overusing those trips `cooling_list` in `draft-packet`).
+
+Consult `Wiki/Style/editorial-decisions.json` (if present) and pass applicable scoped author decisions into any chunk worker brief so intentional phrasing is preserved.
 
 | Instead of | Use |
 |---|---|
-| "The wanting sat in his chest" | "His hand went into his pocket. He made a fist around nothing." |
-| "The argument was complete" | "He had run it every way he knew how." |
-| "The neatness of it" | "His jaw went tight." |
-| "Something in him was already done" | "His chest had gone quiet. That was how he knew." |
+| "The wanting sat in his chest" | "His hand went into his pocket and closed around the spare key." |
+| "The argument was complete" | "He had run the numbers three ways and reached the same shortage." |
+| "The neatness of it" | "He stacked the ledgers edge to edge until the spines lined up." |
+| "Something in him was already done" | "He checked the bolt twice and left the coat on the peg." |
 
 ## Output format
 

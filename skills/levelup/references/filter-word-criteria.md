@@ -41,7 +41,7 @@ be capable of, be equal to, can, could, have the ability to, have what it takes
 ### Rule 1: Cut the filter, promote the sensation
 The detail itself implies perception. Let the reader experience it directly.
 
-- Weak: `Rowan felt the heat from the blast wash over him.`
+- Weak: `He felt the heat from the blast wash over him.`
 - Strong: `Heat from the blast rolled over him in a wall.`
 
 - Weak: `He saw a grenade land in the foxhole.`
@@ -53,7 +53,7 @@ The detail itself implies perception. Let the reader experience it directly.
 ### Rule 2: Use active verbs to replace perception verbs
 Let the world act on the character instead of the character sensing the world.
 
-- Weak: `Rowan noticed the ship was listing to starboard.`
+- Weak: `She noticed the ship was listing to starboard.`
 - Strong: `The ship listed to starboard.`
 
 - Weak: `She realized she'd made a mistake.`
@@ -98,14 +98,14 @@ When in doubt: cut it and read the sentence aloud. If it sounds stronger, cut st
 
 ---
 
-## Close-third POV Notes
+## POV Inheritance Notes
 
-This is a close-third POV novel. The POV narration should feel like his mind processing the world, not a camera reporting what he perceives. Every filter word is a step away from his voice.
+Match every rewrite to this book's established POV, tense, and character voice (`Wiki/Style/style_guide.md` and the scene's `Wiki/Style/voice_prompt_<POV>.md` or `voice_prompt.md`). Never impose an unrelated voice or flatten a deliberate narrative distance (such as an omniscient, epistolary, or reflective first-person narrator).
 
-The POV voice is wry and direct. His processing is fast and opinionated. Filter words make the prose slow and neutral — both are wrong for his character.
+When a close-POV filter word creates unnecessary distance, strip the filter and keep the character's own perception, register, and emotional coloration:
 
-- Wrong: `Rowan felt unease settle in his chest.`
-- Right: `Something was very wrong.` (or a physical reaction that implies it)
+- Weak: `She felt unease settle in her chest.`
+- Stronger (close POV): `Something was off—the latch had been wiped clean, and the dust beside it had not.`
 
-- Wrong: `He noticed June wasn't looking at him.`
-- Right: `June wasn't looking at him.`
+- Weak: `He noticed Elena wasn't looking at him.`
+- Stronger (close POV): `Elena wasn't looking at him.`

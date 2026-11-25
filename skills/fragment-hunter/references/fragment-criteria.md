@@ -63,20 +63,20 @@ Never just delete. Every fragment you kill must be **merged into an adjacent sen
 > Tanks. APCs. Infantry. The whole convoy stretched across the ridge.
 
 **Good (single grounded sentence):**
-> Tanks, APCs, and infantry stretched across the ridge in a convoy long enough to make Rowan reconsider every decision that had brought him here.
+> Tanks, APCs, and infantry stretched across the ridge in a convoy long enough to turn the crossing into a trap.
 
 **Bad (false drama closer):**
 > The airlock sealed behind them. Darkness.
 
 **Good (complete and evocative):**
-> The airlock sealed behind them and the corridor went dark, the kind of dark that made Rowan's skin crawl.
+> The airlock sealed behind them, and the corridor went dark except for the red fault lamp above the hatch.
 
-### Preserving Rowan's Voice
+### Preserving the Book's POV Voice
 
-The POV narration is wry, informal, and conversational. When you expand a fragment, the replacement must sound like Rowan's internal voice, not a textbook. His voice is the reason the sentence exists. Keep it.
+Every expanded or merged sentence must match **this book's** established POV voice (`Wiki/Style/style_guide.md` and `Wiki/Style/voice_prompt_<POV>.md` / `voice_prompt.md`) — whether terse, lyrical, formal, wry, or period. Do not convert a fragment into textbook prose, and do not impose a generic voice from outside the book.
 
-**Wrong fix (too formal):**
+**Wrong fix (stiff textbook expansion):**
 > The situation had deteriorated beyond the point of recovery.
 
-**Right fix (The POV voice):**
-> The situation had gone sideways in about four different directions, and none of them were good.
+**Right fix (grounded in the scene's voice):**
+> The hull was taking water faster than the pumps could clear it, and the nearest berth was six miles east.

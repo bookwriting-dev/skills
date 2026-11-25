@@ -3,7 +3,7 @@ name: kill-opinion-personification
 description: Hunt the "opinion" personification tic (pain, wounds, and inanimate objects "having opinions" or "saying their piece") across a chapter range and cut or vary the repeats while keeping one or two founding uses (deletion-first, parallel focused workers, edits in place). Use when user says "kill-opinion-personification", "kill the opinion tic", "kill 'had opinions'", or flags repeated "X had an opinion about Y" / "sent up its opinion" phrasing.
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.2.1"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
@@ -34,9 +34,9 @@ Read [opinion-personification.md](../kill-chapter/references/opinion-personifica
    across the whole range so it knows which instances are pre-designated KEEP vs FIX —
    don't let per-file workers independently decide what's "the founding use."
 4. **Each worker gets:** its exact file(s); the full ordered hit list with KEEP/FIX
-   assignments already decided; the direction rules above; the global style rules (no em
-   dashes except to interrupt dialogue; complete grounded sentences; no metaphorical
-   math/analytical language; POV-appropriate voice). It makes the minimal in-place edit per
+   assignments already decided; the direction rules above; the resolved `style-policy`
+   (register preset, punctuation rules, POV voice) and active scoped `editorial-memory`
+   decisions (`Wiki/Style/editorial-decisions.json`) verbatim. It makes the minimal in-place edit per
    FIX hit, leaves KEEP hits untouched, and reports a per-file verdict list (KEPT-founding
    / KEPT-echo / REWRITTEN) with before→after for changes.
 5. **Verify when all workers return:** search again for the pattern across the full range — should

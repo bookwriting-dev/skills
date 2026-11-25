@@ -3,7 +3,7 @@ name: fiction-theme
 description: "Generate the thematic engine: central question, tone, and motifs. Defines what the story is ABOUT underneath the plot. Use when user says 'define theme', 'what is this about', 'thematic core', or after running fiction-audience."
 metadata:
   author: Fiction Toolkit
-  version: "3.2.0"
+  version: "3.3.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -48,7 +48,7 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 
 **central_question**: A question, not a statement. What the story asks through its events. If the user provided a seed, reframe it as a question. If "derive from genre", build from the dominant tropes and the natural tension they create.
 
-**tone**: One paragraph describing the emotional register: what is warm, witty, or light on the surface; what darker currents run underneath; how the two are balanced. Derive from the tone_notes in `Wiki/Style/genre.md` if available and add specificity for the characters and world.
+**tone**: One paragraph describing the story's emotional register (its dominant atmosphere, counterbalancing undercurrents, and how its emotional temperature shifts across the arc). Derive from the tone_notes in `Wiki/Style/genre.md` if available and add specificity for the characters and world.
 
 **motifs**: 3 to 6 motifs. Each must be concrete and deployable: a specific image, object, phrase, recurring situation, or scene shape. "The Open Water" is a motif. "The Nature of Truth" is not. For each motif: name (short and concrete), type (Visual / Verbal / Sensory / Structural / Recurring situation), what_it_is (what it literally is in the story, what it tracks thematically, what it means by the end; 2-3 sentences).
 

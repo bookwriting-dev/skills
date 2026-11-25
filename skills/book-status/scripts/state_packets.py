@@ -52,7 +52,7 @@ def prose_lines(path):
     return lines
 
 
-def parse_checkpoints(path, chapter_num):
+def parse_checkpoints(path, chapter_num, *, book=None, unscoped_ok=True, skipped=None):
     """Return active relationship_checkpoints for chapter_num from a character Markdown file."""
     text = path.read_text(encoding='utf-8')
     m = re.search(r'^##\s+relationship_checkpoints\b(.*?)(?=^##\s+|\Z)', text, re.M | re.S)
@@ -69,23 +69,37 @@ def parse_checkpoints(path, chapter_num):
         entries = []
         current = {}
         for line in sub.group(2).splitlines():
-            kv = re.match(r'^\s*-\s*\*\*([a-z_]+):\*\*\s*(.+)$', line.strip())
+            kv = re.match(r'^\s*[-*]\s*(?:\*\*)?([a-z_]+)(?:\*\*)?:(?:\*\*)?\s*(.+)$', line.strip(), re.I)
             if kv:
-                k, v = kv.group(1), kv.group(2).strip()
-                if k == 'link_type' and current:
+                k, v = kv.group(1).lower(), kv.group(2).strip()
+                if k in current:
                     entries.append(current)
                     current = {}
                 current[k] = v
         if current:
             entries.append(current)
         for entry in entries:
+            entry_book = entry.get('book') or entry.get('book_id')
+            if book is not None:
+                if entry_book:
+                    if entry_book.strip().lower() != str(book).strip().lower():
+                        continue
+                elif not unscoped_ok:
+                    if skipped is not None:
+                        skipped.append({
+                            'character': char_name,
+                            'other_character': other,
+                            'reason': 'unscoped checkpoint skipped for ' + str(book),
+                            'source': path,
+                        })
+                    continue
             start_m = re.search(r'\d+', str(entry.get('chapter_start', '1')))
             start = int(start_m.group(0)) if start_m else 1
             end_raw = str(entry.get('chapter_end', '(open)')).strip().lower()
             end_m = re.search(r'\d+', end_raw)
             end = None if ('open' in end_raw or not end_m) else int(end_m.group(0))
             if start <= chapter_num and (end is None or chapter_num <= end):
-                active.append({
+                item = {
                     'character': char_name,
                     'other_character': other,
                     'link_type': entry.get('link_type', ''),
@@ -93,18 +107,38 @@ def parse_checkpoints(path, chapter_num):
                     'chapter_end': 'open' if end is None else end,
                     'notes': entry.get('notes', ''),
                     'source': path,
-                })
+                }
+                if entry_book:
+                    item['book'] = entry_book.strip()
+                active.append(item)
     return active
 
 
+def _section_map(text, level=2):
+    hashes = '#' * level
+    parts = re.split(rf'^{hashes}[ \t]+([^\n]+)\n', text, flags=re.M)
+    return {name.strip().lower(): body for name, body in zip(parts[1::2], parts[2::2])}
+
+
+def _labeled_block(section, label):
+    match = re.search(
+        rf'^[ \t]*(?:[-*][ \t]+)?\*\*{re.escape(label)}:\*\*[ \t]*(.*?)(?=\n[ \t]*(?:[-*][ \t]+)?\*\*[A-Za-z][^*\n]*:\*\*|\n---|\Z)',
+        section, re.M | re.S | re.I,
+    )
+    return re.sub(r'\s+', ' ', match.group(1)).strip() if match else ''
+
+
 def parse_psych(path):
-    """Extract What they won't say lines and Show-Don't-Tell Gaps rows from a Psych file."""
+    """Extract full psychological context (states, beat costs, unsaid lines, gaps, bottom line)."""
     text = path.read_text(encoding='utf-8')
     unsaid = [m.group(1).strip() for m in re.finditer(
-        r'^\s*-\s*\*\*What they won\'t say:\*\*\s*(.+)$', text, re.M | re.I
+        r'^\s*[-*]\s*(?:\*\*)?What they won[\'\u2019]t say(?:\*\*)?:(?:\*\*)?\s*(.+)$', text, re.M | re.I
     )]
     gaps = []
-    gap_sec = re.search(r'^##\s+Show-Don\'t-Tell Gaps\b(.*?)(?=^##\s+|^---\s*$|\Z)', text, re.M | re.S | re.I)
+    gap_sec = re.search(
+        r'^#{2,4}\s+Show[-‐‑\s]+Don[\'\u2019]t[-‐‑\s]+Tell Gaps\b(.*?)(?=^#{2,4}\s+|^---\s*$|\Z)',
+        text, re.M | re.S | re.I,
+    )
     if gap_sec:
         for line in gap_sec.group(1).splitlines():
             line = line.strip()
@@ -113,16 +147,97 @@ def parse_psych(path):
             cells = [c.strip() for c in line.strip('|').split('|')]
             if len(cells) >= 3 and cells[0].lower() != 'beat':
                 gaps.append({'beat': cells[0], 'reporting_draft': cells[1], 'instead': cells[2]})
-    return {'what_they_wont_say': unsaid, 'show_dont_tell_gaps': gaps}
+
+    sections = _section_map(text, level=2)
+    start_sec = sections.get('start state', '')
+    end_sec = sections.get('end state', '')
+    start_state = {k: v for k, v in (
+        ('surface_affect', _labeled_block(start_sec, 'Surface affect')),
+        ('underneath', _labeled_block(start_sec, 'Underneath')),
+        ('expression_channel', _labeled_block(start_sec, 'Expression channel')),
+    ) if v}
+    end_state = {k: v for k, v in (
+        ('surface_affect', _labeled_block(end_sec, 'Surface affect')),
+        ('underneath', _labeled_block(end_sec, 'Underneath')),
+        ('expression_channel', _labeled_block(end_sec, 'Expression channel')),
+    ) if v}
+
+    beat_costs = []
+    beat_sec = sections.get('beat-by-beat interior cost', '')
+    for sub in re.finditer(r'^###[ \t]+([^\n]+)\n(.*?)(?=^###[ \t]+|^---|\Z)', beat_sec, re.M | re.S):
+        body = sub.group(2)
+        entry = {'beat': sub.group(1).strip()}
+        for key, label in (('interior_cost', 'Interior cost'),
+                           ('expression_channel', 'Expression channel'),
+                           ('body_expression', 'Body expression')):
+            val = _labeled_block(body, label)
+            if val:
+                entry[key] = val
+        wont = re.search(r'^\s*[-*]\s*(?:\*\*)?What they won[\'\u2019]t say(?:\*\*)?:(?:\*\*)?\s*(.+)$', body, re.M | re.I)
+        if wont:
+            entry['what_they_wont_say'] = wont.group(1).strip()
+        beat_costs.append(entry)
+
+    bottom_line = re.sub(r'\n?---\s*$', '', sections.get('bottom line', '')).strip()
+    return {
+        'what_they_wont_say': unsaid,
+        'show_dont_tell_gaps': gaps,
+        'start_state': start_state,
+        'beat_interior_costs': beat_costs,
+        'end_state': end_state,
+        'bottom_line': bottom_line,
+    }
 
 
-def decision_applies(decision, book_ids, chapter_ids, pov):
-    """Resolve documented legacy scopes and explicit intersection scopes."""
+def decision_applies(decision, book_ids, chapter_ids, pov, *, chapter_path=None):
+    """Resolve documented legacy scopes and explicit intersection scopes (including passage scope)."""
     required = scope_dimensions(decision.get('scope'))
     if required is None:
         return False
+    if 'passage_id' in required:
+        if not chapter_path or decision.get('source') != chapter_path:
+            return False
     context = {'book_id': book_ids, 'chapter_id': chapter_ids, 'pov_id': (pov,)}
-    return all(value in context.get(key, ()) for key, value in required.items())
+    return all(value in context.get(key, ()) for key, value in required.items() if key != 'passage_id')
+
+
+REGISTER_PRESETS = {
+    'tight-thriller': {
+        'max_per_chapter': 3,
+        'em_dash': 'Dialogue/thought interruption only',
+        'fragments': 'Dialogue and interrupted thoughts only',
+        'tricolon': 'Avoid stylistic triples',
+        'clock_mode': 'digits',
+    },
+    'lyrical-literary': {
+        'max_per_chapter': None,
+        'em_dash': 'Allowed with restraint',
+        'fragments': 'Allowed for deliberate cadence',
+        'tricolon': 'Allowed when rhythmic',
+        'clock_mode': 'words',
+    },
+    'historical-period': {
+        'max_per_chapter': 8,
+        'em_dash': 'Allowed in narration and dialogue',
+        'fragments': 'Minimal; dialogue only',
+        'tricolon': 'Allowed in period rhetoric',
+        'clock_mode': 'words',
+    },
+    'comic-ironic': {
+        'max_per_chapter': 10,
+        'em_dash': 'Allowed',
+        'fragments': 'Allowed for comedic timing',
+        'tricolon': 'Allowed for setup-setup-punch',
+        'clock_mode': 'words',
+    },
+    'omniscient-classic': {
+        'max_per_chapter': 10,
+        'em_dash': 'Allowed',
+        'fragments': 'Avoid in narrative exposition',
+        'tricolon': 'Allowed',
+        'clock_mode': 'words',
+    },
+}
 
 
 def style_policy(root, args):
@@ -141,6 +256,21 @@ def style_policy(root, args):
     sections = re.split(r'^##[ \t]+([^\n]+)\n', guide, flags=re.M)
     sections = dict(zip((name.strip().lower() for name in sections[1::2]), sections[2::2]))
 
+    style_auth = resolver.resolve_style_guide(root, args.book)
+    style_text = ''
+    if style_auth.get('status') == 'RESOLVED':
+        sp = path_at(root, style_auth['path'])
+        if sp.is_file():
+            style_text = sp.read_text(encoding='utf-8')
+
+    preset = None
+    for source in (guide, style_text):
+        pm = re.search(r'^register_preset:[ \t]*["\']?([a-z-]+)["\']?', source, re.M | re.I)
+        if pm and pm.group(1).lower() in REGISTER_PRESETS:
+            preset = pm.group(1).lower()
+            break
+    preset_defaults = REGISTER_PRESETS.get(preset or 'tight-thriller', REGISTER_PRESETS['tight-thriller'])
+
     def fields(section, name):
         return [match.strip() for match in re.findall(
             rf'^[ \t]*[-*][ \t]+(?:\*\*)?{name}(?:\*\*)?:(?:\*\*)?[ \t]*(.+)$',
@@ -158,21 +288,96 @@ def style_policy(root, args):
                 return int(value)
         raise ValueError(f'{name} in the review guide must be one nonnegative integer or unlimited')
 
-    chapter_limit = limit('max_per_chapter', 3)
+    chapter_limit = limit('max_per_chapter', preset_defaults['max_per_chapter'])
+    punctuation = {key: value[-1] for key in ('em_dash', 'fragments')
+                   if (value := fields('punctuation', key)) and not value[-1].startswith('[')}
+    if preset:
+        punctuation.setdefault('em_dash', preset_defaults['em_dash'])
+        punctuation.setdefault('fragments', preset_defaults['fragments'])
+    clock_vals = fields('diction and clock time', 'clock_mode')
+    clock_mode = (clock_vals[-1].strip('"` ').lower()
+                  if clock_vals and clock_vals[-1].strip('"` ').lower() in ('digits', 'words')
+                  else preset_defaults['clock_mode'])
     policy = {
+        'register_preset': preset,
         'review_guide': choices[0] if choices else None,
         'inputs': list(names),
+        'clock_mode': clock_mode,
+        'tricolon': preset_defaults['tricolon'],
         'simile': {'max_per_chapter': chapter_limit, 'max_per_paragraph': limit('max_per_paragraph', 1),
                    'keep_examples': [value for value in fields('simile rule', 'keep_example')
                                      if not value.startswith('[')]},
-        'punctuation': {key: value[-1] for key in ('em_dash', 'fragments')
-                        if (value := fields('punctuation', key)) and not value[-1].startswith('[')},
+        'punctuation': punctuation,
     }
-    if args.simile_count is not None:
+    if getattr(args, 'simile_count', None) is not None:
         if args.simile_count < 0:
             raise ValueError('simile count must be nonnegative')
         policy['chapter_simile_budget_exceeded'] = chapter_limit is not None and args.simile_count > chapter_limit
     return policy
+
+
+def parse_theme(root):
+    p = root / 'Wiki' / 'Story' / 'theme.md'
+    if not p.is_file():
+        return None
+    text = p.read_text(encoding='utf-8')
+    cq = re.search(r'^central_question:[ \t]*["\']?([^"\'\n]+)["\']?', text, re.M)
+    motifs = []
+    motif_sec = _section_map(text, level=2).get('motifs', '')
+    for sub in re.finditer(r'^###[ \t]+([^\n]+)\n(.*?)(?=^###[ \t]+|\Z)', motif_sec, re.M | re.S):
+        entry = {'name': sub.group(1).strip()}
+        for k in ('type', 'what_it_is'):
+            val = _labeled_block(sub.group(2), k)
+            if val:
+                entry[k] = val
+        motifs.append(entry)
+    return {
+        'path': 'Wiki/Story/theme.md',
+        'sha256': digest(p),
+        'central_question': cq.group(1).strip() if cq else None,
+        'motifs': motifs,
+    }
+
+
+def parse_surprise_ledger(root, book, ch_num):
+    p = root / 'Wiki' / 'Outline' / book / 'surprise-ledger.md'
+    if not p.is_file():
+        return None
+    text = p.read_text(encoding='utf-8')
+    entries = []
+    for sub in re.finditer(r'^##[ \t]+([^\n]+)\n(.*?)(?=^##[ \t]+|\Z)', text, re.M | re.S):
+        heading = sub.group(1).strip()
+        body = sub.group(2)
+        span = re.search(r'(\d+)\s*[–-]\s*(\d+)', heading)
+        if ch_num is not None and span and not (int(span.group(1)) <= ch_num <= int(span.group(2))):
+            continue
+        lines = [line.strip() for line in body.splitlines() if line.strip().startswith('-')]
+        if ch_num is not None:
+            ch_lines = [line for line in lines if re.search(rf'\bch(?:apter)?\.?\s*0*{ch_num}\b', line, re.I)
+                        or 'surprise inventory' in line.lower()]
+            lines = ch_lines or lines
+        if lines:
+            entries.append({'act': heading, 'entries': lines})
+    return {'path': str(p.relative_to(root)), 'sha256': digest(p), 'acts': entries} if entries else None
+
+
+def parse_voice_lenses(root, voice_prompts):
+    lenses = []
+    for vp in voice_prompts:
+        p = path_at(root, vp['path'])
+        if not p.is_file():
+            continue
+        sections = _section_map(p.read_text(encoding='utf-8'), level=2)
+        notice = sections.get('what they notice', '').strip()
+        firewall = sections.get('language firewall', '').strip()
+        if notice or firewall:
+            lenses.append({
+                'pov': vp['pov'],
+                'path': vp['path'],
+                'what_they_notice': notice[:600],
+                'language_firewall': firewall[:600],
+            })
+    return lenses
 
 
 def pov_labels(text):
@@ -331,10 +536,11 @@ def draft_packet(root, args):
     checkpoints = []
     char_dir = root / 'Wiki' / 'Characters'
     if char_dir.is_dir() and ch_num is not None:
+        unscoped_ok = book.strip().lower() == 'book-1'
         for cf in sorted(char_dir.glob('*.md')):
             if cf.stem.endswith('_sheet'):
                 continue
-            for cp in parse_checkpoints(cf, ch_num):
+            for cp in parse_checkpoints(cf, ch_num, book=book, unscoped_ok=unscoped_ok):
                 cp['source'] = str(cf.relative_to(root))
                 cp['source_sha256'] = digest(cf)
                 checkpoints.append(cp)
@@ -451,7 +657,8 @@ def draft_packet(root, args):
                                                   global_ledger=global_knowledge,
                                                   legacy_ledger=legacy_knowledge, first=index == 0)
         scene['editorial_decisions'] = [item for item in decisions
-                                        if decision_applies(item, book_ids, chapter_ids, scene['pov'])]
+                                        if decision_applies(item, book_ids, chapter_ids, scene['pov'],
+                                                            chapter_path=chapter_record['path'])]
 
     relationship_as_of = []
     relationship_events = ledger_store.load_ledger(root, 'Wiki/Story/relationship-events.json')
@@ -467,6 +674,7 @@ def draft_packet(root, args):
 
     formatting = chapter_format_module().audit(book_record, texts, selected=chapter_record['id'])
     keys = (scene_info or {}).get('continuity_keys', []) + (getattr(args, 'key', None) or [])
+    policy_ns = argparse.Namespace(book=book, simile_count=None)
     packet = {
         'schema_version': VERSION,
         'book': book,
@@ -480,8 +688,12 @@ def draft_packet(root, args):
         'scene_plan': scene_info,
         'scenes': scenes,
         'psych': psych_info,
+        'theme': parse_theme(root),
+        'surprise_ledger': parse_surprise_ledger(root, book, ch_num),
         'style_authority': style_authority,
+        'style_policy': style_policy(root, policy_ns),
         'voice_prompts': voice_prompts,
+        'pov_lenses': parse_voice_lenses(root, voice_prompts),
         'relationship_checkpoints': checkpoints,
         'relationship_state_as_of': relationship_as_of,
         'continuity_tail': continuity_tail,

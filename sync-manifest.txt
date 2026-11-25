@@ -41,6 +41,7 @@ skills/book-status/scripts/rhythm_map.py
 skills/book-status/scripts/state_core.py
 skills/book-status/scripts/state_ledgers.py
 skills/book-status/scripts/state_packets.py
+skills/book-status/scripts/state_projections.py
 skills/book-status/scripts/state_reviews.py
 skills/book-status/scripts/state_workflows.py
 skills/book-status/scripts/sync_edits.py

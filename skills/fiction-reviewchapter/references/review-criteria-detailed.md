@@ -22,7 +22,7 @@ Expanded guidance for each review criterion.
 
 ### Example Fix
 **Weak**: "The door opened and a man entered."
-**Strong**: "The door opened. She tracked the man's hands first—habit—then his face. Too confident for a messenger."
+**Strong**: "The door opened. Calluses ridged the man's knuckles, though his coat was tailor-cut—too soft at the collar for a runner."
 
 ---
 
@@ -61,7 +61,7 @@ Expanded guidance for each review criterion.
 - Time jump confusion
 - Characters knowing things they shouldn't
 - Forgotten injuries or conditions
-- Location details contradicting world.md
+- Location details contradicting `Wiki/World/` canon
 - Emotional state not matching last chapter's end
 
 ### How to Fix
@@ -89,7 +89,7 @@ Expanded guidance for each review criterion.
 - No growth or change
 
 ### How to Check
-- Cross-reference characters.csv for dialogue style
+- Cross-reference `Wiki/Characters/*.md` and `voice_prompt*.md` for dialogue style
 - Compare to earlier appearances
 - Verify relationship dynamics match established pattern
 
@@ -184,7 +184,7 @@ Add one line of sensory grounding:
 - Terminology inconsistent
 
 ### How to Check
-- Cross-reference world.md
+- Cross-reference `Wiki/World/` canon files
 - Verify terminology table
 - Check location profiles
 

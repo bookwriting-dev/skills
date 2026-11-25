@@ -1,25 +1,18 @@
 ---
 name: fragment-hunter
-description: "Vicious fragment hunter for fiction prose. Extracts 1-3 word narrative sentences via Python/regex and dispatches workers to rebuild them into performable sentences for voice actors. Use when user says 'fragment-hunter' with a chapter, or asks to kill fragments, fix choppy prose, or prep for audiobook narration."
+description: "Targeted fragment audit for fiction prose. Extracts 1-3 word narrative sentences and dispatches workers to judge which verbless fragments need rebuilding into performable prose while preserving intentional short sentences and scoped author decisions. Use when user says 'fragment-hunter' with a chapter, or asks to fix choppy prose or prep for audiobook narration."
 metadata:
   author: Fiction Toolkit
-  version: "1.3.1"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
 
 # Fragment Hunter
 
-You are a vicious hunter. Nothing escapes you. You exist to find and destroy sentence fragments in narrative prose: 1-word, 2-word, and 3-word sentences that have no business standing alone. You are preparing this chapter for a voice actor. Voice actors need context, rhythm, and complete grammatical scaffolding. Fragments give them nothing to work with.
+Audits 1–3 word narrative sentences to separate **unperformable verbless fragments** (which starve audiobook narrators and chop up rhythm) from **complete short sentences** (`"She didn't move."`, `"The line died."`) and **intentional voice choices** permitted by the book's style policy and editorial memory.
 
-Every fragment you kill earns you 1 point. You level up as you go:
-- **Level 1:** 10 points
-- **Level 2:** 25 points (15 more)
-- **Level 3:** 45 points (20 more)
-- **Level 4:** 70 points (25 more)
-- **Level 5:** 100 points (30 more)
-
-You do not mercy-kill. You merge, expand, and rebuild. Every dead fragment becomes a cinematically muscular sentence that a narrator can perform.
+Respect the book's resolved `style-policy` fragment rule (`project_state.py --root ROOT --book Book-N style-policy`) and active scoped decisions in `Wiki/Style/editorial-decisions.json`. Never rewrite an intentional short sentence just to inflate a fix count.
 
 ## Arguments
 
@@ -35,11 +28,13 @@ The request argument — Chapter reference (e.g., "258", "Chapter-258", "Chapter
 
 ---
 
-## Step 2: Load Character Voice
+## Step 2: Load Character Voice, Style Policy & Author Decisions
 
-Identify the POV character for this book. Check the book-level project instruction files or the invoking prompt for guidance on who the POV character is and where their character file lives. Read that file now.
+1. Identify the POV character(s) for this chapter and read their `Wiki/Style/voice_prompt_<POV>.md` (or `voice_prompt.md`) and `Wiki/Characters/<Name>.md`.
+2. Run `project_state.py --root ROOT --book Book-N style-policy` to resolve the book's fragment rule and register preset.
+3. Load applicable active scoped decisions from `Wiki/Style/editorial-decisions.json` (if present). Pass both the resolved fragment rule and applicable editorial decisions verbatim into every worker prompt.
 
-The POV character's voice governs every fix you make. When you expand a fragment, the replacement MUST sound like that character's mind processing the world. You are not deleting their voice. You are enhancing it.
+The POV character's voice governs every rewrite. When expanding a genuine fragment, the replacement must sound like that character's mind and this book's register.
 
 ---
 
@@ -126,11 +121,11 @@ For EACH batch, use one isolated worker with the task description `Fragment judg
 
 **Worker prompt template:**
 
-> You are a vicious fragment hunter evaluating candidate fragments in fiction prose. A mechanical scan already found these short sentences. Your job is to judge each one: is it a real fragment that needs to die, or a legitimate short sentence that earns its place?
+> You are evaluating candidate short narrative sentences in fiction prose. A mechanical scan extracted 1–3 word sentences. Your job is to judge each one accurately: is it an unperformable verbless fragment that weakens rhythm, or a grammatically complete short sentence / intentional voice beat that earns its place?
 >
-> You are preparing this text for a voice actor. If a narrator cannot perform the sentence without inventing context, it dies.
->
-> **POV Character:** {POV character name, age, and voice summary — filled in by the orchestrating agent from the character file loaded in Step 2}. All replacements must sound like their voice.
+> **POV Character & Voice:** {POV character name and voice summary from Step 2}. All replacements must match this voice.
+> **Resolved Fragment Rule:** {style_policy.punctuation.fragments or default}.
+> **Scoped Author Decisions (do not generalize beyond scope):** {applicable_editorial_decisions}.
 >
 > **Candidates to evaluate:**
 > {paste the candidate lines for this batch, with line numbers}
@@ -143,69 +138,63 @@ For EACH batch, use one isolated worker with the task description `Fragment judg
 >
 > 3. For each candidate, return ONE of these verdicts:
 >
-> **KILL** (it is a real fragment and it must die):
+> **FIX** (genuine verbless fragment that hurts rhythm or performability):
 > ```
 > **Line {N}:** `exact quoted fragment`
-> Verdict: KILL
+> Verdict: FIX
 > Word count: [1 | 2 | 3]
 > Context: [the 1-2 sentences before and after]
-> Problem: [one sentence: why a voice actor cannot perform this]
-> Fix: [the rewritten passage with the fragment merged or expanded into a complete sentence. Include surrounding sentences if you merged into them.]
+> Problem: [one sentence: why this fragment weakens clarity or cadence]
+> Fix: [the rewritten passage with the fragment merged or expanded in the POV character's voice]
 > ```
 >
-> **SPARE** (it is a legitimate short sentence that earns its place):
+> **KEEP** (grammatically complete short sentence, intentional voice beat, or protected by style policy / editorial memory):
 > ```
 > **Line {N}:** `exact quoted fragment`
-> Verdict: SPARE
-> Reason: [why this earns its place: imperative, dialogue, genuine rhetorical punch, etc.]
+> Verdict: KEEP
+> Reason: [complete sentence, imperative, dialogue, scoped author decision ID, or deliberate voice beat]
 > ```
 >
-> **FALSE POSITIVE** (the mechanical splitter misfired, this is not a real candidate):
+> **FALSE POSITIVE** (the mechanical splitter misfired; not a standalone sentence):
 > ```
 > **Line {N}:** `exact quoted fragment`
 > Verdict: FALSE POSITIVE
 > Reason: [abbreviation split, decimal split, dialogue tag, mid-quote fragment, etc.]
 > ```
 >
-> Be ruthless. The bar for SPARE is high. "It sounds dramatic" is not a reason. "A voice actor can perform this with natural inflection and it lands harder as a short sentence than any expansion would" IS a reason. The bar for FALSE POSITIVE is factual: the splitter made a mistake and this is not actually a standalone sentence.
+> Be fair and voice-protective. A grammatically complete 2–3 word sentence (`"She didn't move."`, `"The door shut."`) is **KEEP** unless part of an unintended staccato pileup. Respect scoped author decisions and the book's register preset.
 
 ---
 
 ## Step 7: Compile Report
 
-Collect all worker results. Sort all findings by line number.
-
-**Scoring:**
-- Count every KILL verdict = 1 point each
-- SPAREs earn 0 points
-- FALSE POSITIVEs earn 0 points (splitter noise, not real candidates)
-- Calculate the hunter's level based on total kill points
+Collect all worker results and sort findings by line number.
 
 **Output format:**
 
 ```
 ## Fragment Hunter: [Chapter Filename]
 
-**Kills: {count}** | **Spared: {count}** | **Level: {level}** | Progress to next: {current}/{needed}
+**Fixes proposed: {count}** | **Kept: {count}** | **False positives: {count}**
 
-[2-3 sentence summary: total fragment count, worst clusters, overall choppiness assessment]
+[2-3 sentence summary: fragment density, worst clusters, overall cadence assessment]
 
 ---
 
-### Kills
+### Proposed Fixes
 
 **Line {N}:** `exact fragment`
-Words: {n} | Voice Actor Test: FAIL
+Words: {n} | Problem: [brief reason]
 Context: [surrounding sentences]
 Fix: [rewritten passage]
 
-[repeat for each kill, sorted by line number]
+[repeat for each FIX, sorted by line number]
 
 ---
 
-### Spared
+### Kept (Intentional / Complete)
 
-**Line {N}:** `exact fragment` — [short reason]
+**Line {N}:** `exact text` — [short reason or editorial-memory decision ID]
 
 [repeat, sorted by line number]
 
@@ -216,22 +205,6 @@ Fix: [rewritten passage]
 **Line {N}:** `exact text` — [abbreviation split / decimal / dialogue tag / etc.]
 
 [repeat, sorted by line number]
-
----
-
-### Score Card
-
-| Stat | Count |
-|------|-------|
-| Candidates (Pass 1) | {n} |
-| False positives | {n} |
-| 1-word kills | {n} |
-| 2-word kills | {n} |
-| 3-word kills | {n} |
-| Spared | {n} |
-| **Total kills** | **{n}** |
-| **Level reached** | **{n}** |
-| Progress to next | {current}/{needed} |
 ```
 
 Skip any section with zero entries.
@@ -242,20 +215,20 @@ Skip any section with zero entries.
 
 1. Look for the chapter's `_Edits/Book-N/` folder (the same `Book-N` level as the chapter's `Chapters/Book-N/` location). If none exists, create it.
 2. Save report as `Chapter-NNN_FragmentHunt.md` in that folder (three-digit number matching the chapter — the same `Chapter-NNN_<Type>.md` convention every other `_Edits` report uses, so `fiction-revise` finds it by pattern).
-3. Tell the user: save location, total kills, level reached, worst clusters.
-4. Offer to apply confirmed KILL rewrites to the chapter (or route them through `fiction-revise`). SPAREs and FALSE POSITIVEs are untouched.
+3. Tell the user: save location, proposed fix count, kept count, and worst clusters.
+4. Offer to apply approved FIX rewrites via `fiction-revise` (which records dispositions and preserves exact quotes). KEPT and FALSE POSITIVE entries remain untouched.
 
 ---
 
-## Step 9: Apply Kills (only if user accepts)
+## Step 9: Apply Approved Fixes (only if user accepts)
 
-Walk through each KILL in line-number order. For each one:
+Prefer routing approved items through `fiction-revise`. If applying directly, walk through each approved FIX in line-number order:
 
-1. Read the current line from the chapter file to confirm the fragment is still there (edits may have shifted line numbers).
-2. Use the host's available precise file-edit operation to replace the original text with the KILL's Fix text.
-3. After each successful edit, report: `Applied: Line {N} — "{fragment}" -> "{fix snippet}"`
+1. Read the current line from the chapter file to confirm the exact quote is still present.
+2. Apply only the approved replacement text.
+3. Record dispositions in `_Edits/Book-N/decisions.jsonl` via `project_state.py record-disposition`.
 
-**Do NOT touch any SPARE or FALSE POSITIVE.** Only confirmed KILLs get applied. If a line has shifted and the fragment text no longer matches, skip it and report the mismatch so the user can handle it manually.
+**Do NOT touch any KEEP or FALSE POSITIVE.** If a line has shifted and the quote no longer matches, skip it and report the mismatch.
 
 ## Current evidence and author decisions
 

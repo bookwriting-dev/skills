@@ -45,6 +45,7 @@ compile:
 eval:
 	bash tools/eval-skills.sh
 	$(PYTHON) tools/test-storycraft-state.py
+	$(PYTHON) tools/test-state-regressions.py
 	$(PYTHON) tools/test-storycraft-improvements.py
 	$(PYTHON) tools/test-edition-exchange.py
 	$(PYTHON) tools/test-editorial-milestones.py

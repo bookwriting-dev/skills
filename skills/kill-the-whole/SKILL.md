@@ -3,7 +3,7 @@ name: kill-the-whole
 description: Hunt the intensifier phrase "the whole of [me/him/it/attention]" across a chapter and cut the hollow padding while keeping literal quantitative uses and in-voice dialogue idioms (deletion-first, parallel focused workers, edits in place). "the whole of X" is a frequently overused filler intensifier, especially during high-arousal/high-stress beats. Use when user says "kill-the-whole", "kill the whole", or "strip the whole-of crutch".
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.2.1"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
@@ -31,8 +31,8 @@ Read [the-whole.md](../kill-chapter/references/the-whole.md) before triaging or 
    per group in parallel when the host supports workers; otherwise process the groups sequentially.
 3. **Each worker gets:** its exact file list; the KEEP/FIX and deletion-first rules
    verbatim; instruction to read each file in 20-line chunks so it sees every hit in full
-   context; the global style rules (no em dashes except to interrupt dialogue; complete
-   grounded sentences; no metaphorical math/analytical language). It makes the minimal
+   context; the resolved `style-policy` (register preset and punctuation rules) and active
+   scoped `editorial-memory` decisions (`Wiki/Style/editorial-decisions.json`) verbatim. It makes the minimal
    in-place edit, touching only the target phrase, and reports a per-file verdict list: each
    hit tagged (KEPT-literal / KEPT-voice / DELETED / REWRITTEN) with before→after for
    changes.

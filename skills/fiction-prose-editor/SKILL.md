@@ -3,7 +3,7 @@ name: fiction-prose-editor
 description: Focused prose craft mechanics check for fiction (narrative fragments, choppy constructions, S-V-O chains, simile density, rule-of-threes, show-vs-tell). Use fiction-full-editor for general sentence editing; use this skill only when specifically isolating structural prose mechanics without voice or AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "1.6.0"
+  version: "1.6.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

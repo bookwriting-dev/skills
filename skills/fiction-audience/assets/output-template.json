@@ -2,8 +2,7 @@
   "age_group": "[Children | Middle Grade | Young Adult | New Adult | Adult]",
   "typical_reader_age": "[Age range, e.g. '22+' or '14-18']",
   "protagonist_ages": {
-    "heroine": 0,
-    "hero": 0
+    "protagonist": 0
   },
   "tone_variant": "[Tone descriptor, e.g. 'Witty / Dark']",
   "content_boundaries": {

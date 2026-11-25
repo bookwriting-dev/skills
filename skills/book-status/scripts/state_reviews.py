@@ -4,10 +4,44 @@ from pathlib import Path
 import re
 
 import editions
+import state_projections as projections
 from state_core import (
     VERSION, digest, evidence, load, locked, manuscript_texts, now, path_at,
     project_manifest_module, write,
 )
+
+
+def current_inputs(root, items):
+    """Re-evaluate recorded review inputs (plain evidence records and chapter projections)."""
+    return projections.current_inputs(root, items)
+
+
+def subject_lineage(steps, initial=()):
+    """Every subject/output hash a journal has legitimately recorded, per path."""
+    lineage = {}
+
+    def add(entry):
+        if isinstance(entry, dict) and entry.get('path') and entry.get('sha256'):
+            lineage.setdefault(entry['path'], set()).add(entry['sha256'])
+
+    for entry in initial:
+        add(entry)
+    for step in steps:
+        if step.get('status') != 'complete':
+            continue
+        for entry in [*step.get('subjects', []), *step.get('outputs', [])]:
+            add(entry)
+        for transform in step.get('transformations', []):
+            add(transform.get('before'))
+            add(transform.get('after'))
+    return lineage
+
+
+def campaign_expected(campaign_record):
+    expected = {}
+    for task in sorted(campaign_record['tasks'], key=lambda x: x.get('completed_at', '')):
+        expected.update({e['path']: e for e in task.get('after', [])})
+    return expected
 
 
 def chapter_report_paths(root, book, chapter, check=None):
@@ -34,18 +68,30 @@ def freshness(root, meta):
         raise ValueError('review metadata requires inputs and report')
     reasons = []
     for item in m['inputs']:
-        current = evidence(root, [item['path']])[0]
-        if current != item:
-            reasons.append('changed input: ' + item['path'])
+        if projections.current_input(root, item) != item:
+            label = f" ({item['projection']} as of chapter)" if item.get('kind') == projections.PROJECTION else ''
+            reasons.append('changed input: ' + item['path'] + label)
     if digest(path_at(root, m['report'])) != m.get('report_sha256'):
         reasons.append('report body changed')
     return {'freshness': 'STALE' if reasons else 'CURRENT', 'reasons': reasons,
             'verdict': m.get('verdict', 'UNKNOWN')}
 
 
-def pipeline_step_reusable(root, step):
+def pipeline_step_reusable(root, step, lineage=None):
+    """A completed step is reusable while its evidence matches, or has advanced along the journal's lineage.
+
+    `lineage` maps a path to the hashes the journal recorded for it. A later step that legitimately
+    transformed the chapter does not make an earlier step's historical evidence stale; an edit that
+    no recorded step produced still does.
+    """
     if step.get('status') != 'complete' or not step.get('inputs') or not step.get('outputs'):
         return False
+    lineage = lineage or {}
+
+    def advanced(item):
+        hashes = lineage.get(item.get('path'), set())
+        return bool(hashes) and item.get('sha256') in hashes and digest(path_at(root, item['path'])) in hashes
+
     if (step.get('completion_profile') not in ('draft_verified', 'full_editorial_candidate', 'independent_editorial_gate') or
             not step.get('operation_id') or not step.get('idempotency_key') or
             not step.get('stage_role') or not step.get('subjects')):
@@ -56,9 +102,11 @@ def pipeline_step_reusable(root, step):
     transformed = {item.get('path') for item in step.get('transformations', [])}
     unchanged = [item for item in step['inputs']
                  if item.get('path') not in outputs and item.get('path') not in transformed]
-    if unchanged and evidence(root, [item['path'] for item in unchanged]) != unchanged:
+    current = {entry['path']: entry for entry in evidence(root, [item['path'] for item in unchanged])} if unchanged else {}
+    if any(current[item['path']] != item and not advanced(item) for item in unchanged):
         return False
-    return evidence(root, list(outputs)) == sorted(outputs.values(), key=lambda item: item['path'])
+    now_outputs = {entry['path']: entry for entry in evidence(root, list(outputs))}
+    return all(now_outputs[path] == item or advanced(item) for path, item in outputs.items())
 
 
 def operation_profile_blockers(root, meta, profile, subject_paths):
@@ -76,7 +124,9 @@ def operation_profile_blockers(root, meta, profile, subject_paths):
     if journal.get('record_type') != 'operation_journal' or journal.get('completion_profile') != profile:
         return ['operation journal profile does not match requested profile']
     steps = journal.get('steps', [])
-    completed = [step for step in steps if step.get('status') == 'complete' and pipeline_step_reusable(root, step)]
+    lineage = subject_lineage(steps, journal.get('initial_subjects', journal.get('subjects', [])))
+    completed = [step for step in steps
+                 if step.get('status') == 'complete' and pipeline_step_reusable(root, step, lineage)]
     roles = {step.get('stage_role') for step in completed}
     required = {'developmental_assessment', 'developmental_checkpoint', 'line_edit',
                 'integration_read', 'ledger_reconciliation', 'final_gate'}
@@ -218,9 +268,13 @@ def dashboard(root, book):
     campaigns = []
     for p in (root / '_Edits' / book / 'campaigns').glob('*/campaign.json'):
         d = load(p)
-        expected = {}
-        for task in sorted(d['tasks'], key=lambda x: x.get('completed_at', '')):
-            expected.update({e['path']: e for e in task.get('after', [])})
+        sealed, cancelled = bool(d.get('sealed')), bool(d.get('cancelled'))
+        if sealed or cancelled:
+            # Authoring after a sealed (or abandoned) campaign is governed by the chapters' own reviews.
+            campaigns.append(dict(path=str(p.relative_to(root)), current=True, sealed=sealed,
+                                  cancelled=cancelled, tasks=d['tasks']))
+            continue
+        expected = campaign_expected(d)
         checks_ready = True
         for task in d['tasks']:
             for check in task.get('checks', []):
@@ -228,7 +282,8 @@ def dashboard(root, book):
                 checks_ready = checks_ready and result['readiness'] == 'ELIGIBLE'
         current = (evidence(root, list(expected)) == sorted(expected.values(), key=lambda e: e['path']) and
                    all(t['status'] == 'complete' for t in d['tasks']) and checks_ready)
-        campaigns.append(dict(path=str(p.relative_to(root)), current=current, tasks=d['tasks']))
+        campaigns.append(dict(path=str(p.relative_to(root)), current=current, sealed=False,
+                              cancelled=False, tasks=d['tasks']))
     base = path_at(root, f'_Edits/{book}/author-read')
     progress = base / 'progress.json'
     author = {'personally_read': 0, 'reported_complete': 0}
@@ -256,8 +311,25 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
     book_label = book_record.get('display_label', book_record['id'])
     stem = resolver.report_stem(chapter_record)
     report_rel = f'_Edits/{book_label}/{stem}_{review_type}.md'
-    paths = [chapter_record['path'], 'AGENTS.md', 'Wiki/Style/editorial-decisions.json',
-             f'Wiki/Story/{book_label}/promises.yaml', 'Wiki/Story/knowledge-events.json']
+    chapter_text = path_at(root, chapter_record['path']).read_text(encoding='utf-8', errors='replace')
+    paths = [chapter_record['path'], 'AGENTS.md']
+    ordered = sorted(book_record['chapters'], key=lambda c: c['reading_order'])
+    through = [c['path'] for c in ordered if c['reading_order'] <= chapter_record['reading_order']]
+    label_number = re.search(r'\d+', str(chapter_record.get('display_label', '')))
+    chapter_number = int(label_number.group(0)) if label_number else chapter_record['reading_order']
+    projected = [
+        projections.make(root, 'promises', f'Wiki/Story/{book_label}/promises.yaml', chapter_number=chapter_number),
+        projections.make(root, 'events', 'Wiki/Story/knowledge-events.json', sources=through),
+        projections.make(root, 'events', 'Wiki/Story/relationship-events.json', sources=through),
+        projections.make(root, 'decisions', 'Wiki/Style/editorial-decisions.json',
+                         book_ids=sorted({book_label, book_record['id']}),
+                         chapter_ids=sorted({chapter_record['id'], f'Chapter-{chapter_number:03d}'}),
+                         chapter_path=chapter_record['path']),
+    ]
+    legacy_knowledge = f'Wiki/Story/{book_label}/knowledge.json'
+    if path_at(root, legacy_knowledge).is_file():
+        projected.append(projections.make(root, 'events', legacy_knowledge, sources=through))
+    paths.extend(projections.canon_files(root, chapter_text))
 
     predecessor_id = resolver.predecessor(book_record, chapter_record)
     predecessor = next((c for c in book_record['chapters'] if c.get('id') == predecessor_id), None)
@@ -273,9 +345,14 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
             f'Wiki/Outline/{book_label}/Chapter_{ch_num:03d}_Scene.md',
         ])
     plan_candidates.append(f'Wiki/Outline/{book_label}/plan.md')
+    plan_path = plan_candidates[-1]
     for cand in plan_candidates:
         if path_at(root, cand).is_file():
-            paths.append(cand)
+            if cand == plan_path:
+                # The shared book-level plan: only this chapter's section is a review input.
+                projected.append(projections.make(root, 'plan', cand, chapter_number=chapter_number))
+            else:
+                paths.append(cand)
             break
 
     psych_candidates = ([chapter_record['psych_path']] if chapter_record.get('psych_path') else [])
@@ -296,16 +373,13 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
         if path_at(root, rg).is_file():
             paths.append(rg)
 
-    if path_at(root, 'Wiki/Story/relationship-events.json').is_file():
-        paths.append('Wiki/Story/relationship-events.json')
-    if path_at(root, f'Wiki/Story/{book_label}/knowledge.json').is_file():
-        paths.append(f'Wiki/Story/{book_label}/knowledge.json')
-
     if review_type in ('FactCheck', 'ClarityEdit'):
-        for nf_dir in ('Wiki/Research', 'Wiki/Concept'):
-            if path_at(root, nf_dir).is_dir():
-                paths.append(nf_dir)
         ev_file = f'_Edits/{book_label}/evidence/{stem}.json'
+        if path_at(root, 'Wiki/Concept').is_dir():
+            paths.append('Wiki/Concept')
+        if path_at(root, 'Wiki/Research').is_dir():
+            projected.append(projections.make(root, 'research', 'Wiki/Research', record_path=ev_file,
+                                              plan_path=plan_path, chapter_number=chapter_number))
         if path_at(root, ev_file).is_file():
             paths.append(ev_file)
 
@@ -322,7 +396,7 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
         'report': report_rel,
         'verdict': 'WARN',
         'subject_paths': [chapter_record['path']],
-        'inputs': evidence(root, paths),
+        'inputs': evidence(root, paths) + sorted(projected, key=lambda i: (i['path'], i['projection'])),
     }
     out_rel = output or f'_Edits/{book_label}/{stem}_{review_type}.prepared.json'
     out_path = path_at(root, out_rel)
@@ -335,7 +409,7 @@ def review_finish(root, prepared_path, verdict, *, report=None, output=None, fin
     if not prep_p.is_absolute():
         prep_p = path_at(root, prepared_path)
     spec = load(prep_p)
-    if not spec.get('inputs') or evidence(root, [e['path'] for e in spec['inputs']]) != spec['inputs']:
+    if not spec.get('inputs') or current_inputs(root, spec['inputs']) != spec['inputs']:
         raise ValueError('review inputs changed or pre-review evidence missing')
     report_rel = report or spec.get('report')
     if not report_rel:

@@ -12,29 +12,20 @@ Never replace one hedge with another ("essentially" → "basically" is not a fix
 
 Examples:
 - "the theory essentially explains X" → "the theory explains X"
-- "results virtually confirm the finding" → "results confirm the finding"
-- "this approach is quite effective" → "this approach is effective"
-- "arguably the strongest predictor" → "the strongest predictor" (commit; if the
-  argument needs the caveat, place it deliberately, not smeared into the noun)
-- "somewhat effective" → "effective" (if the degree matters, add a concrete
-  comparison; do not trade "somewhat" for "slightly")
+- "this approach is quite effective" → "this approach is effective" (or cite the measured figure; preserve `"quite"` if the book uses a British/period register)
+- "somewhat effective" → "effective" (if the degree matters, add a concrete comparison; do not trade "somewhat" for "slightly")
 
 **KEEP:**
-- Genuine epistemic uncertainty that is the point the sentence makes (measured
-  claims about limits of knowledge: "evidence suggests," "with X still unresolved").
+- **Empirical & epistemic calibration:** Never upgrade a correlational, probabilistic, or tentative claim into a categorical assertion (`"results virtually confirm"`, `"tends to"`, `"to some extent"`, `"arguably"` when evidence strength does not prove causation). Upgrading a calibrated hedge into `"results confirm"` causes a `nonfiction-factcheck` overclaiming error!
+- Genuine epistemic uncertainty that is the point the sentence makes (measured claims about limits of knowledge: "evidence suggests," "with X still unresolved").
 - Quoted speech and direct discussion of hedging (the hedge is the subject).
-- Idiomatic / field-standard phrasing where the qualifier carries meaning, not
-  padding.
-- Comparative qualifiers with an explicit referent when the comparison is the work
-  ("relatively low, compared to Y").
+- Idiomatic / field-standard phrasing where the qualifier carries meaning, not padding.
+- Comparative qualifiers with an explicit referent when the comparison is the work ("relatively low, compared to Y").
 
 **FIX:**
-- "essentially/basically/virtually/practically X" padding — DELETE, commit the claim.
-- "somewhat/rather/fairly/quite X" volume knobs — DELETE; reword only with a
-  concrete grounding if the degree matters.
-- "arguably/in a sense/to some extent/in some ways/more or less/tends to" that
-  softens a claim the sentence should own — DELETE, or rewrite so the claim
-  commits and any caveat sits deliberately at the point.
+- "essentially/basically/practically X" filler padding on an already-supported claim — DELETE, commit the claim.
+- "somewhat/fairly/quite X" vague volume knobs — DELETE or replace with the concrete figure (keep if period/British voice).
+- "in a sense/in some ways/more or less" that smear a point — DELETE or rewrite so any real caveat sits explicitly on the condition where it holds.
 - "kind of/sort of" filler hesitation — DELETE.
 - The same hedge twice within a few lines — cut at least that one.
 

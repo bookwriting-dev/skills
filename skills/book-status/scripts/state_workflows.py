@@ -7,7 +7,7 @@ from state_core import (
     VERSION, chapter_format_module, digest, document, evidence, load, locked, now,
     path_at, project_manifest_module, reader_text_module, write,
 )
-from state_reviews import pipeline_step_reusable, readiness
+from state_reviews import campaign_expected, pipeline_step_reusable, readiness, subject_lineage
 
 
 def validate_pipeline_step(item, run):
@@ -40,6 +40,11 @@ def validate_pipeline_step(item, run):
         raise ValueError('pipeline step transform_paths must be a list')
 
 
+def pipeline_listing(root, journal):
+    lineage = subject_lineage(journal['steps'], journal.get('initial_subjects', journal.get('subjects', [])))
+    return [dict(step, reusable=pipeline_step_reusable(root, step, lineage)) for step in journal['steps']]
+
+
 def record_pipeline_step(root, book, run, action, item=None):
     p = path_at(root, f'_Edits/{book}/pipeline/{run}.json')
     with locked(p):
@@ -52,11 +57,27 @@ def record_pipeline_step(root, book, run, action, item=None):
             d['operation_schema_version'] = 2
             envelope = {'operation_id': item['operation_id'],
                         'completion_profile': item['completion_profile'],
-                        'subjects': item['subjects'], 'constraints': item['constraints']}
+                        'constraints': item['constraints']}
             for key, value in envelope.items():
                 if key in d and d[key] != value:
                     raise ValueError(f'pipeline run {key} differs from the established run manifest')
                 d[key] = value
+            # A run's subject is its chapter identity, not one frozen hash: each step legitimately starts
+            # from the revision the previous transformation produced. A hash the journal never recorded
+            # means the file changed outside the run.
+            identity = [(subject['id'], subject['path']) for subject in item['subjects']]
+            if 'subjects' in d:
+                if [(subject['id'], subject['path']) for subject in d['subjects']] != identity:
+                    raise ValueError('pipeline run subjects differs from the established run manifest')
+                lineage = subject_lineage(d['steps'], [*d.get('initial_subjects', d['subjects']), *d['subjects']])
+                for subject in item['subjects']:
+                    if subject['sha256'] not in lineage.get(subject['path'], set()):
+                        raise ValueError('pipeline subject changed outside recorded transformations: '
+                                         + subject['path'] + '; record the edit as a transformation or start a new run')
+            else:
+                d['initial_subjects'] = item['subjects']
+            if item['status'] == 'running':
+                d['subjects'] = item['subjects']
             existing = next((step for step in d['steps'] if step.get('id') == item['id']), None)
             if existing and item.get('completion_profile') != existing.get('completion_profile'):
                 raise ValueError('pipeline step completion profile changed during operation')
@@ -74,7 +95,7 @@ def record_pipeline_step(root, book, run, action, item=None):
                          'subjects', 'constraints', 'authorized_writes', 'transform_paths'))
                     if (same_manifest and item.get('outputs') == existing.get('outputs') and
                             item.get('attempt_id', existing.get('attempt_id')) == existing.get('attempt_id')):
-                        return [dict(step, reusable=pipeline_step_reusable(root, step)) for step in d['steps']]
+                        return pipeline_listing(root, d)
                     raise ValueError('operation ID already completed with different output; use a new operation ID')
                 if not existing or existing.get('status') != 'running':
                     raise ValueError('completion must reference an existing running operation')
@@ -124,7 +145,7 @@ def record_pipeline_step(root, book, run, action, item=None):
                     raise ValueError('pipeline completion failed current lineage validation')
                 d['steps'][d['steps'].index(existing)] = item
             write(p, d)
-        return [dict(step, reusable=pipeline_step_reusable(root, step)) for step in d['steps']]
+        return pipeline_listing(root, d)
 
 
 def campaign(root, args):
@@ -168,7 +189,54 @@ def campaign(root, args):
         d = load(p)
         if args.action == 'status':
             return d
+        if args.action == 'cancel':
+            if d.get('sealed'):
+                raise ValueError('a sealed campaign cannot be cancelled')
+            reason = load(Path(args.spec)).get('reason') if getattr(args, 'spec', None) else None
+            d['cancelled'] = {'at': now(), 'reason': reason or 'cancelled by the author'}
+            write(p, d)
+            return d
+        if args.action == 'seal':
+            # Sealing is the author's statement that the campaign is finished and verified. Chapters
+            # keep their own review freshness; the campaign stops pinning their file hashes.
+            if d.get('cancelled'):
+                raise ValueError('a cancelled campaign cannot be sealed')
+            if any(x['status'] != 'complete' for x in d['tasks']):
+                raise ValueError('campaign has unfinished tasks; complete or cancel it')
+            expected = campaign_expected(d)
+            if evidence(root, list(expected)) != sorted(expected.values(), key=lambda e: e['path']):
+                raise ValueError('author changes since task completion; run reconcile for the affected task '
+                                 'and re-verify the chapter before sealing')
+            for task in d['tasks']:
+                for check in task.get('checks', []):
+                    if readiness(root, check, task.get('files', []), profile='campaign_task')['readiness'] != 'ELIGIBLE':
+                        raise ValueError('task checks are not current: re-run the checks before sealing')
+            d['sealed'] = {'at': now(), 'after': sorted(expected.values(), key=lambda e: e['path'])}
+            write(p, d)
+            return d
+        if not args.task:
+            raise ValueError('this campaign action requires --task')
         t = next(t for t in d['tasks'] if t['id'] == args.task)
+        if d.get('sealed') or d.get('cancelled'):
+            raise ValueError('campaign is ' + ('sealed' if d.get('sealed') else 'cancelled') + '; no further task actions')
+        if args.action == 'reconcile':
+            # Accept the author's own edits to a task's files and re-baseline the task on them.
+            if t['status'] in ('pending', 'running'):
+                t.setdefault('reconciled', []).append({'at': now(), 'before': t['before']})
+                t['before'] = evidence(root, t['files'])
+                for e in t['before']:
+                    f = path_at(root, e['path'])
+                    if f.is_file():
+                        snapshot = base / 'snapshots' / t['id'] / e['path']
+                        snapshot.parent.mkdir(parents=True, exist_ok=True)
+                        snapshot.write_bytes(f.read_bytes())
+            elif t['status'] == 'complete':
+                t.setdefault('reconciled', []).append({'at': now(), 'after': t['after']})
+                t['after'] = evidence(root, t['files'])
+            else:
+                raise ValueError('only pending, running, or complete tasks can be reconciled')
+            write(p, d)
+            return d
         if args.action == 'start':
             if t['status'] != 'pending' or any(x['status'] != 'complete' for x in d['tasks'] if x['id'] in t.get('depends_on', [])):
                 raise ValueError('task is not ready')

@@ -3,7 +3,7 @@ name: fiction-genre
 description: "Select genre, subgenre, flavor, tone, and tropes for a new fiction project. Use when user says 'pick a genre', 'what genre', 'start a new book', 'genre selection', or before running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.2.2"
+  version: "3.3.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -54,7 +54,7 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 
 **flavor**: The cultural or tonal flavor that makes this story distinctive. Use underscores (e.g. `Mediterranean_High_Life`, `Gothic_Southern_Gothic`, `Regency_London`). Derive from the title or user input.
 
-**tone_notes**: One paragraph informed by the subgenre's tone and reader expectations. What the surface experience feels like, what is warm or witty, what darker currents run underneath, what texture of the world is load-bearing. Specific to this story, not a genre description.
+**tone_notes**: One paragraph informed by the subgenre's tone and reader expectations. Define the story's authentic emotional register (whether earnest, austere, lyrical, sardonic, eerie, comedic, or warm), its underlying tension, and what world texture is load-bearing. Specific to this story, not a generic genre blurb.
 
 **tropes**: List of snake_case strings. Start with the subgenre's mandatory tropes. Add the user's stated preferences. Add only optional tropes that materially strengthen the intended experience; do not copy the reference's entire catalog. Every selected trope is a commitment that downstream planning must either fulfill or deliberately subvert.
 
