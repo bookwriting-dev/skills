@@ -3,7 +3,7 @@ name: kill-acronym
 description: Hunt unexplained initialisms and acronyms on first use across a chapter, flag them, and expand on first occurrence so every reader can follow (flag-first; edits in place when the expansion is unambiguous). Targets first-use of tokens like AI, ML, NLP, GDP, UNESCO without a prior spelling-out. Use when user says "kill-acronym", "flag acronyms", "spell out first use", or "explain initialisms".
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   bundled-dependencies: book-status
   category: nonfiction-editing
 ---
@@ -57,9 +57,10 @@ flag only and leave the text untouched for the author.
 ## Procedure
 
 1. **Resolve the request arguments to files.** Build the candidate acronym list by
-   scanning for capitalized initialism tokens (2+ consecutive uppercase letters,
-   optionally with periods). The canonical target set lives in
-   `references/acronym.md`.
+   scanning **case-sensitively** (never `grep -i` or case-folded matching on tokens
+   like `WHO`, `AID`, `US`, `IT`, or `AM`) for capitalized initialism tokens
+   (2+ consecutive uppercase letters, optionally with periods). The canonical
+   target set lives in `references/acronym.md`.
 2. **Triage:** for each candidate, find its **first bare occurrence** per file (an
    occurrence is "bare" if it is not immediately preceded by an expansion on the
    same line or the prior line, and not preceded by any already-recorded expansion

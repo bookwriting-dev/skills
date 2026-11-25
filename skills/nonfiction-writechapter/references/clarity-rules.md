@@ -7,8 +7,8 @@ Keep the grammatical subject and main verb together. No more than 6 words betwee
 - ❌ "The study, which was conducted over a period of three years across four continents and involved thousands of participants, found..."
 - ✅ "A three-year, four-continent study of thousands of participants found..."
 
-### 2. Active Cognitive Stance
-Use "we find," "the data show," "this implies" — not passive "it was found," "it has been shown."
+### 2. Active Cognitive Stance (Register-Matched)
+Favor active subjects over passive dodging (`"It was found that"`, `"It has been shown"`). In `academic-monograph`, `"We find"` or `"The data show"` fits; in `trade-narrative` or `memoir-literary`, use `"I"`, concrete actors, or `"Smith (2022) found"` rather than royal `"we"`.
 - Exception: Methods sections where passive is conventional.
 
 ### 3. Concrete Before Abstract
@@ -55,9 +55,8 @@ Transitions must encode the logical relationship, not just sequence.
 
 ## Section-Level
 
-### 9. Section Openings: Claim + Evidence Type
-Every major section opens with: "To prove [sub-claim], we examine [evidence type]..."
-This orients the reader to the argumentative function, not just the topic.
+### 9. Section Openings: Claim + Evidence Framing
+Orient the reader to what the section is testing or illuminating. Only `academic-monograph` prose should use the explicit formula `"To prove [sub-claim], we examine [evidence type]..."`; `trade-narrative`, `memoir-literary`, and `practical-guide` open with the narrative question, concrete case, or claim directly.
 
 ### 10. Section Closings: Turn + Transition
 Every major section closes with the turn (what changed) and the explicit transition to the next section's logical necessity.
@@ -88,9 +87,10 @@ Every abstract claim must have a concrete rung within 2 sentences.
 
 ## Formatting
 
-### 15. Citations as Parenthetical Evidence, Not Narrative
-- ✅ "The effect was large (d = 0.8, Smith 2022)."
-- ❌ "Smith (2022) found a large effect (d = 0.8)." (makes author the subject)
+### 15. Citations Matched to Nonfiction Register
+Check `Wiki/Style/style_guide.md`'s `citation_style` (`narrative | parenthetical | endnotes | footnotes`):
+- In **`trade-narrative`** and **`memoir-literary`**: narrative attribution (`"In 2022, Smith measured a large effect..."` or clean prose attribution backed by endnotes) is preferred so parenthesis walls don't stall reading rhythm.
+- In **`academic-monograph`** when parenthetical house style is active: `"The effect was large (d = 0.8, Smith 2022)."` keeps the claim as subject. Never apply APA parenthetical bans to trade/narrative nonfiction.
 
 ### 16. Numbers
 - Spell out one through nine; numerals for 10+ (unless statistical/measurement context)

@@ -1,5 +1,6 @@
 """Editorial memory, knowledge events, relationship state, and continuity ledgers."""
 import importlib.util
+import json
 from pathlib import Path
 import re
 
@@ -305,35 +306,56 @@ def knowledge(root, args):
     return state
 
 
+def _parse_event_batch(spec_path, batch_path=None):
+    raw = json.loads(Path(batch_path or spec_path).read_text(encoding='utf-8'))
+    if isinstance(raw, list):
+        return raw, True
+    if isinstance(raw, dict) and isinstance(raw.get('events'), list):
+        return raw['events'], True
+    return [raw], False
+
+
 def relationship_state(root, args):
     logical_path = 'Wiki/Story/relationship-events.json'
     store = ledger_store_module()
     if args.action == 'record':
-        event = load(Path(args.spec))
+        items, is_batch = _parse_event_batch(getattr(args, 'spec', None), getattr(args, 'events', None))
+        if not items:
+            raise ValueError('relationship record requires at least one event')
         required = ('id', 'relationship_id', 'observer', 'other', 'stance', 'status',
                     'book_id', 'scene_id', 'story_order', 'source', 'source_sha256', 'quote')
-        missing = [key for key in required if key not in event]
-        if missing:
-            raise ValueError('relationship event missing: ' + ', '.join(missing))
-        if event['status'] not in ('planned', 'confirmed') or type(event['story_order']) is not int or event['story_order'] < 0:
-            raise ValueError('relationship event needs planned/confirmed status and nonnegative integer story_order')
-        if not event['quote'] or not source_valid(root, event):
-            raise ValueError('relationship event requires current exact source evidence')
         pointer = store.current_pointer(root)
         d = store.load_ledger(root, logical_path, {'schema_version': VERSION, 'events': []})
-        existing = next((old for old in d['events'] if old.get('id') == event['id']), None)
-        if existing:
-            if {k: v for k, v in existing.items() if k != 'created_at'} == event:
-                return existing
-            raise ValueError('relationship event ID exists with different content')
-        known = {old.get('id') for old in d['events']}
-        if not set(event.get('supersedes', [])).issubset(known):
-            raise ValueError('relationship event supersedes an unknown event')
-        event['created_at'] = now()
-        d['events'].append(event)
-        commit_ledger(root, logical_path, d, 'relationship-' + event['id'], [event['source']],
-                      pointer.get('generation_id') if pointer else None)
-        return event
+        by_id = {old.get('id'): old for old in d['events'] if old.get('id')}
+        known = set(by_id) | {item.get('id') for item in items if isinstance(item, dict) and item.get('id')}
+        added, source_paths = [], []
+        for raw_event in items:
+            event = dict(raw_event)
+            missing = [key for key in required if key not in event]
+            if missing:
+                raise ValueError('relationship event missing: ' + ', '.join(missing))
+            if event['status'] not in ('planned', 'confirmed') or type(event['story_order']) is not int or event['story_order'] < 0:
+                raise ValueError('relationship event needs planned/confirmed status and nonnegative integer story_order')
+            if not event['quote'] or not source_valid(root, event):
+                raise ValueError('relationship event requires current exact source evidence')
+            existing = by_id.get(event['id'])
+            if existing:
+                if {k: v for k, v in existing.items() if k != 'created_at'} == event:
+                    added.append(existing)
+                    continue
+                raise ValueError('relationship event ID exists with different content')
+            if not set(event.get('supersedes', [])).issubset(known):
+                raise ValueError('relationship event supersedes an unknown event')
+            event['created_at'] = now()
+            d['events'].append(event)
+            by_id[event['id']] = event
+            added.append(event)
+            source_paths.append(event['source'])
+        if source_paths:
+            tx_id = 'relationship-' + (added[0]['id'] if len(added) == 1 else f'batch-{len(added)}-{digest(path_at(root, source_paths[0]))[:8]}')
+            commit_ledger(root, logical_path, d, tx_id, sorted(set(source_paths)),
+                          pointer.get('generation_id') if pointer else None)
+        return {'recorded': len(added), 'events': added} if is_batch else added[0]
 
     d = store.load_ledger(root, logical_path, {'schema_version': VERSION, 'events': []})
     if type(args.position) is not int or args.position < 0:
@@ -370,36 +392,48 @@ def knowledge_event_state(root, args):
     logical_path = 'Wiki/Story/knowledge-events.json'
     store = ledger_store_module()
     if args.action == 'record':
-        event = load(Path(args.spec))
+        items, is_batch = _parse_event_batch(getattr(args, 'spec', None), getattr(args, 'events', None))
+        if not items:
+            raise ValueError('knowledge-state record requires at least one event')
         required = ('id', 'fact_id', 'observer', 'state', 'truth_status', 'event_kind',
                     'story_order', 'reader_order', 'confirmed', 'source', 'source_sha256', 'quote')
-        missing = [key for key in required if key not in event]
-        if missing:
-            raise ValueError('knowledge event missing: ' + ', '.join(missing))
         allowed_states = ('knows', 'suspects', 'believes', 'disbelieves', 'forgets', 'exposed')
-        if event['state'] not in allowed_states or event['truth_status'] not in ('true', 'false', 'unknown'):
-            raise ValueError('invalid epistemic state or objective truth status')
-        if (type(event['story_order']) is not int or event['story_order'] < 0 or
-                type(event['reader_order']) is not int or event['reader_order'] < 0 or
-                type(event['confirmed']) is not bool):
-            raise ValueError('knowledge positions must be nonnegative integers and confirmed must be boolean')
-        if not event['quote'] or not source_valid(root, event):
-            raise ValueError('knowledge event requires current exact source evidence')
         pointer = store.current_pointer(root)
         d = store.load_ledger(root, logical_path, {'schema_version': VERSION, 'events': []})
-        existing = next((old for old in d['events'] if old.get('id') == event['id']), None)
-        if existing:
-            if {k: v for k, v in existing.items() if k != 'created_at'} == event:
-                return existing
-            raise ValueError('knowledge event ID exists with different content')
-        known = {old.get('id') for old in d['events']}
-        if not set(event.get('supersedes', [])).issubset(known):
-            raise ValueError('knowledge event supersedes an unknown event')
-        event['created_at'] = now()
-        d['events'].append(event)
-        commit_ledger(root, logical_path, d, 'knowledge-' + event['id'], [event['source']],
-                      pointer.get('generation_id') if pointer else None)
-        return event
+        by_id = {old.get('id'): old for old in d['events'] if old.get('id')}
+        known = set(by_id) | {item.get('id') for item in items if isinstance(item, dict) and item.get('id')}
+        added, source_paths = [], []
+        for raw_event in items:
+            event = dict(raw_event)
+            missing = [key for key in required if key not in event]
+            if missing:
+                raise ValueError('knowledge event missing: ' + ', '.join(missing))
+            if event['state'] not in allowed_states or event['truth_status'] not in ('true', 'false', 'unknown'):
+                raise ValueError('invalid epistemic state or objective truth status')
+            if (type(event['story_order']) is not int or event['story_order'] < 0 or
+                    type(event['reader_order']) is not int or event['reader_order'] < 0 or
+                    type(event['confirmed']) is not bool):
+                raise ValueError('knowledge positions must be nonnegative integers and confirmed must be boolean')
+            if not event['quote'] or not source_valid(root, event):
+                raise ValueError('knowledge event requires current exact source evidence')
+            existing = by_id.get(event['id'])
+            if existing:
+                if {k: v for k, v in existing.items() if k != 'created_at'} == event:
+                    added.append(existing)
+                    continue
+                raise ValueError('knowledge event ID exists with different content')
+            if not set(event.get('supersedes', [])).issubset(known):
+                raise ValueError('knowledge event supersedes an unknown event')
+            event['created_at'] = now()
+            d['events'].append(event)
+            by_id[event['id']] = event
+            added.append(event)
+            source_paths.append(event['source'])
+        if source_paths:
+            tx_id = 'knowledge-' + (added[0]['id'] if len(added) == 1 else f'batch-{len(added)}-{digest(path_at(root, source_paths[0]))[:8]}')
+            commit_ledger(root, logical_path, d, tx_id, sorted(set(source_paths)),
+                          pointer.get('generation_id') if pointer else None)
+        return {'recorded': len(added), 'events': added} if is_batch else added[0]
 
     d = store.load_ledger(root, logical_path, {'schema_version': VERSION, 'events': []})
     observer = args.observer
@@ -434,3 +468,106 @@ def knowledge_event_state(root, args):
             'state': state if not conflicts else {}, 'conflicts': conflicts,
             'coverage': 'partial; missing events do not establish ignorance',
             'stale_events': [event['id'] for event in events if not event['current']]}
+
+
+def reanchor_chapter(root, book_id, chapter_selector):
+    """Re-anchor continuity claims, knowledge events, and relationship events whose exact quote survives a polish edit."""
+    resolver = project_manifest_module()
+    book, chapter = resolver.resolve_chapter(root, book_id, chapter_selector)
+    ch_path = chapter['path']
+    p = path_at(root, ch_path)
+    if not p.is_file():
+        raise ValueError('chapter file missing: ' + ch_path)
+    text = p.read_bytes().decode('utf-8')
+    new_sha = digest(p)
+    lines = text.splitlines()
+
+    def unique_line(quote):
+        hits = [idx for idx, line in enumerate(lines, 1) if quote in line]
+        return hits[0] if len(hits) == 1 else None
+
+    runtime = continuity_module()
+    cont_rel = f"{continuity_dir(book)}/{runtime.filename(chapter['id'])}"
+    cont_p = path_at(root, cont_rel)
+    continuity_result = {'path': cont_rel, 'status': 'MISSING', 'reanchored': 0, 'unresolved': []}
+    if cont_p.is_file():
+        with locked(cont_p):
+            rec = load(cont_p)
+            claims = rec.get('claims', [])
+            unresolved = []
+            updated_claims = []
+            for idx, raw_claim in enumerate(claims):
+                claim = dict(raw_claim)
+                quote = claim.get('quote', '')
+                ln = unique_line(quote) if quote else None
+                if ln is None:
+                    unresolved.append({'claim_index': idx, 'kind': claim.get('kind'), 'quote': quote,
+                                       'reason': 'quote missing or non-unique in updated chapter'})
+                else:
+                    claim['line'] = ln
+                if claim.get('kind') == 'support':
+                    new_refs = []
+                    for ref in claim.get('references', []):
+                        if ref.get('path') == ch_path:
+                            ref_line = unique_line(ref.get('quote', '')) if ref.get('quote') else None
+                            if ref_line is None:
+                                unresolved.append({'claim_index': idx, 'kind': 'support_ref', 'quote': ref.get('quote', ''),
+                                                   'reason': 'reference quote missing or non-unique'})
+                                new_refs.append(ref)
+                            else:
+                                new_refs.append({**ref, 'line': ref_line, 'source_sha256': new_sha})
+                        else:
+                            new_refs.append(ref)
+                    claim['references'] = new_refs
+                updated_claims.append(claim)
+            if not unresolved and rec.get('source_sha256') != new_sha:
+                runtime.validate_claims(updated_claims, text)
+                rec['claims'] = updated_claims
+                rec['source_sha256'] = new_sha
+                write(cont_p, rec)
+                continuity_result = {'path': cont_rel, 'status': 'REANCHORED',
+                                     'reanchored': len(updated_claims), 'unresolved': []}
+            elif unresolved:
+                continuity_result = {'path': cont_rel, 'status': 'UNRESOLVED',
+                                     'reanchored': 0, 'unresolved': unresolved}
+            else:
+                continuity_result = {'path': cont_rel, 'status': 'CURRENT',
+                                     'reanchored': 0, 'unresolved': []}
+
+    store = ledger_store_module()
+    ledger_results = {}
+    for key, logical_path in (('knowledge', 'Wiki/Story/knowledge-events.json'),
+                              ('relationship', 'Wiki/Story/relationship-events.json')):
+        pointer = store.current_pointer(root)
+        d = store.load_ledger(root, logical_path)
+        if not d:
+            ledger_results[key] = {'status': 'MISSING', 'reanchored': 0, 'unresolved': []}
+            continue
+        reanchored_ids, unresolved_ids = [], []
+        for event in d.get('events', []):
+            if event.get('source') != ch_path or event.get('source_sha256') == new_sha:
+                continue
+            quote = event.get('quote', '')
+            if quote and quote in text:
+                event['source_sha256'] = new_sha
+                reanchored_ids.append(event.get('id'))
+            else:
+                unresolved_ids.append({'id': event.get('id'), 'quote': quote,
+                                       'reason': 'quote absent after edit'})
+        if reanchored_ids:
+            commit_ledger(root, logical_path, d, f'{key}-reanchor-{new_sha[:10]}', [ch_path],
+                          pointer.get('generation_id') if pointer else None)
+        ledger_results[key] = {
+            'status': 'REANCHORED' if reanchored_ids else ('UNRESOLVED' if unresolved_ids else 'CURRENT'),
+            'reanchored': len(reanchored_ids),
+            'event_ids': reanchored_ids,
+            'unresolved': unresolved_ids,
+        }
+
+    return {
+        'chapter': chapter['path'],
+        'chapter_id': chapter['id'],
+        'source_sha256': new_sha,
+        'continuity': continuity_result,
+        'ledgers': ledger_results,
+    }

@@ -57,14 +57,15 @@ EVIDENCE_MARK = re.compile(
 )
 
 # The defined TERM, not the subject: "X is a thekgi", "X — a thekgi",
-# "known as thekgi", "called thekgi". One capture group per alternative.
+# "known as a thekgi", "called thekgi" (requires article or lowercase term so
+# ordinary predications like "She is tired" or "called Marcus" do not match).
 DEFINITION = re.compile(
-    r"""\b[A-Za-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,2}\s+
-        (?:is|are)\s+(?:a|an|the)?\s*([a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,1})\b
-        |\b[a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,2}\s+[—–-]\s+(?:a|an|the)?\s*([A-Za-z][\w-]{2,})\b
-        |\bknown\s+as\s+(?:a|an|the)?\s*([A-Za-z][\w-]{2,})
-        |\b(?:called|termed|named)\s+([A-Za-z][\w-]{2,})""",
-    re.I | re.X,
+    r"""(?!(?:he|she|it|they|we|you)\b)\b[A-Za-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,2}\s+
+        (?:is|are)\s+(?:a|an)\s+([a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,1})\b
+        |\b[a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,2}\s+[—–-]\s+(?:a|an)\s+([A-Za-z][\w-]{2,})\b
+        |\bknown\s+as\s+(?:a|an|the)\s+([a-z][\w-]{2,}(?:\s+[a-z][\w-]{2,}){0,1})\b
+        |\b(?:called|termed|named)\s+(?:(?:a|an|the)\s+)?([a-z][\w-]{2,})\b""",
+    re.X,
 )
 
 
@@ -99,7 +100,7 @@ def body_lines(path: Path) -> tuple[str, list[str]]:
             continue
         if line.startswith(">"):
             continue
-        if line in ("---", "***"):
+        if re.fullmatch(r'(?:\*[ \t]*){3,}|-{3,}', line):
             continue
         if re.match(r"^[-*] \[", line):  # checkbox apparatus
             continue
@@ -139,7 +140,7 @@ def skeleton(a: str) -> tuple[str, ...]:
 
 def skeleton_match(a: str, b: str) -> float:
     sa, sb = skeleton(a), skeleton(b)
-    if len(sa) < 4 or len(sb) < 4 or set(sa) != set(sb):
+    if len(sa) < 4 or len(sb) < 4 or sa != sb:
         return 0.0
     return 1.0
 

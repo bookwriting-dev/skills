@@ -84,31 +84,56 @@ def profiles(root):
     return records
 
 
+def _token_pattern(raw_value, *, case_sensitive):
+    escaped = re.escape(raw_value.strip())
+    return escaped if case_sensitive else f'(?i:{escaped})'
+
+
 def forms(records):
     owners = defaultdict(set)
+    exact_full_owners = defaultdict(set)
+    raw_forms = {}
     for record in records:
         name = record['name']
+        exact_full_owners[name.casefold()].add(name)
         values = [name, *record['aliases']]
         if record['category'] == 'character':
-            values.append(name.split()[0])
+            first = name.split()[0] if name.split() else ''
+            if first and first.casefold() != name.casefold():
+                values.append(first)
         for value in values:
             if isinstance(value, str) and value.strip():
-                owners[value.casefold()].add(name)
-    return {
-        r['name']: re.compile(
-            r'(?<!\w)(?:'
-            + '|'.join(
-                re.escape(k)
-                for k in sorted(
-                    (k for k, v in owners.items() if v == {r['name']}), key=len, reverse=True
-                )
-            )
-            + r')(?!\w)',
-            re.I,
-        )
-        for r in records
-        if any(v == {r['name']} for v in owners.values())
-    }
+                key = value.strip().casefold()
+                owners[key].add(name)
+                raw_forms.setdefault((name, key), value.strip())
+
+    compiled = {}
+    for r in records:
+        name = r['name']
+        is_char = r['category'] == 'character'
+        name_cf = name.casefold()
+        tokens = [k for k, v in owners.items() if v == {name}]
+        parts = []
+        for k in sorted(tokens, key=len, reverse=True):
+            raw = raw_forms[(name, k)]
+            cs = is_char and any(ch.isupper() for ch in raw)
+            parts.append(_token_pattern(raw, case_sensitive=cs))
+        # Preserve an unambiguous exact single-token character name (e.g. "Mara" when "Mara Chen"
+        # also exists), rejecting matches followed by a longer competing full name's surname/tail.
+        if is_char and exact_full_owners.get(name_cf) == {name} and name_cf not in tokens:
+            tails = []
+            for other in exact_full_owners:
+                if other != name_cf and other.startswith(name_cf + ' '):
+                    tails.append(re.escape(other[len(name_cf) + 1 :].strip()))
+            raw = name.strip()
+            cs = any(ch.isupper() for ch in raw)
+            pat = _token_pattern(raw, case_sensitive=cs)
+            if tails:
+                pat += r'(?!\s+(?i:' + '|'.join(sorted(tails, key=len, reverse=True)) + r')(?!\w))'
+            parts.append(pat)
+        if parts:
+            compiled[name] = re.compile(r'(?<!\w)(?:' + '|'.join(parts) + r')(?!\w)')
+    return compiled
 
 
 def source_line(section, offset):
@@ -308,7 +333,7 @@ def main():
     parser.add_argument('--book', default='Book-1')
     sub = parser.add_subparsers(dest='cmd', required=True)
     cast_parser = sub.add_parser('cast')
-    cast_parser.add_argument('--gap', type=int, default=12)
+    cast_parser.add_argument('--gap', type=int, default=4)
     cast_parser.add_argument('--through', help='last narrative unit of the act or range being reviewed')
     scene = sub.add_parser('scene')
     scene.add_argument('--chapter', required=True)

@@ -66,6 +66,11 @@ def parse_report(report_text: str) -> list[dict]:
             current_section = stripped.lstrip("#").strip()
             continue
 
+        # Section 7 aggregates bullets already tagged in Sections 1–6; skip it so
+        # findings.yaml does not double-count every issue.
+        if re.search(r"discrepancy\s+punch\s+list|open\s+questions\s*/\s*discrepancy", current_section, re.I):
+            continue
+
         if not stripped.startswith("- "):
             continue
 

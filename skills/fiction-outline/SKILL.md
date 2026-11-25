@@ -3,7 +3,7 @@ name: fiction-outline
 description: "Generate the chapter-by-chapter outline at Wiki/Outline/Book-N/outline.md with what_must_happen directives. Use when user says 'create outline', 'outline my story', 'structure the plot', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "5.5.0"
+  version: "5.6.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -94,9 +94,19 @@ Before generating chapters, verify that the synopsis contains a premise, central
 
 **promise_delivery**: One sentence naming the part of the reader experience or satisfaction this chapter actually delivers. Do not repeat the global promise without identifying an on-page event.
 
+**subplot_threads**: Optional list naming which secondary / B-plot or thematic threads advance or braid here so Act II stays multi-stranded rather than linear.
+
+**energy_level & tonal_register**: Specify whether the chapter is `pressure_turn` (high propulsion), `aftermath_valley` (quiet processing/sanctuary/grief), `payoff_catharsis` (`payoff_dwell` allowing major reveals to land cleanly), or `tonal_counterpoint` (warmth/humor/contrast). Never place four consecutive chapters at identical urgency without a contrasting valley or counterpoint.
+
 **trope_obligations**: Zero or more entries using the exact snake_case identifiers from the genre file and synopsis payoff plan. Format each as `trope_id: setup | development | payoff | texture | subversion - concrete chapter action`. A chapter need not carry every trope, but every selected trope must receive the complete treatment its role requires across the outline.
 
-**ends_with**: 1-2 sentences on the exact state of play at close. What each relevant character knows, has, and wants. What is unresolved and carries forward into the next chapter.
+**ends_with**: 1-2 sentences on the exact state of play at close. What each relevant character knows, has, and wants. What is unresolved and carries forward into the next chapter. If using a cliffhanger or sharp reversal hook, note how Chapter `N+1` will cash it cleanly (no false cliffhangers instantly waved away on line 1 of the next chapter).
+
+### Partial / Mid-Book Re-Outline (`--from-chapter K`)
+
+When re-outlining after discovery drafting (`lean-start.md`), structural pivots, or Act-1 sprints:
+- Freeze drafted chapters `1..K-1` verbatim as canonical history: do not alter their summaries or invent retroactively contradicting setups inside frozen entries.
+- Inventory open promises (`Wiki/Story/Book-N/promises.yaml`), changed relationship states, and reader/POV knowledge gaps from `1..K-1`, then re-plot chapters `K..end` to absorb all live threads and pay them off coherently.
 
 ### Distribution
 Spread the act_1 shape across the first ~35% of chapters, act_2 shape across the middle ~45%, act_3 shape across the final ~20%. Place the act_2 midpoint entry at the exact chapter that carries it.
@@ -130,6 +140,8 @@ story_answer: "The spoiler-containing answer demonstrated by the ending."
 - **premise_movement:** [how the unstable situation or cost changes]
 - **question_pressure:** [how action and choice pressure the central question]
 - **promise_delivery:** [the concrete reader experience delivered here]
+- **cadence_role:** pressure_turn | aftermath_valley | payoff_catharsis | tonal_counterpoint
+- **subplot_threads:** [optional secondary threads braided here]
 - **trope_obligations:** enemies_to_lovers: setup - [concrete action]; forced_proximity: development - [concrete action]
 - **ends_with:** [state of play at close]
 ```

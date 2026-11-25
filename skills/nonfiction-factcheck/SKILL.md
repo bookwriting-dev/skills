@@ -3,7 +3,7 @@ name: nonfiction-factcheck
 description: "Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/Book-N/."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status
   category: nonfiction-editing
   output-format: markdown
@@ -72,7 +72,7 @@ Launch all batches in parallel when the host supports workers; otherwise process
 >
 > ```
 > **Assertion:** `{assertion_id}` `{start}:{end}` `exact quoted text`
-> Type: [factual | quotation_attribution | inference | definition | testimony | normative_judgment | hypothetical_illustration]
+> Type: [factual | quotation_attribution | inference | definition | testimony | normative_judgment | hypothetical_illustration | firsthand_account | domain_baseline]
 > Status: [verified | unsupported | contradicted | misattributed | imprecise | unverifiable | not_empirical | pending]
 > Severity: [critical | high | medium | low]
 > Source: [what the source actually says, with location]

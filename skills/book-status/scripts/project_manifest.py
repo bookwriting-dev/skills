@@ -269,8 +269,10 @@ def register(root, book_id, specification, current):
         if not isinstance(claim, dict):
             raise ValueError('expected a chapter object')
         if set(claim) - {'number', 'id', 'display_label', 'path', 'reading_order', 'predecessor_id',
-                          'scene_plan_path', 'psych_path', 'report_stem'}:
+                          'scene_plan_path', 'psych_path', 'report_stem', 'mode'}:
             raise ValueError('unknown chapter registration field')
+        if 'mode' in claim and claim['mode'] not in ('narrative', 'expository', 'blended'):
+            raise ValueError('chapter mode must be narrative, expository, or blended')
         if 'number' in claim:
             number = claim['number']
             if type(number) is not int or number < 1:
@@ -309,8 +311,33 @@ def register(root, book_id, specification, current):
     return validate(current, root)
 
 
-def workflow(root, book, required_checks=None):
-    """Apply the project type and explicit overrides consistently at every gate."""
+HYBRID_MODE_CHECKS = {
+    'narrative': ['Gate'],
+    'expository': ['FactCheck', 'ClarityEdit'],
+    'blended': ['Gate', 'FactCheck', 'ClarityEdit'],
+}
+
+
+def chapter_mode(root, chapter):
+    """Resolve explicit chapter mode (narrative|expository|blended) from manifest or file frontmatter."""
+    if isinstance(chapter, dict):
+        mode = chapter.get('mode')
+        if mode in HYBRID_MODE_CHECKS:
+            return mode
+        rel = chapter.get('path')
+        if rel:
+            p = contained(root, rel)
+            if p.is_file():
+                head = p.read_text(encoding='utf-8', errors='replace')[:600]
+                m = re.search(r'^[ \t]*(?:chapter_)?mode:[ \t]*["\']?(narrative|expository|blended)\b',
+                              head, re.M | re.I)
+                if m:
+                    return m.group(1).lower()
+    return None
+
+
+def workflow(root, book, required_checks=None, chapter=None):
+    """Apply the project type and explicit overrides (and per-chapter HYBRID mode) consistently."""
     instructions = contained(root, 'AGENTS.md')
     project_type = 'FICTION'
     if instructions.is_file():
@@ -321,11 +348,21 @@ def workflow(root, book, required_checks=None):
             if len(set(declared)) != 1 or declared[0] not in TYPE_CHECKS:
                 raise ValueError('invalid project type declaration in AGENTS.md')
             project_type = declared[0]
-    required = required_checks if required_checks is not None else book.get('required_checks', list(TYPE_CHECKS[project_type]))
+    mode = chapter_mode(root, chapter) if project_type == 'HYBRID' and chapter is not None else None
+    default_checks = HYBRID_MODE_CHECKS[mode] if mode else list(TYPE_CHECKS[project_type])
+    if required_checks is not None:
+        required = required_checks
+    elif mode and not book.get('required_checks'):
+        required = HYBRID_MODE_CHECKS[mode]
+    else:
+        required = book.get('required_checks', default_checks)
     if not isinstance(required, list) or not required or not all(
             isinstance(name, str) and re.fullmatch(r'[A-Za-z]+', name) for name in required):
         raise ValueError('required_checks must name at least one configured check')
-    return {'project_type': project_type, 'required_checks': list(dict.fromkeys(required))}
+    result = {'project_type': project_type, 'required_checks': list(dict.fromkeys(required))}
+    if mode:
+        result['chapter_mode'] = mode
+    return result
 
 
 def report_stem(chapter):

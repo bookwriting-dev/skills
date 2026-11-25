@@ -3,7 +3,7 @@ name: burstiness-check
 description: "Diagnostic-only proxy for finding flat or machine-sounding chapters: measures sentence/paragraph variance, repeated openings, lexical repetition, and dialogue ratio against the book's baseline. Routes phrasing tells to fiction-aiism-editor before mechanics to fiction-prose-editor; never edits prose. Use for burstiness checks, robotic chapters, or Pangram failures."
 metadata:
   author: Fiction Toolkit
-  version: "1.6.1"
+  version: "1.6.2"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

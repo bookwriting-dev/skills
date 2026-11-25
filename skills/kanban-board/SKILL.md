@@ -3,7 +3,7 @@ name: kanban-board
 description: "Render a per-book Kanban board at Wiki/Story/Book-N/kanban.md (Backlog, Ready, Drafting, Review, Done) mechanically from outlines, scene plans, drafts, and gate reports. Read-only diagnostic except for the board file; works for fiction and non-fiction. Use for 'kanban', 'show the board', 'what is in progress', or 'where am I in this book'."
 metadata:
   author: Storycraft Skills
-  version: "1.2.1"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: cross-cutting
 ---
@@ -57,10 +57,8 @@ Flags: `no-scene-plan`, `no-outline-entry`, `unapplied-review-findings` (unresol
 
 ## Procedure
 
-1. **Scope.** Default to the book the session is working in (`Book-1` when
-   ambiguous); honor an explicit book ("show the book 2 board"). If neither
-   outline nor chapters exist for the book, say so and stop.
-2. **Collect evidence.** For each chapter number N:
+1. **Generate deterministically first:** Run the zero-LLM script renderer via [project_state.py](../book-status/scripts/project_state.py) (`--root ROOT --book Book-N kanban`) or [kanban.py](../book-status/scripts/kanban.py), which builds `Wiki/Story/Book-N/kanban.md` directly from `dashboard()`, `outline.md` / `plan.md`, `Chapter_NN_Scene.md`, chapter files, and `promises.yaml`.
+2. **Scope & fallback rules:** Default to the book the session is working in (`Book-1` when ambiguous); honor an explicit book ("show the book 2 board"). If neither outline nor chapters exist for the book, say so and stop. The script checks the same sources listed below (`dashboard`, outline/plan, scene plan, drafts, Gate/FactCheck/ClarityEdit reports, and `promises.yaml`):
    - use `project_state.py --root ROOT --book Book-N dashboard` from [book-status](../book-status/scripts/project_state.py) for chapter IDs, expected and missing chapters, required reviews, and current readiness;
    - outline entry in `Wiki/Outline/Book-N/outline.md`;
    - scene plan `Wiki/Outline/Book-N/Chapter_NN_Scene.md`;

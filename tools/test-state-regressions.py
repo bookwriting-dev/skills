@@ -7,6 +7,7 @@ ledgers must participate in freshness, multi-step editorial runs must survive pr
 and completed campaigns need an explicit way to stop pinning old file hashes.
 """
 import argparse
+import hashlib
 import importlib.util
 import json
 from pathlib import Path
@@ -19,6 +20,7 @@ import unittest
 sys.dont_write_bytecode = True
 ROOT = Path(__file__).resolve().parent.parent
 SCRIPTS = ROOT / 'skills/book-status/scripts'
+STATE = SCRIPTS / 'project_state.py'
 spec = importlib.util.spec_from_file_location('state', SCRIPTS / 'project_state.py')
 s = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(s)
@@ -403,6 +405,215 @@ class Tier1VoiceAndPacketEnrichment(Base):
             text = (ROOT / rel).read_text(encoding='utf-8')
             for leaked in ('Rowan', 'Blackwood Ridge', 'Alton Mercer', 'Sheriff Cross'):
                 self.assertNotIn(leaked, text, f'{rel} still contains leaked reference {leaked}')
+
+
+class Tier2ArchitectureAndBatchWorkflow(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name).resolve()
+
+    def write(self, rel, text):
+        p = self.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding='utf-8')
+        return p
+
+    def test_cadence_dramatic_irony_batch_reanchor_and_kanban(self):
+        import zipfile
+        sys.path.insert(0, str(SCRIPTS))
+        import project_manifest as pm  # noqa: F401
+        self.write('AGENTS.md', '# Harbor Song\n\nThis project is: **FICTION**\n')
+        ch1_rel = 'Chapters/Book-1/Chapter-001.md'
+        ch1 = self.write(ch1_rel, '# Chapter 1: Low Tide\n\n<!-- POV: Mara -->\nMara checked the empty ledger.\nSomeone had burned the key.\n')
+        sha1 = hashlib.sha256(ch1.read_bytes()).hexdigest()
+        self.write('Wiki/Outline/Book-1/outline.md', '## Chapter 01: Low Tide\n- **what_must_happen:** Open quiet.\n')
+        self.write('Wiki/Outline/Book-1/Chapter_01_Scene.md',
+                   '# Chapter 1: Low Tide\n\n## Scene 1\n- **POV:** Mara\n- **Cadence role:** aftermath_valley\n'
+                   '- **Subplot threads:** Ledger theft, Salt tax\n- **Story order:** 1\n- **Reader order:** 1\n')
+        reg = self.write('reg.json', json.dumps({'schema_version': 1, 'chapters': [{'number': 1}]}))
+        subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                        'chapter-preflight', '--chapter', '1', '--spec', str(reg)], check=True, capture_output=True)
+
+        # Batch knowledge record: reader knows F01 while Mara does not -> dramatic irony
+        events_file = self.write('kevents.json', json.dumps([
+            {
+                'id': 'KE-1', 'fact_id': 'key_burned', 'observer': 'reader', 'state': 'knows',
+                'truth_status': 'true', 'event_kind': 'exposure', 'story_order': 1, 'reader_order': 1,
+                'confirmed': True, 'source': ch1_rel, 'source_sha256': sha1,
+                'quote': 'Someone had burned the key.',
+            },
+            {
+                'id': 'KE-2', 'fact_id': 'ledger_empty', 'observer': 'Mara', 'state': 'knows',
+                'truth_status': 'true', 'event_kind': 'observation', 'story_order': 1, 'reader_order': 1,
+                'confirmed': True, 'source': ch1_rel, 'source_sha256': sha1,
+                'quote': 'Mara checked the empty ledger.',
+            },
+        ]))
+        b_res = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                'knowledge-state', '--action', 'record', '--events', str(events_file)],
+                               check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(b_res.stdout)['recorded'], 2)
+
+        pkt_res = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                  'draft-packet', '--chapter', '1'], check=True, capture_output=True, text=True)
+        pkt = json.loads(pkt_res.stdout)
+        self.assertEqual(pkt['scenes'][0]['cadence_role'], 'aftermath_valley')
+        self.assertEqual(pkt['scenes'][0]['subplot_threads'], ['Ledger theft', 'Salt tax'])
+        self.assertEqual([d['fact_id'] for d in pkt['scenes'][0]['dramatic_irony']], ['key_burned'])
+
+        # Continuity claim + polish edit + reanchor
+        src_res = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                  'continuity', '--action', 'source', '--chapter', '1'],
+                                 check=True, capture_output=True, text=True)
+        src_info = json.loads(src_res.stdout)
+        cspec = self.write('cspec.json', json.dumps({
+            'schema_version': 1,
+            'source_sha256': src_info['source_sha256'], 'record_sha256': src_info['record_sha256'],
+            'claims': [{'kind': 'identifier', 'line': 4, 'quote': 'Mara checked the empty ledger.',
+                        'key': 'ledger', 'value': 'empty', 'canonical': True}],
+        }))
+        subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                        'continuity', '--action', 'record', '--chapter', '1', '--spec', str(cspec)],
+                       check=True, capture_output=True)
+        ch1.write_text('# Chapter 1: Low Tide\n\n<!-- POV: Mara -->\nRain tapped the shutters.\n\n'
+                       'Mara checked the empty ledger.\nSomeone had burned the key.\n', encoding='utf-8')
+        re_res = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                 'reanchor', '--chapter', '1'], check=True, capture_output=True, text=True)
+        re_data = json.loads(re_res.stdout)
+        self.assertEqual(re_data['continuity']['status'], 'REANCHORED')
+        self.assertEqual(re_data['ledgers']['knowledge']['status'], 'REANCHORED')
+
+        # chapter-finalize + review-finish + batch disposition + kanban
+        fin = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                              'chapter-finalize', '--chapter', '1', '--type', 'Gate'],
+                             check=True, capture_output=True, text=True)
+        prep_rel = json.loads(fin.stdout)['prepared']['prepared']
+        rep_rel = '_Edits/Book-1/Chapter-001_Gate.md'
+        self.write(rep_rel, 'PASS\nClean gate.\n')
+        subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                        'review-finish', '--prepared', prep_rel, '--verdict', 'PASS',
+                        '--report', rep_rel, '--finding', '{"id":"G1","blocking":true}'],
+                       check=True, capture_output=True)
+        disps = self.write('disps.json', json.dumps([
+            {'finding_id': 'G1', 'disposition': 'applied', 'reason': 'verified'},
+        ]))
+        subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                        'record-disposition', '--report', rep_rel, '--dispositions', str(disps)],
+                       check=True, capture_output=True)
+        k_res = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                'kanban'], check=True, capture_output=True, text=True)
+        k_data = json.loads(k_res.stdout)
+        self.assertEqual(k_data['counts']['Done'], 1)
+        self.assertTrue((self.root / 'Wiki/Story/Book-1/kanban.md').is_file())
+
+    def test_hybrid_modes_evidence_reanchor_and_unit_epub_resolution(self):
+        self.write('AGENTS.md', '# Fieldwork\n\nThis project is: **HYBRID**\n')
+        ch1 = self.write('Chapters/Book-1/Chapter-001.md', '---\nmode: narrative\n---\n\n# Chapter 1\n\nA parable.\n')
+        ch2 = self.write('Chapters/Book-1/Chapter-002.md', '---\nmode: expository\n---\n\n# Chapter 2\n\nI saw the floodwaters rise. Water boils cleanly at height.\n')
+        reg = self.write('reg.json', json.dumps({'schema_version': 1, 'chapters': [
+            {'number': 1, 'mode': 'narrative'}, {'number': 2, 'mode': 'expository'}]}))
+        subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                        'register-chapters', '--spec', str(reg)], check=True, capture_output=True)
+        w1 = json.loads(subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                        'workflow', '--chapter', '1'], check=True, capture_output=True, text=True).stdout)
+        w2 = json.loads(subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
+                                        'workflow', '--chapter', '2'], check=True, capture_output=True, text=True).stdout)
+        self.assertEqual(w1['required_checks'], ['Gate'])
+        self.assertEqual(w2['required_checks'], ['FactCheck', 'ClarityEdit'])
+
+        # sources.yaml inheritance + firsthand_account + --reanchor
+        self.write('Wiki/Research/sources.yaml',
+                   'sources:\n  - source_id: SRC-1\n    title: Field Log\n    locator: p. 4\n'
+                   '    source_type: primary_archive\n    access_status: accessible\n    limitations: none noted\n'
+                   '    inspection_status: inspected\n    source_revision: rev1\n    rights_status: permitted\n'
+                   '    passages:\n      - passage_id: P1\n        locator: line 2\n        source_revision: rev1\n')
+        text2 = ch2.read_text(encoding='utf-8')
+        sha2 = hashlib.sha256(text2.encode('utf-8')).hexdigest()
+        quote = 'I saw the floodwaters rise.'
+        pos = text2.find(quote)
+        ev_path = self.write('_Edits/Book-1/evidence/Chapter-002.json', json.dumps({
+            'record_type': 'chapter_evidence', 'schema_version': 1, 'record_id': 'ev2',
+            'project_id': 'p1', 'producer': 'test', 'operation_id': 'op1',
+            'subject_path': 'Chapters/Book-1/Chapter-002.md', 'subject_sha256': sha2,
+            'sources': [{'source_id': 'SRC-1'}],
+            'assertions': [{'assertion_id': 'A1', 'claim_type': 'firsthand_account',
+                            'anchor': {'start': pos, 'end': pos + len(quote), 'quote': quote, 'subject_sha256': sha2}}],
+            'verifications': [{'assertion_id': 'A1', 'result': 'not_empirical', 'evaluator': 'ed',
+                               'rules_version': '1', 'rationale': 'memoir observation'}],
+            'inventory_coverage': {'complete': True, 'reviewer': 'ed', 'method': 'manual',
+                                   'subject_sha256': sha2, 'omissions': [], 'limitations': 'none'},
+        }))
+        ev_script = ROOT / 'skills/nonfiction-research/scripts/evidence.py'
+        aud = subprocess.run([sys.executable, '-B', str(ev_script), '--root', str(self.root), '--record', str(ev_path), '--require-ready'],
+                             check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(aud.stdout)['readiness'], 'ELIGIBLE')
+        # Shift quote offset by editing ch2 cleanly and test --reanchor
+        ch2.write_text(text2.replace('Chapter 2\n\n', 'Chapter 2\n\nAdded preface sentence. '), encoding='utf-8')
+        re_ev = subprocess.run([sys.executable, '-B', str(ev_script), '--root', str(self.root), '--record', str(ev_path),
+                                '--reanchor', '--confirm-coverage'], check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(re_ev.stdout)['reanchored'], 1)
+        aud2 = subprocess.run([sys.executable, '-B', str(ev_script), '--root', str(self.root), '--record', str(ev_path), '--require-ready'],
+                              check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(aud2.stdout)['readiness'], 'ELIGIBLE')
+
+    def test_cast_shared_first_names_manuscript_docx_and_diagnostics(self):
+        import zipfile
+        sys.path.insert(0, str(SCRIPTS))
+        sys.path.insert(0, str(ROOT / 'skills/drift-check/scripts'))
+        sys.path.insert(0, str(ROOT / 'skills/burstiness-check/scripts'))
+        sys.path.insert(0, str(ROOT / 'skills/book-reverse-engineer/scripts'))
+        import editorial_tools as et
+        import drift as drift_mod
+        import measure as measure_mod
+        import manuscriptkit as mkit
+        import findings as findings_mod
+        import reader_text as rtext
+
+        # Shared first name + lowercase false-positive safety in editorial_tools
+        pats = et.forms([
+            {'name': 'Mara', 'category': 'character', 'aliases': []},
+            {'name': 'Mara Chen', 'category': 'character', 'aliases': []},
+            {'name': 'Will', 'category': 'character', 'aliases': []},
+        ])
+        self.assertIn('Mara', pats)
+        self.assertTrue(pats['Mara'].search('Mara opened the ledger.'))
+        self.assertFalse(pats['Mara'].search('Mara Chen opened the ledger.'))
+        self.assertFalse(pats['Will'].search('He will open the door.'))
+        self.assertTrue(pats['Will'].search('Will opened the door.'))
+
+        # reader_text rejects Obsidian %% and CriticMarkup {>> <<}
+        with self.assertRaisesRegex(ValueError, 'Obsidian'):
+            rtext.extract('Text %% secret %% end', source='ch.md')
+        with self.assertRaisesRegex(ValueError, 'CriticMarkup'):
+            rtext.extract('Text {>> fix <<} end', source='ch.md')
+
+        # drift DEFINITION + ordered skeleton_match + measure Mr. Smith / quoted openers / * * *
+        self.assertIsNone(drift_mod.DEFINITION.search('She is tired and called Marcus yesterday.'))
+        self.assertIsNotNone(drift_mod.DEFINITION.search('A thekgi is a salt-tax clerk.'))
+        self.assertEqual(drift_mod.skeleton_match('She went to the dark dock.', 'The wind went to she.'), 0.0)
+        chap = self.write('m.md', '# Chapter 1\n\n"Look," Mr. Smith walked away. Then he paused.\n\n* * *\n\nShe stayed.\n')
+        mres = measure_mod.measure(str(chap))
+        self.assertEqual(mres['sentence_count'], 3)
+        self.assertEqual(mres['top_openers'][0]['word'] in ('look', 'then', 'she'), True)
+
+        # manuscriptkit splits # Prologue, bare # 1, .docx XML, and strips Section 7 from findings.py
+        units, _ = mkit.split_file('# Prologue\nFirst.\n\n# Chapter 1\nSecond.\n\n# Part II\n\n# Chapter 2\nThird.\n')
+        self.assertEqual(len(units), 3)
+        self.assertNotIn('# Part II', units[1]['body'])
+        bare_units, _ = mkit.split_file('# 1\nAlpha.\n\n# 2\nBeta.\n')
+        self.assertEqual(len(bare_units), 2)
+        docx_path = self.root / 'ms.docx'
+        with zipfile.ZipFile(docx_path, 'w') as zf:
+            zf.writestr('word/document.xml',
+                        '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'
+                        '<w:p><w:pPr><w:pStyle w:val="Heading1"/></w:pPr><w:r><w:t>Chapter 1</w:t></w:r></w:p>'
+                        '<w:p><w:r><w:t>Body text.</w:t></w:r></w:p>'
+                        '</w:body></w:document>')
+        self.assertEqual(mkit.analyze(str(docx_path))['unit_count'], 1)
+        rep = ('## 1. Character Roster\n- `CANON CONFLICT` ch1 vs ch2 eye color.\n\n'
+               '## 7. Open Questions / Discrepancy Punch List\n- `CANON CONFLICT` ch1 vs ch2 eye color.\n')
+        self.assertEqual(len(findings_mod.parse_report(rep)), 1)
 
 
 if __name__ == '__main__':

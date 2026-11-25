@@ -17,8 +17,8 @@ from state_core import (
 )
 from state_ledgers import (
     continuity_command, continuity_dir, continuity_report, knowledge,
-    knowledge_event_state, memory, relationship_state, scope_dimensions,
-    scope_matches, support_findings,
+    knowledge_event_state, memory, reanchor_chapter, relationship_state,
+    scope_dimensions, scope_matches, support_findings,
 )
 from state_packets import (
     SOMATIC_TOKENS, STOP_WORDS, decision_applies, draft_packet,
@@ -26,14 +26,15 @@ from state_packets import (
     scene_knowledge, style_policy,
 )
 from state_reviews import (
-    chapter_report_paths, current_inputs, dashboard, freshness, operation_profile_blockers,
-    pipeline_step_reusable, readiness, record_disposition, review_begin,
-    review_finish,
+    REVIEW_TYPE_SKILLS, chapter_report_paths, current_inputs, dashboard, freshness,
+    operation_profile_blockers, pipeline_step_reusable, readiness,
+    record_disposition, record_dispositions_batch, review_begin, review_finish,
 )
 from state_workflows import (
     campaign, reading, record_pipeline_step, step_complete, step_start,
     validate_pipeline_step,
 )
+from kanban import render_kanban
 from rhythm_map import rhythm_map
 from sync_edits import sync_edits
 
@@ -47,9 +48,12 @@ def main():
                 'register-chapters', 'disposition', 'memory', 'knowledge', 'knowledge-state',
                 'relationship-state', 'reading', 'author-read', 'campaign', 'pipeline', 'draft-packet',
                 'chapter-format', 'continuity', 'review-begin', 'review-finish', 'record-disposition',
-                'step-start', 'step-complete', 'sync-edits', 'rhythm-map'):
+                'step-start', 'step-complete', 'sync-edits', 'rhythm-map',
+                'reanchor', 'chapter-preflight', 'chapter-finalize', 'kanban'):
         p = sub.add_parser(cmd)
         p.add_argument('--spec')
+        p.add_argument('--events', help='JSON array file of events for batch recording')
+        p.add_argument('--dispositions', help='JSON array file of dispositions for batch recording')
         p.add_argument('--output')
         p.add_argument('--meta')
         p.add_argument('--action', default='list')
@@ -63,17 +67,18 @@ def main():
         p.add_argument('--scene-id')
         p.add_argument('--run', default='default')
         p.add_argument('--task')
-        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity', 'author-read') else '1')
+        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity', 'author-read', 'workflow') else '1')
         p.add_argument('--window', type=int, default=3)
-        if cmd in ('continuity', 'draft-packet'):
+        if cmd in ('continuity', 'draft-packet', 'chapter-preflight'):
             p.add_argument('--key', action='append')
         if cmd == 'author-read':
             p.add_argument('--edition')
             p.add_argument('--quote')
         if cmd == 'style-policy':
             p.add_argument('--simile-count', type=int)
-        if cmd == 'review-begin':
-            p.add_argument('--type', required=True, choices=('Gate', 'Review', 'FullEdit', 'FactCheck', 'ClarityEdit'))
+        if cmd in ('review-begin', 'chapter-finalize'):
+            p.add_argument('--type', required=(cmd == 'review-begin'), default=None,
+                           choices=tuple(REVIEW_TYPE_SKILLS))
             p.add_argument('--extra-path', action='append')
         if cmd == 'review-finish':
             p.add_argument('--prepared', required=True)
@@ -83,12 +88,14 @@ def main():
             p.add_argument('--operation-id')
         if cmd == 'record-disposition':
             p.add_argument('--report', required=True)
-            p.add_argument('--finding-id', required=True)
-            p.add_argument('--disposition', required=True, choices=('applied', 'rejected', 'deferred', 'superseded'))
-            p.add_argument('--reason', required=True)
+            p.add_argument('--finding-id')
+            p.add_argument('--disposition', choices=('applied', 'rejected', 'deferred', 'superseded'))
+            p.add_argument('--reason')
             p.add_argument('--quote')
             p.add_argument('--before-sha')
             p.add_argument('--after-sha')
+        if cmd == 'kanban':
+            p.add_argument('--no-write', action='store_true')
         if cmd in ('step-start', 'step-complete'):
             p.add_argument('--step-id', required=True)
             p.add_argument('--attempt-id')
@@ -138,9 +145,13 @@ def main():
         result = review_finish(root, a.prepared, a.verdict, report=a.report, output=a.output,
                                findings=findings, operation_id=a.operation_id)
     elif a.command == 'record-disposition':
-        result = record_disposition(root, a.book, report=a.report, finding_id=a.finding_id,
-                                    disposition=a.disposition, reason=a.reason, quote=a.quote,
-                                    before_sha256=a.before_sha, after_sha256=a.after_sha)
+        if a.dispositions:
+            result = record_dispositions_batch(root, a.book, report=a.report,
+                                               items=json.loads(Path(a.dispositions).read_text(encoding='utf-8')))
+        else:
+            result = record_disposition(root, a.book, report=a.report, finding_id=a.finding_id,
+                                        disposition=a.disposition, reason=a.reason, quote=a.quote,
+                                        before_sha256=a.before_sha, after_sha256=a.after_sha)
     elif a.command == 'step-start':
         pred_flag = None if a.predecessor_exists is None else (a.predecessor_exists == 'true')
         result = step_start(root, a.book, run=a.run, step_id=a.step_id, profile=a.profile,
@@ -173,7 +184,9 @@ def main():
         result = continuity_command(root, a)
     elif a.command == 'workflow':
         resolver = project_manifest_module()
-        result = resolver.workflow(root, resolver.resolve_book(root, a.book))
+        book_rec = resolver.resolve_book(root, a.book)
+        ch_rec = resolver.resolve_chapter(root, a.book, a.chapter)[1] if a.chapter else None
+        result = resolver.workflow(root, book_rec, chapter=ch_rec)
         result['inputs'] = ['AGENTS.md', resolver.MANIFEST_PATH]
     elif a.command == 'style-policy':
         result = style_policy(root, a)
@@ -195,13 +208,13 @@ def main():
     elif a.command == 'relationship-state':
         if a.action != 'record' and a.story_order is None:
             raise ValueError('relationship-state query requires --story-order')
-        result = relationship_state(root, argparse.Namespace(action=a.action, spec=a.spec,
+        result = relationship_state(root, argparse.Namespace(action=a.action, spec=a.spec, events=a.events,
             observer=a.observer, other=a.scope, position=a.story_order, scene_id=a.scene_id))
     elif a.command == 'knowledge-state':
         if a.action != 'record' and (a.observer == 'reader' and a.reader_order is None or
                                      a.observer != 'reader' and a.story_order is None):
             raise ValueError('knowledge-state query requires the position for the selected observer axis')
-        result = knowledge_event_state(root, argparse.Namespace(action=a.action, spec=a.spec,
+        result = knowledge_event_state(root, argparse.Namespace(action=a.action, spec=a.spec, events=a.events,
             observer=a.observer, story_order=a.story_order, reader_order=a.reader_order))
     elif a.command == 'dashboard':
         result = dashboard(root, a.book)
@@ -227,6 +240,31 @@ def main():
         result = sync_edits(root, a.book, a.chapter, baseline=a.baseline)
     elif a.command == 'rhythm-map':
         result = rhythm_map(root, a.book, gap_threshold=a.gap_threshold, markdown=a.markdown)
+    elif a.command == 'reanchor':
+        result = reanchor_chapter(root, a.book, a.chapter)
+    elif a.command == 'kanban':
+        result = render_kanban(root, a.book, write_board=not a.no_write)
+    elif a.command == 'chapter-preflight':
+        resolver = project_manifest_module()
+        if a.spec:
+            manifest_path = path_at(root, resolver.MANIFEST_PATH)
+            with locked(manifest_path):
+                current = resolver.load(root)
+                updated = resolver.register(root, a.book, load(Path(a.spec)), current)
+                write(manifest_path, updated)
+        packet = draft_packet(root, a)
+        book_rec, ch_rec = resolver.resolve_chapter(root, a.book, a.chapter or '1', allow_new=True)
+        wf = resolver.workflow(root, book_rec, chapter=ch_rec)
+        result = {'workflow': wf, 'draft_packet': packet}
+    elif a.command == 'chapter-finalize':
+        resolver = project_manifest_module()
+        book_rec, ch_rec = resolver.resolve_chapter(root, a.book, a.chapter or '1')
+        wf = resolver.workflow(root, book_rec, chapter=ch_rec)
+        rtype = a.type or wf['required_checks'][0]
+        fmt = chapter_format_module().audit(book_rec, manuscript_texts(root, book_rec), selected=ch_rec['id'])
+        cont = continuity_report(root, book_rec, manuscript_texts(root, book_rec), chapter=ch_rec)
+        prep = review_begin(root, a.book, ch_rec['id'], rtype, output=a.output, extra_paths=a.extra_path)
+        result = {'workflow': wf, 'chapter_format': fmt, 'continuity': cont, 'prepared': prep}
     else:
         result = globals()[a.command](root, a)
     print(json.dumps(result, indent=2, ensure_ascii=False))

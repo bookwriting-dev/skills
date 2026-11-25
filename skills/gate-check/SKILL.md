@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.11.0"
+  version: "1.12.0"
   bundled-dependencies: book-status, litrpg-audit
   category: fiction-editing
 ---
@@ -20,9 +20,9 @@ Every gate run systematically evaluates up to 7 pillars:
    - Characters: names, physical states, active injuries, and active chapter-sliced `relationship_checkpoints` (`chapter_start <= N <= chapter_end`) match `Wiki/Characters/`.
    - World & Setting: locations, sensory anchors, physical distances match `Wiki/World/`.
    - Timeline: chronological continuity with preceding chapters and series timeline.
-2. **Scene Contract, Micro-Friction & Beat Fulfillment:**
+2. **Scene Contract, Cadence Role & Beat Fulfillment:**
    - Evaluates drafted prose against `Wiki/Outline/Book-N/Chapter_NN_Scene.md` or scene plan.
-   - All mandatory narrative beats, emotional shifts, and turning points must be present, dramatized (no back-half summary compression), and earned through at least one micro-friction resistance beat (failed tactic, deflection, or raised cost) rather than instant concession.
+   - All mandatory narrative beats, emotional shifts, and turning points must be present and dramatized (no back-half summary compression). For `pressure_turn` scenes (default), verify at least one micro-friction resistance beat (failed tactic, deflection, or raised cost) before the turn; for declared `aftermath_valley`, `payoff_catharsis`, or `tonal_counterpoint` scenes, allow earned stillness, vulnerability, intimacy, or comic respite without demanding forced bickering.
 3. **Chekhov & Promise Maintenance:**
    - Any clues, objects, or dramatic setups introduced in this chapter must be registered in `promises.yaml` via `fiction-promises`.
    - Any setups resolved here must be correctly retired.
@@ -48,13 +48,14 @@ Every gate run systematically evaluates up to 7 pillars:
 
 ## Procedure
 
-1. **Step 1: Capture Input Evidence & Load Author Decisions**
-   - For a saved gate report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`review-begin --chapter N --type Gate`, or `prepare --spec` for custom paths): capture inputs BEFORE review, including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
+1. **Step 1: Reconcile Format & Continuity Records, Then Capture Input Evidence**
+   - Follow [book continuity review](../book-status/references/continuity-review.md): run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` and treat its findings as mechanical failures. Verify each marked POV against the actual prose.
+   - Capture the chapter's source hash (`continuity --action source --chapter SELECTOR`), review the complete unannotated chapter, and record sourced continuity claims (`continuity --action record`) **before** capturing the saved gate input snapshot so recording continuity for this chapter does not invalidate `review-begin` inputs mid-run. Cite competing passages for confirmed contradictions and record unresolved ordering, time anchors, and count scope as editorial notes.
+   - For a saved gate report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`review-begin --chapter N --type Gate`, or `prepare --spec` for custom paths) after continuity records settle: capture inputs including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
    - Consult applicable active `editorial-memory` decisions before proposing style repairs, preserving deliberate choices within their stated scope while keeping correctness checks binding. Include scoped decisions verbatim in any worker briefs; never generalize a local rejection.
 
-2. **Step 2: Run Format, Continuity & Evidence-Chain Checks**
-   - Follow [book continuity review](../book-status/references/continuity-review.md): run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` and treat its findings as mechanical failures. Verify each marked POV against the actual prose.
-   - Capture the source hash, review the complete unannotated chapter, and record sourced continuity claims (`continuity --action record`) before running `continuity --action audit --chapter SELECTOR`. Cite competing passages for confirmed contradictions and record unresolved ordering, time anchors, and count scope as editorial notes.
+2. **Step 2: Run Continuity Audit & Evidence-Chain Checks**
+   - Run `continuity --action audit --chapter SELECTOR` against the settled records from Step 1.
    - For scenes that depend on earlier events, technical conditions, or inferences, check consequential assertions against their sources using [evidence that a scene depends on](../book-status/references/evidence-chain.md), including cited manuscript or retained research sources in the gate's input snapshot. Report stale or missing support as a gate blocker when the plot depends on it.
 
 3. **Step 3: Audit Knowledge & Story Pillars**

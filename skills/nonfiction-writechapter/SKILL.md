@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
@@ -100,12 +100,12 @@ Use the book's requested length; otherwise aim for roughly 2,500–4,000 words f
 
 **Structure requirements from the plan:**
 
-- Follow the declared mode. Argumentative chapters establish claim/stakes at the plan's chosen point; narrative and memoir may open with a sourced or accurately labeled reconstructed scene; essays may develop a question; reference chapters prioritize findability; instructions state prerequisites and the promised usable outcome.
-- In argumentative sections, each **evidence block** becomes a major section (or subsection) with:
-  - Clear signpost: "To prove [sub-claim], we examine [evidence type]..."
-  - The concrete evidence presented with precision (study design, quote context, data specifics).
-  - The **turn** rendered as insight, not announcement: show the reversal/complication/synthesis through the evidence itself.
-  - Explicit **transition** to the next block: "This [finding/complication] forces us to ask..." or "But [evidence] only holds if [assumption]..."
+- Follow the declared mode and the project's `nonfiction_register` from `Wiki/Style/style_guide.md` (`trade-narrative`, `memoir-literary`, `practical-guide`, or `academic-monograph`). Argumentative chapters establish claim/stakes at the plan's chosen point; narrative and memoir chapters open with lived or reconstructed scene-work and first-person/observational momentum; essays develop a question; reference chapters prioritize findability; instructions state prerequisites and the promised usable outcome.
+- In argumentative sections:
+  - Open cleanly with the claim, stakes, or framing move suited to the active `nonfiction_register`. Reserve the formula `"To prove [sub-claim], we examine [evidence type]..."` strictly for explicit `academic-monograph` texts (never inject royal `"we"` or textbook announcements into `trade-narrative`, `memoir-literary`, or conversational `practical-guide` prose).
+  - Present concrete evidence with precision (study design, archival quote context, field data specifics, or narrative attribution `"Smith (2022) found..."` when the register favors readable flow).
+  - Render the **turn** as earned insight rather than meta-commentary.
+  - Transition through logic, tension, or lived shift into the next block.
 - Close with the mode's planned payoff. Use synthesis, takeaway, and forward hook only when required by that chapter's plan and reader contract.
 
 For ready-made evidence-presentation templates (narrated study, data-first, integrated quote, and the variety rule), read [references/evidence-presentation.md](references/evidence-presentation.md).
@@ -116,7 +116,7 @@ For ready-made evidence-presentation templates (narrated study, data-first, inte
 - **Concrete before abstract:** Lead with the specific study, case, number, quote — then generalize.
 - **Vary evidence presentation:** Don't stack three studies the same way. Mix: one narrated experiment, one quoted expert, one data visualization description, one historical scene.
 - **Define terms at point of use:** Not in a glossary, not upfront — when the term first does argumentative work.
-- **Active cognitive stance:** "We find," "The data show," "This implies" — not "It is found that," "It has been shown."
+- **Active stance matched to register:** Let the evidence, historical actor, `"I"`, or direct prose carry agency (`"The data show"`, `"Smith (2022) found"`, or `"We find"` in `academic-monograph`) — avoid passive dodging like `"It has been shown."` Do not force royal `"we"` onto memoir, history, or trade narrative prose.
 - **Calibrated certainty:** Match language to evidence strength. "Suggests," "indicates," "is consistent with" for correlational; "demonstrates," "establishes" for causal.
 - **Counter-argument integration:** When the plan includes a counter-argument block, steel-man it fully before the rebuttal. The reader must feel the force of the objection.
 

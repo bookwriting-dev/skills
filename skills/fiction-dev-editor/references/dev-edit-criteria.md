@@ -24,3 +24,16 @@ Developmental editing operates at the story level. It answers: "Does this work a
 - **Actionable**: Not "the pacing feels off" but "Chapters 249-251 are all medium-intensity dialogue scenes — consider adding a high-tension beat or cutting one."
 - **Balanced**: Always identify what's working, not just what isn't. An author needs to know what to protect.
 - **Structural**: The fix is never "rewrite this sentence." The fix is "move this scene," "cut this chapter," "combine these two conversations," "add a scene where X confronts Y."
+
+---
+
+### 4-Chapter / Act Developmental Checkpoint
+
+Every 4 chapters (or at every Act break), audit the trailing block of chapters together with `rhythm-map`, `drift.py`, and `cast --gap 4`:
+
+1. **Causal Escalation vs. Lateral Wheel-Spinning:** Did the protagonist's options, cost, or knowledge irreversibly tighten from Chapter `N-3` to Chapter `N`, or did multiple chapters merely replay lateral obstacles at steady tension (Act II sag)?
+2. **Cadence Breathing Room:** Check the sequence of `cadence_role` values (`pressure_turn` vs `aftermath_valley` / `payoff_catharsis` / `tonal_counterpoint`). Flag four consecutive `pressure_turn` chapters with zero valley/counterpoint, or multiple chapters with zero irreversible pressure.
+3. **Emotional Velocity & Relationship Continuity:** Compare `relationship_checkpoints` transitions against on-page scenes; flag abrupt hostility-to-intimacy or suspicion-to-trust jumps missing intermediate earned beats.
+4. **Opening Exposition Load (Chapters 1–2 checkpoint):** Measure front-loaded lore, proper-noun density, and premise delay; push unmotivated history dumps out of opening scenes into active conflict.
+5. **Seam & Hook Honesty:** Read each chapter's closing page beside `Chapter-(N+1)`'s opening paragraphs. Flag false cliffhangers deflated immediately on line 1 (e.g., manufactured danger revealed as a friend knocking) or forgotten unresolved threats.
+6. **Cast Bloat & Role Duplication:** Audit newly introduced named minor characters across the 4-chapter block; recommend merging redundant single-function characters (`cut` or fold into existing supporting cast) and clarifying confusing shared first names or long-gap returns (`>4` chapters).

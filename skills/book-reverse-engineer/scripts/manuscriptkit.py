@@ -25,6 +25,7 @@ import shutil
 import sys
 import tempfile
 import zipfile
+from xml.etree import ElementTree as ET
 from pathlib import Path
 
 sys.dont_write_bytecode = True
@@ -32,12 +33,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 import epub_intake
 
 HEADING_PATTERNS = [
-    re.compile(r"^#{1,3}[ \t]*Chapter[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE),
-    re.compile(r"^Chapter[ \t]+(?:\d+|[IVXLCDM]+)(?:[ \t]*[:.–—-][ \t]*\S.*)?[ \t]*$", re.IGNORECASE),
-    re.compile(r"^#{1,3}[ \t]*Part[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE),
-    re.compile(r"^#{1,3}[ \t]*Section[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE),
-    re.compile(r"^#{1,3}[ \t]*\d+[\.:]?[ \t]+\S.*$"),
+    (0, re.compile(r"^#{1,3}[ \t]*(?:Chapter[ \t]+[A-Za-z0-9]+\b.*|Prologue\b.*|Epilogue\b.*)$", re.IGNORECASE)),
+    (0, re.compile(r"^(?:Chapter[ \t]+(?:\d+|[IVXLCDM]+)|Prologue|Epilogue)(?:[ \t]*[:.–—-][ \t]*\S.*)?[ \t]*$", re.IGNORECASE)),
+    (1, re.compile(r"^#{1,3}[ \t]*Part[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE)),
+    (2, re.compile(r"^#{1,3}[ \t]*Section[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE)),
+    (3, re.compile(r"^#{1,3}[ \t]*\d+(?:[\.:]?[ \t]+\S.*|[ \t]*)$")),
 ]
+
+PART_DIVIDER_RE = re.compile(r"^#{1,3}[ \t]*Part[ \t]+[A-Za-z0-9]+\b.*$", re.IGNORECASE)
+_W_NS = "{http://schemas.openxmlformats.org/wordprocessingml/2006/main}"
 
 UNIT_FILENAME = re.compile(
     r"^(?:ch(?:apter)?|sec(?:tion)?)?[\s_\-]*0*(\d+)", re.IGNORECASE
@@ -83,9 +87,9 @@ def split_file(text: str) -> tuple[list[dict], list[str]]:
                 fence = None
             continue
         if fence is None:
-            for kind, pattern in enumerate(HEADING_PATTERNS):
+            for bucket, pattern in HEADING_PATTERNS:
                 if pattern.fullmatch(line):
-                    candidates[max(0, kind - 1)].append(index)
+                    candidates[bucket].append(index)
                     break
     starts = next((group for group in candidates if group), [])
     if not starts:
@@ -105,10 +109,20 @@ def split_file(text: str) -> tuple[list[dict], list[str]]:
             warnings,
         )
 
+    # Keep part dividers from being glued onto the end of the preceding chapter.
     units: list[dict] = []
+    carry_part: list[str] = []
     for i, start in enumerate(starts):
         end = starts[i + 1] if i + 1 < len(starts) else len(lines)
-        body = "\n".join(lines[start:end]).strip("\n")
+        chunk = list(lines[start:end])
+        next_part: list[str] = []
+        if i + 1 < len(starts):
+            while chunk and not chunk[-1].strip():
+                chunk.pop()
+            if chunk and PART_DIVIDER_RE.fullmatch(chunk[-1].strip()):
+                next_part = [chunk.pop(), ""]
+        body = "\n".join(carry_part + chunk).strip("\n")
+        carry_part = next_part
         units.append({
             "n": i + 1,
             "title": lines[start].lstrip("#").strip(),
@@ -120,6 +134,28 @@ def split_file(text: str) -> tuple[list[dict], list[str]]:
         })
 
     return units, warnings
+
+
+def _read_docx_text(path: Path) -> str:
+    """Extract clean Markdown-like text from a .docx manuscript without external packages."""
+    with zipfile.ZipFile(path) as zf:
+        xml_bytes = zf.read("word/document.xml")
+    root = ET.fromstring(xml_bytes)
+    paragraphs = []
+    for p in root.iter(f"{_W_NS}p"):
+        p_style = p.find(f"./{_W_NS}pPr/{_W_NS}pStyle")
+        style_val = p_style.attrib.get(f"{_W_NS}val", "") if p_style is not None else ""
+        runs = [t.text for t in p.iter(f"{_W_NS}t") if t.text]
+        text = "".join(runs).strip()
+        if not text:
+            paragraphs.append("")
+            continue
+        m = re.match(r"Heading(\d+)", style_val, re.I)
+        if m:
+            level = min(3, max(1, int(m.group(1))))
+            text = f"{'#' * level} {text}"
+        paragraphs.append(text)
+    return "\n\n".join(paragraphs).strip() + "\n"
 
 
 def list_dir_units(directory: Path) -> tuple[list[dict], list[str]]:
@@ -174,9 +210,13 @@ def analyze(path: str, selection=None) -> dict:
             front_matter = front_files[0].read_text(encoding="utf-8-sig").strip("\n")
         mode = "directory"
     else:
-        if target.suffix.casefold() not in ('.md', '.txt'):
-            raise ValueError("manuscript must be Markdown (.md), plain text (.txt), or a chapter directory")
-        text = target.read_text(encoding="utf-8-sig")
+        suffix = target.suffix.casefold()
+        if suffix == '.docx':
+            text = _read_docx_text(target)
+        elif suffix in ('.md', '.txt'):
+            text = target.read_text(encoding="utf-8-sig")
+        else:
+            raise ValueError("manuscript must be Markdown (.md), plain text (.txt), Word (.docx), or a chapter directory")
         units, warnings = split_file(text)
         if units[0].get("has_heading"):
             front_matter = "\n".join(text.splitlines()[:units[0]["start_line"] - 1]).strip("\n")

@@ -3,7 +3,7 @@ name: chapter-pipeline
 description: "Run a declared chapter production profile from scene/plan briefing through drafting, evidence reconciliation, review, and any authorized repair across fiction, non-fiction, and hybrid books. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.10.0"
+  version: "1.11.0"
   bundled-dependencies: book-status, nonfiction-research
   category: fiction-writing
 ---
@@ -50,14 +50,16 @@ The pipeline halts before downstream polish when:
 
 3. **Step 3: Promise, Knowledge & Evidence Harvest**
    - **Fiction:** runs `fiction-promises` on the drafted chapter so every setup and payoff is recorded in `Wiki/Story/Book-N/promises.yaml` *before* the gate runs, and runs `fiction-knowledge` harvest (`knowledge-state --action record`) to record character belief/knowledge acquisitions and reader exposures in `Wiki/Story/knowledge-events.json`.
-   - **Non-Fiction & Hybrid:** runs `promise-tracker` on the drafted chapter to register promised explanations, counterarguments, and thesis payoffs in `Wiki/Story/Book-N/promises.yaml`, and builds/validates the chapter assertion evidence record `_Edits/Book-N/evidence/Chapter-NNN.json` using `nonfiction-research` and [evidence.py](../nonfiction-research/scripts/evidence.py) (`--root ROOT --record _Edits/Book-N/evidence/Chapter-NNN.json`). Hybrid narrative chapters also run `fiction-knowledge` harvest.
+   - **Non-Fiction & Hybrid:** run `project_state.py --root ROOT --book Book-N workflow` for the resolved required checks (`HYBRID` resolves per chapter via `chapter.mode: narrative | expository | blended` rather than applying both sets blindly). Runs `promise-tracker` on the drafted chapter to register promised explanations, counterarguments, and thesis payoffs in `Wiki/Story/Book-N/promises.yaml`, and builds/validates the chapter assertion evidence record `_Edits/Book-N/evidence/Chapter-NNN.json` using `nonfiction-research` and [evidence.py](../nonfiction-research/scripts/evidence.py) (`--root ROOT --record _Edits/Book-N/evidence/Chapter-NNN.json`, plus `--reanchor` after edits). Hybrid narrative chapters also run `fiction-knowledge` harvest.
+- **Batch CLI wrappers:** Prefer single-shot `project_state.py chapter-preflight` (Step 2) and `project_state.py chapter-finalize` (Step 3/4) plus `--events` / `--dispositions` batch flags and `project_state.py reanchor --chapter N` after polish edits rather than dozens of individual CLI invocations.
 
-4. **Step 4: Readiness Gate Check**
+4. **Step 4: Readiness Gate Check & Act Checkpoint**
    - Run the reviews specified by `workflow`. Use the manifest-resolved report stem under `_Edits/Book-N/` and capture the policy inputs with the report.
-   - `Gate` invokes `gate-check` for canon, promise, knowledge, and prose checks. Run chapter-format and the [book continuity review](../book-status/references/continuity-review.md), including [evidence that a scene depends on](../book-status/references/evidence-chain.md).
+   - `Gate` invokes `gate-check` for canon, promise, knowledge, and prose checks. Run chapter-format and the [book continuity review](../book-status/references/continuity-review.md), including [evidence that a scene depends on](../book-status/references/evidence-chain.md). Record continuity claims before `review-begin` so self-invalidation never occurs.
    - `FactCheck` invokes `nonfiction-factcheck` against the inspected sources and `evidence.py`. When both checks are required, run it before `ClarityEdit`, which invokes `nonfiction-clarity-edit`.
    - Use the project's documented producer for a custom check. Mark it pending if the producer or current evidence is missing.
    - Refresh evidence from the exact final chapter after any authorized changes. Halts on `FAIL` or on canon/continuity/knowledge/factual/ledger `WARN`, reporting blockers with actionable fixes.
+   - After every **4 chapters** or at an **Act boundary**, trigger a lightweight **4-Chapter / Act Developmental Checkpoint** (`fiction-dev-editor` + `rhythm-map` + `drift-check` + `cast --gap 4 --through SELECTOR`) and refresh the board with `project_state.py --root ROOT --book Book-N kanban` before moving into the next block.
 
 5. **Step 5: Profile-specific editorial work**
    - For `draft_verified`, stop after reconciliation and the current gate(s). Do not silently add an edit pass or describe the result as fully line-edited.

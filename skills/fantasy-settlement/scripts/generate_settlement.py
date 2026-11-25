@@ -11,8 +11,13 @@ Usage:
 """
 
 from __future__ import annotations
+import argparse
 import random
 import sys
+
+CLEAN_EXCLUDED_ECONOMIES = {"Slaving"}
+CLEAN_EXCLUDED_BUILDINGS = {"Brothels"}
+CLEAN_EXCLUDED_FACTS = {"erotic sculpture"}
 
 # ─── Settlement Size ──────────────────────────────────────────────────────────
 
@@ -510,7 +515,7 @@ def count_buildings(pop: int, ratios: dict) -> dict[str, int]:
     return result
 
 
-def generate(name: str, description: str) -> str:
+def generate(name: str, description: str, tone: str = "clean") -> str:
     size = detect_size(description)
     biome = detect_biome(description)
     genre = detect_genre(description)
@@ -519,13 +524,18 @@ def generate(name: str, description: str) -> str:
 
     # Economy — scifi genre overrides biome economy
     if genre == "scifi":
-        pool = ECONOMIES["scifi"]
+        pool = list(ECONOMIES["scifi"])
     else:
-        pool = ECONOMIES.get(biome, ECONOMIES["default"])
+        pool = list(ECONOMIES.get(biome, ECONOMIES["default"]))
+    if tone != "mature":
+        pool = [item for item in pool if item not in CLEAN_EXCLUDED_ECONOMIES] or pool
     primary, secondary = pick_economies(pool, size)
 
     # Fun fact
-    fun_fact = random.choice(FUN_FACTS)
+    facts = list(FUN_FACTS)
+    if tone != "mature":
+        facts = [f for f in facts if not any(tok in f.lower() for tok in CLEAN_EXCLUDED_FACTS)] or facts
+    fun_fact = random.choice(facts)
 
     # Security
     if genre == "scifi":
@@ -543,12 +553,20 @@ def generate(name: str, description: str) -> str:
         buildings = count_buildings(pop, BUILDING_RATIOS)
         extra = EXTRA_BUILDINGS.get(biome, {})
         buildings.update(count_buildings(pop, extra))
+    if tone != "mature":
+        for k in list(buildings):
+            if k in CLEAN_EXCLUDED_BUILDINGS:
+                buildings.pop(k, None)
 
     # NPCs & Factions
     npc_count = 2 if pop < 500 else 3 if pop < 10000 else 4
     npcs = generate_npcs(biome, genre, npc_count)
     faction_count = 1 if pop < 300 else 2 if pop < 8000 else 3
     factions = generate_factions(biome, genre, faction_count)
+    if tone != "mature":
+        for f in factions:
+            if f.get("side") in CLEAN_EXCLUDED_ECONOMIES:
+                f["side"] = "smuggling"
 
     # ─── Format Output ────────────────────────────────────────────────────────
 
@@ -594,10 +612,11 @@ def generate(name: str, description: str) -> str:
 # ─── Entry Point ──────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print("Usage: generate_settlement.py <name> [description]")
-        sys.exit(1)
-
-    name = sys.argv[1]
-    description = " ".join(sys.argv[2:]) if len(sys.argv) > 2 else "town"
-    print(generate(name, description))
+    ap = argparse.ArgumentParser(description="Fantasy Settlement Generator")
+    ap.add_argument("name", help="Settlement name")
+    ap.add_argument("description", nargs="*", default=["town"], help="Type/biome description")
+    ap.add_argument("--tone", choices=("clean", "mature"), default="clean",
+                    help="Audience content filter (default: clean)")
+    args = ap.parse_args()
+    desc = " ".join(args.description) if args.description else "town"
+    print(generate(args.name, desc, tone=args.tone))

@@ -150,13 +150,35 @@ mkdir -p \
   "$TARGET/_Edits/Book-1" \
   "$TARGET/_Intake/Book-1/raw-notes"
 
-# Intake templates: inspirational staging for series and Book 1.
+# Intake templates: mode-aware inspirational staging for series and Book 1.
 # `|` delimiter + pre-escaped replacement, so `/`, `&`, `\` and `.` in the title
 # are all safe.
+BRIEF_TEMPLATE="$LIBRARY_DIR/templates/series-brief.md"
+PREMISE_TEMPLATE="$LIBRARY_DIR/templates/book-premise.md"
+if [[ "$PROJECT_TYPE" == "nonfiction" && -f "$LIBRARY_DIR/templates/nonfiction-series-brief.md" ]]; then
+  BRIEF_TEMPLATE="$LIBRARY_DIR/templates/nonfiction-series-brief.md"
+  if [[ -f "$LIBRARY_DIR/templates/nonfiction-book-premise.md" ]]; then
+    PREMISE_TEMPLATE="$LIBRARY_DIR/templates/nonfiction-book-premise.md"
+  fi
+fi
+
 sed "s|__SERIES_TITLE__|$SED_TITLE|g" \
-  "$LIBRARY_DIR/templates/series-brief.md" > "$TARGET/_Intake/series-brief.md"
+  "$BRIEF_TEMPLATE" > "$TARGET/_Intake/series-brief.md"
 sed -e "s|__SERIES_TITLE__|$SED_TITLE|g" -e "s|__BOOK_NUM__|1|g" \
-  "$LIBRARY_DIR/templates/book-premise.md" > "$TARGET/_Intake/Book-1/premise.md"
+  "$PREMISE_TEMPLATE" > "$TARGET/_Intake/Book-1/premise.md"
+if [[ "$PROJECT_TYPE" == "hybrid" && -f "$LIBRARY_DIR/templates/nonfiction-series-brief.md" ]]; then
+  sed "s|__SERIES_TITLE__|$SED_TITLE|g" \
+    "$LIBRARY_DIR/templates/nonfiction-series-brief.md" > "$TARGET/_Intake/nonfiction-brief.md"
+fi
+
+cat > "$TARGET/.gitignore" <<'EOF'
+__pycache__/
+*.pyc
+.DS_Store
+*.lock
+_Edits/*/reading/*/
+Chapters/*/export/beta.previous-*
+EOF
 
 # Starter production board for Book 1 (refreshed by the kanban-board skill).
 sed -e "s|__SERIES_TITLE__|$SED_TITLE|g" -e "s|__BOOK_NUM__|1|g" \
@@ -238,8 +260,8 @@ elif [[ "$PROJECT_TYPE" == "fiction" ]]; then
   echo "  4. Then characters, world, outline, divergence, psych, scenes, style + voiceprompt, writechapter, reviewchapter"
 elif [[ "$PROJECT_TYPE" == "nonfiction" ]]; then
   echo "  2. Fill out or add notes to _Intake/series-brief.md"
-  echo "  3. Planning skills in order: nonfiction-concept, nonfiction-audience, nonfiction-structure"
-  echo "  4. Then chapter-plan, writechapter, factcheck, clarity-edit; promise-tracker as chapters land"
+  echo "  3. Planning skills in order: nonfiction-concept, nonfiction-audience, nonfiction-style, nonfiction-structure"
+  echo "  4. Then nonfiction-research, nonfiction-chapter-plan, nonfiction-writechapter, nonfiction-factcheck, nonfiction-clarity-edit; promise-tracker as chapters land"
 else
   echo "  2. Hybrid project: fiction planning order for the narrative, non-fiction planning order for the argument (see AGENTS.md routing)"
 fi

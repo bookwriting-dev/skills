@@ -105,11 +105,11 @@ def main():
         raise ValueError('PDF requires an explicitly configured available PDF engine')
     warnings = [f"missing expected chapter: {item['label']}" for item in missing]
     workflow = resolver.workflow(root, book_record, cfg.get('required_checks'))
-    required = workflow['required_checks']
     required_meta = []
     review_results = []
     for _, p, chapter_record in chapters:
-        for check in required:
+        ch_required = resolver.workflow(root, book_record, cfg.get('required_checks'), chapter=chapter_record)['required_checks']
+        for check in ch_required:
             meta = s.chapter_report_paths(root, a.book, chapter_record, check)[0]
             required_meta.append(meta)
             status = s.readiness(root, meta, [str(p.relative_to(root))], profile=cfg.get('completion_profile', 'draft_verified'))

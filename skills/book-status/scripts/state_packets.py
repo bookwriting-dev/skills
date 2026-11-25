@@ -390,7 +390,19 @@ def pov_labels(text):
 
 def scene_contexts(text, psych_povs, roster, multi):
     sections = list(re.finditer(r'^#{2,4}[ \t]+Scene[ \t]+(\d+)\b[^\n]*', text, re.M | re.I))
-    chapter_povs = pov_labels(text[:sections[0].start()]) if sections else pov_labels(text)
+    preamble = text[:sections[0].start()] if sections else text
+    chapter_povs = pov_labels(preamble)
+    ch_cadence_m = re.search(
+        r'^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?Cadence role(?:\*\*)?:(?:\*\*)?[ \t]*([a-z_]+)',
+        preamble, re.M | re.I,
+    )
+    ch_cadence = ch_cadence_m.group(1).lower() if ch_cadence_m else 'pressure_turn'
+    ch_threads_m = re.search(
+        r'^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?Subplot threads(?:\*\*)?:(?:\*\*)?[ \t]*([^\n]+)',
+        preamble, re.M | re.I,
+    )
+    ch_threads = [t.strip() for t in ch_threads_m.group(1).split(',') if t.strip()] if ch_threads_m else []
+
     scopes = [(sec[1], text[sec.end():sections[index + 1].start() if index + 1 < len(sections) else len(text)])
               for index, sec in enumerate(sections)] or [('1', '')]
     named = {pov for _, body in scopes for pov in pov_labels(body)}
@@ -408,8 +420,22 @@ def scene_contexts(text, psych_povs, roster, multi):
         ids.add(scene_id)
         labels = pov_labels(body) or fallback
         pov = labels[0] if len(labels) == 1 else None
-        scope = {'id': scene_id, 'pov': pov,
-                 'pov_status': 'RESOLVED' if pov else 'UNRESOLVED' if multi or labels or named else 'UNSPECIFIED'}
+        cad_m = re.search(
+            r'^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?Cadence role(?:\*\*)?:(?:\*\*)?[ \t]*([a-z_]+)',
+            body, re.M | re.I,
+        )
+        thr_m = re.search(
+            r'^[ \t]*(?:[-*][ \t]+)?(?:\*\*)?Subplot threads(?:\*\*)?:(?:\*\*)?[ \t]*([^\n]+)',
+            body, re.M | re.I,
+        )
+        scope = {
+            'id': scene_id,
+            'pov': pov,
+            'pov_status': 'RESOLVED' if pov else 'UNRESOLVED' if multi or labels or named else 'UNSPECIFIED',
+            'cadence_role': cad_m.group(1).lower() if cad_m else ch_cadence,
+            'subplot_threads': ([t.strip() for t in thr_m.group(1).split(',') if t.strip()]
+                                if thr_m else ch_threads),
+        }
         for field in ('story_order', 'reader_order'):
             label = field.replace('_', ' ')
             match = re.search(rf'^[ \t]*(?:-[ \t]+)?(?:\*\*)?{label}:(?:\*\*)?[ \t]*(\d+)[ \t]*$',
@@ -462,7 +488,13 @@ def draft_packet(root, args):
     chapter_index = book_chapters.index(chapter_record)
     label = chapter_record.get('display_label') or chapter_record['id']
     ch_match = re.fullmatch(r'(?:Chapter[- ]?)?(\d+)', str(label), re.I)
-    ch_num = int(ch_match.group(1)) if ch_match else None
+    if ch_match:
+        ch_num = int(ch_match.group(1))
+    elif book_record.get('chapter_order') == 'declared' and chapter_record.get('reading_order') is not None:
+        # Imported EPUB units (Unit-<18hex>.md) use title-based labels; resolve logical unit index.
+        ch_num = chapter_record['reading_order']
+    else:
+        ch_num = None
     chapter_scope_id = f'Chapter-{ch_num:03d}' if ch_num is not None else chapter_record['id']
     window = max(1, int(args.window))
 
@@ -653,9 +685,28 @@ def draft_packet(root, args):
     chapter_ids = (chapter_scope_id, chapter_record['id'])
     for index, scene in enumerate(scenes):
         scene['voice_prompts'] = [item for item in voice_prompts if item['pov'] in (scene['pov'], 'default')]
-        scene['knowledge_as_of'] = scene_knowledge(root, book, ch_num, scene, args,
-                                                  global_ledger=global_knowledge,
-                                                  legacy_ledger=legacy_knowledge, first=index == 0)
+        kn = scene_knowledge(root, book, ch_num, scene, args,
+                             global_ledger=global_knowledge,
+                             legacy_ledger=legacy_knowledge, first=index == 0)
+        scene['knowledge_as_of'] = kn
+        scene['dramatic_irony'] = []
+        pov = scene.get('pov')
+        if pov and isinstance(kn.get('reader'), dict) and isinstance(kn.get(pov), dict):
+            r_state = kn['reader'].get('state', kn['reader']) if 'state' in kn['reader'] and isinstance(kn['reader'].get('state'), dict) else {}
+            p_state = kn[pov].get('state', kn[pov]) if 'state' in kn[pov] and isinstance(kn[pov].get('state'), dict) else {}
+            for fact_id, r_ev in sorted(r_state.items()):
+                if not isinstance(r_ev, dict) or r_ev.get('state') not in ('knows', 'exposed'):
+                    continue
+                p_ev = p_state.get(fact_id)
+                p_val = p_ev.get('state') if isinstance(p_ev, dict) else 'unknown'
+                if p_val in ('unknown', 'disbelieves', 'forgets'):
+                    scene['dramatic_irony'].append({
+                        'fact_id': fact_id,
+                        'reader_state': r_ev.get('state'),
+                        'pov_state': p_val,
+                        'quote': r_ev.get('quote', ''),
+                        'note': 'Stage active dramatic tension without letting POV prematurely deduce or state this secret.',
+                    })
         scene['editorial_decisions'] = [item for item in decisions
                                         if decision_applies(item, book_ids, chapter_ids, scene['pov'],
                                                             chapter_path=chapter_record['path'])]

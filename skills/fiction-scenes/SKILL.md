@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.6.0"
+  version: "4.7.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -57,29 +57,32 @@ Write the chapter's causal spine in one or two sentences and test it:
 
 1. **Want:** What does the POV character actively seek now?
 2. **Pressure:** What makes that difficult? Friction may be uncertainty, cost, incompatible duties, time, or incomplete knowledge; it need not be hostility.
-3. **Micro-Friction (Earn the Turn):** What specific resistance, failed first tactic, deflection, or raised cost prevents the scene from resolving on the first push? (Ban "cooperative exposition" where another character hands over information, trust, or concession immediately.)
+3. **Cadence Role & Micro-Friction:** Assign each scene a `cadence_role` (`pressure_turn` [default], `aftermath_valley`, `payoff_catharsis`, or `tonal_counterpoint`).
+   - For **`pressure_turn` (default):** What specific resistance, failed first tactic, deflection, or raised cost prevents the scene from resolving on the first push? (Ban "cooperative exposition" where another character hands over information, trust, or concession immediately.)
+   - For **`aftermath_valley`**, **`payoff_catharsis`**, and **`tonal_counterpoint`** (earned integration, grief/sanctuary, joy/warmth, or comic respite immediately before or after a major turn): micro-friction is **optional** — do not manufacture fake bickering or arbitrary obstruction when the chapter's structural job is emotional dwell or tonal contrast. Still require genuine interior movement, consequence, or dramatic irony.
 4. **Choice:** What consequential decision or action does the POV character make?
-5. **Change:** What is irreversibly different by the chapter's end?
-6. **Necessity:** What future event, relationship, or option would disappear if the chapter were cut?
+5. **Change:** What is irreversibly different by the chapter's end (emotionally, relationally, or materially)?
+6. **Necessity:** What future event, relationship, subplot thread, or tonal setup would suffer if the chapter were cut?
 
-If the spine cannot answer all six, repair the spine before adding worldbuilding. Information, atmosphere, shopping lists, status reports, and theories are not plot unless they cause a decision that changes later events.
+If the spine cannot answer all six, repair the spine before adding worldbuilding. Information, atmosphere, shopping lists, status reports, and theories are not plot unless they change a decision, relationship dynamic, or reader understanding that later chapters honor.
 
-Prefer one primary driver and at most one supporting driver. Consult [driver-types.md](references/driver-types.md) when the driver is unclear or when planning a batch. Use [anti-flat-scenes.md](references/anti-flat-scenes.md) when a chapter risks becoming travel, processing, setup, or exposition without action.
+Prefer one primary driver and at most one supporting driver (or `subplot_threads` braid). Consult [driver-types.md](references/driver-types.md) when the driver is unclear or when planning a batch. Use [anti-flat-scenes.md](references/anti-flat-scenes.md) when a `pressure_turn` chapter risks becoming travel, processing, setup, or exposition without action.
 
 ## Build scenes around turns
 
-Use 1–3 scenes according to real changes in location, time, power, or emotional register. One sustained scene is valid when it carries the full turn; do not split it merely to satisfy a count.
+Use 1–3 scenes according to real changes in location, time, power, or emotional register. One sustained scene is valid when it carries the full turn; do not split it merely to satisfy a count. Vary `cadence_role` across adjacent chapters so high-pressure sequences earn recovery valleys and climatic turns have emotional weight.
 
 Each scene should establish:
 
-- the POV character's immediate goal and the active `relationship_checkpoints` state between participants at this chapter;
-- active pressure and at least one **micro-friction beat** (a failed attempt, refusal, misdirection, interruption, or price escalation) before the turn lands;
+- the POV character's immediate goal, `cadence_role`, any braided `subplot_threads`, and the active `relationship_checkpoints` state between participants at this chapter;
+- for `pressure_turn` scenes: active pressure and at least one **micro-friction beat** (a failed attempt, refusal, misdirection, interruption, or price escalation) before the turn lands;
+- when the reader holds confirmed knowledge the POV does not (`dramatic_irony` gap from `fiction-knowledge` / `DraftPacket.json`), note how the scene stages that asymmetry in action, dialogue subtext, or close calls without leaking unlearned secrets;
 - when dialogue architecture materially shapes the scene, name the **conversation form** (for example interview, interrogation, briefing, examination, or purposeful cooperation) and its pressure source. State why direct answers or repeated confirmations serve the scene; do not use the label as a blanket exemption from checking actual stagnation;
 - concrete actions and selective physical anchors;
-- the turn: the line, discovery, refusal, choice, or act that changes the scene;
+- the turn: the line, discovery, refusal, choice, release, or act that changes the scene;
 - the consequence carried into the next scene (if a bond shifts here, append a new dated checkpoint entry to `## relationship_checkpoints` in both characters' `Wiki/Characters/<Name>.md` files and close the prior open span);
 - the surface response and the truer interior movement;
-- a specific ending beat with forward pull.
+- a specific ending beat with forward pull (or earned quiet dwell when `aftermath_valley` / `payoff_catharsis`).
 
 Worldbuilding belongs inside decisions and consequences. Keep lists selective. A single load-bearing object or transaction usually carries more story than an inventory.
 
@@ -95,14 +98,18 @@ Adapt to the project's neighboring files. A useful default is:
 ## Chapter spine
 - **Want:** ...
 - **Pressure:** ...
+- **Cadence role:** pressure_turn | aftermath_valley | payoff_catharsis | tonal_counterpoint
+- **Subplot threads:** [active B-plot / thematic thread braided here, if any]
 - **Decision:** ...
 - **Irreversible change:** ...
 - **Why this chapter cannot be cut:** ...
 
 ## Scene 1
 - **POV:** [Single viewpoint name for this scene]
+- **Cadence role:** pressure_turn
 - **Goal:** ...
 - **Action and turn:** [specific beat-by-beat action]
+- **Dramatic irony leverage (when relevant):** [what reader knows that POV misses, staged for tension]
 - **Interior movement:** [surface / underneath / where POV lands]
 - **Consequence or hook:** ...
 - **Conversation form / pressure source (when relevant):** ...

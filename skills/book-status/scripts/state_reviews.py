@@ -250,8 +250,9 @@ def dashboard(root, book):
     for chapter in sorted(book_record['chapters'], key=lambda item: item['reading_order']):
         draft = path_at(root, chapter['path'])
         reports = chapter_report_paths(root, book, chapter)
+        ch_workflow = resolver.workflow(root, book_record, chapter=chapter)
         required = [chapter_report_paths(root, book, chapter, check)[0]
-                    for check in workflow['required_checks']]
+                    for check in ch_workflow['required_checks']]
         checks = []
         for meta in sorted(set(reports + required)):
             result = readiness(root, meta, [chapter['path']])
@@ -299,7 +300,16 @@ def dashboard(root, book):
 REVIEW_TYPE_SKILLS = {
     'Gate': 'gate-check',
     'Review': 'fiction-reviewchapter',
+    'DevEdit': 'fiction-dev-editor',
+    'NonfictionDevEdit': 'nonfiction-dev-editor',
+    'LineEdit': 'fiction-line-editor',
+    'Prose': 'fiction-prose-editor',
+    'AIisms': 'fiction-aiism-editor',
     'FullEdit': 'fiction-full-editor',
+    'LevelUp': 'levelup',
+    'FragmentHunt': 'fragment-hunter',
+    'StatAudit': 'litrpg-audit',
+    'Knowledge': 'fiction-knowledge',
     'FactCheck': 'nonfiction-factcheck',
     'ClarityEdit': 'nonfiction-clarity-edit',
 }
@@ -384,6 +394,8 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
             paths.append(ev_file)
 
     skill_name = REVIEW_TYPE_SKILLS.get(review_type)
+    if review_type == 'DevEdit' and resolver.workflow(root, book_record, chapter=chapter_record)['project_type'] == 'NONFICTION':
+        skill_name = REVIEW_TYPE_SKILLS['NonfictionDevEdit']
     if skill_name and path_at(root, f'.agents/skills/{skill_name}').is_dir():
         paths.append(f'.agents/skills/{skill_name}')
 
@@ -429,6 +441,51 @@ def review_finish(root, prepared_path, verdict, *, report=None, output=None, fin
     with locked(out_path):
         write(out_path, spec)
     return {'meta': str(out_path.relative_to(root)), **spec}
+
+
+def record_dispositions_batch(root, book_id, *, report, items):
+    """Append a list of finding dispositions under a single lock."""
+    if not isinstance(items, list) or not items:
+        raise ValueError('batch disposition requires a nonempty JSON list')
+    report_path = path_at(root, report)
+    if not report_path.is_file():
+        raise ValueError('report file does not exist: ' + str(report))
+    report_rel = str(report_path.relative_to(root))
+    report_sha = digest(report_path)
+    records = []
+    for raw in items:
+        disp = raw.get('disposition')
+        fid = raw.get('finding_id')
+        reason = raw.get('reason')
+        if disp not in ('applied', 'rejected', 'deferred', 'superseded'):
+            raise ValueError('invalid finding disposition')
+        if not fid or not reason:
+            raise ValueError('each disposition requires finding_id and reason')
+        entry = {
+            'schema_version': VERSION,
+            'finding_id': fid,
+            'report': report_rel,
+            'report_sha256': report_sha,
+            'disposition': disp,
+            'reason': reason,
+            'created_at': now(),
+        }
+        for opt, src_key in (('quote', 'quote'), ('before_sha256', 'before_sha256'),
+                             ('after_sha256', 'after_sha256')):
+            if raw.get(src_key) is not None:
+                entry[opt] = raw[src_key]
+            elif opt == 'before_sha256' and raw.get('before_sha') is not None:
+                entry[opt] = raw['before_sha']
+            elif opt == 'after_sha256' and raw.get('after_sha') is not None:
+                entry[opt] = raw['after_sha']
+        records.append(entry)
+    p = path_at(root, f'_Edits/{book_id}/decisions.jsonl')
+    with locked(p):
+        p.parent.mkdir(parents=True, exist_ok=True)
+        with p.open('a', encoding='utf-8') as f:
+            for entry in records:
+                f.write(json.dumps(entry, ensure_ascii=False) + '\n')
+    return {'recorded': len(records), 'dispositions': records}
 
 
 def record_disposition(root, book_id, *, report, finding_id, disposition, reason,

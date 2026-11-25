@@ -3,7 +3,7 @@ name: drift-check
 description: "Diagnostic-only book-level drift audit across chapters: pet-word spikes, rising rhetorical moves, formulaic openers/closers, thinning specifics, and non-fiction claim/evidence/abstraction drift. Never edits text. Use for drift checks, 'why does the back half feel flatter', 'pet word check', or chapter ranges."
 metadata:
   author: Fiction Toolkit
-  version: "1.4.1"
+  version: "1.4.2"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

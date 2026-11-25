@@ -149,8 +149,12 @@ def describe(promise: dict) -> str:
     kind = str(promise.get("kind") or "").strip()
 
     def chref(value: object, fallback: str) -> str:
-        text = str(value or "").strip()
-        return f"ch{text}" if text and any(c.isdigit() for c in text) else fallback
+        raw = str(value or "").strip()
+        if not raw or not any(c.isdigit() for c in raw):
+            return fallback
+        if raw.lower().startswith(("ch", "sec")):
+            return raw
+        return f"ch{raw}"
 
     where = chref(promise.get("introduced_ch"), "chapter unknown")
     due = chref(promise.get("payoff_by_ch"), "no deadline")

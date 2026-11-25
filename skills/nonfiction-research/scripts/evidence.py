@@ -9,15 +9,96 @@ VALID_RESULTS = {
     'pending', 'verified', 'unsupported', 'contradicted', 'misattributed',
     'imprecise', 'unverifiable', 'stale', 'not_empirical',
 }
-NON_EMPIRICAL_TYPES = {'normative_judgment', 'definition', 'hypothetical_illustration'}
+NON_EMPIRICAL_TYPES = {
+    'normative_judgment', 'definition', 'hypothetical_illustration',
+    'firsthand_account', 'domain_baseline',
+}
 CLAIM_TYPES = {
     'factual', 'quotation_attribution', 'inference', 'definition',
     'testimony', 'normative_judgment', 'hypothetical_illustration',
+    'firsthand_account', 'domain_baseline',
 }
 
 
 def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
+
+
+def _load_sources_registry(root: Path) -> tuple[dict, str | None, str | None]:
+    """Load optional Wiki/Research/sources.yaml registry so SRC-NNN entries inherit fields."""
+    reg_path = root / 'Wiki' / 'Research' / 'sources.yaml'
+    if not reg_path.is_file():
+        return {}, None, None
+    raw = reg_path.read_bytes()
+    reg_hash = sha256(raw)
+    try:
+        import yaml
+        data = yaml.safe_load(raw.decode('utf-8')) or {}
+    except ImportError:
+        return {}, reg_path.relative_to(root).as_posix(), reg_hash
+    items = data.get('sources') if isinstance(data, dict) else (data if isinstance(data, list) else [])
+    by_id = {}
+    for entry in items or []:
+        if isinstance(entry, dict) and entry.get('source_id'):
+            by_id[str(entry['source_id'])] = entry
+    return by_id, reg_path.relative_to(root).as_posix(), reg_hash
+
+
+def reanchor(root: Path, record_path: Path, *, confirm_coverage: bool = False) -> dict:
+    """Update assertion half-open offsets for uniquely preserved quotes after prose edits."""
+    root = root.resolve()
+    record_path = record_path if record_path.is_absolute() else root / record_path
+    record_path = record_path.resolve()
+    if not record_path.is_relative_to(root):
+        raise ValueError('evidence record path escapes project root')
+    record = json.loads(record_path.read_text(encoding='utf-8'))
+    subject_path = record.get('subject_path')
+    if not isinstance(subject_path, str):
+        raise ValueError('chapter evidence requires subject_path')
+    subject = (root / subject_path).resolve()
+    if not subject.is_relative_to(root) or not subject.is_file():
+        raise ValueError('chapter evidence subject is missing or escapes project root')
+    raw_subject = subject.read_bytes()
+    text = raw_subject.decode('utf-8')
+    new_hash = sha256(raw_subject)
+
+    reanchored_ids, unresolved = [], []
+    verifications = {v.get('assertion_id'): v for v in record.get('verifications', []) if v.get('assertion_id')}
+    for assertion in record.get('assertions', []):
+        aid = assertion.get('assertion_id')
+        anchor = assertion.get('anchor', {})
+        quote = anchor.get('quote', '')
+        matches = []
+        if quote:
+            pos = text.find(quote)
+            while pos != -1:
+                matches.append(pos)
+                pos = text.find(quote, pos + 1)
+        if len(matches) == 1:
+            start = matches[0]
+            anchor['start'] = start
+            anchor['end'] = start + len(quote)
+            anchor['subject_sha256'] = new_hash
+            reanchored_ids.append(aid)
+        else:
+            unresolved.append({'assertion_id': aid, 'quote': quote,
+                               'matches': len(matches)})
+            if aid in verifications and verifications[aid].get('result') == 'verified':
+                verifications[aid]['result'] = 'stale'
+
+    if not unresolved:
+        record['subject_sha256'] = new_hash
+        if confirm_coverage and isinstance(record.get('inventory_coverage'), dict):
+            record['inventory_coverage']['subject_sha256'] = new_hash
+    record_path.write_text(json.dumps(record, indent=2, ensure_ascii=False) + '\n', encoding='utf-8')
+    return {
+        'record': record_path.relative_to(root).as_posix(),
+        'subject_sha256': new_hash,
+        'reanchored': len(reanchored_ids),
+        'assertion_ids': reanchored_ids,
+        'unresolved': unresolved,
+        'coverage_confirmed': bool(confirm_coverage and not unresolved),
+    }
 
 
 def audit(root: Path, record_path: Path) -> dict:
@@ -48,7 +129,17 @@ def audit(root: Path, record_path: Path) -> dict:
     inputs[subject.relative_to(root).as_posix()] = text_hash
     stale_subject = text_hash != record.get('subject_sha256')
 
-    sources = record.get('sources', [])
+    registry, reg_rel, reg_hash = _load_sources_registry(root)
+    if reg_rel and reg_hash:
+        inputs[reg_rel] = reg_hash
+    sources = []
+    for raw_src in record.get('sources', []):
+        sid = raw_src.get('source_id')
+        if sid and sid in registry:
+            merged = {**registry[sid], **{k: v for k, v in raw_src.items() if v is not None}}
+            sources.append(merged)
+        else:
+            sources.append(raw_src)
     source_by_id = {}
     source_errors = []
     for source in sources:
@@ -208,7 +299,17 @@ def main():
     parser.add_argument('--root', type=Path, required=True)
     parser.add_argument('--record', type=Path, required=True)
     parser.add_argument('--require-ready', action='store_true')
+    parser.add_argument('--reanchor', action='store_true',
+                        help='recompute assertion offsets where quotes still match uniquely')
+    parser.add_argument('--confirm-coverage', action='store_true',
+                        help='used with --reanchor when all assertions matched and edits were local')
     args = parser.parse_args()
+    if args.reanchor:
+        result = reanchor(args.root, args.record, confirm_coverage=args.confirm_coverage)
+        print(json.dumps(result, ensure_ascii=False, indent=2))
+        if result['unresolved']:
+            raise SystemExit(2)
+        return
     result = audit(args.root, args.record)
     print(json.dumps(result, ensure_ascii=False, indent=2))
     if args.require_ready and result['readiness'] != 'ELIGIBLE':

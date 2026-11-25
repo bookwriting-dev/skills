@@ -10,7 +10,10 @@ import sys
 import json
 import statistics
 
-SENT_SPLIT = re.compile(r'(?<=[.!?])["\'’”]?\s+(?=[A-Z"“])')
+SENT_SPLIT = re.compile(
+    r'(?<=[.!?])(?<!\bMr\.)(?<!\bMrs\.)(?<!\bMs\.)(?<!\bDr\.)(?<!\bProf\.)(?<!\bSr\.)(?<!\bJr\.)(?<!\bSt\.)(?<!\bvs\.)(?<!\be\.g\.)(?<!\bi\.e\.)'
+    r'["\'’”]?\s+(?=[A-Z"“‘])'
+)
 STOP = set(
     "a an the and or but of to in on at for with is was were be been being "
     "it its he she they them his her their i you we not that this as by "
@@ -55,7 +58,7 @@ def measure(path):
         if p.strip()
         and not p.strip().startswith("#")
         and not p.strip().startswith("!")
-        and p.strip() != "---"
+        and not re.fullmatch(r"(?:\*[ \t]*){3,}|-{3,}", p.strip())
     ]
 
     all_sentences, para_sentence_counts = [], []
@@ -70,9 +73,9 @@ def measure(path):
 
     openers = []
     for s in all_sentences:
-        m = re.match(r"[A-Za-z']+", s)
+        m = re.match(r'^["\'“‘\s]*([A-Za-z\']+)', s)
         if m:
-            openers.append(m.group().lower())
+            openers.append(m.group(1).lower())
 
     opener_counts = {}
     for w in openers:

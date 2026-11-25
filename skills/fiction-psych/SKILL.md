@@ -1,9 +1,9 @@
 ---
 name: fiction-psych
-description: "Generate a chapter-level psychological interior pass (start state, beat-by-beat interior cost, end state, show-don't-tell gaps) saved to Wiki/Psych/Book-N/Chapter_[NN]_Psych.md from outline beats and POV character files. Use after fiction-outline and fiction-divergence, before fiction-scenes, or to refresh interior layers."
+description: "Generate a chapter-level psychological interior pass (start state, beat-by-beat interior cost, end state, show-don't-tell gaps) saved to Wiki/Psych/Book-N/Chapter_[NN]_Psych.md from scene plans, outline beats, and POV voice/character files. Use after fiction-style, fiction-voiceprompt, and fiction-scenes, or to refresh interior layers."
 metadata:
   author: Fiction Toolkit
-  version: "2.2.1"
+  version: "2.3.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -16,9 +16,9 @@ Output files are human-readable and editable. The user can revise any chapter's 
 
 ## When to Use
 
-- After `fiction-outline` (and the `fiction-divergence` pass) have settled the chapter beats, before `fiction-scenes`
+- After `fiction-style` + `fiction-voiceprompt`, `fiction-outline`, and `fiction-scenes` have settled the scene splits and POV voice prompts
 - Manually, when you want to deepen a specific chapter's interior layer before writing
-- After revising the outline, to refresh the psych pass for changed chapters
+- After revising a chapter's scene plan or outline, to refresh the psych pass for changed chapters
 
 ## Step 1: Identify the Project
 
@@ -28,22 +28,24 @@ Find the project's `Wiki/` folder by searching for `**/Wiki/Outline/**/outline.m
 
 All inputs come from the project's `Wiki/` folder. Read:
 
-- The resolved book outline (`Wiki/Outline/Book-N/outline.md`): all chapter entries with external beats
+- The resolved book outline (`Wiki/Outline/Book-N/outline.md`): chapter entries with `what_must_happen`, `premise_movement`, `question_pressure`, `cadence_role`, and `ends_with`
+- The chapter's scene plan (`Wiki/Outline/Book-N/Chapter_[NN]_Scene.md`, if present): per-scene POV assignments, beats, turns, and interior targets
 - `Wiki/Characters/*.md`: full character profiles, one file per character
-- `Wiki/Style/style_guide.md`: craft rules and optional expression channels/emotional vocabulary for this POV character (also accept the legacy name `Wiki/Style/Style Guide.md` when reading)
+- `Wiki/Style/style_guide.md` and `Wiki/Style/voice_prompt*.md` (also accept legacy `Wiki/Style/Style Guide.md`): craft rules, `register_preset`, and POV perceptual lens / expression boundaries
 - `Wiki/Story/theme.md`: motifs, central question
 
-Create the `Wiki/Psych/` folder if it doesn't exist.
+Create the `Wiki/Psych/Book-N/` folder if it doesn't exist.
 
 ## Step 3: Run Psych Pass Per Chapter
 
 For each chapter, use one isolated worker when the host supports one. Do not require a particular model. If isolated workers are unavailable, perform the same chapter pass directly, one chapter at a time.
 
 Pass the worker:
-- The chapter's full outline entry from `Wiki/Outline/outline.md` (chapter_number, title, pov, summary, emotional_arc, interior_beat, chapter_opening, chapter_closing)
-- The FULL profile of the POV character from `Wiki/Characters/<Name>.md`
-- The profiles of other characters_present, each from its `Wiki/Characters/` file (trimmed: personality, dialogue_style, relationship_dynamics only)
-- The craft rules and any emotional vocabulary from `Wiki/Style/style_guide.md` (how this POV character's body expresses emotion)
+- The chapter's full outline entry from `Wiki/Outline/Book-N/outline.md` (`chapter_number`, `title`, `what_must_happen`, `premise_movement`, `question_pressure`, `promise_delivery`, `cadence_role`, `subplot_threads`, `trope_obligations`, `ends_with`)
+- The chapter's scene plan (`Wiki/Outline/Book-N/Chapter_[NN]_Scene.md`, when present) for exact scene beats and POV switches
+- The FULL profile of the POV character(s) from `Wiki/Characters/<Name>.md`
+- The profiles of other characters present, each from its `Wiki/Characters/` file (trimmed: personality, dialogue_style, relationship_dynamics only)
+- The craft rules and POV perceptual lens from `Wiki/Style/style_guide.md` and `Wiki/Style/voice_prompt_<POV>.md` / `voice_prompt.md`
 - The motifs from `Wiki/Story/theme.md`
 - The worker instructions below
 
@@ -60,7 +62,7 @@ Tell the user:
 - That they are stored as `Wiki/Psych/Book-N/Chapter_[NN]_Psych.md` files
 - "Review and edit any chapter's psych pass before drafting; `fiction-writechapter` reads this analysis alongside the scene plan."
 
-Next: `fiction-scenes` if scene plans do not exist yet; otherwise `fiction-style` + `fiction-voiceprompt` if not yet built; then `fiction-writechapter`.
+Next: `fiction-writechapter` (or `fiction-scenes` / `fiction-style` if not yet built).
 
 ---
 

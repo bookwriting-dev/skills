@@ -3,7 +3,7 @@ name: fiction-genre
 description: "Select genre, subgenre, flavor, tone, and tropes for a new fiction project. Use when user says 'pick a genre', 'what genre', 'start a new book', 'genre selection', or before running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.3.0"
+  version: "3.4.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -64,6 +64,8 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 - **reader_expectation:** the recognizable experience, progression, scene type, or payoff the trope leads a reader to expect;
 - **planning_obligation:** what the synopsis and outline must establish, develop, and pay off, or what a deliberate subversion must replace with equal satisfaction.
 
+**Genre-Specific Craft Notes & Reader Expectations**: Extract the subgenre reference file's concrete chapter-length range, pacing conventions, cliffhanger/ending cadence, and resolution rules (e.g., HEA/HFN, grim cost, eerie ambiguity, fair-play reveal) into explicit `## Genre-Specific Craft Notes` and `## Reader Expectations` sections so `fiction-outline`, `fiction-writechapter`, and `fiction-reviewchapter` inherit them instead of losing reference knowledge after Step 2.
+
 Mandatory subgenre tropes are normally `genre_contract` or `structural_engine`. Use `supporting_texture` only when recurrence matters but a discrete payoff does not. Use `deliberate_subversion` only when the user requested or approved the subversion. Keep these obligations genre-level; do not invent the story's plot before the synopsis exists.
 
 ## Step 4: Save and Confirm
@@ -96,6 +98,17 @@ One paragraph of tone notes, specific to this story.
 - **role:** structural_engine
 - **reader_expectation:** Sustained antagonism changes through earned vulnerability into chosen trust and intimacy.
 - **planning_obligation:** Establish a real basis for opposition, develop costly changes in understanding, and pay it off through an earned choice rather than sudden attraction.
+
+## Genre-Specific Craft Notes
+
+- **Target chapter length:** ...
+- **Pacing & hook conventions:** ...
+- **Craft guardrails (always / never):** ...
+
+## Reader Expectations
+
+- **Resolution contract:** ...
+- **Primary emotional satisfaction:** ...
 ```
 
 Show the user the output and ask: "What should I change?" Flag any choices you made that the user did not specify (invented title, surprise-me picks).

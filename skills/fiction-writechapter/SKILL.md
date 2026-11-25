@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.10.0"
+  version: "4.12.0"
   bundled-dependencies: book-status, fiction-dialogue
   category: fiction-writing
   output-format: markdown
@@ -81,7 +81,7 @@ Before drafting, extract a compact working brief:
 - POV, tense, `style_policy` (`register_preset` + `clock_mode`), and voice constraints (including `pov_lenses` perceptual obsessions and cross-POV contrast rules when switching POVs across scenes). Apply [diction and clock time](../book-status/references/diction-and-time.md) honoring the book's `clock_mode` (`digits` vs `words`) and dialogue voice;
 - opening physical and emotional state, plus the previous chapter's closing seam;
 - active `relationship_checkpoints` for this chapter (do not revert to Chapter 1 dynamics or jump ahead to a future checkpoint);
-- required scene outcomes, micro-friction beats (at least one failed tactic, deflection, or raised cost before each scene's turn), and ending movement;
+- required scene outcomes, `cadence_role` (`pressure_turn` [default] requires a failed tactic, deflection, or raised cost before the turn; `aftermath_valley`, `payoff_catharsis`, and `tonal_counterpoint` allow earned grief, sanctuary, tenderness, or humor without artificial bickering), `dramatic_irony` asymmetries from the draft packet (stage tension where the reader knows what the POV does not without leaking unlearned secrets), and ending movement;
 - any scene-plan conversation form/pressure-source rationale; preserve purposeful direct answers and do not add artificial evasions or interruptions to satisfy a numeric rule;
 - `what_they_wont_say` thoughts that must remain subtext and `show_dont_tell_gaps` with their suggested expression channels; bodily rendering is optional;
 - the **Cooling List** tokens/phrases/opener shapes from the trailing 3 chapters to avoid repeating;
@@ -99,14 +99,14 @@ For each planned proper noun:
 2. Read the supporting Wiki context.
 3. Confirm exact spelling, capitalization, identity, relationships, and facts relevant to this scene.
 
-The book's own Wiki is the only research authority for proper nouns. A previous chapter, another book's Wiki, general memory, or the draft itself is not sufficient evidence. Do not guess, silently invent, or import a name. If an unsupported proper noun is not essential, use an accurate generic description. If replacing it would materially alter the scene plan or canon, report the missing canon and do not mark the chapter complete.
+The book's own Wiki is the only research authority for proper nouns (except inside an active lean sprint per [lean-start.md](references/lean-start.md), where new walk-on proper nouns are logged to `_Edits/Book-1/lean-nouns.md` for immediate gate promotion). A previous chapter, another book's Wiki, general memory, or the draft itself is not sufficient evidence. Do not guess, silently invent, or import a name. If an unsupported proper noun is not essential, use an accurate generic description. If replacing it would materially alter the scene plan or canon, report the missing canon and do not mark the chapter complete.
 
 ### Draft the prose (scene-by-scene stitched execution)
 
 Use the book's requested length; otherwise aim for roughly 2,000–3,000 words. Follow the project's chapter-heading and scene-break conventions.
 
 When the scene plan has multiple scenes or a word floor $\ge 2,500$ words, draft **scene by scene in sequence** so back-half scenes are never compressed into summary ("summary skid"):
-1. Draft Scene 1 through its physical grounding, micro-friction resistance beat (at least one deflection, failed tactic, or raised cost before the turn), and concrete scene-ending turn.
+1. Draft Scene 1 through its physical grounding, resistance beat (at least one deflection, failed tactic, or raised cost for `pressure_turn` scenes; authentic emotional dwell for valley/catharsis/counterpoint scenes), and concrete scene-ending turn.
 2. Draft each subsequent scene from the trailing seam of the previous scene, giving the final scene full dramatic weight on the page rather than summarizing its resolution.
 
 In a multi-POV chapter, mark every scene break with the POV character of the section that follows, using the book's marker convention, switch to that POV character's `voice_prompt_<POV>.md` firewall, and make sure the chapter's head marker names the POV that actually opens the chapter. An unmarked break or a head marker naming the wrong POV is a defect, not a style choice: continuity maps, narration passes, and audio tooling parse these markers mechanically.

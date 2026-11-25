@@ -3,7 +3,7 @@ name: book-reverse-engineer
 description: "Reverse-engineer an existing finished or undisciplined draft manuscript into Storycraft canon (Wiki/), scene outlines, Chekhov promises, voice profile, and defect findings. Use when user says 'reverse engineer', 'retrofit book', 'import manuscript', 'preview an EPUB', 'bring existing book into storycraft', 'analyze existing draft', 'rebuild undisciplined book', or 'audit raw manuscript'."
 metadata:
   author: Fiction Toolkit
-  version: "1.4.0"
+  version: "1.5.0"
   bundled-dependencies: book-status
   category: cross-cutting
   output-format: markdown
@@ -25,7 +25,7 @@ From there, the manuscript enters the ordinary Storycraft editing loop (`fiction
 
 Locate the target manuscript:
 - Look first in `_Intake/Book-N/raw-manuscript/` (staged by `new-book.sh --import`).
-- If not found there, ask the user for the file path (a reflowable EPUB, a Markdown or text file, or a directory of chapter files).
+- If not found there, ask the user for the file path (a reflowable EPUB, a Word `.docx` manuscript, a Markdown or text file, or a directory of chapter files).
 - Default to `Book-1` unless the user specifies another volume.
 
 Run `scripts/manuscriptkit.py` to inspect units and word counts:
@@ -101,7 +101,7 @@ After the approved prose import completes, populate the project's permanent file
    - Create place files in `Wiki/World/Places/` and faction files in `Wiki/World/Factions/`.
    - If LitRPG/progression elements are present, populate `Wiki/World/Systems/`.
 3. **Populate `Wiki/Style/`:**
-   - Create `Wiki/Style/genre.md`, `Wiki/Style/audience.md`, and `Wiki/Style/style.md` using the extracted profile.
+   - Create `Wiki/Style/genre.md`, `Wiki/Style/audience.md`, `Wiki/Style/style_guide.md`, and `Wiki/Style/review_guide.md` (with `register_preset` + voice rules extracted from the prose). Never write a legacy `Wiki/Style/style.md` alongside `style_guide.md`, as duplicate style files trigger authority conflicts.
 4. **Populate `Wiki/Story/`:**
    - Write `Wiki/Story/synopsis.md` and `Wiki/Story/theme.md`.
    - Seed `Wiki/Story/Book-N/promises.yaml` with the cataloged Chekhov promises.

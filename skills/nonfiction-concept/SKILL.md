@@ -3,7 +3,7 @@ name: nonfiction-concept
 description: "Define the book's central argument/thesis, target reader transformation, and 'big idea'. Use when user says 'define concept', 'what is this book about', 'central thesis', 'big idea', or when starting a non-fiction book."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -16,8 +16,9 @@ metadata:
 
 The project may live in a subfolder of the working directory, so search for the upstream files:
 
-- `**/Wiki/Concept/audience.md`: Recommended, not required — this skill runs first in the workflow. If it exists, read it for: target reader profile, knowledge level, objections, prerequisites. If missing, proceed; the concept can derive the reader from conversation, and `nonfiction-audience` pressure-tests it afterward.
-- `**/Wiki/Concept/structure.md`: Optional. If it exists, read it for: chosen architecture, argument shape.
+- `**/_Intake/series-brief.md`, `**/_Intake/nonfiction-brief.md`, `**/_Intake/Book-*/premise.md`, and `**/_Intake/Book-*/raw-notes/*.md`: Read first when present to pre-populate the core question, book mode (trade narrative, memoir, practical guide, academic, or hybrid), comps, and voice boundaries instead of asking cold in a vacuum.
+- `**/Wiki/Concept/audience.md`: Recommended, not required — if it exists, read it for target reader profile, knowledge level, objections, prerequisites. If missing, proceed; the concept can derive the reader from intake/conversation, and `nonfiction-audience` refines it afterward.
+- `**/Wiki/Concept/structure.md`: Optional. If it exists, read it for chosen architecture and rhetorical mode.
 
 Treat the folder containing `Wiki/` as the project root. Read the frontmatter and `##` sections of each file that exists.
 
@@ -43,20 +44,20 @@ This question is intentionally open-ended. The concept skill pulls the core argu
 
 You may generate directly or, when the host supports one, use an isolated worker with the context gathered above to keep the main conversation clean; either way, apply the rules below. If the user provided a concept seed, build outward from their words and do not override their intent. If "derive from audience", build from the reader's stated problems and desired outcomes.
 
-Cover every field in [references/json-schema.json](references/json-schema.json) as frontmatter or a section (checklist: thesis, reader_transformation, big_idea, unique_angle, core_promise, evidence_architecture).
+Cover every field in [references/json-schema.json](references/json-schema.json) as frontmatter or a section (checklist: thesis, reader_transformation, big_idea, unique_angle, core_promise, evidence_architecture). Adapt each field to the book's actual tradition (argumentative/practical vs trade narrative/memoir/essay):
 
-**thesis**: A single declarative sentence — the central argument the book proves. If the user provided a seed, sharpen it into a claim that can be evidenced. If "derive from audience", build from the reader's most painful problem and the transformation you offer.
+**thesis**: For argumentative or practical books, a declarative central argument the book proves. For narrative nonfiction, investigative journalism, or memoir, frame this as the central controlling question, narrative inquiry, or throughline rather than forcing a synthetic B2B claim.
 
-**reader_transformation**: The specific before/after state. Define:
-- `from_state`: Where the reader starts (knowledge, belief, capability, pain)
-- `to_state`: Where the reader ends (new knowledge, shifted belief, new capability, relief)
-- `measure`: How the reader (or you) knows the transformation occurred — a concrete indicator, not a feeling
+**reader_transformation**: The specific before/after shift. Define:
+- `from_state`: Where the reader starts (assumptions, questions, gap, or context)
+- `to_state`: Where the reader ends (new clarity, capability, witness, or perspective)
+- `measure`: How the shift shows up — a concrete practice indicator for instructional books, OR a concrete interpretive/witness shift for memoir/narrative nonfiction (do not force pseudo-metrics onto literary narrative).
 
-**big_idea**: The one-sentence hook that makes this book distinct in the marketplace. Format: "[Unique mechanism/insight] + [Reader outcome] + [Why it works]". Not a topic — a proposition.
+**big_idea**: The one-sentence positioning hook that distinguishes this book. Use `"[Core insight/story] + [Why it matters]"` for narrative/memoir or `"[Unique mechanism] + [Reader outcome]"` for practical/argument books.
 
-**unique_angle**: What makes this argument different from the 50 other books on this topic. One paragraph: the contrarian insight, the missing step others skip, the synthesis nobody has made, the evidence nobody has gathered.
+**unique_angle**: What makes this book stand apart from neighboring titles (fresh archival access, lived witness, synthesis, framing, or field evidence).
 
-**core_promise**: What the reader gets if they do the work. One sentence, measurable, no fluff. "By the end of this book you will [specific outcome]."
+**core_promise**: What the reader gets by reading to the end, matched to the book's register (no synthetic `"By the end of this book you will [metric]"` hype on memoirs or histories).
 
 **evidence_architecture**: The types of proof this argument will use (primary research, case studies, frameworks, data, personal narrative, expert interviews, historical analysis, counter-arguments addressed). List 3-6 types with one sentence each on why that evidence serves this thesis.
 
@@ -106,4 +107,4 @@ Then present the concept to the user in readable form (do not paste the raw file
 
 If changes are needed, edit `Wiki/Concept/thesis.md` in place and re-present until approved.
 
-When approved: "Next: use `nonfiction-structure` to choose and scaffold your argument architecture."
+When approved: if `Wiki/Concept/audience.md` does not exist yet, say `"Next: use nonfiction-audience to profile your reader."`; if `audience.md` already exists, say `"Next: use nonfiction-style to lock voice and citation rules, then nonfiction-structure."`

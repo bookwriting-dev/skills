@@ -39,6 +39,17 @@ def extract(text, *, source='<text>', scene_break='* * *', strip_pov=False, pov_
         offset = text.find('<!--')
         line = text.count('\n', 0, offset) + 1
         raise ValueError(f'{source}:{line}: unclosed HTML comment; classify or remove it')
+    # Reject Obsidian %% ... %% comments and CriticMarkup {>>...<<} notes rather than
+    # leaking private authoring markup into reader builds.
+    for marker_name, pat in (
+        ('Obsidian comment', re.compile(r'%%.*?%%', re.S)),
+        ('unclosed Obsidian comment', re.compile(r'%%')),
+        ('CriticMarkup annotation', re.compile(r'\{(?:>>|==|\+\+|--|~~).*?(?:<<|==|\+\+|--|~~)\}', re.S)),
+    ):
+        m = pat.search(text)
+        if m:
+            line = text.count('\n', 0, m.start()) + 1
+            raise ValueError(f'{source}:{line}: unknown {marker_name}; classify or remove it')
     # Preserve source line coordinates even when a private comment spans several lines.
     raw_lines = [1]
     skip = iter(hidden)

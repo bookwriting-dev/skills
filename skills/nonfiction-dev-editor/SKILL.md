@@ -3,7 +3,7 @@ name: nonfiction-dev-editor
 description: "Diagnose argument architecture, thesis scaffolding, chapter-level conceptual progression, cognitive load, and evidence density in non-fiction drafts before prose edits. Use when user says 'nonfiction developmental edit', 'review argument flow', 'check thesis structure', 'audit conceptual progression', or 'nonfiction dev editor'. Also use for fresh-reader walkthroughs of nonfiction exercises."
 metadata:
   author: Storycraft Skills
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status, nonfiction-clarity-edit
   category: nonfiction-editing
 ---
@@ -66,12 +66,12 @@ If running focused workers on a multi-chapter range, pass each worker its exact 
 ## Step 4: Save Report, Snapshot Metadata & Route
 
 1. For full report mode, save `_Edits/Book-N/Chapter-NNN_DevEdit.md` (creating `_Edits/Book-N/` if absent) using only sections with actionable findings:
-   - One-sentence structural verdict (`PASS` / `REVISE_PLAN` / `REORDER_SECTIONS`)
+   - Verdict (`PASS` / `WARN` / `FAIL` for `.meta.json` compatibility) + `Structural Action` (`PASS` / `REVISE_PLAN` / `REORDER_SECTIONS`)
    - Argument Spine & Section Classification table (`Driver` / `Support` / `Example` / `Tangent` / `Redundant`)
    - Findings ranked by structural impact with stable finding IDs (`NFDEV-001`, etc.), exact section/quote evidence, and `blocking` / `nonblocking` classification
    - Prioritized structural repairs (`merge`, `split`, `reorder`, `cut`, `supply evidence`)
    - Strengths to preserve
-2. Finalize `_Edits/Book-N/Chapter-NNN_DevEdit.meta.json` via `project_state.py --root ROOT snapshot` only if the inputs captured in Step 1 still match.
+2. Finalize `_Edits/Book-N/Chapter-NNN_DevEdit.meta.json` via `project_state.py --root ROOT review-finish` (or `snapshot`, using `PASS` / `WARN` / `FAIL`) only if the inputs captured in Step 1 still match.
 3. Route repairs explicitly:
    - Structural defects (missing argument steps, broken sequencing, wrong rhetorical framing) go back to `nonfiction-chapter-plan` (`Wiki/Outline/Book-N/plan.md`) followed by a re-draft in `nonfiction-writechapter` — do **not** try to patch structural holes with line edits.
    - Missing primary citations or unverified data route to `nonfiction-research`.

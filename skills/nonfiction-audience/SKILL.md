@@ -3,7 +3,7 @@ name: nonfiction-audience
 description: "Map reader's current knowledge, objections, and required prerequisites. Use when user says 'define audience', 'who is this for', 'target reader', 'reader profile', 'prerequisites', or before running nonfiction-concept."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.2.0"
   category: nonfiction-writing
   output-format: markdown
 ---
@@ -16,8 +16,9 @@ metadata:
 
 The project may live in a subfolder, so search for:
 
-- `**/Wiki/Concept/thesis.md`: Optional (audience often runs right after concept; it exists by then in the standard workflow). For: thesis, reader_transformation, big_idea. If it exists, read it to ensure audience aligns with promised transformation.
-- `**/Wiki/Concept/structure.md`: Optional. For: chosen architecture, which may imply audience sophistication level.
+- `**/_Intake/series-brief.md`, `**/_Intake/nonfiction-brief.md`, `**/_Intake/Book-*/premise.md`, and `**/_Intake/Book-*/raw-notes/*.md`: Read first when present so intended reader, register, and reading context pre-populate rather than asking cold.
+- `**/Wiki/Concept/thesis.md`: Optional (when concept runs first). Read for thesis, reader_transformation, big_idea so audience aligns with promised experience.
+- `**/Wiki/Concept/structure.md`: Optional. For chosen architecture and rhetorical mode.
 
 If no `Wiki/Concept/thesis.md` exists, proceed — audience definition can precede and inform the concept.
 
@@ -170,4 +171,4 @@ Frontmatter must be conservative YAML: block lists one item per line, never inli
 
 Show the full profile to the user and ask: "What should I change?" Apply revisions by editing `Wiki/Concept/audience.md` in place. For large rewrites, use the same isolated-worker mechanism when available. Continue until approved.
 
-When approved: "Next: use `nonfiction-concept` to define your book's central argument and transformation."
+When approved: if `Wiki/Concept/thesis.md` is missing, say `"Next: use nonfiction-concept to define your book's central question or thesis."`; otherwise say `"Next: use nonfiction-style to lock your register and citation style, then nonfiction-structure."`

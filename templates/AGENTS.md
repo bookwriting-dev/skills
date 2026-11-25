@@ -55,7 +55,7 @@ This repo holds a series, so everything is either **shared series canon** or **p
 
 If Wiki and a draft disagree, Wiki wins until the user explicitly changes canon. If a skill would create a proper noun that is not in Wiki, stop and say so rather than inventing it.
 
-For manuscript prose, follow the book’s established voice and its [diction and clock-time defaults](.agents/skills/book-status/references/diction-and-time.md). Contemporary voices use everyday wording such as “two weeks.” Exact clock readings use digits such as “10:30.”
+For manuscript prose, follow the book’s established voice, `register_preset`, and [diction and clock-time defaults](.agents/skills/book-status/references/diction-and-time.md) honoring `style_guide.md`'s resolved `clock_mode` (`digits` vs `words`) and dialogue voice.
 
 `_Intake/` holds authorial raw material, brainstorming, voice dictations, and external manuscripts staged for reverse-engineering. It is **inspirational and advisory**: skills read it to avoid interrogating you from scratch, but it does not override established `Wiki/` canon once formalized.
 
@@ -70,7 +70,7 @@ There are two doors into a book project:
 
 ### Lean / Act-1 Sprint (Discovery Fast-Start)
 
-For novellas or discovery writers who want prose on the page before a 13-step bible, ask for a **lean start** (`fiction-writechapter`’s `lean-start.md`): seed minimum viable canon (protagonist card, minimal style/voice prompt, rolling 3-chapter outline, and immediate scene plans), draft Chapters 1–3, promote newly introduced proper nouns at each gate, and run the full planning/review passes at the end of Act 1.
+For novellas or discovery writers who want prose on the page before a 13-step bible, ask for a **lean start** (`fiction-writechapter`’s `lean-start.md`): seed minimum viable canon (protagonist card, minimal style/voice prompt, rolling 3-chapter outline, and immediate scene plans), draft Act 1 (`Chapters 1–K`) using provisional noun logging, promote newly introduced proper nouns at each gate, synthesize synopsis/genre after the sprint, and run `fiction-outline --from-chapter K+1` before Act 2.
 
 ### Path A: Greenfield (Starting from a new idea or brief)
 
@@ -82,16 +82,16 @@ For novellas or discovery writers who want prose on the page before a 13-step bi
    4. `fiction-synopsis` → `Wiki/Story/synopsis.md`
    5. `fiction-series-outline` → `Wiki/Story/series-arc.md` (at series inception; refresh before planning each later book)
    6. `fiction-characters` → `Wiki/Characters/`
-   7. `fiction-world` (and `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
+   7. `fiction-world` (uses `Wiki/World/{Places,Factions,Systems,Events}/`, plus `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
    8. `litrpg-system` → `Wiki/World/Systems/` + character sheets + `ledger.yaml` (if writing LitRPG or Progression Fantasy)
-   9. `fiction-outline` → `Wiki/Outline/Book-N/outline.md`
-   10. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act surprise ledger
-   11. `fiction-psych` → `Wiki/Psych/Book-N/`
-   12. `fiction-scenes` → chapter beat plans (slicing active `relationship_checkpoints` and enforcing micro-friction per scene)
-   13. `fiction-style` + `fiction-voiceprompt` (writes `voice_prompt.md` and per-POV `voice_prompt_<Name>.md` files for dual/multi-POV books)
-   14. `fiction-writechapter` → compiles `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json` (continuity tail, active relationship checkpoints, psych `what_they_wont_say`, knowledge as-of, and trailing 3-chapter cooling list) and drafts `Chapters/Book-N/Chapter-NNN.md` scene by scene
+   9. `fiction-style` + `fiction-voiceprompt` (sets `register_preset` + writes `style_guide.md`, `review_guide.md`, `voice_prompt.md`, and per-POV `voice_prompt_<Name>.md` files before scene/interior planning)
+   10. `fiction-outline` → `Wiki/Outline/Book-N/outline.md` (supports `--from-chapter K` mid-book re-outlining)
+   11. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act `surprise-ledger.md`
+   12. `fiction-scenes` → chapter beat plans (assigning `cadence_role`, `subplot_threads`, `dramatic_irony` leverage, and slicing active `relationship_checkpoints`)
+   13. `fiction-psych` → `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (interior costs aligned to each scene's beats and POV voice prompt)
+   14. `fiction-writechapter` → compiles `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json` (continuity tail, active relationship checkpoints, full psych interior map, theme motifs, surprise ledger, `style_policy`, `pov_lenses`, knowledge as-of, and trailing 3-chapter cooling list) and drafts `Chapters/Book-N/Chapter-NNN.md` scene by scene
    15. `fiction-reviewchapter` / `gate-check` (runs canon, relationship checkpoint, subtext/dialogue architecture, cooling list, Chekhov ledger, knowledge, and `litrpg-audit` checks)
-   16. `review-panel` per act and before calling the book done; `drift-check` at part boundaries
+   16. Every 4 chapters and at Act boundaries: `fiction-dev-editor` checkpoint (`rhythm-map` + `drift-check` + `editorial_tools.py cast --gap 4`); `review-panel` before calling an act or book done; `project_state.py kanban` to refresh the board.
 
 ### Path B: Brownfield (Reverse-engineering an existing or unguided draft)
 
@@ -114,16 +114,19 @@ Run these skills in order unless the user skips a step:
 
 1. `nonfiction-concept` → `Wiki/Concept/thesis.md`
 2. `nonfiction-audience` → `Wiki/Concept/audience.md`
-3. `nonfiction-structure` → `Wiki/Concept/structure.md`
-4. `nonfiction-research` → `Wiki/Research/` (`sources.yaml` + `claims-matrix.md`)
-5. `nonfiction-chapter-plan` → `Wiki/Outline/Book-N/plan.md`
-6. `nonfiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
-7. `nonfiction-dev-editor` → `_Edits/Book-N/Chapter-NNN_DevEdit.md`
-8. `nonfiction-factcheck` → `_Edits/Book-N/Chapter-NNN_FactCheck.md`
-9. `nonfiction-clarity-edit` → `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`
-10. `promise-tracker` → `Wiki/Story/Book-N/promises.yaml` (track claims/promises as chapters land)
-11. `review-panel` → `Wiki/Review/` (personas; per part and before calling the book done)
-12. `drift-check` → book-level audit at part boundaries
+3. `nonfiction-style` → `Wiki/Style/style_guide.md` (`trade-narrative` | `memoir-literary` | `practical-guide` | `academic-monograph`)
+4. `nonfiction-structure` → `Wiki/Concept/structure.md`
+5. `nonfiction-research` → `Wiki/Research/` (`sources.yaml` + `claims-matrix.md`)
+6. `nonfiction-chapter-plan` → `Wiki/Outline/Book-N/plan.md`
+7. `nonfiction-writechapter` → `Chapters/Book-N/Chapter-NNN.md`
+8. `nonfiction-dev-editor` → `_Edits/Book-N/Chapter-NNN_DevEdit.md`
+9. `nonfiction-factcheck` → `_Edits/Book-N/Chapter-NNN_FactCheck.md` (with `evidence.py --reanchor` after revisions)
+10. `nonfiction-clarity-edit` → `_Edits/Book-N/Chapter-NNN_ClarityEdit.md`
+11. `promise-tracker` → `Wiki/Story/Book-N/promises.yaml` (track claims/promises as chapters land)
+12. `review-panel` → `Wiki/Review/` (personas; per part and before calling the book done)
+13. `drift-check` → book-level audit at part boundaries
+
+For `HYBRID` books, declare each chapter's `mode: narrative | expository | blended` (either in the manifest or chapter metadata) so `project_state.py workflow` applies the matching gates per chapter rather than forcing fictional POV rules on pure argument or empirical assertion inventories on pure parables.
 
 For a second book, refresh the shared concept/structure/audience in `Wiki/Concept/` as needed; the book starts at its own chapter plan in `Wiki/Outline/Book-N/`.
 

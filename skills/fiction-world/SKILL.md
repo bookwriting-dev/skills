@@ -3,14 +3,14 @@ name: fiction-world
 description: "Build story setting: locations, organizations, systems, events. Use when user says 'build the world', 'create setting', 'world building', or after running fiction-characters."
 metadata:
   author: Fiction Toolkit
-  version: "5.2.0"
+  version: "5.3.0"
   category: fiction-writing
   output-format: markdown
 ---
 
 # World Builder
 
-**Output:** one Markdown file per world entity in the project's `Wiki/` folder. If the book's instructions define their own world-entry layout, that layout wins — map each entry type to the book's matching folder (for example `Wiki/World/<Type>/` subfolders). Otherwise use the default layout: `Wiki/Locations/<Name>.md`, `Wiki/Organizations/<Name>.md`, `Wiki/Systems/<Name>.md`, `Wiki/Events/<Name>.md`. Spaces in the entity name become underscores in the filename (`The_Amber_Coast.md`). Each world entry remains a Markdown file.
+**Output:** one Markdown file per world entity in the project's `Wiki/` folder. If the book's existing tree or instructions already use legacy root folders (`Wiki/Locations/`), preserve that convention; otherwise use the standard `Wiki/World/` layout: `Wiki/World/Places/<Name>.md`, `Wiki/World/Factions/<Name>.md`, `Wiki/World/Systems/<Name>.md`, `Wiki/World/Events/<Name>.md`. Spaces in the entity name become underscores in the filename (`The_Amber_Coast.md`). Each world entry remains a Markdown file.
 
 This skill runs its generation work in an isolated worker when the host supports one, to keep the main conversation context clean. The coordinator locates the input files and launches the builder; the builder reads context, generates, and writes the Wiki files; the coordinator presents results and runs the approval loop. If isolated workers are unavailable, follow the same builder instructions directly.
 
@@ -71,32 +71,32 @@ Based on the synopsis:
 - **Regional**: multiple connected locations
 - **Continental or global**: sketch broadly, detail key locations
 
-### Step 2c: Generate a Settlement Name Pool
+### Step 2c: Generate a Settlement Name Pool (Fictional / Speculative Settings Only)
 
-If any location, settlement, or place names need to be invented (not supplied by the synopsis or character files), do not invent place names from scratch. First read the culture map at `../name-generator/references/culture-map.md`, identify the town list matching the setting's culture, then run the town generator for a pool of 15 authentic settlement names:
+Skip this step and Step 2d when the setting is real-world contemporary or strict historical fiction using real geography (or look up real regional place names instead of inventing fantasy towns). When fictitious settlements ARE needed and are not supplied by the synopsis or character files, first read `{{SKILL_DIR}}/../name-generator/references/culture-map.md`, identify the town list matching the setting's culture, and run the town generator using `{{SKILL_DIR}}`-anchored paths so the command works from the project root:
 
 ```bash
 # Most cultures
-python ../town-generator/scripts/generate_town.py \
-  --list ../town-generator/data/<matching-list>.txt \
+python3 "{{SKILL_DIR}}/../town-generator/scripts/generate_town.py" \
+  --list "{{SKILL_DIR}}/../town-generator/data/<matching-list>.txt" \
   --count 15 --order 2 --epithet-chance 0.3
 
 # Spanish / Iberian settings (adds San/Santa/Monte prefixes)
-python ../town-generator/scripts/generate_town.py \
-  --list ../town-generator/data/spanish-cities.txt \
-  --prefix-file ../town-generator/data/spanish-prefixes.txt \
+python3 "{{SKILL_DIR}}/../town-generator/scripts/generate_town.py" \
+  --list "{{SKILL_DIR}}/../town-generator/data/spanish-cities.txt" \
+  --prefix-file "{{SKILL_DIR}}/../town-generator/data/spanish-prefixes.txt" \
   --prefix-chance 0.35 --epithet-chance 0.25 --count 15
 ```
 
 Use epitheted names (e.g. "Vorheim, the Throne of the Dead") for major cities and capitals, bare names for minor settlements. If no cultural match exists, use `fantasy.txt`.
 
-### Step 2d: Generate Settlement Profiles
+### Step 2d: Generate Settlement Profiles (Speculative / Historical Invented Settlements Only)
 
-For each key settlement (typically the 2 to 4 settlements most relevant to the protagonist's journey), run the settlement generator:
+Skip this step for contemporary real-world settings unless building fictional enclaves. For each invented key settlement (typically 2 to 4 settlements most relevant to the protagonist's journey), run the settlement generator with explicit `--tone` matching `audience.md` / intake taboos (`clean` by default; pass `--tone mature` only when darker underworld/adult industries fit the audience contract):
 
 ```bash
-python ../fantasy-settlement/scripts/generate_settlement.py \
-  "<settlement name>" "<type description>"
+python3 "{{SKILL_DIR}}/../fantasy-settlement/scripts/generate_settlement.py" \
+  "<settlement name>" "<type description>" --tone clean
 ```
 
 The `<type description>` combines biome and size (e.g. `"coastal city"`, `"underground village"`, `"sky town"`). For scifi settings, use scifi keywords (e.g. `"asteroid mining station"`, `"orbital colony"`). Use the output to populate population, economy, notable figures, and factions. Synthesize it into the entries; do not paste raw generator output verbatim.
@@ -143,10 +143,10 @@ Write one Markdown file per entry. If the book's instructions define a world-ent
 
 | type | folder |
 |------|--------|
-| Location | `{{PROJECT_ROOT}}/Wiki/Locations/` |
-| Organization | `{{PROJECT_ROOT}}/Wiki/Organizations/` |
-| System | `{{PROJECT_ROOT}}/Wiki/Systems/` |
-| Event | `{{PROJECT_ROOT}}/Wiki/Events/` |
+| Location | `{{PROJECT_ROOT}}/Wiki/World/Places/` |
+| Organization | `{{PROJECT_ROOT}}/Wiki/World/Factions/` |
+| System | `{{PROJECT_ROOT}}/Wiki/World/Systems/` |
+| Event | `{{PROJECT_ROOT}}/Wiki/World/Events/` |
 
 Create the folders if they do not exist. Filename: the entry's display name with spaces replaced by underscores, plus `.md` (`Crimson_Veil_Casino.md`).
 
@@ -155,7 +155,7 @@ File format:
 - The Markdown body carries the longer fields as `##` sections, one per field, using the field name as the heading (`## physical_description`, `## sensory_description`, `## prevents`, `## implications`, and so on).
 - Lists of structured items inside a field become labeled sub-bullets, one bold field label per line (e.g. `- **members:** ...`), so they stay grep-able.
 
-Example (`Wiki/Locations/Crimson_Veil_Casino.md`):
+Example (`Wiki/World/Places/Crimson_Veil_Casino.md`):
 
 ```markdown
 ---

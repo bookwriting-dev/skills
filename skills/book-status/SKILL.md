@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.17.0"
+  version: "1.18.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -12,7 +12,7 @@ metadata:
 
 Provides an executive summary of manuscript health, drafting completeness, gate checks, promise debts, and stylistic health across the entire book or series.
 
-For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` from the same on-disk state this skill reads.
+For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `project_state.py --root ROOT --book Book-N kanban` (backed by [kanban.py](scripts/kanban.py)) or `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` deterministically from the same on-disk state this skill reads. Use `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, `reanchor --chapter N`, `--events`, and `--dispositions` batch modes in [project_state.py](scripts/project_state.py) to run preflight, ledger updates, re-anchoring after prose edits, and finalization in minimal round-trips.
 
 For a request limited to diction or clock notation, resolve the requested manuscript paths and run [prose_style.py](scripts/prose_style.py) as described in [diction and clock time](references/diction-and-time.md). Return the confirmed passages and suggested edits within that scope.
 
