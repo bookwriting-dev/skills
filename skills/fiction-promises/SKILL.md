@@ -1,9 +1,9 @@
 ---
 name: fiction-promises
-description: "Track and audit the Chekhov ledger: every setup the text has made and whether it has paid off. Maintains the per-book ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when user says 'check promises', 'loose ends', 'unresolved setups', 'what have I forgotten to pay off', 'chekhov', or before closing a book. Runs alongside fiction-reviewchapter, which audits the ledger during chapter review. Fiction projects use this skill; non-fiction and hybrid projects use promise-tracker — same ledger format, same script, one owning skill per project."
+description: "Track and audit the fiction Chekhov ledger at Wiki/Story/Book-N/promises.yaml, reporting overdue, due, and undated setups. Use when checking promises, loose ends, unresolved setups, 'chekhov', or closing a book. Runs with fiction-reviewchapter; non-fiction and hybrid projects use promise-tracker instead."
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.3.1"
   category: fiction-writing
   output-format: yaml
 ---

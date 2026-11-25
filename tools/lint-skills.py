@@ -51,6 +51,8 @@ EXTRA_ALLOW = {
     "nonfiction-editing",
     "cross-cutting",
     "reader-personas",
+    "review-begin",
+    "review-finish",
     "series-arc",  # Wiki file stem, not a skill
 }
 
@@ -114,8 +116,14 @@ def main() -> int:
         else:
             if len(desc) >= 1024:
                 findings.append(Finding("error", where, f"description is {len(desc)} chars (limit 1024)"))
+            elif len(desc) > 450:
+                findings.append(Finding("warning", where, f"description is {len(desc)} chars (target <= 450)"))
             if "<" in desc or ">" in desc:
                 findings.append(Finding("error", where, "description contains `<` or `>`"))
+
+        if name.startswith("nonfiction-"):
+            if "fiction-knowledge" in text or "Wiki/Story/Book-N/knowledge.json" in text:
+                findings.append(Finding("error", where, "non-fiction skill references fiction knowledge ledger"))
 
         meta = fm.get("metadata", {})
         version = meta.get("version", "")
@@ -155,8 +163,6 @@ def main() -> int:
         "kill-opinion-personification": "../kill-chapter/references/opinion-personification.md",
         "kill-the-whole": "../kill-chapter/references/the-whole.md",
         "kill-crutch": "../kill-chapter/references/crutch.md",
-        "kill-soft": "../kill-chapter/references/soft.md",
-        "kill-flat": "../kill-chapter/references/flat.md",
     }
 
     for name, record in skills.items():
@@ -299,9 +305,10 @@ def main() -> int:
             findings.append(Finding("warning", "sync-manifest.txt", "entries are not sorted"))
 
     # Report.
+    total_desc_chars = sum(len(r["desc"]) for r in skills.values())
     errors = [f for f in findings if f.level == "error"]
     warnings = [f for f in findings if f.level == "warning"]
-    print(f"lint-skills: {total} skills, {len(errors)} error(s), {len(warnings)} warning(s)")
+    print(f"lint-skills: {total} skills, {total_desc_chars} desc chars (~{total_desc_chars // 4} tokens), {len(errors)} error(s), {len(warnings)} warning(s)")
     if findings:
         print()
         for f in errors + warnings:

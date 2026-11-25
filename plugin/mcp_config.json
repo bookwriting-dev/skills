@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "storycraft-state": {
+      "command": "python3",
+      "args": ["mcp/storycraft_mcp.py"],
+      "env": {
+        "PYTHONDONTWRITEBYTECODE": "1"
+      }
+    }
+  }
+}

@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.8.0"
+  version: "4.9.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -13,9 +13,9 @@ metadata:
 
 Draft the assigned chapter without redesigning the story or running a full editorial pass. The book's instructions and Wiki are authoritative; the scene plan owns the chapter's causal, emotional, genre, arc, and motif obligations.
 
-## Opening-scene trial
+## Opening-scene trial & Lean Act-1 sprint
 
-For “try my opening scene”, “draft a sample opening,” or an explicit request to promote a trial, follow the [opening-scene trial](references/opening-scene.md). It uses the supplied premise, POV, and difficult choice to write one intake sample. Normal chapter drafting starts below.
+For “try my opening scene”, “draft a sample opening,” or an explicit request to promote a trial, follow the [opening-scene trial](references/opening-scene.md). It uses the supplied premise, POV, and difficult choice to write one intake sample. When a discovery writer or novella project wants a fast start into Chapters 1–3 without running the full 13-step upfront planning sequence, follow [lean-start.md](references/lean-start.md) to seed minimum viable canon and promote new proper nouns at each chapter gate. Normal chapter drafting starts below.
 
 ## Authority and scope
 

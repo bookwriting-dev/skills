@@ -1,9 +1,9 @@
 ---
 name: kill-person-who
-description: Hunt the construction "the [exact/elaborate/specific/particular/steady] [noun] of a [person] who [clause]" across a chapter and rewrite it into concrete action/dialogue/detail instead of a labeled abstraction (deletion-first rewrite, parallel focused workers, edits in place). This is a default go-to move for character interiority/subtext that reads as a mechanical tic on a binge read. Use when user says "kill-person-who", "kill the person-who construction", "kill the 'of a man/woman who' tic", or flags repeated "the [quality] of a [person] who [does X]" phrasing.
+description: Hunt the labeled subtext tic "the [quality] of a [person] who [clause]" across a chapter and rewrite it into concrete action, dialogue, or detail (deletion-first, parallel workers, edits in place). Use when user says "kill-person-who", "kill the 'of a man/woman who' tic", or flags repeated person-who phrasing.
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.2.1"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---

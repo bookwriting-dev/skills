@@ -1,9 +1,9 @@
 ---
 name: promise-tracker
-description: "Track and audit promises — setups the text tells the reader to remember. For fiction: Chekhov's guns, questions, threats, relationships, mysteries, prophecies, rules. For non-fiction: thesis threads, unresolved tensions, 'we'll return to this', promised counterarguments/definitions. Maintains a ledger at Wiki/Story/Book-N/promises.yaml and reports overdue, due, and undated promises. Use when checking promises, loose ends, unresolved setups, or before closing a book. Works for both fiction and non-fiction projects. Non-fiction and hybrid projects use this skill; fiction-only projects may use the focused fiction-promises instead — same ledger format, one owning skill per project."
+description: "Track and audit reader promises (Chekhov setups, thesis threads, unresolved tensions, promised counterarguments) in Wiki/Story/Book-N/promises.yaml and report overdue, due, or undated entries. Use when checking promises, loose ends, or closing a book. Non-fiction and hybrid projects own this; fiction-only projects may use fiction-promises."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.2.1"
   category: cross-cutting
   output-format: yaml
 ---

@@ -3,7 +3,7 @@ name: editorial-memory
 description: "Remember explicit author editing preferences with scoped decisions and supersession. Use when the user says remember this editorial choice, show my editing preferences, stop flagging this for this character, or retire that preference."
 metadata:
   author: Storycraft Skills
-  version: "1.0.0"
+  version: "1.1.0"
   category: cross-cutting
   bundled-dependencies: book-status
 ---
@@ -13,6 +13,8 @@ metadata:
 ## Resolve the requested decision
 
 Read the user's instruction, the applicable book instructions, and the original report and chapter only as needed. An applied or rejected edit is a local disposition. It becomes a reusable preference only when the author explicitly says it should. Preserve the author's stated reason; do not invent one. If the scope is unspecified, retain the narrow passage scope and mark reusable false.
+
+When the author edits a chapter by hand, `project_state.py --root ROOT --book Book-N sync-edits --chapter N` surfaces recurring edit deltas as *advisory candidates* only. Never record them silently — present them and persist only what the author explicitly confirms.
 
 Use the bundled helper described in [state-contract.md](../book-status/references/state-contract.md). Its executable is [project_state.py](../book-status/scripts/project_state.py). A missing helper means incomplete installation; do not pretend to persist memory. The entry template is [decision.json](assets/decision.json).
 

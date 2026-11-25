@@ -1,9 +1,9 @@
 ---
 name: kanban-board
-description: "Render and maintain a per-book Kanban production board at Wiki/Story/Book-N/kanban.md: one card per chapter in columns Backlog, Ready, Drafting, Review, Done, derived mechanically from the book outline, scene plans, chapter drafts, and gate/review reports. Use when user says 'kanban', 'show the board', 'chapter board', 'update the board', 'what is in progress', or 'where am I in this book'. Read-only diagnostic except for the board file itself; never edits chapters, scene plans, canon, or reports. Works for fiction and non-fiction."
+description: "Render a per-book Kanban board at Wiki/Story/Book-N/kanban.md (Backlog, Ready, Drafting, Review, Done) mechanically from outlines, scene plans, drafts, and gate reports. Read-only diagnostic except for the board file; works for fiction and non-fiction. Use for 'kanban', 'show the board', 'what is in progress', or 'where am I in this book'."
 metadata:
   author: Storycraft Skills
-  version: "1.2.0"
+  version: "1.2.1"
   bundled-dependencies: book-status
   category: cross-cutting
 ---

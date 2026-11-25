@@ -3,7 +3,7 @@ name: fiction-revise
 description: Apply approved edits from a review or edit report (_Edits/Chapter-NNN_*.md) directly to a chapter manuscript file with minimal, verified in-place edits and a change ledger. Use when user says "apply edits", "apply review fixes", "revise chapter", "apply fixes 1, 3, 5", or after running fiction-reviewchapter, fiction-full-editor, or another editing pass.
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.4.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -62,7 +62,7 @@ Apply the validated items to the chapter file in place:
 - Do not insert unsolicited adjectives, flourishes, or mood descriptors.
 - Obey project style rules (e.g. no em dashes except dialogue interruptions; grounded physical sentences).
 - If multiple approved edits target the same line or overlapping text, apply the primary fix and mark the subordinate edit as `MERGED`.
-- Record each `applied`, `rejected`, or `deferred` finding in `_Edits/Book-N/decisions.jsonl` using `project_state.py --root ROOT --book Book-N disposition --spec SPEC.json`, capturing the report hash, stable finding ID, source quote, and before/after hashes. Record the author's reason verbatim when supplied. Keep a local rejection local unless the user explicitly asks `editorial-memory` to remember a reusable preference.
+- Record each `applied`, `rejected`, or `deferred` finding in `_Edits/Book-N/decisions.jsonl` using `project_state.py --root ROOT --book Book-N record-disposition --report REPORT --finding-id ID --disposition STATUS --reason TEXT` (or `disposition --spec SPEC.json`), capturing the report hash, stable finding ID, source quote, and before/after hashes. Record the author's reason verbatim when supplied. Keep a local rejection local unless the user explicitly asks `editorial-memory` to remember a reusable preference.
 
 ## Step 5: Report Change Ledger
 

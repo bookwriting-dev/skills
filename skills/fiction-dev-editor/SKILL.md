@@ -3,7 +3,7 @@ name: fiction-dev-editor
 description: "Diagnose or repair fiction at the story level: plot movement, scene purpose, motivation, pacing, tension, redundancy, setup, and payoff. Use for developmental edits, plot checks, structure questions, or requests to fix background-heavy chapters; do not use for sentence-level prose editing. Also use for similar cast names, long-absent characters, hypothetical scene cuts or disputed geography."
 metadata:
   author: Fiction Toolkit
-  version: "2.2.0"
+  version: "2.3.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -132,7 +132,7 @@ Consult applicable active editorial-memory decisions before proposing style repa
 
 ## Cast, scene removal and geography
 
-At act boundaries or a whole-book review, use [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N cast` after any requested blind read has been sealed. The tool finds nearby appearances of distinct characters with similar names and returns after twelve intervening narrative chapters. Use `--through SELECTOR` for an act ending and `--gap N` for the author's interval. For each candidate quote both appearances and explain what a reader might misattribute. Check canonical aliases, intentional family names and the identifying cue in the return paragraph or its immediate neighbors. If the cue works, keep it. Suggest the smallest identifying detail for a confusing return. Never rename characters automatically.
+At act boundaries or a whole-book review, run `project_state.py --root ROOT --book Book-N rhythm-map --markdown` for macro word-count outliers, dialogue-light streaks, POV balance, promise density, and character-absence gaps, and use [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N cast` after any requested blind read has been sealed. The tool finds nearby appearances of distinct characters with similar names and returns after twelve intervening narrative chapters. Use `--through SELECTOR` for an act ending and `--gap N` for the author's interval. For each candidate quote both appearances and explain what a reader might misattribute. Check canonical aliases, intentional family names and the identifying cue in the return paragraph or its immediate neighbors. If the cue works, keep it. Suggest the smallest identifying detail for a confusing return. Never rename characters automatically.
 
 For a proposed cut or a disputed layout, run the same script with `scene --chapter SELECTOR --scene N`. Scene numbers start at one. In a hypothetical cut, identify what the scene changes, then read forward to its first dependent action, clue, decision or emotional turn. Quote the setup and the payoff with their locations. Search every earlier scene for a surviving alternate setup. Use chapter and scene when citing a quotation. Check its physical source line if giving a line number. The packet’s start_line identifies the first line of the entire scene. Report whether the cut holds, creates a specific gap, or has insufficient evidence. Include the smallest repair and any payoff worth preserving. Leave the manuscript untouched during the simulation.
 

@@ -1,23 +1,22 @@
 ---
 name: kill-crutch
-description: Hunt any crutch/filler word across a chapter and remove the bad uses while keeping literal and in-voice ones (deletion-first, parallel focused workers, edits in place). The generalized kill pass for filler words (just, little, really, almost, slightly, etc.). Use when user says "kill-crutch WORD", "kill the word X", or "strip filler word X".
+description: Hunt any crutch/filler word (including "soft", "flat", "just", "little", "really", "almost") across a chapter and remove bad uses while keeping literal and in-voice ones (deletion-first, parallel workers, edits in place). Use when user says "kill-crutch WORD", "kill-soft", "kill-flat", "kill the word X", or "strip filler word X".
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status, kill-chapter
   category: fiction-editing
 ---
 
 # Kill a crutch word — strip the filler, keep the real ones
 
-The first token of the request arguments is the **target word** (e.g. `just`, `little`, `really`,
+The first token of the request arguments is the **target word** (e.g. `soft`, `flat`, `just`, `little`, `really`,
 `quite`, `almost`, `slightly`, `a bit`, `seemed`, `somehow`, `simply`). Anything after it is the **scope**: a chapter file path, a
-file pattern, or several paths. This is the generalized version of `kill-soft` and `kill-flat`
-for any filler word the model overuses.
+file pattern, or several paths. This generalized pass also covers `soft` and `flat` (`kill-crutch soft` / `kill-crutch flat`).
 
 ## Single-source rule-set (Deletion-first & What to keep vs. fix)
 
-Read [crutch.md](../kill-chapter/references/crutch.md) before triaging or launching workers. That file is the single source of truth for the default filler vocabulary, deletion-first rules, KEEP/FIX criteria, and examples shared with `kill-chapter`; pass its contents verbatim (alongside any word-specific KEEP split for the requested token) to every focused worker so single-pass and full-chapter sweeps never drift. State your proposed keep/fix split for the requested word in one line, then proceed.
+Read [crutch.md](../kill-chapter/references/crutch.md) (and [soft.md](../kill-chapter/references/soft.md) or [flat.md](../kill-chapter/references/flat.md) when targeting `soft` or `flat`) before triaging or launching workers. Those files are the single source of truth for the default filler vocabulary, deletion-first rules, KEEP/FIX criteria, and examples shared with `kill-chapter`; pass their contents verbatim (alongside any word-specific KEEP split for the requested token) to every focused worker so single-pass and full-chapter sweeps never drift. State your proposed keep/fix split for the requested word in one line, then proceed.
 
 ## Procedure
 

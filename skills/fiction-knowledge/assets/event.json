@@ -4,21 +4,14 @@
   "fact_id": "F001",
   "observer": "Ren",
   "state": "suspects",
-  "story_position": [
-    3,
-    1,
-    1
-  ],
-  "reader_position": [
-    3,
-    1,
-    1
-  ],
+  "truth_status": "unknown",
+  "event_kind": "deduction",
+  "story_order": 30,
+  "reader_order": 30,
   "confirmed": false,
   "source": "Chapters/Book-1/Chapter-003.md",
   "quote": "Replace with exact source quote",
   "source_sha256": "Replace with source SHA-256",
   "confidence": "candidate",
-  "truth_status": "unresolved",
   "supersedes": []
 }

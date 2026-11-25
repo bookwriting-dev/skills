@@ -1,9 +1,9 @@
 ---
 name: review-panel
-description: "Build and run a persona review panel for fiction and non-fiction: distinct reader personas, each with a stake, a way of being wrong about THIS book, fixed output flags, and a copy-paste prompt block; run them one at a time in isolated passes, verify every quoted line before filing, and synthesize cross-persona findings. Maintains Wiki/Review/panel.md and Wiki/Review/personas/. Use when user says 'review panel', 'run a persona', 'beta read', 'reader panel', 'what would a reader think', or when Book 1 reaches review. For act- and book-level QA; reader-persona-review is the lighter preset path for a quick scored pulse on a single chapter."
+description: "Build and run an isolated persona review panel (Wiki/Review/) for fiction and non-fiction, grep-verifying every quote and synthesizing cross-persona findings. Use for 'review panel', 'run a persona', 'beta read', 'reader panel', or act/book QA; use reader-persona-review for a quick single-chapter scored pulse."
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.3.1"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown

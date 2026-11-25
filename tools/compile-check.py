@@ -58,8 +58,11 @@ LEDGER_ENTRY_KEYS = (
 
 def check_python() -> tuple[int, int]:
     bad = count = 0
-    for base in ("tools", "skills"):
-        for f in sorted((ROOT / base).rglob("*.py")):
+    for base in ("tools", "skills", "mcp"):
+        base_dir = ROOT / base
+        if not base_dir.is_dir():
+            continue
+        for f in sorted(base_dir.rglob("*.py")):
             count += 1
             try:
                 compile(f.read_text(encoding="utf-8"), str(f.relative_to(ROOT)), "exec")

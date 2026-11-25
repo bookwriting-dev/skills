@@ -5,8 +5,9 @@ import hashlib
 import json
 from pathlib import Path
 
-from editorial_study import (DEFAULT_CORPUS, author_judgments, blind_review, document_hash,
-                              load_corpus, prepare_packets, run_study, spans)
+from editorial_study import (DEFAULT_CORPUS, author_judgments, blind_review, blind_review_data,
+                              blind_review_html, document_hash, load_corpus, prepare_packets,
+                              run_study, spans)
 
 
 def main():
@@ -23,7 +24,8 @@ def main():
     ap.add_argument('--repeats', type=int, default=2)
     ap.add_argument('--run-study', type=Path, help='execute a frozen study with the configured Codex model')
     ap.add_argument('--output-results', type=Path, help='write or resume recorded study results')
-    ap.add_argument('--blind-review', type=Path, help='write anonymized author review material for --results')
+    ap.add_argument('--blind-review', type=Path, help='write anonymized author review JSON for --results')
+    ap.add_argument('--blind-review-html', type=Path, help='write self-contained HTML blind-review scorecard for --results')
     ap.add_argument('--author-scores', type=Path, help='author ratings keyed by the blind review IDs')
     a = ap.parse_args()
     if a.run_study:
@@ -33,7 +35,7 @@ def main():
         return
     if a.output_results:
         ap.error('--output-results requires --run-study')
-    if (a.blind_review or a.author_scores) and not a.results:
+    if (a.blind_review or a.blind_review_html or a.author_scores) and not a.results:
         ap.error('blind review and author scores require --results')
     corpus_data = load_corpus(a.corpus)
     cases = corpus_data['cases']
@@ -139,11 +141,19 @@ def main():
                         coverage['invalid'].append({'coordinate': list(coordinate), 'reason': 'missing attempt_id'})
             coverage['missing'] = [list(c) for c in coordinates if c not in seen]
             coverage['status'] = 'COMPLETE' if not any(coverage[k] for k in ('missing','duplicates','unknown','invalid')) else 'INCOMPLETE'
-        if a.blind_review:
+        if a.blind_review or a.blind_review_html:
             if not strict or coverage['invalid'] or coverage['duplicates'] or coverage['unknown']:
                 raise ValueError('blind reviews require strictly bound, unambiguous run results')
-            blind_review(a.blind_review, manifest, selected, opaque_to_case, by_id)
-            print(json.dumps({'review_file': str(a.blind_review), 'coverage': coverage}))
+            review_data = (blind_review(a.blind_review, manifest, selected, opaque_to_case, by_id)
+                           if a.blind_review
+                           else blind_review_data(manifest, selected, opaque_to_case, by_id))
+            out = {'coverage': coverage}
+            if a.blind_review:
+                out['review_file'] = str(a.blind_review)
+            if a.blind_review_html:
+                blind_review_html(a.blind_review_html, review_data)
+                out['review_html'] = str(a.blind_review_html)
+            print(json.dumps(out))
             return
         categories = {}
         variant_stats = {}

@@ -11,7 +11,10 @@ docs/SKILL-INVENTORY.md
 docs/STATE-CONTRACT.md
 docs/USER.md
 docs/VERIFICATION-2026-11-01.md
+mcp/storycraft_mcp.py
 new-book.sh
+plugin/mcp_config.json
+plugin/plugin.json
 skills/beta-feedback/SKILL.md
 skills/beta-feedback/scripts/beta_feedback.py
 skills/beta-feedback/scripts/reread.py
@@ -34,8 +37,16 @@ skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
 skills/book-status/scripts/prose_style.py
 skills/book-status/scripts/reader_text.py
+skills/book-status/scripts/rhythm_map.py
+skills/book-status/scripts/state_core.py
+skills/book-status/scripts/state_ledgers.py
+skills/book-status/scripts/state_packets.py
+skills/book-status/scripts/state_reviews.py
+skills/book-status/scripts/state_workflows.py
+skills/book-status/scripts/sync_edits.py
 skills/burstiness-check/SKILL.md
 skills/burstiness-check/references/measure.py
+skills/burstiness-check/scripts/measure.py
 skills/canon-guard/SKILL.md
 skills/chapter-pipeline/SKILL.md
 skills/coldread/SKILL.md
@@ -46,6 +57,7 @@ skills/compile-manuscript/scripts/compile_manuscript.py
 skills/compile-manuscript/scripts/epub_navigation.py
 skills/drift-check/SKILL.md
 skills/drift-check/references/drift.py
+skills/drift-check/scripts/drift.py
 skills/editorial-memory/SKILL.md
 skills/editorial-memory/assets/decision.json
 skills/fantasy-settlement/SKILL.md
@@ -97,6 +109,7 @@ skills/fiction-writechapter/assets/active-context-template.md
 skills/fiction-writechapter/references/active-context-guide.md
 skills/fiction-writechapter/references/common-pitfalls.md
 skills/fiction-writechapter/references/json-active-context-schema.json
+skills/fiction-writechapter/references/lean-start.md
 skills/fiction-writechapter/references/opening-scene.md
 skills/fiction-writechapter/references/universal-quality-rules.md
 skills/fragment-hunter/SKILL.md
@@ -211,6 +224,7 @@ tools/test-author-read.py
 tools/test-edition-exchange.py
 tools/test-editorial-milestones.py
 tools/test-storycraft-improvements.py
+tools/test-storycraft-mcp.py
 tools/test-storycraft-state.py
 tools/update-project.py
 tools/update-project.sh

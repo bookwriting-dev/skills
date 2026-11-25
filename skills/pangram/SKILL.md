@@ -1,9 +1,9 @@
 ---
 name: pangram
-description: "Diagnostic-only statistical uniformity scan for a single chapter or scene: sentence-length variance, opener diversity, lexical repetition, paragraph and punctuation uniformity, register monotony, choppy constructions, and known AI-favored phrasing. A mechanical proxy that correlates with detector risk — it does not reproduce Pangram's learned-tells classifier (see the caveat). Pairs with burstiness-check, which compares chapters against each other. Never edits text. Use for Pangram risk assessment or statistical uniformity reviews on one unit."
+description: "Diagnostic-only statistical uniformity scan for one chapter or scene (sentence variance, opener diversity, lexical repetition, punctuation uniformity, AI-favored phrasing). Correlates with detector risk without claiming Pangram's transformer internals. Pairs with burstiness-check; never edits text. Use for Pangram risk reviews."
 metadata:
   author: Fiction Toolkit
-  version: "2.1.0"
+  version: "2.1.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

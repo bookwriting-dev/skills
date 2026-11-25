@@ -1,9 +1,9 @@
 ---
 name: social-media-marketing
-description: "Plan and write Facebook, Instagram, and TikTok marketing for a book: launch campaigns (pre-launch, launch week, post-launch) and ongoing content, organic-first with an optional paid-ads layer. Produces a marketing strategy, content calendar, captions, video scripts, and hashtag sets. Use when user says 'social media plan', 'launch campaign', 'BookTok', 'TikTok script', 'Instagram Reels', 'Facebook post', 'content calendar', 'promote my book', or 'run ads for my book'. Not for blurbs, query letters, or cover briefs (use book-packaging)."
+description: "Plan and write Facebook, Instagram, and TikTok book marketing: organic-first launch campaigns, content calendars, captions, video scripts, hashtags, and optional paid ads. Use for 'social media plan', 'launch campaign', 'BookTok', 'TikTok script', 'Instagram Reels', 'promote my book'. Use book-packaging for blurbs or cover briefs."
 metadata:
   author: Storycraft Skills
-  version: "1.0.1"
+  version: "1.0.2"
   category: cross-cutting
   output-format: markdown
 ---

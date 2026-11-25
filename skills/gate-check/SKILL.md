@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.9.0"
+  version: "1.10.0"
   bundled-dependencies: book-status, litrpg-audit
   category: fiction-editing
 ---
@@ -49,7 +49,7 @@ Every gate run systematically evaluates up to 7 pillars:
 ## Procedure
 
 1. **Step 1: Capture Input Evidence & Load Author Decisions**
-   - For a saved gate report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`prepare`): capture inputs BEFORE review, including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
+   - For a saved gate report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`review-begin --chapter N --type Gate`, or `prepare --spec` for custom paths): capture inputs BEFORE review, including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
    - Consult applicable active `editorial-memory` decisions before proposing style repairs, preserving deliberate choices within their stated scope while keeping correctness checks binding. Include scoped decisions verbatim in any worker briefs; never generalize a local rejection.
 
 2. **Step 2: Run Format, Continuity & Evidence-Chain Checks**
@@ -63,7 +63,7 @@ Every gate run systematically evaluates up to 7 pillars:
 
 4. **Step 4: Save Report, Snapshot Metadata & Route**
    - Save `_Edits/Book-N/Chapter-NNN_Gate.md` with stable finding IDs, exact quotes, and blocking/nonblocking classification.
-   - Record `_Edits/Book-N/Chapter-NNN_Gate.meta.json` via `project_state.py snapshot` only if the inputs captured in Step 1 still match.
+   - Record `_Edits/Book-N/Chapter-NNN_Gate.meta.json` via `project_state.py review-finish --prepared ... --verdict ...` (or `snapshot`) only if the inputs captured in Step 1 still match.
    - After any authorized prose repair, recheck formatting, refresh continuity/knowledge evidence from the resulting prose, and re-run the gate — a pre-edit `PASS` never establishes post-edit readiness.
 
 For manifest-managed chapters use the `chapter_path` and `report_stem` returned by `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR`. Keep the normal report suffix and its companion metadata under `_Edits/Book-N/`. Numbered chapters retain their usual names.

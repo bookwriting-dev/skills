@@ -31,8 +31,8 @@ set -euo pipefail
 
 LIBRARY_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 FIXTURES="$LIBRARY_DIR/tools/eval-fixtures"
-DRIFT="$LIBRARY_DIR/skills/drift-check/references/drift.py"
-MEASURE="$LIBRARY_DIR/skills/burstiness-check/references/measure.py"
+DRIFT="$LIBRARY_DIR/skills/drift-check/scripts/drift.py"
+MEASURE="$LIBRARY_DIR/skills/burstiness-check/scripts/measure.py"
 LEDGER_FICTION="$LIBRARY_DIR/skills/fiction-promises/scripts/promises.py"
 LEDGER_UNIFIED="$LIBRARY_DIR/skills/promise-tracker/scripts/promises.py"
 

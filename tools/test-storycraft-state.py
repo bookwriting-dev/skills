@@ -1209,6 +1209,260 @@ class Workflow(unittest.TestCase):
         self.assertEqual(by_name['book-behind']['pinned_version'], '2026.10.01')
         self.assertIn('fiction-writechapter/SKILL.md', by_name['book-behind']['conflict'])
 
+    def test_update_project_git_fallback_local_only_legacy_scope_and_instructions(self):
+        # 1. Pre-base project with valid historical commit reconstructs base from git
+        old_commit = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD~3'], cwd=ROOT, text=True).strip()
+        pinned = self.root / '.agents/skills'
+        tree = subprocess.check_output(['git', 'ls-tree', '-r', '-z', old_commit, '--', 'skills'], cwd=ROOT)
+        for entry in tree.split(b'\x00'):
+            if not entry:
+                continue
+            _, path_part = entry.split(b'\t', 1)
+            rel = path_part.decode('utf-8')
+            if not rel.startswith('skills/'):
+                continue
+            dest_file = pinned / rel[len('skills/'):]
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+            dest_file.write_bytes(subprocess.check_output(['git', 'show', f'{old_commit}:{rel}'], cwd=ROOT))
+        (pinned / '.storycraft-source').write_text(f'library: storycraft-skills\nversion: 2026.10.01\ncommit: {old_commit}\n')
+
+        # Add a project-local custom skill (not in base, not in incoming)
+        custom = pinned / 'my-custom-skill/SKILL.md'
+        custom.parent.mkdir(parents=True, exist_ok=True)
+        custom.write_text('---\nname: my-custom-skill\ndescription: custom\n---\n')
+
+        # Add both a nested scratch report (ignored) and a canonical legacy report (detected)
+        scratch = self.root / '_Edits/Book-1/Ollama/Chapter-001_b01.md'
+        scratch.parent.mkdir(parents=True, exist_ok=True)
+        scratch.write_text('scratch')
+        canonical = self.root / '_Edits/Book-1/Chapter-001_Gate.md'
+        canonical.write_text('PASS\n')
+
+        # Add AGENTS.md with custom rules above and an outdated managed block
+        agents_md = self.root / 'AGENTS.md'
+        agents_md.write_text(
+            '# My Book\n\nThis project is: **FICTION**\n\nCustom House Rule: keep chapters short.\n\n'
+            '<!-- STORYCRAFT-MANAGED:START -->\nOUTDATED WORKFLOW\n<!-- STORYCRAFT-MANAGED:END -->\n'
+        )
+
+        dry = subprocess.run(
+            [sys.executable, str(ROOT / 'tools/update-project.py'), str(self.root)],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(dry.returncode, 0, dry.stderr)
+        dry_report = json.loads(dry.stdout)
+        self.assertTrue(dry_report['base_source'].startswith('git_commit:'))
+        self.assertEqual(dry_report['conflict'], [])
+        self.assertIn('my-custom-skill/SKILL.md', dry_report['local_only'])
+        self.assertEqual(dry_report['legacy_unknown'], ['_Edits/Book-1/Chapter-001_Gate.md'])
+
+        applied = subprocess.run(
+            [sys.executable, str(ROOT / 'tools/update-project.py'), str(self.root), '--apply', '--update-instructions'],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(applied.returncode, 0, applied.stderr)
+        app_report = json.loads(applied.stdout)
+        self.assertEqual(app_report['pin'], 'updated')
+        self.assertEqual(app_report['templates'], 'updated managed block in AGENTS.md')
+        self.assertEqual(custom.read_text(), '---\nname: my-custom-skill\ndescription: custom\n---\n')
+        new_agents = agents_md.read_text()
+        self.assertIn('Custom House Rule: keep chapters short.', new_agents)
+        self.assertIn('## How to start a book (FICTION)', new_agents)
+        self.assertNotIn('OUTDATED WORKFLOW', new_agents)
+
+    def test_ergonomic_review_disposition_and_step_wrappers(self):
+        # 1. review-begin -> write report -> review-finish -> check/readiness/dashboard
+        begun = self.runcli('review-begin', '--chapter', '1', '--type', 'Gate')
+        self.assertTrue((self.root / begun['prepared']).is_file())
+        self.assertEqual(begun['report'], '_Edits/Book-1/Chapter-001_Gate.md')
+        (self.root / begun['report']).write_text('# Gate\n\nFinding G1.\n', encoding='utf-8')
+        finished = self.runcli(
+            'review-finish', '--prepared', begun['prepared'], '--verdict', 'PASS',
+            '--finding', json.dumps({'id': 'G1', 'blocking': True}),
+        )
+        self.assertTrue((self.root / finished['meta']).is_file())
+        self.assertEqual(self.runcli('check', '--meta', finished['meta'])['freshness'], 'CURRENT')
+        self.assertEqual(s.readiness(self.root, finished['meta'], [self.chapter])['readiness'], 'INELIGIBLE')
+
+        # 2. record-disposition resolves blocking finding without a temp spec file
+        disp = self.runcli(
+            'record-disposition', '--report', begun['report'], '--finding-id', 'G1',
+            '--disposition', 'applied', '--reason', 'Resolved cleanly',
+        )
+        self.assertEqual(disp['report_sha256'], finished['report_sha256'])
+        self.assertEqual(s.readiness(self.root, finished['meta'], [self.chapter])['readiness'], 'ELIGIBLE')
+        self.assertTrue(self.runcli('dashboard')['chapters'][0]['ready'])
+
+        # 3. review-finish rejects stale input if chapter changed after review-begin
+        begun2 = self.runcli('review-begin', '--chapter', '2', '--type', 'Review')
+        (self.root / '_Edits/Book-1/Chapter-002_Review.md').write_text('PASS\n', encoding='utf-8')
+        (self.root / 'Chapters/Book-1/Chapter-002.md').write_text('Mutated after begin.\n', encoding='utf-8')
+        self.runcli('review-finish', '--prepared', begun2['prepared'], '--verdict', 'PASS', fail=True)
+
+        # 4. step-start -> modify transform file + write checkpoint -> step-complete
+        self.runcli(
+            'step-start', '--run', 'erg-run-1', '--step-id', 's1', '--profile', 'full_editorial_candidate',
+            '--stage-role', 'line_edit', '--chapter', '1',
+            '--write-path', '_Edits/Book-1/Chapter-001_LineCheckpoint.md',
+            '--transform-path', self.chapter,
+        )
+        (self.root / self.chapter).write_text((self.root / self.chapter).read_text() + '\nPolished line.\n')
+        ckpt = self.root / '_Edits/Book-1/Chapter-001_LineCheckpoint.md'
+        ckpt.write_text('Checkpoint\n')
+        completed = self.runcli(
+            'step-complete', '--run', 'erg-run-1', '--step-id', 's1',
+            '--output-path', '_Edits/Book-1/Chapter-001_LineCheckpoint.md',
+        )
+        self.assertEqual(len(completed), 1)
+        self.assertTrue(completed[0]['reusable'])
+        self.assertEqual(completed[0]['transformations'][0]['path'], self.chapter)
+
+    def test_blind_review_html_generates_self_contained_scorecard(self):
+        cases = json.loads((ROOT / 'tools/eval-fixtures/editorial-preservation/cases.json').read_text())['cases']
+        case = next(item for item in cases if item['id'] == '01-fix')
+        opaque = 'opaque-html-1'
+        config = {'model': 'fixture', 'host': 'recorded-test'}
+        config_hash = hashlib.sha256(json.dumps(config, sort_keys=True, separators=(',', ':')).encode()).hexdigest()
+        source_hash = hashlib.sha256(case['source'].encode()).hexdigest()
+        mapping = self.put('.private-html-map.json', dict(mapping={opaque: case['id']}, variants={'vA': 'baseline', 'vB': 'candidate'}))
+        mapping_hash = hashlib.sha256(Path(mapping).read_bytes()).hexdigest()
+        bad_span = case['defect_spans'][0]
+        bad_start = case['source'].index(bad_span)
+        manifest = dict(
+            run_id='RUN-HTML', study_version=1, corpus_sha256=__import__('tools.editorial_study', fromlist=['document_hash']).document_hash(json.loads((ROOT / 'tools/eval-fixtures/editorial-preservation/cases.json').read_text())) if False else 'x',
+            expected_case_ids=[opaque], repeat_count=1, variants=['vA', 'vB'],
+            source_hashes={opaque: source_hash}, configuration=config,
+            skill_hashes={'vA': 'a', 'vB': 'b'},
+            packet_hashes={opaque: {'vA': 'pa', 'vB': 'pb'}},
+            span_policy='exact', permissions='fixture', permitted_context='source',
+            mapping_sha256=mapping_hash, required_author_dimensions=['useful_repair', 'voice_preserved'],
+        )
+        # Compute real corpus hash via editorial_study
+        sys.path.insert(0, str(ROOT / 'tools'))
+        import editorial_study as es
+        corpus_doc = es.load_corpus(ROOT / 'tools/eval-fixtures/editorial-preservation/cases.json')
+        manifest['corpus_sha256'] = es.document_hash(corpus_doc)
+        results = [
+            dict(case_id=opaque, variant='vA', repeat_index=1, status='complete',
+                 source_sha256=source_hash, configuration_sha256=config_hash, packet_sha256='pa',
+                 attempt_id='att-a', findings=[]),
+            dict(case_id=opaque, variant='vB', repeat_index=1, status='complete',
+                 source_sha256=source_hash, configuration_sha256=config_hash, packet_sha256='pb',
+                 attempt_id='att-b', findings=[dict(start=bad_start, end=bad_start + len(bad_span),
+                                                    quote=bad_span, replacement='clearer phrase',
+                                                    reason='fixes defect', category='clarity')]),
+        ]
+        rec = self.put('html-results.json', dict(manifest=manifest, results=results))
+        html_out = self.root / 'blind-review.html'
+        r = subprocess.run(
+            [sys.executable, str(ROOT / 'tools/eval-editorial.py'), '--results', rec,
+             '--mapping', mapping, '--blind-review-html', str(html_out)],
+            capture_output=True, text=True,
+        )
+        self.assertEqual(r.returncode, 0, r.stderr)
+        self.assertTrue(html_out.is_file())
+        html = html_out.read_text(encoding='utf-8')
+        self.assertIn('Storycraft Blind Editorial Scorecard', html)
+        self.assertIn('review-', html)
+        self.assertIn('Download ratings.json', html)
+        self.assertNotIn('"baseline"', html)
+        self.assertNotIn('"candidate"', html)
+
+    def test_openai_compatible_runner_against_local_mock_http(self):
+        import http.server
+        import threading
+        sys.path.insert(0, str(ROOT / 'tools'))
+        import editorial_study as es
+
+        cases = es.load_corpus(ROOT / 'tools/eval-fixtures/editorial-preservation/cases.json')['cases']
+        case = next(c for c in cases if c['id'] == '01-fix')
+        bad_span = case['defect_spans'][0]
+        bad_start = case['source'].index(bad_span)
+
+        class Handler(http.server.BaseHTTPRequestHandler):
+            def log_message(self, *args):
+                pass
+            def do_POST(self):
+                _ = self.rfile.read(int(self.headers.get('Content-Length', '0')))
+                reply = {'choices': [{'message': {'content': json.dumps({'findings': [{
+                    'start': bad_start, 'end': bad_start + len(bad_span),
+                    'quote': bad_span, 'replacement': 'cleaned', 'reason': 'mock fix', 'category': 'clarity',
+                }]})}}]}
+                body = json.dumps(reply).encode('utf-8')
+                self.send_response(200)
+                self.send_header('Content-Type', 'application/json')
+                self.send_header('Content-Length', str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+        server = http.server.HTTPServer(('127.0.0.1', 0), Handler)
+        port = server.server_address[1]
+        t = threading.Thread(target=server.serve_forever, daemon=True)
+        t.start()
+        try:
+            cfg = self.root / 'mock-cfg.json'
+            cfg.write_text(json.dumps({
+                'host': 'openai_compatible',
+                'model': 'local-mock-model',
+                'endpoint': f'http://127.0.0.1:{port}/v1/chat/completions',
+            }))
+            packets_dir = self.root / 'study-packets'
+            corpus_path = self.root / 'mini-corpus.json'
+            corpus_path.write_text(json.dumps({'schema_version': 1, 'cases': [case]}))
+            args = type('Args', (), {
+                'packets': packets_dir, 'split': 'all', 'configuration': cfg,
+                'baseline_ref': 'HEAD', 'candidate_ref': 'HEAD', 'repeats': 2, 'skill': 'fiction-full-editor',
+            })()
+            prep = es.prepare_packets(args, es.load_corpus(corpus_path))
+            out_res = self.root / 'study-out.json'
+            summary = es.run_study(Path(prep['study_manifest']), packets_dir, out_res)
+            self.assertEqual(summary['attempts'], 4)
+            self.assertEqual(summary['failed'], 0)
+            scored = subprocess.run(
+                [sys.executable, str(ROOT / 'tools/eval-editorial.py'), '--corpus', str(corpus_path),
+                 '--results', str(out_res), '--mapping', prep['private_manifest']],
+                capture_output=True, text=True,
+            )
+            self.assertEqual(scored.returncode, 0, scored.stderr)
+            report = json.loads(scored.stdout)
+            self.assertEqual(report['coverage']['status'], 'COMPLETE')
+        finally:
+            server.shutdown()
+            server.server_close()
+
+    def test_sync_edits_and_rhythm_map(self):
+        # Set up review + continuity + knowledge on Chapter 1, then hand-edit Chapter 1
+        self.review()
+        ch1 = self.root / self.chapter
+        orig = ch1.read_text(encoding='utf-8')
+        baseline_file = self.root / 'ch1-baseline.md'
+        baseline_file.write_text(orig + '\nHe looked like a tired hound — waiting.\n', encoding='utf-8')
+        ch1.write_text(orig.replace('Mara folded the receipt', 'Mara burned the receipt') + '\nNew paragraph added by author.\n', encoding='utf-8')
+
+        # Record a continuity claim & knowledge event matching the old text? Wait: record against baseline before edit or test stale report + diff
+        diff_res = self.runcli('sync-edits', '--chapter', '1', '--baseline', 'ch1-baseline.md')
+        self.assertEqual(diff_res['baseline_source'], 'file:ch1-baseline.md')
+        self.assertTrue(diff_res['changed_paragraphs'])
+        self.assertTrue(diff_res['stale_reports'])
+        cats = {c['rule_category'] for c in diff_res['editorial_memory_candidates']}
+        self.assertIn('simile', cats)
+        self.assertIn('punctuation', cats)
+
+        # Rhythm map across chapters with a character absence gap
+        char_md = self.root / 'Wiki/Characters/Mara.md'
+        char_md.parent.mkdir(parents=True, exist_ok=True)
+        char_md.write_text('---\nname: Mara\n---\n')
+        (self.root / 'Chapters/Book-1/Chapter-001.md').write_text('# Chapter 1\n**POV:** Mara\n\nMara walked in. "Hello," she said.\n')
+        (self.root / 'Chapters/Book-1/Chapter-002.md').write_text('# Chapter 2\n**POV:** Jo\n\nSilent room with no dialogue at all here.\n')
+        (self.root / 'Chapters/Book-1/Chapter-003.md').write_text('# Chapter 3\n**POV:** Jo\n\nAnother silent room without any quotes.\n')
+        (self.root / 'Chapters/Book-1/Chapter-004.md').write_text('# Chapter 4\n**POV:** Jo\n\nThird quiet chapter in a row.\n')
+        (self.root / 'Chapters/Book-1/Chapter-005.md').write_text('# Chapter 5\n**POV:** Mara\n\nMara returned at last.\n')
+        rmap = self.runcli('rhythm-map', '--gap-threshold', '2', '--markdown')
+        self.assertEqual(rmap['chapter_count'], 5)
+        self.assertTrue(any(g['character'] == 'Mara' and g['chapters_absent'] == 3 for g in rmap['absence_gaps']))
+        self.assertTrue(rmap['dialogue_streaks'])
+        self.assertIn('| Chapter | Words |', rmap['markdown'])
+
 
 if __name__ == '__main__':
     unittest.main()

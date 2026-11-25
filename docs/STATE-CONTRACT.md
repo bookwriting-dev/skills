@@ -8,13 +8,13 @@ Report verdict and freshness are independent. CURRENT evidence establishes which
 
 The runtime is an explicit bundled dependency, declared as metadata.bundled-dependencies in consuming skills and checked by lint. Full scaffolded libraries contain it. Individually copied skills without that dependency must report incomplete installation and UNKNOWN evidence. All new records use JSON schema_version 1; existing promise YAML remains owned by the existing ledger skills.
 
-Example saved-review lifecycle:
+Example saved-review lifecycle (prefer the ergonomic `review-begin` / `review-finish` commands, or use raw `--spec` files via `prepare` / `snapshot`):
 
-1. Write a spec containing schema_version, report, verdict, and paths.
-2. `project_state.py --root ROOT prepare --spec SPEC.json --output _Edits/Book-1/run-inputs.json`.
-3. Read and review those inputs. Persist a normal Markdown report with stable finding IDs and exact quotes. Put any machine findings into the prepared spec as findings [{id, blocking, ...}].
-4. Set final verdict in the prepared spec, preserving captured inputs.
-5. `project_state.py --root ROOT snapshot --spec PREPARED.json --output _Edits/Book-1/Chapter-001_Gate.meta.json`.
+1. `project_state.py --root ROOT --book Book-1 review-begin --chapter 1 --type Gate` (auto-resolves chapter, predecessor, plan, style/review guides, ledgers, `AGENTS.md`, and skill dir into `_Edits/Book-1/Chapter-001_Gate.prepared.json`).
+2. Read and review those captured inputs. Persist a normal Markdown report at `_Edits/Book-1/Chapter-001_Gate.md` with stable finding IDs and exact quotes.
+3. `project_state.py --root ROOT --book Book-1 review-finish --prepared _Edits/Book-1/Chapter-001_Gate.prepared.json --verdict PASS` (optionally passing `--finding '{"id":"G1","blocking":true}'`) verifies inputs did not drift, hashes the report, and writes `_Edits/Book-1/Chapter-001_Gate.meta.json`.
+4. `project_state.py --root ROOT --book Book-1 record-disposition --report _Edits/Book-1/Chapter-001_Gate.md --finding-id G1 --disposition applied --reason "Fixed"` records finding dispositions without hand-writing a JSON spec.
+5. `step-start` / `step-complete` wrap schema-v2 `pipeline` journal steps with automatic subject hashing and `before`/`after` transformation lineage.
 6. `project_state.py --root ROOT check --meta _Edits/Book-1/Chapter-001_Gate.meta.json`.
 7. `project_state.py --root ROOT dashboard` returns check freshness, unresolved blocking finding IDs, and campaign state. The agent renders board/status views from this evidence and configured completion requirements.
 

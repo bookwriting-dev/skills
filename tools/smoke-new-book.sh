@@ -74,6 +74,13 @@ expect_eq   "skill count matches library" \
   "$(find "$LIBRARY_DIR/skills" -name SKILL.md | wc -l | tr -d ' ')"
 expect_grep "$P/.agents/skills/.storycraft-source" "version:" "pin records a version"
 expect_grep "$P/AGENTS.md" "Basic Book"    "title rendered into AGENTS.md"
+expect_grep "$P/AGENTS.md" "STORYCRAFT-MANAGED:START" "AGENTS.md has managed start marker"
+expect_grep "$P/AGENTS.md" "STORYCRAFT-MANAGED:END"   "AGENTS.md has managed end marker"
+if find "$P/.agents/skills" -type d -name "__pycache__" | grep -q .; then
+  bad "no __pycache__ inside pinned .agents/skills"
+else
+  ok "no __pycache__ inside pinned .agents/skills"
+fi
 if grep -rq "__SERIES_TITLE__" "$P/AGENTS.md" "$P/CLAUDE.md" "$P/_Intake" "$P/Wiki/Story/Book-1/kanban.md"; then
   bad "no unrendered placeholders left behind"
 else
@@ -135,6 +142,11 @@ BOOKS_DIR="$TMP" "$NEW_BOOK" nf "Non Fiction Book" --type nonfiction >/dev/null 
 expect_dir "$TMP/nf/Wiki/Concept"   "nonfiction has Wiki/Concept"
 expect_dir "$TMP/nf/Wiki/Research"  "nonfiction has Wiki/Research"
 expect_grep "$TMP/nf/AGENTS.md" "NONFICTION" "nonfiction type rendered"
+BOOKS_DIR="$TMP" "$NEW_BOOK" hy "Hybrid Book" --type hybrid >/dev/null 2>&1
+expect_dir "$TMP/hy/Wiki/Concept"   "hybrid has Wiki/Concept"
+expect_dir "$TMP/hy/Wiki/Research"  "hybrid has Wiki/Research"
+expect_file "$TMP/hy/_Edits/Book-1/continuity/.enabled" "hybrid continuity enabled"
+expect_grep "$TMP/hy/AGENTS.md" "HYBRID" "hybrid type rendered"
 if [[ -e "$TMP/basic/Wiki/Concept" ]]; then
   bad "fiction project has no Wiki/Concept"
 else

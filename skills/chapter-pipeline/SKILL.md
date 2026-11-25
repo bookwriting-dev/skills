@@ -3,7 +3,7 @@ name: chapter-pipeline
 description: "Run a declared chapter production profile from scene/plan briefing through drafting, evidence reconciliation, review, and any authorized repair across fiction, non-fiction, and hybrid books. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.9.0"
+  version: "1.10.0"
   bundled-dependencies: book-status, nonfiction-research
   category: fiction-writing
 ---
@@ -49,7 +49,7 @@ The pipeline halts before downstream polish when:
    - Outputs draft to `Chapters/Book-N/Chapter-NNN.md`.
 
 3. **Step 3: Promise, Knowledge & Evidence Harvest**
-   - **Fiction:** runs `fiction-promises` on the drafted chapter so every setup and payoff is recorded in `Wiki/Story/Book-N/promises.yaml` *before* the gate runs, and runs `fiction-knowledge` harvest to record character belief/knowledge acquisitions and reader exposures in `Wiki/Story/Book-N/knowledge.json`.
+   - **Fiction:** runs `fiction-promises` on the drafted chapter so every setup and payoff is recorded in `Wiki/Story/Book-N/promises.yaml` *before* the gate runs, and runs `fiction-knowledge` harvest (`knowledge-state --action record`) to record character belief/knowledge acquisitions and reader exposures in `Wiki/Story/knowledge-events.json`.
    - **Non-Fiction & Hybrid:** runs `promise-tracker` on the drafted chapter to register promised explanations, counterarguments, and thesis payoffs in `Wiki/Story/Book-N/promises.yaml`, and builds/validates the chapter assertion evidence record `_Edits/Book-N/evidence/Chapter-NNN.json` using `nonfiction-research` and [evidence.py](../nonfiction-research/scripts/evidence.py) (`--root ROOT --record _Edits/Book-N/evidence/Chapter-NNN.json`). Hybrid narrative chapters also run `fiction-knowledge` harvest.
 
 4. **Step 4: Readiness Gate Check**
@@ -70,4 +70,4 @@ The pipeline halts before downstream polish when:
 
 ## Resumable execution and final evidence
 
-Use [project_state.py](../book-status/scripts/project_state.py) with schema-versioned pipeline journal records in [state-contract.md](../book-status/references/state-contract.md). Record running and completed step evidence, including before/after lineage for in-place transformations and immutable checkpoint outputs. Reuse only completed stages whose historical outputs and untouched dependencies still match; a later authorized transformation does not erase a valid checkpoint. Inspect interrupted edits before retrying. Harvest promises idempotently (match existing IDs/source anchors, never re-seed) and run `fiction-knowledge` / `nonfiction-research` evidence harvest before gating. Reconcile an interrupted harvest against current prose and ledger before continuing. Every prose change invalidates affected final checks: obtain current final evidence after changed prose, including crutch-only changes. A source hash mismatch is a need to reconcile, not permission to repeat destructive work.
+Use [project_state.py](../book-status/scripts/project_state.py) (`step-start` / `step-complete`, or `pipeline --action record --spec` for custom envelopes) with schema-versioned pipeline journal records in [state-contract.md](../book-status/references/state-contract.md). Record running and completed step evidence, including before/after lineage for in-place transformations and immutable checkpoint outputs. Reuse only completed stages whose historical outputs and untouched dependencies still match; a later authorized transformation does not erase a valid checkpoint. Inspect interrupted edits before retrying. Harvest promises idempotently (match existing IDs/source anchors, never re-seed) and run `fiction-knowledge` / `nonfiction-research` evidence harvest before gating. Reconcile an interrupted harvest against current prose and ledger before continuing. Every prose change invalidates affected final checks: obtain current final evidence after changed prose, including crutch-only changes. A source hash mismatch is a need to reconcile, not permission to repeat destructive work.

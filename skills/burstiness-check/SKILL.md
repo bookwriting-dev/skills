@@ -1,17 +1,9 @@
 ---
 name: burstiness-check
-description: Diagnostic-only mechanical proxy for finding chapters or scenes likely to
-  read machine-generated and deciding where to focus a closer read. Measures sentence
-  and paragraph variance, repeated sentence openings, word repetition, dialogue ratio,
-  and dialogue-light interiority risk against the book's own baseline. Its statistics
-  correlate with detector outcomes but do not claim to reproduce Pangram's learned
-  transformer mechanism. Routes phrasing tells to fiction-aiism-editor before mechanics
-  to fiction-prose-editor; never rewrites prose or chases unpredictability for its own
-  sake. Use for burstiness checks, robotic-reading chapters, Pangram failures, or
-  burstiness-check with chapter references.
+description: "Diagnostic-only proxy for finding flat or machine-sounding chapters: measures sentence/paragraph variance, repeated openings, lexical repetition, and dialogue ratio against the book's baseline. Routes phrasing tells to fiction-aiism-editor before mechanics to fiction-prose-editor; never edits prose. Use for burstiness checks, robotic chapters, or Pangram failures."
 metadata:
   author: Fiction Toolkit
-  version: "1.6.0"
+  version: "1.6.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -63,7 +55,7 @@ Chapter_02"). If omitted, ask which chapters to check — do not silently scan t
 
 ## Step 2: Run the Measurement Script
 
-For each resolved file, run [references/measure.py](references/measure.py) with the host's available Python interpreter and the absolute path to the file as its sole argument.
+For each resolved file, run [scripts/measure.py](scripts/measure.py) with the host's available Python interpreter and the absolute path to the file as its sole argument.
 
 It's stdlib-only, never edits the file, and prints one JSON object per run. Run it once
 per resolved file and collect all the JSON results.

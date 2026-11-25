@@ -59,6 +59,7 @@ For manuscript prose, follow the book’s established voice and its [diction and
 
 `_Intake/` holds authorial raw material, brainstorming, voice dictations, and external manuscripts staged for reverse-engineering. It is **inspirational and advisory**: skills read it to avoid interrogating you from scratch, but it does not override established `Wiki/` canon once formalized.
 
+<!-- STORYCRAFT-MANAGED:START -->
 ## How to start a book (FICTION)
 
 There are two doors into a book project:
@@ -66,6 +67,10 @@ There are two doors into a book project:
 ### Try an opening scene
 
 “Try my opening scene” routes to the trial mode of `fiction-writechapter`. Use the premise, viewpoint, and difficult choice to write one sample in `_Intake/Book-N/`. An explicit request to promote the sample starts normal chapter planning and review.
+
+### Lean / Act-1 Sprint (Discovery Fast-Start)
+
+For novellas or discovery writers who want prose on the page before a 13-step bible, ask for a **lean start** (`fiction-writechapter`’s `lean-start.md`): seed minimum viable canon (protagonist card, minimal style/voice prompt, rolling 3-chapter outline, and immediate scene plans), draft Chapters 1–3, promote newly introduced proper nouns at each gate, and run the full planning/review passes at the end of Act 1.
 
 ### Path A: Greenfield (Starting from a new idea or brief)
 
@@ -153,7 +158,7 @@ Route editing and review tasks using this decision tree:
 - **Loose ends and unpaid setups:** `fiction-promises`. Audits the per-book Chekhov ledger (`promises.yaml`).
 - **Sentence-level revision (default):** `fiction-full-editor`. Scans micro-level craft, AI-isms, and line edits in one pass. Use layer-specific scanners (`fiction-line-editor`, `fiction-prose-editor`, `fiction-aiism-editor`) only when specifically targeting that single layer.
 - **Applying approved review/edit fixes:** `fiction-revise`. Applies user-approved items from `_Edits/` reports in place with strict quote verification, minimal perturbation, and a change ledger.
-- **Recurring model crutches (default):** `kill-chapter`. Runs all seven kill passes consecutively in place (similes, person-who, opinion-personification, the-whole, crutch, soft, flat). Use single-kill passes (`kill-crutch WORD`, `kill-simile`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`) only when targeting a specific token.
+- **Recurring model crutches (default):** `kill-chapter`. Runs all seven kill passes consecutively in place (similes, person-who, opinion-personification, the-whole, crutch, soft, flat). Use single-kill passes (`kill-crutch WORD`, `kill-simile`, `kill-the-whole`, `kill-person-who`, `kill-opinion-personification`) only when targeting a specific token (`kill-crutch soft` / `kill-crutch flat` cover `soft` and `flat`).
 - **Book-level drift / back-half flatness / formula openers:** `drift-check` across part boundaries and chapters.
 - **Reader reaction / persona reads:** `review-panel` for act- and book-level QA; `reader-persona-review` for a quick scored archetype pulse on a single chapter. Both grep-verify quoted lines.
 
@@ -222,7 +227,7 @@ For a reading-experience test, use `sequential-read`; private canon and future t
 
 **Remove the tells (decision tree):**
 - Default 7-pass crutch orchestrator: `kill-chapter`
-- Targeted kill passes: `kill-simile`, `kill-person-who`, `kill-opinion-personification`, `kill-the-whole`, `kill-crutch` (covers `kill-soft` and `kill-flat`)
+- Targeted kill passes: `kill-simile`, `kill-person-who`, `kill-opinion-personification`, `kill-the-whole`, `kill-crutch` (including `soft` and `flat`)
 - Statistical & drift diagnostics: `drift-check`, `burstiness-check`, `pangram`
 
 **Publish & Package:**
@@ -260,5 +265,6 @@ For a reading-experience test, use `sequential-read`; private canon and future t
 - Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 
 **Make your own:** `skill-builder`
+<!-- STORYCRAFT-MANAGED:END -->
 
 (End of file)

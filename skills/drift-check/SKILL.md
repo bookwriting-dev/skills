@@ -1,9 +1,9 @@
 ---
 name: drift-check
-description: "Diagnostic-only, book-level drift audit: measures across all chapters what per-chapter gates cannot see — pet words concentrating, rhetorical-move density accelerating, chapter openers and closers running on the same formula, and lived specificity thinning toward the back. Quality decays monotonically in long generation runs while per-chapter checks stay green; this skill finds the gradient. Also measures non-fiction drift: claim density, evidence-to-claim ratio, abstraction ladder variance, and definition reintroduce rate. Never edits text. Use for drift checks, 'why does the back half feel flatter', 'pet word check', or drift-check with a chapter range."
+description: "Diagnostic-only book-level drift audit across chapters: pet-word spikes, rising rhetorical moves, formulaic openers/closers, thinning specifics, and non-fiction claim/evidence/abstraction drift. Never edits text. Use for drift checks, 'why does the back half feel flatter', 'pet word check', or chapter ranges."
 metadata:
   author: Fiction Toolkit
-  version: "1.4.0"
+  version: "1.4.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -43,7 +43,7 @@ from the arguments. Record the snapshot — findings attach to a text.
 With the host's Python interpreter:
 
 ```
-python3 <skill-dir>/references/drift.py <chapter files in order>
+python3 <skill-dir>/scripts/drift.py <chapter files in order>
 ```
 
 The script reports, per chapter and for the book:

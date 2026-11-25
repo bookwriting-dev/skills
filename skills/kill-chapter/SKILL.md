@@ -1,9 +1,9 @@
 ---
 name: kill-chapter
-description: One-pass cleanup bot that strips the recurring model-generated prose crutches from a chapter by running seven kill passes consecutively — similes, person-who constructions, opinion personification, "the whole of X", generic filler words, "soft", and "flat". Each pass fans out parallel focused workers, edits in place deletion-first, and verifies. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
+description: One-pass cleanup orchestrator running seven deletion-first kill passes consecutively in place (similes, person-who, opinion personification, "the whole of X", filler words, "soft", "flat") with parallel workers. Book-agnostic. Use when user says "kill-chapter", "clean this chapter", "run the kill passes", or "strip the crutches".
 metadata:
   author: Fiction Toolkit
-  version: "2.3.0"
+  version: "2.3.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

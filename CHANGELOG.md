@@ -2,6 +2,20 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-24.2 — Blind-review HTML UI, multi-host evals, author/macro workflows, and MCP plugin bundle
+
+- **HTML blind-review scorecard & multi-host evals (`tools/editorial_study.py`, `tools/eval-editorial.py`, `docs/EDITORIAL-EVALS.md`):** Adds `--blind-review-html` generating a zero-server HTML scorecard with highlighted defect spans, `localStorage` autosave, and `ratings.json` export compatible with `--author-scores`; extends `run_study()` to dispatch across `codex`, `ollama`, `openai_compatible`, `claude`, and `gemini` configurations.
+- **Lean start, diff sync, and whole-book rhythm map (`fiction-writechapter` 4.9.0, `book-status` 1.16.0, `editorial-memory` 1.1.0, `fiction-dev-editor` 2.3.0):** Adds `references/lean-start.md` for Act-1 discovery sprints; adds `sync-edits` (`sync_edits.py`) to diff hand-edited chapters against beta/git/file baselines and surface stale reviews, broken quotes, and advisory preference deltas; and adds `rhythm-map` (`rhythm_map.py`) for whole-book pacing, POV shares, promise density, dialogue streaks, and character-absence gaps.
+- **Dual distribution (`mcp/storycraft_mcp.py`, `plugin/`, `Makefile`, `tools/test-storycraft-mcp.py`):** Adds a zero-dependency stdio MCP server exposing 9 typed Storycraft state/delivery tools and a `make plugin-dist` target building a self-contained plugin bundle.
+
+## 2026-11-24 — Fleet upgrades, unified state contracts, router trim, and ergonomic CLI wrappers
+
+- **Fleet updater & scaffolding (`tools/update-project.py`, `templates/AGENTS.md`, `new-book.sh`, `tools/smoke-new-book.sh`):** Reconstructs pre-Nov-1 base hashes from `pinned_commit` in git history when `.storycraft-base.json` is missing; classifies project-local custom skills as `local_only` (non-blocking) rather than `conflict`; scopes `legacy_unknown` detection to canonical `_Edits/Book-N/Chapter-*_*.md` reports; adds opt-in `--update-instructions` using `STORYCRAFT-MANAGED:START/END` markers in `AGENTS.md` to preserve author house rules; and enables `_Edits/Book-1/continuity/.enabled` for `hybrid` projects.
+- **Cross-skill contract alignment (`fiction-knowledge` 1.1.0, `chapter-pipeline` 1.10.0, `nonfiction-writechapter` 1.5.0, `drift-check` 1.4.1, `burstiness-check` 1.6.1, `tools/lint-skills.py`):** Aligns `fiction-knowledge` and `chapter-pipeline` on `Wiki/Story/knowledge-events.json` (`knowledge-state`); wires `draft-packet` into standalone `nonfiction-writechapter` and removes stale fiction knowledge text; normalizes `drift.py` and `measure.py` into `scripts/`; and adds description-length (<=450 chars) and non-fiction ledger-isolation checks to `lint-skills.py`.
+- **Modular runtime & router tax reduction (`book-status` 1.15.0, `kill-crutch` 1.3.0, retired `kill-soft`/`kill-flat`, 77 skills):** Splits `project_state.py` into `state_core.py`, `state_reviews.py`, `state_ledgers.py`, `state_packets.py`, and `state_workflows.py` behind the same CLI/re-export facade; folds `kill-soft` and `kill-flat` into `kill-crutch` (preserving `sync-manifest.txt` tombstones); and trims all descriptions over 450 chars.
+- **Ergonomic state wrappers (`book-status` 1.15.0, `gate-check` 1.10.0, `fiction-reviewchapter` 2.14.0, `fiction-revise` 1.4.0, `chapter-pipeline` 1.10.0):** Adds `review-begin`, `review-finish`, `record-disposition`, `step-start`, and `step-complete` to `project_state.py` while keeping `--spec` subcommands intact.
+
+
 ## 2026-11-19 — Preserve cross-references in changed-scene packets
 
 When a revised scene points into an omitted chapter, its Word and EPUB packets identify the destination in the archived full beta. Links between included passages still work. The regression sends an illustrated imported chapter through a real reread export and verifies its navigation.

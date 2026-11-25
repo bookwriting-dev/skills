@@ -1,14 +1,9 @@
 ---
 name: fragment-hunter
-description: Vicious fragment hunter for fiction prose. Mechanically extracts all 1-3
-  word sentences from narration using a Python/regex pass, then dispatches focused workers when supported
-  to evaluate context, kill fragments, and rebuild them into cinematically muscular
-  sentences a voice actor can perform. Tracks points and levels. Use when user says
-  "fragment-hunter with a chapter reference" or asks to kill fragments, fix choppy prose, or prep
-  for audiobook narration.
+description: "Vicious fragment hunter for fiction prose. Extracts 1-3 word narrative sentences via Python/regex and dispatches workers to rebuild them into performable sentences for voice actors. Use when user says 'fragment-hunter' with a chapter, or asks to kill fragments, fix choppy prose, or prep for audiobook narration."
 metadata:
   author: Fiction Toolkit
-  version: "1.3.0"
+  version: "1.3.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---

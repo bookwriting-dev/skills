@@ -1,0 +1,11 @@
+{
+  "name": "storycraft-skills",
+  "displayName": "Storycraft Book Writing Suite",
+  "version": "2026.11.24.2",
+  "description": "End-to-end fiction, non-fiction, and hybrid book writing skills with canon authority, review freshness, knowledge tracking, beta round-trips, and EPUB/DOCX/PDF export.",
+  "suggestedPrompts": [
+    "Start a new fiction book from _Intake/series-brief.md or run a lean Act-1 sprint",
+    "Review and gate Chapter 1 against canon, promises, and voice rules",
+    "Show my book status dashboard and whole-book rhythm map"
+  ]
+}

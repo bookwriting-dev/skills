@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.14.0"
+  version: "1.16.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -66,4 +66,4 @@ Use the project state CLI with the book selector followed by `author-read --acti
 
 ## Book-level editorial evidence
 
-[editorial_tools.py](scripts/editorial_tools.py) prepares cast and long-absence evidence, a hypothetical scene cut with earlier and later passages, a chapter-only nonfiction reader packet, or a narrator sheet. Use the corresponding editorial or packaging skill to interpret it. The importer and export checker read package spines and navigation through [epub_publication.py](scripts/epub_publication.py). These book-level checks run on request or at an act or whole-book milestone. They do not enter the list of required chapter reviews.
+[editorial_tools.py](scripts/editorial_tools.py) prepares cast and long-absence evidence, a hypothetical scene cut with earlier and later passages, a chapter-only nonfiction reader packet, or a narrator sheet. Use [rhythm_map.py](scripts/rhythm_map.py) (`project_state.py --root ROOT --book Book-N rhythm-map --markdown`) for a whole-book pacing, POV share, promise density, and character-absence matrix. Use [sync_edits.py](scripts/sync_edits.py) (`project_state.py --root ROOT --book Book-N sync-edits --chapter N`) after an author hand-edits a chapter to surface changed paragraphs, broken continuity/knowledge quotes, stale reports, and advisory preference candidates. Use the corresponding editorial or packaging skill to interpret these findings. The importer and export checker read package spines and navigation through [epub_publication.py](scripts/epub_publication.py). These book-level checks run on request or at an act or whole-book milestone. They do not enter the list of required chapter reviews.

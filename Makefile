@@ -14,7 +14,7 @@ BOOKS_DIR ?= $(HOME)/Projects/Books
 # stray bytecode dir under skills/ would show up in sync-check.sh's filesystem diff.
 export PYTHONDONTWRITEBYTECODE := 1
 
-.PHONY: help check lint inventory inventory-check compile eval smoke eval-editorial eval-routing export-eval status-projects
+.PHONY: help check lint inventory inventory-check compile eval smoke eval-editorial eval-routing export-eval status-projects plugin-dist
 
 help:
 	@echo "make check      CI gate (lint + inventory freshness + syntax + eval + smoke)"
@@ -49,6 +49,7 @@ eval:
 	$(PYTHON) tools/test-edition-exchange.py
 	$(PYTHON) tools/test-editorial-milestones.py
 	$(PYTHON) tools/test-author-read.py
+	$(PYTHON) tools/test-storycraft-mcp.py
 	$(PYTHON) tools/eval-routing.py --check-fixtures
 
 smoke:
@@ -68,3 +69,12 @@ export-eval:
 
 status-projects:
 	$(PYTHON) tools/update-project.py --scan-dir "$(BOOKS_DIR)"
+
+plugin-dist:
+	@rm -rf dist/storycraft-skills
+	@mkdir -p dist/storycraft-skills/rules dist/storycraft-skills/mcp
+	@cp plugin/plugin.json plugin/mcp_config.json dist/storycraft-skills/
+	@cp mcp/storycraft_mcp.py dist/storycraft-skills/mcp/
+	@cp templates/AGENTS.md dist/storycraft-skills/rules/AGENTS.md
+	@$(PYTHON) -c "import shutil; shutil.copytree('skills', 'dist/storycraft-skills/skills', ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.pyo'))"
+	@echo "Built plugin bundle at dist/storycraft-skills"

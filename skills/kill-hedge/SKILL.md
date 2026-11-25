@@ -1,9 +1,9 @@
 ---
 name: kill-hedge
-description: Hunt hedge words and qualifiers that weaken claims across a chapter and cut or commit them so the prose states its point with authority (deletion-first, parallel focused workers, edits in place). Targets somewhat, tends to, in a sense, arguably, essentially, basically, virtually, practically, kind of, sort of, rather, fairly, quite, relatively, comparatively, in some ways, to some extent, more or less. Use when user says "kill-hedge", "kill the hedges", "strip hedging words", or "reduce qualifiers".
+description: Hunt hedge words and qualifiers that weaken claims (somewhat, arguably, essentially, basically, sort of, rather, quite, relatively, etc.) and cut or commit them in place (deletion-first, parallel workers). Use when user says "kill-hedge", "kill the hedges", "strip hedging words", or "reduce qualifiers".
 metadata:
   author: Nonfiction Toolkit
-  version: "1.1.0"
+  version: "1.1.1"
   bundled-dependencies: book-status
   category: nonfiction-editing
 ---

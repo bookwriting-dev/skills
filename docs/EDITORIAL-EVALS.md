@@ -32,12 +32,12 @@ python3 tools/eval-editorial.py --run-study "$STUDY" --packets "$PACKETS" \
   --output-results "$RESULTS"
 
 python3 tools/eval-editorial.py --corpus "$CORPUS" --results "$RESULTS" \
-  --mapping "$PRIVATE_MAP" --blind-review "$BLIND"
+  --mapping "$PRIVATE_MAP" --blind-review "$BLIND" --blind-review-html "$BLIND_HTML"
 ```
 
-The first command prints the frozen study manifest and private map paths. Give the model just the assigned packet. The live runner uses fresh Codex sessions and records the first outcome per case, version, and repeat. An interrupted run can resume from its results file. For another host, record results against the same frozen manifest and packet hashes. Choose a host authorized to receive the chapters before starting a live run.
+The first command prints the frozen study manifest and private map paths. Give the model just the assigned packet. The live runner (`--run-study`) dispatches across `codex`, `claude`, `gemini`, `ollama`, and `openai_compatible` endpoints (set `"host": "ollama"` or `"openai_compatible"` with `"endpoint": "http://localhost:11434/v1/chat/completions"` and optional `"api_key_env"` in your configuration JSON). An interrupted run can resume from its results file. For external hosts, record results against the same frozen manifest and packet hashes. Choose a host authorized to receive the chapters before starting a live run.
 
-Give the author the blind review file. Save ratings as JSON with evaluator_id and a ratings array. Each rating has a review_id, dimension, accepted boolean, and reason. Rate useful_repair and voice_preserved for each output. In the useful_repair rating, list the one-based finding numbers you would keep in kept_findings. An explicit empty list records a review with zero repairs selected. Run the scoring command again with `--author-scores "$RATINGS"` in place of `--blind-review "$BLIND"`. It reports defects caught, proposals touching protected spans, and author-accepted repairs by version. The pilot's human ratings are still pending until the author supplies them.
+Give the author the blind review file or open the self-contained HTML scorecard (`--blind-review-html`, which saves progress in `localStorage` and downloads `ratings.json` directly). Save ratings as JSON with evaluator_id and a ratings array. Each rating has a review_id, dimension, accepted boolean, and reason. Rate useful_repair and voice_preserved for each output. In the useful_repair rating, list the one-based finding numbers you would keep in kept_findings. An explicit empty list records a review with zero repairs selected. Run the scoring command again with `--author-scores "$RATINGS"` in place of `--blind-review "$BLIND"`. It reports defects caught, proposals touching protected spans, and author-accepted repairs by version. The pilot's human ratings are still pending until the author supplies them.
 
 ## Skill routing in Codex
 

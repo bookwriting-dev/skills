@@ -1,9 +1,9 @@
 ---
 name: fiction-psych
-description: "Generates a deep psychological interior pass for each chapter in a Wiki-mode fiction project. For each chapter, reads the external beats from the book outline (Wiki/Outline/Book-N/outline.md) and the POV character's full profile from Wiki/Characters/, then writes a chapter-level interior analysis: start state, beat-by-beat interior cost, end state, and show-don't-tell gaps. Output is saved as Wiki/Psych/Book-N/Chapter_[NN]_Psych.md, human-reviewable and editable before drafting. Use after fiction-outline and fiction-divergence, before fiction-scenes; or to deepen or refresh specific chapters' interior layer."
+description: "Generate a chapter-level psychological interior pass (start state, beat-by-beat interior cost, end state, show-don't-tell gaps) saved to Wiki/Psych/Book-N/Chapter_[NN]_Psych.md from outline beats and POV character files. Use after fiction-outline and fiction-divergence, before fiction-scenes, or to refresh interior layers."
 metadata:
   author: Fiction Toolkit
-  version: "2.2.0"
+  version: "2.2.1"
   category: fiction-writing
   output-format: markdown
 ---

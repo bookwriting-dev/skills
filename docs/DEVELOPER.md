@@ -23,7 +23,7 @@ of `skills/` at `.agents/skills/` when scaffolded (a real `cp -R`, not a symlink
 every project versions its own library and can fork it freely. Changes here do not
 propagate to existing projects automatically — that is by design.
 
-Scale today: **79 skills** — 42 inherited from upstream at the fork point, 37 added
+Scale today: **77 skills** — 40 inherited from upstream at the fork point, 37 added
 since the fork. See the generated inventory for current category counts.
 
 ## Repository layout
@@ -33,6 +33,9 @@ storycraft-skills/
 ├── skills/              # the library — one folder per skill
 ├── templates/           # AGENTS.md + CLAUDE.md skeletons, rendered per project
 ├── tools/               # lint-skills.py, gen-inventory.py, compile-check.py, eval-skills.sh, smoke-new-book.sh, update-project.sh, skill_lib.py
+│   ├── eval-fixtures/       # fixture chapters, ledgers, and synthetic books
+├── mcp/                 # storycraft_mcp.py (zero-dependency stdio MCP server)
+├── plugin/              # plugin.json + mcp_config.json for `make plugin-dist`
 ├── Makefile             # `make check` — the gate CI runs
 ├── VERSION              # library revision (date-based), recorded into project pins
 ├── .github/workflows/   # CI: the same gate on push/PR
@@ -149,8 +152,8 @@ These are load-bearing; breaking them breaks other skills' assumptions:
 |---|---|---|
 | `book-reverse-engineer/scripts/manuscriptkit.py` | book-reverse-engineer | split/inspect manuscript units, word counts, chapter export |
 | `book-reverse-engineer/scripts/findings.py` | book-reverse-engineer | extracts flags from reverse-analysis.md into findings.yaml |
-| `drift-check/references/drift.py` | drift-check | book-level drift metrics (pet words, negation pivots, opener/closer formulas, noun-swapped dies, specifics density) |
-| `burstiness-check/references/measure.py` | burstiness-check | sentence/paragraph variance, openings, dialogue ratio |
+| `drift-check/scripts/drift.py` | drift-check | book-level drift metrics (pet words, negation pivots, opener/closer formulas, noun-swapped dies, specifics density) |
+| `burstiness-check/scripts/measure.py` | burstiness-check | sentence/paragraph variance, openings, dialogue ratio |
 | `fiction-promises/scripts/promises.py` | fiction-promises | Chekhov ledger report |
 | `promise-tracker/scripts/promises.py` | promise-tracker | unified fiction/non-fiction ledger report |
 | `name-generator/scripts/generate.py` + `scrape.py` | name-generator | name sampling from `data/*.txt`; corpus refresh |
@@ -304,9 +307,7 @@ the next change should preserve:
 
 Still open, by choice: one non-fiction layer remains unbuilt — a non-fiction revise
 skill (the nine-skill non-fiction workflow routes around it; see USER.md's non-fiction
-section for how) — and the two diagnostics keep their scripts in `references/`
-instead of `scripts/` — a harmless inconsistency; normalize it if you're touching
-those skills anyway.
+section for how).
 
 
 ## Content state, evaluations, and delivery

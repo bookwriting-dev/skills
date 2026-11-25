@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.4.0"
+  version: "1.5.0"
   bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
@@ -34,6 +34,14 @@ Resolve the book root, target chapter plan, target outline entry, style guide, v
 Follow neighboring chapter filenames and the book's instructions. When no local convention exists, use `<book-root>/Chapters/Chapter-[NNN].md` and put the title inside the Markdown file. Never create `[WorkingTitle]_Chapters` or another independently editable copy.
 
 For a new authorized target, use [project_state.py](../book-status/scripts/project_state.py) with `register-chapters --spec SPEC.json` to register its intended destination. The existing book plan or manifest supplies the chapter's ID and reading order.
+
+Compile the deterministic pre-draft packet before writing so standalone runs get the same continuity tail, active scoped `editorial-memory` decisions, and rolling 3-chapter cooling list as `chapter-pipeline`:
+
+```bash
+python3 .agents/skills/book-status/scripts/project_state.py \
+  --root ROOT --book Book-N draft-packet --chapter N \
+  --output _Edits/Book-N/packets/Chapter-NNN_DraftPacket.json
+```
 
 ## Use a focused writing worker
 
@@ -148,4 +156,4 @@ Return the chapter path, title, word count, and any genuine canon blocker. Offer
 
 ## Editorial decisions and current continuity
 
-Read only applicable active reusable editorial-memory entries and local passage decisions from Wiki/Style/editorial-decisions.json when present. Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. For fiction, consult current confirmed knowledge events from Wiki/Story/Book-N/knowledge.json as of this scene. Story chronology and reader reveal order differ in flashbacks. Missing coverage is unknown. After drafting, harvest evidence with fiction-knowledge; never silently establish a new canon fact from an unsupported belief.
+Read only applicable active reusable editorial-memory entries and local passage decisions from `Wiki/Style/editorial-decisions.json` when present (or from the compiled draft packet). Preserve their scope, resolve conflicts against current user/book instructions, and keep preference records during regeneration. Examples illustrate voice; do not copy them into unrelated prose. Ground factual claims, numbers, and named studies in `Wiki/Research/sources.yaml` and the chapter plan's cited sources; after drafting, reconcile assertion evidence into `_Edits/Book-N/evidence/Chapter-NNN.json` using `nonfiction-research` (`evidence.py`) and `promise-tracker` before gating.
