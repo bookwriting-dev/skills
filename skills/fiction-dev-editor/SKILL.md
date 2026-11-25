@@ -3,8 +3,8 @@ name: fiction-dev-editor
 description: "Diagnose or repair fiction at the story level: plot movement, scene purpose, motivation, pacing, tension, redundancy, setup, and payoff. Use for developmental edits, plot checks, structure questions, or requests to fix background-heavy chapters; do not use for sentence-level prose editing. Also use for similar cast names, long-absent characters, hypothetical scene cuts or disputed geography."
 metadata:
   author: Fiction Toolkit
-  version: "2.4.0"
-  bundled-dependencies: book-status
+  version: "2.4.1"
+  bundled-dependencies: book-status, drift-check
   category: fiction-editing
 ---
 

@@ -35,7 +35,6 @@ from skill_lib import ROOT, SKILLS, CATEGORY_ENUM, parse_frontmatter
 # Documented-but-unbuilt skill names: legitimate mentions in the DEVELOPER.md
 # reconciliation record / CHANGELOG-style history. Not phantoms.
 DOCUMENTED_UNBUILT = {
-    "nonfiction-style",
     "nonfiction-reviewchapter",
     "nonfiction-revise",
     "nonfiction-sources",
@@ -141,7 +140,13 @@ def main() -> int:
         }
         all_text.append((where, text))
 
-        # Resolvable skill-relative and cross-skill paths.
+        # No stale __pycache__ or compiled bytecode left inside shippable skills/ tree.
+        for cache_dir in sorted(d.rglob("__pycache__")):
+            if cache_dir.is_dir():
+                findings.append(Finding("error", str(cache_dir.relative_to(ROOT)), "stale `__pycache__` directory inside skills/"))
+
+        # Resolvable skill-relative and cross-skill paths + bundled-dependencies for ../<skill>/scripts/ calls.
+        deps_decl = [dep.strip() for dep in meta.get("bundled-dependencies", "").split(",") if dep.strip()]
         for cand in iter_paths(body):
             cand = cand.strip().rstrip(".,;:")
             cand = cand.split("#", 1)[0]
@@ -151,11 +156,29 @@ def main() -> int:
                 resolved = (d / cand).resolve()
                 if not resolved.is_relative_to(SKILLS.resolve()) or not resolved.exists():
                     findings.append(Finding("error", where, f"broken cross-skill path `{cand}`"))
+                elif "/scripts/" in cand or cand.startswith("../") and resolved.parent.name == "scripts":
+                    target_skill = resolved.relative_to(SKILLS.resolve()).parts[0]
+                    if target_skill != d.name and target_skill not in deps_decl:
+                        findings.append(Finding("error", where, f"uses sibling script `{cand}` without declaring `{target_skill}` in metadata.bundled-dependencies"))
                 continue
             if not cand.startswith(FILE_PREFIXES) or "/" not in cand:
                 continue
             if not (d / cand).exists():
                 findings.append(Finding("error", where, f"broken path `{cand}`"))
+
+        # Validate Markdown links inside references/*.md as well.
+        refs_dir = d / "references"
+        if refs_dir.is_dir():
+            for ref_md in sorted(refs_dir.rglob("*.md")):
+                ref_where = str(ref_md.relative_to(ROOT))
+                ref_body = ref_md.read_text(encoding="utf-8")
+                for m in LINK_RE.finditer(ref_body):
+                    target = m.group(1).strip().split("#", 1)[0]
+                    if not target or target.startswith(("/", "#", "http", "mailto:")) or "<" in target or "*" in target:
+                        continue
+                    resolved = (ref_md.parent / target).resolve()
+                    if not resolved.is_relative_to(SKILLS.resolve()) or not resolved.exists():
+                        findings.append(Finding("error", ref_where, f"broken reference link `{m.group(1).strip()}`"))
 
     KILL_SINGLE_SOURCE = {
         "kill-simile": "../kill-chapter/references/simile.md",

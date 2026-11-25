@@ -222,6 +222,7 @@ tools/eval-fixtures/storycraft-book/Chapters/Book-1/Chapter-003.md
 tools/eval-routing.py
 tools/eval-skills.sh
 tools/gen-inventory.py
+tools/harvest-eval-cases.py
 tools/lint-skills.py
 tools/skill_lib.py
 tools/smoke-new-book.sh

@@ -3,14 +3,14 @@ name: chapter-pipeline
 description: "Run a declared chapter production profile from scene/plan briefing through drafting, evidence reconciliation, review, and any authorized repair across fiction, non-fiction, and hybrid books. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.11.0"
+  version: "1.12.0"
   bundled-dependencies: book-status, nonfiction-research
   category: fiction-writing
 ---
 
 # Chapter Pipeline Orchestrator
 
-Coordinates a declared chapter workflow for **FICTION**, **NONFICTION**, or **HYBRID** projects and reports exactly which stages ran. Read the project type and required reviews from `project_state.py --root ROOT --book Book-N workflow` before dispatching. The command honors the scaffolded project type and any per-book review override. A completed pipeline is not author approval or publication approval. Default to `draft_verified`; use a more extensive profile only when requested or explicitly configured.
+Coordinates a declared chapter workflow for **FICTION**, **NONFICTION**, or **HYBRID** projects and reports exactly which stages ran. Prefer `storycraft_*` MCP tools (`storycraft_chapter_preflight`, `storycraft_draft_packet`, `storycraft_chapter_finalize`, `storycraft_review_begin`, `storycraft_review_finish`, `storycraft_record_disposition`, `storycraft_reanchor`, `storycraft_kanban`, `storycraft_rhythm_map`, `storycraft_promises`, `storycraft_compile`) when connected; otherwise run `project_state.py --root ROOT --book Book-N ...`. Read the project type and required reviews via `workflow` before dispatching. The command honors the scaffolded project type and any per-book review override. A completed pipeline is not author approval or publication approval. Default to `draft_verified`; use a more extensive profile only when requested or explicitly configured.
 
 ## Completion profiles and operation mode
 

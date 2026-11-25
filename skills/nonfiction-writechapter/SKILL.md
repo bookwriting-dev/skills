@@ -3,7 +3,7 @@ name: nonfiction-writechapter
 description: "Draft a non-fiction chapter from an established chapter plan. Explanatory clarity, signposting, concrete examples, varied evidence types. Follows the chapter plan's argument architecture. Use when the user asks to write a chapter or continue writing; use nonfiction-chapter-plan when the chapter's argument structure is not yet settled."
 metadata:
   author: Nonfiction Toolkit
-  version: "1.6.0"
+  version: "1.7.0"
   bundled-dependencies: book-status
   category: nonfiction-writing
   output-format: markdown
@@ -35,7 +35,7 @@ Follow neighboring chapter filenames and the book's instructions. When no local 
 
 For a new authorized target, use [project_state.py](../book-status/scripts/project_state.py) with `register-chapters --spec SPEC.json` to register its intended destination. The existing book plan or manifest supplies the chapter's ID and reading order.
 
-Compile the deterministic pre-draft packet before writing so standalone runs get the same continuity tail, active scoped `editorial-memory` decisions, and rolling 3-chapter cooling list as `chapter-pipeline`:
+Compile the deterministic pre-draft packet before writing (prefer `storycraft_draft_packet` / `storycraft_chapter_preflight` when MCP tools are connected; otherwise run `project_state.py`) so standalone runs get the same continuity tail, active scoped `editorial-memory` decisions, and rolling 3-chapter cooling list as `chapter-pipeline`:
 
 ```bash
 python3 .agents/skills/book-status/scripts/project_state.py \

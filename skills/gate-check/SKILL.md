@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.12.0"
+  version: "1.13.0"
   bundled-dependencies: book-status, litrpg-audit
   category: fiction-editing
 ---
@@ -51,7 +51,7 @@ Every gate run systematically evaluates up to 7 pillars:
 1. **Step 1: Reconcile Format & Continuity Records, Then Capture Input Evidence**
    - Follow [book continuity review](../book-status/references/continuity-review.md): run `project_state.py --root ROOT --book Book-N chapter-format --chapter SELECTOR` and treat its findings as mechanical failures. Verify each marked POV against the actual prose.
    - Capture the chapter's source hash (`continuity --action source --chapter SELECTOR`), review the complete unannotated chapter, and record sourced continuity claims (`continuity --action record`) **before** capturing the saved gate input snapshot so recording continuity for this chapter does not invalidate `review-begin` inputs mid-run. Cite competing passages for confirmed contradictions and record unresolved ordering, time anchors, and count scope as editorial notes.
-   - For a saved gate report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`review-begin --chapter N --type Gate`, or `prepare --spec` for custom paths) after continuity records settle: capture inputs including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
+   - For a saved gate report, prefer `storycraft_chapter_finalize` / `storycraft_review_begin` when MCP tools are connected, or follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`review-begin --chapter N --type Gate`, or `prepare --spec` for custom paths) after continuity records settle: capture inputs including the target chapter, preceding chapter, scene plan, psych pass, canon/style references, relevant ledgers, active `editorial-memory` decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic gate runs never edit source prose.)
    - Consult applicable active `editorial-memory` decisions before proposing style repairs, preserving deliberate choices within their stated scope while keeping correctness checks binding. Include scoped decisions verbatim in any worker briefs; never generalize a local rejection.
 
 2. **Step 2: Run Continuity Audit & Evidence-Chain Checks**

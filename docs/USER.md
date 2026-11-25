@@ -195,7 +195,7 @@ hand-written catalog's versions honest against it.)
 | `fiction-divergence` 1.0.0 | Anti-convergence pass over the outline: per beat, a default, an inversion, and a cost-shift candidate; keeps the least-expected-but-earned; per-act surprise ledger. |
 | `fiction-scenes` 4.7.0 | Chapter beats and scene plans with `cadence_role` valleys/counterpoint, `subplot_threads`, `dramatic_irony` leverage, active relationship checkpoints, and conversation forms. |
 | `fiction-style` 7.5.0 | `style_guide.md` + `review_guide.md` — the project's prose law. |
-| `fiction-writechapter` 4.12.0 | Draft or continue from a compiled pre-draft packet (plus Lean / Act-1 Sprint provisional-noun logging); honors `cadence_role` and `dramatic_irony`. |
+| `fiction-writechapter` 4.13.0 | Draft or continue from a compiled pre-draft packet (plus Lean / Act-1 Sprint provisional-noun logging); prefers `storycraft_*` MCP tools when connected and honors `cadence_role` / `dramatic_irony`. |
 
 ### Fiction — review the story
 
@@ -203,7 +203,7 @@ hand-written catalog's versions honest against it.)
 |---|---|
 | `fiction-reviewchapter` 2.15.0 | The chapter gate: canon assertions, Chekhov ledger audit, active relationship checkpoints, psych subtext, cooling list, and prose rules → `_Edits/…_Review.md`. |
 | `litrpg-audit` 1.2.1 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
-| `fiction-dev-editor` 2.4.0 | Story-level diagnosis, 4-Chapter / Act Developmental Checkpoints (`rhythm-map`, `drift.py`, `cast --gap 4`), causal escalation, hook honesty, and cast bloat checks. |
+| `fiction-dev-editor` 2.4.1 | Story-level diagnosis, 4-Chapter / Act Developmental Checkpoints (`rhythm-map`, `drift.py`, `cast --gap 4`), causal escalation, hook honesty, and cast bloat checks. |
 | `coldread` 1.1.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
 | `fiction-promises` 1.3.2 | The Chekhov ledger reads committed generations and routes managed promise/related-ledger writes through atomic transactions. |
 | `fiction-knowledge` 1.1.0 | Sourced character beliefs, secret acquisition, and reader exposure in story/reading order (`Wiki/Story/knowledge-events.json`). |
@@ -244,9 +244,9 @@ hand-written catalog's versions honest against it.)
 | `nonfiction-structure` 1.2.0 | Argument architecture plus book/chapter rhetorical modes and conditional obligations → `Wiki/Concept/structure.md`. |
 | `nonfiction-research` 1.3.0 | Manages sources (`sources.yaml` `SRC-NNN` inheritance) and chapter assertion inventories; validates and `--reanchor`s with `scripts/evidence.py`. |
 | `nonfiction-chapter-plan` 1.3.0 | Mode-aware chapter argument/reader contract, evidence blocks, and explicit `evidence_needed` gaps. |
-| `nonfiction-writechapter` 1.6.0 | Drafts from compiled draft packet honoring `nonfiction_register` citation/voice style without forcing academic `"we"` on trade/memoir prose. |
+| `nonfiction-writechapter` 1.7.0 | Drafts from compiled draft packet (`storycraft_*` MCP tools preferred) honoring `nonfiction_register` citation/voice style without forcing academic `"we"` on trade/memoir prose. |
 | `nonfiction-dev-editor` 1.4.0 | Developmental review: thesis scaffolding, argument-spine & background-noise tests, abstraction/cognitive-load checks (`references/dev-edit-criteria.md`). |
-| `nonfiction-factcheck` 1.6.0 | Verifies anchored assertions (including `firsthand_account` / `domain_baseline`), records semantic inventory coverage, and derives factual readiness. |
+| `nonfiction-factcheck` 1.6.1 | Verifies anchored assertions (including `firsthand_account` / `domain_baseline`), records semantic inventory coverage, and derives factual readiness. |
 | `nonfiction-clarity-edit` 1.6.0 | **Default** clarity pass: jargon density, abstraction ladder, cognitive load, signposting using paragraph-aware context → `_Edits/…_ClarityEdit.md`. |
 
 ### Cross-cutting (fiction and non-fiction)
@@ -254,10 +254,10 @@ hand-written catalog's versions honest against it.)
 | Skill | What it does |
 |---|---|
 | `book-reverse-engineer` 1.5.0 | **Retrofit & rebuild**: analyzes Markdown/text/EPUB/`.docx` drafts, reconstructs `Wiki/Style/style_guide.md` + `review_guide.md`, scene outlines, promises, and `findings.yaml`. |
-| `chapter-pipeline` 1.11.0 | Profiled chapter workflow (`FICTION`, `NONFICTION`, per-chapter `HYBRID` modes) with Act / 4-chapter checkpoints and batch state commands. |
-| `gate-check` 1.12.0 | Comprehensive chapter readiness & continuity gate honoring scene `cadence_role` and pre-gate continuity recording. |
-| `book-status` 1.18.0 | Manifest-resolved draft packets, shared readiness, `project_state.py kanban`, `reanchor`, `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, batch `--events`/`--dispositions`, `sync-edits`, and `rhythm-map`. |
-| `kanban-board` 1.3.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`) rendered deterministically via `project_state.py kanban` / `kanban.py`. |
+| `chapter-pipeline` 1.12.0 | Profiled chapter workflow (`FICTION`, `NONFICTION`, per-chapter `HYBRID` modes; `storycraft_*` MCP tools preferred) with Act / 4-chapter checkpoints and batch state commands. |
+| `gate-check` 1.13.0 | Comprehensive chapter readiness & continuity gate honoring scene `cadence_role`, `storycraft_*` MCP tools, and pre-gate continuity recording. |
+| `book-status` 1.19.0 | Manifest-resolved draft packets (`storycraft_*` MCP tools when connected), `manifest`, `project_state.py kanban`, `reanchor`, `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, batch `--events`/`--dispositions`, `sync-edits`, and `rhythm-map`. |
+| `kanban-board` 1.4.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`) rendered deterministically via `storycraft_kanban` / `project_state.py kanban` / `kanban.py`. |
 | `canon-guard` 1.2.0 | Safeguards canon from drift; semantic, knowledge, and continuity impact scan before deliberate world/character edits, handing multi-chapter repairs to `revision-campaign`. |
 | `editorial-memory` 1.1.0 | Explicit scoped author decisions; keep/reject history, `sync-edits` advisory preference candidates, and reusable preferences. |
 | `revision-campaign` 1.1.0 | Dependent book/series revision tasks, snapshots, safe resume, and current verification. |

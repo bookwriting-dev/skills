@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.12.0"
+  version: "4.13.0"
   bundled-dependencies: book-status, fiction-dialogue
   category: fiction-writing
   output-format: markdown
@@ -33,7 +33,7 @@ Read the book instructions before writing. Do not create a new plot direction, p
 
 Use the project or chapter named by the user. Otherwise infer the selected book from the current working context and `Wiki/Story/active-context.md`; if multiple books remain plausible, ask which one.
 
-Before launching the writing worker, compile the deterministic pre-draft packet using [project_state.py](../book-status/scripts/project_state.py):
+Before launching the writing worker, compile the deterministic pre-draft packet (prefer `storycraft_draft_packet` or `storycraft_chapter_preflight` when MCP tools are connected; otherwise invoke [project_state.py](../book-status/scripts/project_state.py)):
 
 ```bash
 python3 .agents/skills/book-status/scripts/project_state.py \

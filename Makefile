@@ -76,6 +76,6 @@ plugin-dist:
 	@mkdir -p dist/storycraft-skills/rules dist/storycraft-skills/mcp
 	@cp plugin/plugin.json plugin/mcp_config.json dist/storycraft-skills/
 	@cp mcp/storycraft_mcp.py dist/storycraft-skills/mcp/
-	@cp templates/AGENTS.md dist/storycraft-skills/rules/AGENTS.md
+	@sed -e 's|__SERIES_TITLE__|Storycraft Suite|g' -e 's|__PROJECT_TYPE__|FICTION, NONFICTION, or HYBRID|g' templates/AGENTS.md > dist/storycraft-skills/rules/AGENTS.md
 	@$(PYTHON) -c "import shutil; shutil.copytree('skills', 'dist/storycraft-skills/skills', ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.pyo'))"
 	@echo "Built plugin bundle at dist/storycraft-skills"

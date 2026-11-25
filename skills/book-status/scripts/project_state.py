@@ -49,7 +49,7 @@ def main():
                 'relationship-state', 'reading', 'author-read', 'campaign', 'pipeline', 'draft-packet',
                 'chapter-format', 'continuity', 'review-begin', 'review-finish', 'record-disposition',
                 'step-start', 'step-complete', 'sync-edits', 'rhythm-map',
-                'reanchor', 'chapter-preflight', 'chapter-finalize', 'kanban'):
+                'reanchor', 'chapter-preflight', 'chapter-finalize', 'kanban', 'manifest'):
         p = sub.add_parser(cmd)
         p.add_argument('--spec')
         p.add_argument('--events', help='JSON array file of events for batch recording')
@@ -244,6 +244,22 @@ def main():
         result = reanchor_chapter(root, a.book, a.chapter)
     elif a.command == 'kanban':
         result = render_kanban(root, a.book, write_board=not a.no_write)
+    elif a.command == 'manifest':
+        resolver = project_manifest_module()
+        m_path = resolver.contained(root, resolver.MANIFEST_PATH)
+        act = a.action if a.action in ('preview', 'apply') else 'preview'
+        if m_path.exists():
+            current = resolver.validate(json.loads(m_path.read_text(encoding='utf-8')), root)
+            result = {'action': act, 'status': 'already_applied', 'manifest': current}
+        else:
+            proposed = resolver.propose(root)
+            result = {'action': act, **proposed, 'status': 'preview' if act == 'preview' else 'not_applied'}
+            if act == 'apply' and not proposed['unresolved']:
+                with locked(m_path):
+                    if m_path.exists():
+                        raise ValueError('manifest appeared during apply; inspect and retry')
+                    write(m_path, proposed['manifest'])
+                result['status'] = 'applied'
     elif a.command == 'chapter-preflight':
         resolver = project_manifest_module()
         if a.spec:

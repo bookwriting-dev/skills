@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.18.0"
+  version: "1.19.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -12,7 +12,7 @@ metadata:
 
 Provides an executive summary of manuscript health, drafting completeness, gate checks, promise debts, and stylistic health across the entire book or series.
 
-For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `project_state.py --root ROOT --book Book-N kanban` (backed by [kanban.py](scripts/kanban.py)) or `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` deterministically from the same on-disk state this skill reads. Use `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, `reanchor --chapter N`, `--events`, and `--dispositions` batch modes in [project_state.py](scripts/project_state.py) to run preflight, ledger updates, re-anchoring after prose edits, and finalization in minimal round-trips.
+For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `project_state.py --root ROOT --book Book-N kanban` (backed by [kanban.py](scripts/kanban.py)) or `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` deterministically from the same on-disk state this skill reads. When the host exposes `storycraft_*` MCP tools (`storycraft_dashboard`, `storycraft_draft_packet`, `storycraft_kanban`, `storycraft_rhythm_map`, `storycraft_sync_edits`, `storycraft_review_begin`, `storycraft_review_finish`, `storycraft_record_disposition`, `storycraft_reanchor`, `storycraft_chapter_preflight`, `storycraft_chapter_finalize`, `storycraft_promises`, `storycraft_compile`), prefer them before falling back to shell calls to [project_state.py](scripts/project_state.py). Otherwise use `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, `reanchor --chapter N`, `--events`, and `--dispositions` batch modes to run preflight, ledger updates, re-anchoring after prose edits, and finalization in minimal round-trips.
 
 For a request limited to diction or clock notation, resolve the requested manuscript paths and run [prose_style.py](scripts/prose_style.py) as described in [diction and clock time](references/diction-and-time.md). Return the confirmed passages and suggested edits within that scope.
 
@@ -36,7 +36,7 @@ For a request limited to diction or clock notation, resolve the requested manusc
 ## Procedure
 
 1. **Step 1: Resolve Project & Validate State Runtime**
-   - Resolve project identities and canonical chapter/style paths through [project_manifest.py](scripts/project_manifest.py); preview legacy-layout adoption with `python3 tools/project-manifest.py ROOT preview` and only apply when explicitly requested.
+   - Resolve project identities and canonical chapter/style paths through [project_manifest.py](scripts/project_manifest.py); preview legacy-layout adoption with `python3 .agents/skills/book-status/scripts/project_state.py --root ROOT manifest --action preview` and apply (`--action apply`) only when explicitly requested.
    - Run `python3 .agents/skills/book-status/scripts/project_state.py --root ROOT --book Book-N validate` and `dashboard` to gather machine-verified freshness, unresolved blocking finding IDs, and migration state under [references/state-contract.md](references/state-contract.md) and [assets/report-meta.schema.json](assets/report-meta.schema.json).
    - Read the dashboard's `required_checks`, each chapter's readiness, and `missing_chapters`. Use the resolved chapter paths for word totals.
 

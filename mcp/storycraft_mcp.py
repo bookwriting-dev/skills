@@ -16,9 +16,14 @@ if str(BOOK_STATUS_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(BOOK_STATUS_SCRIPTS))
 
 import project_state as ps  # noqa: E402
+from kanban import render_kanban  # noqa: E402
 from rhythm_map import rhythm_map  # noqa: E402
-from state_reviews import record_disposition, review_begin, review_finish  # noqa: E402
+from state_ledgers import reanchor_chapter  # noqa: E402
+from state_reviews import REVIEW_TYPE_SKILLS, record_disposition, review_begin, review_finish  # noqa: E402
 from sync_edits import sync_edits  # noqa: E402
+
+_VERSION_FILE = ROOT_REPO / 'VERSION'
+SERVER_VERSION = _VERSION_FILE.read_text(encoding='utf-8').strip() if _VERSION_FILE.is_file() else '1.1.0'
 
 
 TOOLS = [
@@ -36,7 +41,7 @@ TOOLS = [
     },
     {
         'name': 'storycraft_draft_packet',
-        'description': 'Compile the deterministic pre-draft packet (scene plan, psych, voice prompts, checkpoints, knowledge, cooling list).',
+        'description': 'Compile the deterministic pre-draft packet (scene plan, psych, theme, surprise ledger, voice prompts, checkpoints, knowledge, dramatic irony, cooling list).',
         'inputSchema': {
             'type': 'object',
             'properties': {
@@ -44,6 +49,10 @@ TOOLS = [
                 'book': {'type': 'string', 'default': 'Book-1'},
                 'chapter': {'type': 'string', 'default': '1'},
                 'window': {'type': 'integer', 'default': 3},
+                'story_order': {'type': 'integer'},
+                'reader_order': {'type': 'integer'},
+                'output': {'type': 'string'},
+                'key': {'type': 'array', 'items': {'type': 'string'}},
             },
             'required': ['root'],
         },
@@ -57,7 +66,7 @@ TOOLS = [
                 'root': {'type': 'string'},
                 'book': {'type': 'string', 'default': 'Book-1'},
                 'chapter': {'type': 'string', 'default': '1'},
-                'review_type': {'type': 'string', 'enum': ['Gate', 'Review', 'FullEdit', 'FactCheck', 'ClarityEdit']},
+                'review_type': {'type': 'string', 'enum': sorted(REVIEW_TYPE_SKILLS)},
                 'extra_paths': {'type': 'array', 'items': {'type': 'string'}},
             },
             'required': ['root', 'review_type'],
@@ -153,6 +162,64 @@ TOOLS = [
             'required': ['root'],
         },
     },
+    {
+        'name': 'storycraft_kanban',
+        'description': 'Deterministically render Wiki/Story/Book-N/kanban.md from current disk state and gate metadata.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'write_board': {'type': 'boolean', 'default': True},
+            },
+            'required': ['root'],
+        },
+    },
+    {
+        'name': 'storycraft_reanchor',
+        'description': 'Re-anchor continuity claims, knowledge events, and relationship events after local prose edits where quotes still match uniquely.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'chapter': {'type': 'string', 'default': '1'},
+            },
+            'required': ['root'],
+        },
+    },
+    {
+        'name': 'storycraft_chapter_preflight',
+        'description': 'Run workflow resolution, chapter format check, and draft-packet generation in one call.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'chapter': {'type': 'string', 'default': '1'},
+                'window': {'type': 'integer', 'default': 3},
+                'story_order': {'type': 'integer'},
+                'reader_order': {'type': 'integer'},
+                'output': {'type': 'string'},
+            },
+            'required': ['root'],
+        },
+    },
+    {
+        'name': 'storycraft_chapter_finalize',
+        'description': 'Run chapter-format, continuity audit, and review-begin input capture in one call.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'chapter': {'type': 'string', 'default': '1'},
+                'review_type': {'type': 'string', 'enum': sorted(REVIEW_TYPE_SKILLS)},
+                'output': {'type': 'string'},
+            },
+            'required': ['root'],
+        },
+    },
 ]
 
 
@@ -165,8 +232,12 @@ def _call_tool(name: str, args: dict):
     if name == 'storycraft_dashboard':
         return ps.dashboard(root, book)
     if name == 'storycraft_draft_packet':
-        ns = argparse.Namespace(book=book, chapter=args.get('chapter', '1'),
-                                window=int(args.get('window', 3)), output=None, key=None)
+        ns = argparse.Namespace(
+            book=book, chapter=args.get('chapter', '1'),
+            window=int(args.get('window', 3)), output=args.get('output'),
+            key=args.get('key'), story_order=args.get('story_order'),
+            reader_order=args.get('reader_order'),
+        )
         return ps.draft_packet(root, ns)
     if name == 'storycraft_review_begin':
         return review_begin(root, book, args.get('chapter', '1'), args['review_type'],
@@ -206,20 +277,56 @@ def _call_tool(name: str, args: dict):
         if proc.returncode != 0:
             raise ValueError(proc.stderr.strip() or proc.stdout.strip() or 'compile_manuscript failed')
         return json.loads(proc.stdout)
+    if name == 'storycraft_kanban':
+        return render_kanban(root, book, write_board=bool(args.get('write_board', True)))
+    if name == 'storycraft_reanchor':
+        return reanchor_chapter(root, book, args.get('chapter', '1'))
+    if name == 'storycraft_chapter_preflight':
+        resolver = ps.project_manifest_module()
+        ns = argparse.Namespace(
+            book=book, chapter=args.get('chapter', '1'),
+            window=int(args.get('window', 3)), output=args.get('output'),
+            key=None, story_order=args.get('story_order'), reader_order=args.get('reader_order'),
+        )
+        pkt = ps.draft_packet(root, ns)
+        book_rec, ch_rec = resolver.resolve_chapter(root, book, args.get('chapter', '1'), allow_new=True)
+        wf = resolver.workflow(root, book_rec, chapter=ch_rec)
+        return {'workflow': wf, 'draft_packet': pkt}
+    if name == 'storycraft_chapter_finalize':
+        resolver = ps.project_manifest_module()
+        book_rec, ch_rec = resolver.resolve_chapter(root, book, args.get('chapter', '1'))
+        wf = resolver.workflow(root, book_rec, chapter=ch_rec)
+        rtype = args.get('review_type') or wf['required_checks'][0]
+        fmt = ps.chapter_format_module().audit(book_rec, ps.manuscript_texts(root, book_rec), selected=ch_rec['id'])
+        cont = ps.continuity_report(root, book_rec, ps.manuscript_texts(root, book_rec), chapter=ch_rec)
+        prep = review_begin(root, book, ch_rec['id'], rtype, output=args.get('output'))
+        return {'workflow': wf, 'chapter_format': fmt, 'continuity': cont, 'prepared': prep}
     raise ValueError(f'unknown tool: {name}')
 
 
 def _read_message():
-    line = sys.stdin.buffer.readline()
-    if not line:
-        return None, None
-    stripped = line.strip()
-    if stripped.lower().startswith(b'content-length:'):
-        length = int(stripped.split(b':', 1)[1].strip())
+    while True:
+        line = sys.stdin.buffer.readline()
+        if not line:
+            return None, None
+        stripped = line.strip()
+        if stripped:
+            break
+    if b':' in stripped and not stripped.startswith(b'{'):
+        headers = [stripped]
         while True:
             hdr = sys.stdin.buffer.readline()
             if not hdr or hdr in (b'\r\n', b'\n'):
                 break
+            if hdr.strip():
+                headers.append(hdr.strip())
+        length = None
+        for h in headers:
+            if h.lower().startswith(b'content-length:'):
+                length = int(h.split(b':', 1)[1].strip())
+                break
+        if length is None:
+            raise ValueError('LSP header frame missing Content-Length')
         payload = sys.stdin.buffer.read(length)
         return json.loads(payload.decode('utf-8')), 'lsp'
     return json.loads(stripped.decode('utf-8')), 'jsonl'
@@ -249,7 +356,7 @@ def serve():
                 result = {
                     'protocolVersion': '2024-11-05',
                     'capabilities': {'tools': {}},
-                    'serverInfo': {'name': 'storycraft-state', 'version': '1.0.0'},
+                    'serverInfo': {'name': 'storycraft-state', 'version': SERVER_VERSION},
                 }
             elif method == 'ping':
                 result = {}

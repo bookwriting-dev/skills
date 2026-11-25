@@ -616,5 +616,58 @@ class Tier2ArchitectureAndBatchWorkflow(unittest.TestCase):
         self.assertEqual(len(findings_mod.parse_report(rep)), 1)
 
 
+class Tier3PluginMcpAndTasteFlywheel(unittest.TestCase):
+    def setUp(self):
+        tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(tmp.cleanup)
+        self.root = Path(tmp.name).resolve()
+
+    def write(self, rel, text):
+        p = self.root / rel
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_text(text, encoding='utf-8')
+        return p
+
+    def test_harvest_eval_cases_manifest_cli_and_plugin_dist_rendering(self):
+        self.write('AGENTS.md', '# Salt Ledger\n\nThis project is: **FICTION**\n')
+        self.write('Wiki/Style/style_guide.md', '---\nregister_preset: lyrical-literary\n---\n')
+        self.write('Chapters/Book-1/Chapter-001.md',
+                   '# Chapter 1\n\nRain hammered the slate. Too late. She shut the shutters.\n')
+        self.write('_Edits/Book-1/decisions.jsonl', json.dumps({
+            'schema_version': 1, 'finding_id': 'FRAG-1', 'report': '_Edits/Book-1/Chapter-001_Prose.md',
+            'report_sha256': 'abc123', 'disposition': 'rejected',
+            'reason': 'Intentional cadence fragment before door closes', 'quote': 'Too late.',
+        }) + '\n')
+        self.write('Wiki/Style/editorial-decisions.json', json.dumps({
+            'schema_version': 1,
+            'decisions': [{
+                'id': 'ED-1', 'scope': 'Book-1/Chapter-001', 'rule_category': 'fragment',
+                'reason': 'Keep intentional beat fragment', 'status': 'active', 'reusable': True,
+                'source': 'Chapters/Book-1/Chapter-001.md', 'quote': 'Too late.',
+            }],
+        }))
+        # Test project_state.py manifest preview
+        man = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), 'manifest', '--action', 'preview'],
+                             check=True, capture_output=True, text=True)
+        self.assertEqual(json.loads(man.stdout)['status'], 'preview')
+
+        # Test tools/harvest-eval-cases.py -> editorial-preservation JSON compatibility
+        harvester = ROOT / 'tools/harvest-eval-cases.py'
+        out_file = self.root / 'harvested.json'
+        subprocess.run([sys.executable, '-B', str(harvester), '--project', str(self.root), '--output', str(out_file)],
+                       check=True, capture_output=True, text=True)
+        corpus = json.loads(out_file.read_text(encoding='utf-8'))
+        self.assertEqual(corpus['corpus_status'], 'author-harvested')
+        self.assertGreaterEqual(len(corpus['cases']), 1)
+        self.assertIn('Too late.', corpus['cases'][0]['protected_spans'])
+        self.assertEqual(corpus['category_tolerances']['fragment']['max_harmful_edit_rate'], 0.0)
+
+        # Test Makefile plugin-dist renders AGENTS.md without raw __PLACEHOLDERS__
+        subprocess.run(['make', 'plugin-dist'], cwd=ROOT, check=True, capture_output=True)
+        dist_agents = (ROOT / 'dist/storycraft-skills/rules/AGENTS.md').read_text(encoding='utf-8')
+        self.assertNotIn('__SERIES_TITLE__', dist_agents)
+        self.assertNotIn('__PROJECT_TYPE__', dist_agents)
+
+
 if __name__ == '__main__':
     unittest.main()

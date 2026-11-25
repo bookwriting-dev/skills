@@ -53,8 +53,9 @@ class StorycraftMcpTest(unittest.TestCase):
         self.assertEqual(len(responses), 5)
         self.assertEqual(responses[0]['result']['serverInfo']['name'], 'storycraft-state')
         tool_names = {t['name'] for t in responses[1]['result']['tools']}
-        self.assertEqual(len(tool_names), 9)
-        self.assertIn('storycraft_compile', tool_names)
+        self.assertGreaterEqual(len(tool_names), 13)
+        self.assertTrue({'storycraft_compile', 'storycraft_kanban', 'storycraft_reanchor',
+                         'storycraft_chapter_preflight', 'storycraft_chapter_finalize'}.issubset(tool_names))
 
         dash = json.loads(responses[2]['result']['content'][0]['text'])
         self.assertEqual(dash['project_type'], 'FICTION')
@@ -79,6 +80,32 @@ class StorycraftMcpTest(unittest.TestCase):
 
         mcp_cfg = json.loads((ROOT / 'plugin' / 'mcp_config.json').read_text(encoding='utf-8'))
         self.assertIn('storycraft-state', mcp_cfg.get('mcpServers', {}))
+        self.assertIn('${CLAUDE_PLUGIN_ROOT}', mcp_cfg['mcpServers']['storycraft-state']['args'][0])
+
+    def test_mcp_lsp_framing_with_extra_headers_and_tier3_tools(self):
+        init_req = json.dumps({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize', 'params': {}}).encode('utf-8')
+        kanban_req = json.dumps({
+            'jsonrpc': '2.0', 'id': 2, 'method': 'tools/call',
+            'params': {'name': 'storycraft_kanban', 'arguments': {'root': str(self.book), 'book': 'Book-1'}},
+        }).encode('utf-8')
+        stream = (
+            b'\n\nContent-Type: application/vscode-jsonrpc; charset=utf-8\r\n'
+            + f'Content-Length: {len(init_req)}\r\n\r\n'.encode('ascii') + init_req
+            + f'Content-Length: {len(kanban_req)}\r\nContent-Type: application/json\r\n\r\n'.encode('ascii')
+            + kanban_req
+        )
+        proc = subprocess.run(
+            [sys.executable, str(MCP_SERVER)],
+            input=stream, capture_output=True, check=False,
+            env={'PATH': '/usr/bin:/bin:/opt/homebrew/bin', 'PYTHONDONTWRITEBYTECODE': '1'},
+        )
+        self.assertEqual(proc.returncode, 0, proc.stderr.decode('utf-8', errors='replace'))
+        bodies = proc.stdout.split(b'Content-Length:')
+        self.assertEqual(len(bodies), 3)
+        k_resp = json.loads(bodies[2].split(b'\r\n\r\n', 1)[1])
+        k_data = json.loads(k_resp['result']['content'][0]['text'])
+        self.assertEqual(k_data['path'], 'Wiki/Story/Book-1/kanban.md')
+        self.assertTrue((self.book / 'Wiki/Story/Book-1/kanban.md').is_file())
 
 
 if __name__ == '__main__':
