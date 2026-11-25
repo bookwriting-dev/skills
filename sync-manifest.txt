@@ -1,4 +1,3 @@
-.github/workflows/ci.yml
 CHANGELOG.md
 Makefile
 README.md

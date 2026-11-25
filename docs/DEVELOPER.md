@@ -36,9 +36,8 @@ storycraft-skills/
 │   ├── eval-fixtures/       # fixture chapters, ledgers, and synthetic books
 ├── mcp/                 # storycraft_mcp.py (zero-dependency stdio MCP server)
 ├── plugin/              # plugin.json + mcp_config.json for `make plugin-dist`
-├── Makefile             # `make check` — the gate CI runs
+├── Makefile             # `make check` — the validation gate
 ├── VERSION              # library revision (date-based), recorded into project pins
-├── .github/workflows/   # CI: the same gate on push/PR
 ├── new-book.sh          # scaffold a new series project
 ├── sync-check.sh        # diff against the upstream ZIP
 ├── sync-manifest.txt    # files we own that may differ from upstream
@@ -220,9 +219,7 @@ The ordinary-dev loop (this replaces the old tracked-deltas ritual):
    verifies `docs/SKILL-INVENTORY.md` is current, syntax-checks every Python *and
    shell* script (plus the ledger-parser agreement check), evals script behavior
    against the fixtures, and smoke-tests `new-book.sh` end-to-end. Run `make inventory`
-   first if you added or renamed a skill or changed a description. CI
-   (`.github/workflows/ci.yml`) runs the same `make check` target on Linux and
-   macOS, so a red local `make check` is a red build.
+   first if you added or renamed a skill or changed a description.
 7. **Commit.**
 
 Two template-rendering notes: `templates/AGENTS.md` is the full instruction file and
