@@ -1,0 +1,3 @@
+An estranged pair of sisters inherits their mother's booth at a seasonal market. One has promised its place to a displaced vendor. The other has already made a commitment of her own. The town will award the pitch permanently when the market closes.
+
+Write three connected excerpts from a contemporary standalone novel, each in the same sister's viewpoint. The opening should make both claims on the booth understandable. In the middle, give the other sister an action of her own that materially changes what the viewpoint character can do. End where the relationship and the fate of the pitch can be felt in a shared task. Let an ordinary detail from the opening take on a different meaning. Choose the town, the trade, the family history and the ending.

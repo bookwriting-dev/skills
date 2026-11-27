@@ -362,6 +362,7 @@ def relationship_state(root, args):
         raise ValueError('relationship query requires nonnegative integer --position story order')
     events = [dict(event, current=source_valid(root, event)) for event in d['events']]
     superseded = {event_id for event in events if event['current'] and event['status'] == 'confirmed'
+                  and event['story_order'] < args.position
                   for event_id in event.get('supersedes', [])}
     applicable = [event for event in events if event['current'] and event['status'] == 'confirmed'
                   and event['id'] not in superseded and event['observer'] == args.observer
@@ -379,6 +380,7 @@ def relationship_state(root, args):
             state[key] = event
     planned = [event for event in events if event['current'] and event['status'] == 'planned'
                and event['observer'] == args.observer and event['story_order'] == args.position
+               and (not getattr(args, 'book_ids', None) or event['book_id'] in args.book_ids)
                and (not args.other or event['other'] == args.other)
                and (not getattr(args, 'scene_id', None) or event['scene_id'] == args.scene_id)]
     return {'status': 'CHRONOLOGY_UNRESOLVED' if conflicts else 'RESOLVED',

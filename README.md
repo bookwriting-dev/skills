@@ -51,6 +51,30 @@ make plugin-dist   # builds dist/storycraft-skills/
 
 The `storycraft-state` MCP server exposes typed tools (`storycraft_dashboard`, `storycraft_draft_packet`, `storycraft_review_begin`, `storycraft_review_finish`, `storycraft_record_disposition`, `storycraft_rhythm_map`, `storycraft_sync_edits`, `storycraft_promises`, `storycraft_compile`) over stdio JSON-RPC.
 
+### Personal ChatGPT Desktop plugin
+
+Run `make install-plugin` with `uv` and the Codex CLI installed. It builds `~/Plugins/storycraft/`, adds Storycraft to the local marketplace in `~/Plugins`, and refreshes the desktop install. Use `DESKTOP_PLUGIN_DIR` to select a different marketplace directory. The build includes PyYAML for the promise parser and records the local Python interpreter. Open a fresh local ChatGPT Desktop conversation with a manuscript workspace, select **Storycraft**, and ask for book status. Run the same command after a library update. Restart the desktop app if an open session still uses the previous package.
+
+The desktop plugin supplies the shared skills and scripts. Each manuscript workspace supplies its book files and rules. For a repo with a pinned library, first inspect its local changes with `tools/update-project.sh PROJECT --migration`. When switching that repo to Storycraft Desktop, preserve any custom guidance in the repo, update its instructions to use the shared plugin, and retire its old skill copy through Git. Repos using the desktop plugin can share updates without per-repo installs.
+
+### Claude Code plugin
+
+Run these commands from the library checkout to build and install the local marketplace. The build uses `uv`. Claude needs Python 3.10 or newer and uses the packaged copy of PyYAML. Set `STORYCRAFT_PYTHON` in Claude's environment to select a specific interpreter.
+
+```bash
+make claude-plugin
+claude plugin marketplace add "$PWD/dist/claude-marketplace"
+claude plugin install storycraft@storycraft-local
+```
+
+You can also install from inside Claude Code with `/plugin marketplace add /absolute/path/to/dist/claude-marketplace` followed by `/plugin install storycraft@storycraft-local`. Open a manuscript repository and run `/storycraft:book-status`. Check the `plugin:storycraft:storycraft-state` connection with `/mcp`. For a one-session preview, use `claude --plugin-dir /absolute/path/to/dist/claude-marketplace/plugins/storycraft`. Set `CLAUDE_MARKETPLACE_DIR` to build elsewhere.
+
+Both host packages use the same review evidence. A completed review can be opened on either host, and a review prepared on one can be finalized on the other. A changed manuscript input, report, or relevant editorial rule still makes the saved evidence stale. Run `make check-claude-plugin` to exercise an isolated marketplace install and both directions of the handoff. Set `CLAUDE_BIN` to choose a specific Claude Code executable.
+
+## Novel development and evaluation
+
+For the implementation sequence and acceptance criteria, see the [novel-writing plan](docs/NOVEL-WRITING-PLAN.md). To compare story openings, middle choices, and payoffs from two frozen package versions, follow the [blind drafting study](docs/EDITORIAL-EVALS.md#blind-comparison-of-generated-fiction).
+
 ## Development
 
 The library has its own gate. Run it before committing:

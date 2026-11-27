@@ -1,6 +1,6 @@
 # Story Structure Templates
 
-Four proven structures for outlining fiction. Choose based on story needs.
+Four examples for outlining fiction. Follow the form already selected in the synopsis. An epistolary braid can move by alternation, an episodic cycle by accumulation, and a retrospective witness account by a shift in interpretation. These forms may use their own movement names and unequal lengths.
 
 ---
 

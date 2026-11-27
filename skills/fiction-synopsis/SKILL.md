@@ -1,9 +1,9 @@
 ---
 name: fiction-synopsis
-description: "Transform a new-story braindump into Wiki/Story/synopsis.md with premise, central question, reader promise, story answer and payoff, protagonists, mechanism, act structure, and open threads. Use when user says 'create synopsis', 'start my story', 'I have a story idea', or 'turn this into a synopsis'."
+description: "Transform a new-story braindump into Wiki/Story/synopsis.md with premise, dramatic question, reader promise, story answer and payoff, protagonists, mechanism, act structure, and open threads. Use when user says 'create synopsis', 'start my story', 'I have a story idea', or 'turn this into a synopsis'."
 metadata:
   author: Fiction Toolkit
-  version: "5.3.0"
+  version: "5.4.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -20,7 +20,7 @@ Inputs come from the project's `_Intake/` and `Wiki/` folders. Determine whether
 - `**/Wiki/Story/series-arc.md` (when planning Book 2+ or a per-book synopsis): for the per-book dramatic-question stack, inter-book promise map, character arc spans, escalation plan, and handoff inventory from `fiction-series-outline`
 - `**/Wiki/Story/synopsis.md` (when generating `Wiki/Story/Book-N/synopsis.md` for a sequel): for the overarching series premise and cast
 - `**/Wiki/Style/genre.md`, for: genre, subgenre, flavor, tone_notes, tropes, trope commitments
-- `**/Wiki/Story/theme.md`, for: central_question, tone, motifs
+- `**/Wiki/Story/theme.md`, for: thematic_question (legacy central_question), tone, motifs
 - `**/Wiki/Style/audience.md`, for: protagonist_ages, structural_norms
 
 Each of these is optional. The synopsis works without them but gains depth from their context. Read whichever files exist and carry their content into the worker instructions below.
@@ -45,8 +45,10 @@ Run this step in an isolated worker when the host supports one, to keep the main
 
 ## Worker Instructions
 
-Generate `Wiki/Story/synopsis.md` for this project.
+Generate the synopsis at the resolved target path for this project.
 
+**Target synopsis:** [resolved root or per-book path from Step 1]
+**Series handoff:** [applicable story-arc commitments and relevant intake material]
 **Working directory:** [working directory]
 **Wiki root:** [path to the project's Wiki/ folder, e.g. [project]/Wiki]
 **Working title:** [title or "none, invent one"]
@@ -58,9 +60,9 @@ Generate `Wiki/Story/synopsis.md` for this project.
 Cover every field in [references/json-schema.json](references/json-schema.json) as frontmatter or a `##` section of the output file; that schema is the field checklist for this skill.
 
 Before generating, read these craft knowledge files:
-- [references/anti-flat-checklist.md](references/anti-flat-checklist.md): what makes a premise feel thin vs. load-bearing; how to ensure each protagonist has a genuine want, need, and irony built in; how to avoid the setup that collapses at act 2
-- [references/dynamic-spine-guide.md](references/dynamic-spine-guide.md): how act shapes should escalate, what makes an act break feel earned, how the midpoint must reframe rather than simply advance
-- [references/twist-principles.md](references/twist-principles.md): how to plant open threads that function as delayed promises rather than loose ends
+- [references/anti-flat-checklist.md](references/anti-flat-checklist.md): what makes a premise feel thin vs. load-bearing; how a specific want, pressure and cost can sustain the requested length
+- [references/dynamic-spine-guide.md](references/dynamic-spine-guide.md): how a chosen shape builds momentum and an act break or pivot can reframe a decision
+- [references/twist-principles.md](references/twist-principles.md): how to earn a planned revelation or a deliberately open question
 
 Extract: the specific quality checks for each field before finalizing the output.
 
@@ -70,21 +72,25 @@ Extract: the specific quality checks for each field before finalizing the output
 
 **premise**: 2-3 sentences. Who the protagonists are, what brings them into proximity, what each wants from the arrangement, and the central irony. This is not a plot summary; it is the core collision stated plainly.
 
-**central_question**: Pull from the theme file if available. If not, derive from the braindump's central tension. State it as a question.
+**dramatic_question**: Derive the specific outcome the reader follows from the premise. “Will Inez get her brother across before the ferry closes?” The ending can settle it through an action, failure, realization, or a deliberate uncertainty the agreed form makes legible.
 
-**reader_promise**: 1-2 spoiler-light sentences stating what emotional and genre experience the story commits to deliver, what question or tension will sustain the read, and what kind of satisfaction the ending owes. Derive it from the premise, genre, audience, and central question.
+**thematic_question**: Carry the question about values from `theme.md` (legacy `central_question` there), or derive it from competing choices. “Who gets to decide whose need comes first?” The ending can sustain disagreement. On older synopses, preserve the author’s `central_question` wording: use it as the dramatic question if concrete, or as the thematic question if interpretive and derive the dramatic question from the existing premise and outcome. Leave existing files alone unless revising them is in scope.
 
-**story_answer**: 1-2 spoiler-containing sentences stating how the protagonist's final choice and the story's outcome answer the central question. This is the editorial answer, not public copy.
+**reader_promise**: 1-2 spoiler-light sentences stating what emotional and genre experience the story commits to deliver, what question or tension will sustain the read, and what kind of satisfaction the ending owes. Derive it from the premise, genre, audience, and dramatic question.
 
-**trope_payoff_plan**: Carry every selected trope from the genre file into the body under its exact snake_case identifier. For `genre_contract` and `structural_engine`, specify the story-specific **setup**, **development**, and **payoff**. For `supporting_texture`, specify the recurring expression and where it intensifies or varies. For `deliberate_subversion`, specify the expected pattern established, the turn that overturns it, and the replacement satisfaction delivered. Tie every entry to the premise, central question, or reader promise. If a selected trope does none of those jobs, remove it from the genre profile with the user's approval rather than decorating the synopsis with it.
+**story_answer**: 1-2 spoiler-containing sentences stating what happens with the dramatic question, what the reader learns, and any uncertainty the book deliberately leaves. This is the editorial answer, not public copy.
+
+**trope_payoff_plan**: Carry every selected trope from the genre file into the body under its exact snake_case identifier. For `genre_contract` and `structural_engine`, specify the story-specific **setup**, **development**, and **payoff**. For `supporting_texture`, specify the recurring expression and where it intensifies or varies. For `deliberate_subversion`, specify the expected pattern established, the turn that overturns it, and the replacement satisfaction delivered. Tie every entry to the premise, dramatic question, or reader promise. If a selected trope does none of those jobs, remove it from the genre profile with the user's approval rather than decorating the synopsis with it.
 
 **protagonists**: Use role-appropriate labels (heroine/hero for romance, protagonist/deuteragonist for others). Each description should sound like the character: the register of the description is the first test of whether the voice is right. Include: name, age, origin, personality, want, unstated need, and what makes them compelling or dangerous. 3-5 sentences each. The two descriptions should have visible contrast.
 
 **mechanism**: The inciting logic. Sub-headings should describe what's actually happening in this story. For a romance: how they meet, how the deal forms, what each is hiding. For a thriller: how the protagonist is recruited, what they're told vs. what's true, what they'd refuse if they knew. Label the sub-headings to match. 2-4 entries.
 
-**act_1 / act_2 / act_3**: Each act needs **shape** (3-5 sentences on what happens) and **ends_with** (1-2 sentences on state of play at the act break). Act 2 also needs **midpoint** (1-2 sentences on the specific event that reframes everything). Act 3 also needs **payoff** (1-2 sentences naming the concrete climax or resolution that fulfills the reader promise and demonstrates the story answer).
+**structure_form and movements**: Keep the author’s chosen organization, or the form established by the material (e.g. five acts, alternating letters and hearings, or an episodic cycle). Use three acts when no form has been chosen or established. Describe each movement in reading order under its own named heading: whose choice or observation matters, what it changes, and what passes into the next movement. For a braid, identify each strand and where one changes the reader’s understanding of the other. At the end, show the promised experience, including intentional ambiguity. In an existing synopsis, `act_1`, `act_2`, `act_3` and their Markdown equivalents already specify three acts. They remain valid.
 
-**open_threads**: 1-4 unresolved elements that sit at the edge of the story's resolution. Not everything must be tied off. These are the threads that make a standalone feel like it has a world beyond its edges.
+**Three-act example**: Each act needs **shape** (3-5 sentences on what happens) and **ends_with** (1-2 sentences on state of play at the act break). Act 2 also needs **midpoint** (1-2 sentences on the specific event that reframes everything). Act 3 also needs **payoff** (1-2 sentences naming the concrete climax or resolution that fulfills the reader promise and demonstrates the story answer).
+
+**open_threads**: Record any deliberately unresolved elements at the edge of the ending. A closed standalone can have none. Not everything must be tied off. These are the threads that make a standalone feel like it has a world beyond its edges.
 
 **locations_in_play / characters_in_play**: Simple name lists. These seed the fiction-world and fiction-characters skills; the names must match the `Wiki/World/Locations/` (or legacy `Wiki/Locations/`) and `Wiki/Characters/` files those skills will create.
 
@@ -93,12 +99,14 @@ Every specific element the user gave (names, scenes, relationships, tones) must 
 
 ### Save
 
-Write the synopsis to `Wiki/Story/synopsis.md` under the project root (and for a per-book synopsis in a series, write `Wiki/Story/Book-N/synopsis.md`, creating `Wiki/Story/Book-N/` if missing; for Book 1 you may write both or `Wiki/Story/synopsis.md`). When writing a Book 2+ synopsis (`Wiki/Story/Book-N/synopsis.md`), ensure every inter-book promise and character handoff scheduled for Book $N$ in `Wiki/Story/series-arc.md` is honored in the premise, act shapes, or open threads. Use this shape:
+Write to the resolved target synopsis from Step 1. When writing a Book 2+ synopsis (`Wiki/Story/Book-N/synopsis.md`), ensure every inter-book promise and character handoff scheduled for Book $N$ in `Wiki/Story/series-arc.md` is honored in the premise, act shapes, or open threads. Use this shape:
 
 ```markdown
 ---
 title: "The Working Title"
-central_question: "The question the story asks, stated as a question"
+dramatic_question: "Will Inez get her brother across before the ferry closes?"
+thematic_question: "Who gets to decide whose need comes first?"
+structure_form: "Three acts"
 reader_promise: "The spoiler-light experience and satisfaction promised to the reader"
 locations_in_play:
   - Location Name
@@ -112,7 +120,7 @@ characters_in_play:
 [2-3 sentences]
 
 ## Story Answer
-[1-2 spoiler-containing sentences explaining how the ending answers the central question]
+[1-2 spoiler-containing sentences explaining how the ending answers the dramatic question]
 
 ## Protagonists
 ### [role label, e.g. heroine]
@@ -134,6 +142,7 @@ characters_in_play:
 - **development:** [How choices change the relationship and increase the cost of trust]
 - **payoff:** [The earned choice or action that completes the trajectory]
 
+<!-- The following movement headings illustrate three acts. Use the selected form’s own headings. -->
 ## Act 1
 - **shape:** [3-5 sentences]
 - **ends_with:** [1-2 sentences]
@@ -156,14 +165,14 @@ Frontmatter rules: plain, conservative YAML only. Lists are block lists, one `- 
 
 Before saving, verify the promise chain:
 - The premise creates the central collision.
-- The central question arises from that collision.
+- The dramatic question arises from that collision. The thematic question identifies what remains debatable when the reader knows the outcome.
 - The reader promise states the spoiler-light experience and satisfaction owed.
-- The story answer states what the ending proves through the protagonist's choice.
-- Act 1 poses the question, the midpoint complicates or reframes it, and the Act 3 payoff fulfills the promise and demonstrates the answer.
+- The story answer names the demonstrated outcome and its cost.
+- The selected movements carry the dramatic question and deliver the promised payoff. A midpoint belongs to a form that uses one.
 - Every selected trope appears in the trope payoff plan under the exact identifier from the genre file.
-- Every genre-contract and structural trope has a setup, development, and payoff that supports the premise, pressures the central question, or fulfills the reader promise.
+- Every genre-contract and structural trope has a setup, development, and payoff that supports the premise, pressures the dramatic question, or fulfills the reader promise.
 
-Return: "Synopsis written to Wiki/Story/synopsis.md", the full synopsis content so it can be shown to the user, and a 3-sentence summary of what was built.
+Return the actual target path, the full synopsis content so it can be shown to the user, and a 3-sentence summary of what was built.
 
 ---
 
@@ -171,7 +180,7 @@ Return: "Synopsis written to Wiki/Story/synopsis.md", the full synopsis content 
 
 Display the full synopsis and the worker's summary, then ask: "What should I change?"
 
-If changes are needed, use the same isolated-worker mechanism when available with the revision instructions and the path `Wiki/Story/synopsis.md`; otherwise revise directly. It edits the file in place and returns the revised content. Repeat until approved.
+If changes are needed, use the same isolated-worker mechanism when available with the revision instructions and the same resolved target synopsis path; otherwise revise directly. It edits the file in place and returns the revised content. Repeat until approved.
 
 When approved: "Next: use `fiction-outline` to build the chapter-by-chapter structure."
 

@@ -44,3 +44,30 @@ Give the author the blind review file or open the self-contained HTML scorecard 
 `make eval-routing` runs six ordinary-language requests in disposable scaffolded books using the installed Codex CLI. It checks tool evidence for the skill read or invoked and compares actual chapter, report, and intake files. A host may replay recorded observations through `tools/eval-routing.py --score FILE`. The offline fixture and scorer check runs with `make check`. Use `ROUTING_ARGS='--case opening --output /tmp/storycraft-routing.json'` to run and record one live case. Default live runs use the host's selected model.
 
 The November 17 verification used Codex CLI 0.169.0 on synthetic books. All six routing cases passed. Both review phrasings left chapter prose unchanged. The cleanup kept the closing image and the numbered-edit case applied exactly the two selected fixes. The opening trial wrote its intake sample, and beta intake anchored a note and wrote its feedback record. A synthetic matched editorial run completed four recorded attempts with identical baseline and candidate revisions to verify the runner. The private author's comparison remains pending.
+
+## Novel planning and review examples
+
+The 16 cases in eight pairs in [the novel planning corpus](../tools/eval-fixtures/novel-planning/cases.json) exercise premise scale, plot and theme, secondary character choices, alternate forms, quiet endings, and direct dialogue. The funeral-kitchen pair uses the same closing paragraph twice. Only the preceding scene changes, so the reviewer must decide whether washing the bowl earns the reconciliation or repeats it. Use the normal preservation runner with the relevant skill. Labels are provisional until author review.
+
+```sh
+python3 -B tools/eval-editorial.py --corpus tools/eval-fixtures/novel-planning/cases.json --skill fiction-reviewchapter --packets /tmp/storycraft-novel-review
+```
+
+## Blind comparison of generated fiction
+
+Use the drafting study to compare an opening, a consequential middle choice, and a payoff written from the same brief. The default brief is synthetic. Each sample runs in its own disposable project with its frozen package, model, reasoning effort, and per-excerpt word budget. Use a fresh directory for each independent pair.
+
+```sh
+python3 -B tools/eval-drafting.py prepare dist/novel-study --baseline HEAD --candidate WORKTREE --model gpt-6.2-astra
+python3 -B tools/eval-drafting.py run dist/novel-study
+```
+
+Use two Git revisions for a release comparison. The optional `WORKTREE` candidate freezes the current source, including new skill files. Supply `--brief` to use a different text, and use `--min-words` and `--max-words` to adjust the shared range. A retry reuses a completed, verified sample. A sample outside the agreed budget must be regenerated before the reader packet can be produced.
+
+Share only the `readers/` folder. Ask each reader to save their own copy of `blank-ballot.json`, enter a reader name or pseudonym, and record their choice (`A`, `B`, `both`, or `neither`) and their reasons. The study asks which version they would keep reading, which choice felt particular to a character, and which earlier detail gained meaning at the end. Unblind after collecting the ballots.
+
+```sh
+python3 -B tools/eval-drafting.py score dist/novel-study path/to/reader-one.json path/to/reader-two.json
+```
+
+The response report attributes each judgment to its reader and the specific pair they read. A pair can inform a revision decision. A claim about a whole genre or about sustained novel quality requires broader reading.

@@ -3,7 +3,7 @@ name: fiction-theme
 description: "Generate the thematic engine: central question, tone, and motifs. Defines what the story is ABOUT underneath the plot. Use when user says 'define theme', 'what is this about', 'thematic core', or after running fiction-audience."
 metadata:
   author: Fiction Toolkit
-  version: "3.3.0"
+  version: "3.4.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -44,9 +44,9 @@ This question is intentionally open-ended. The theme skill pulls the subconsciou
 
 You may generate directly or, when the host supports one, use an isolated worker with the context gathered above to keep the main conversation clean; either way, apply the rules below. If the user provided a theme seed, build outward from their words and do not override their intent. If "derive from genre", build from the dominant tropes and the natural tension they create.
 
-Cover every field in [references/json-schema.json](references/json-schema.json) as frontmatter or a section (checklist: central_question, tone, motifs with name / type / what_it_is per motif).
+Cover every field in [references/json-schema.json](references/json-schema.json) as frontmatter or a section (checklist: thematic_question, tone, motifs with name / type / what_it_is per motif).
 
-**central_question**: A question, not a statement. What the story asks through its events. If the user provided a seed, reframe it as a question. If "derive from genre", build from the dominant tropes and the natural tension they create.
+**thematic_question**: In an older `theme.md`, read `central_question` as the thematic question. Keep this distinct from the dramatic question the synopsis derives from the premise. A thematic question invites more than one defensible reading even after the plot resolves. Example: “What do grown children owe a parent who injured them?” The theme is what the events invite the reader to consider. If the user provided a seed, reframe it as a question. If "derive from genre", build from the dominant tropes and the natural tension they create.
 
 **tone**: One paragraph describing the story's emotional register (its dominant atmosphere, counterbalancing undercurrents, and how its emotional temperature shifts across the arc). Derive from the tone_notes in `Wiki/Style/genre.md` if available and add specificity for the characters and world.
 
@@ -60,7 +60,7 @@ File shape:
 
 ```markdown
 ---
-central_question: "The question the story asks, stated as a question. Quote it; it may contain colons."
+thematic_question: "What do grown children owe a parent who injured them?"
 ---
 
 ## Tone

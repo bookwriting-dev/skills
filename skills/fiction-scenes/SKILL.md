@@ -3,7 +3,7 @@ name: fiction-scenes
 description: "Create or revise fiction chapter beats and scene plans. Use for chapter beats, scene breakdowns, scene files, or turning an outline into writable action; do not use for drafting prose or developmental diagnosis alone."
 metadata:
   author: Fiction Toolkit
-  version: "4.7.0"
+  version: "4.8.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -42,7 +42,7 @@ Do not silently escalate compact beats into a full scene dossier.
 Read only context that can change the plan:
 
 - assigned outline, proposal, existing beats, or chapter directive;
-- the POV character and named participants, including the active `## relationship_checkpoints` span for this chapter (`chapter_start <= N <= chapter_end`) in `Wiki/Characters/<Name>.md`;
+- the POV character and named participants, including the incoming state and the specific transition scene in this book’s `## relationship_checkpoints` in `Wiki/Characters/<Name>.md`;
 - relevant current-canon locations, factions, systems, and active context;
 - adjacent prose or beats needed for continuity;
 - the project's style/voice source only when the beats include drafting guardrails or the user names it.
@@ -55,16 +55,16 @@ Separate **established**, **author-directed**, **proposed**, and **unknown** fac
 
 Write the chapter's causal spine in one or two sentences and test it:
 
-1. **Want:** What does the POV character actively seek now?
+1. **Purpose:** Identify this chapter’s movement or strand and the intended reader experience. What does someone seek, observe, receive, or finally understand?
 2. **Pressure:** What makes that difficult? Friction may be uncertainty, cost, incompatible duties, time, or incomplete knowledge; it need not be hostility.
 3. **Cadence Role & Micro-Friction:** Assign each scene a `cadence_role` (`pressure_turn` [default], `aftermath_valley`, `payoff_catharsis`, or `tonal_counterpoint`).
-   - For **`pressure_turn` (default):** What specific resistance, failed first tactic, deflection, or raised cost prevents the scene from resolving on the first push? (Ban "cooperative exposition" where another character hands over information, trust, or concession immediately.)
+   - For **`pressure_turn` (default):** What specific resistance, failed first tactic, deflection, or raised cost prevents the scene from resolving on the first push? (A direct answer can itself carry the price: sworn testimony exposes the speaker, or an admission gives someone authority to act.)
    - For **`aftermath_valley`**, **`payoff_catharsis`**, and **`tonal_counterpoint`** (earned integration, grief/sanctuary, joy/warmth, or comic respite immediately before or after a major turn): micro-friction is **optional** — do not manufacture fake bickering or arbitrary obstruction when the chapter's structural job is emotional dwell or tonal contrast. Still require genuine interior movement, consequence, or dramatic irony.
-4. **Choice:** What consequential decision or action does the POV character make?
-5. **Change:** What is irreversibly different by the chapter's end (emotionally, relationally, or materially)?
-6. **Necessity:** What future event, relationship, subplot thread, or tonal setup would suffer if the chapter were cut?
+4. **Agency or viewpoint:** Whose choice drives events? For a witness, document or aftermath, what new relationship or interpretation does this viewpoint let the reader see?
+5. **Change:** What is different by the end in action, feeling, relationship or the reader’s understanding? An earned farewell may complete a thread.
+6. **Necessity:** What later choice, interpretation, contrast, or completed experience would the reader lose if this were cut?
 
-If the spine cannot answer all six, repair the spine before adding worldbuilding. Information, atmosphere, shopping lists, status reports, and theories are not plot unless they change a decision, relationship dynamic, or reader understanding that later chapters honor.
+If the spine cannot answer all six, repair the spine before adding worldbuilding. Look for an effect on a decision, relationship, or reader understanding. A final payoff can finish that work entirely within this chapter.
 
 Prefer one primary driver and at most one supporting driver (or `subplot_threads` braid). Consult [driver-types.md](references/driver-types.md) when the driver is unclear or when planning a batch. Use [anti-flat-scenes.md](references/anti-flat-scenes.md) when a `pressure_turn` chapter risks becoming travel, processing, setup, or exposition without action.
 
@@ -75,14 +75,14 @@ Use 1–3 scenes according to real changes in location, time, power, or emotiona
 Each scene should establish:
 
 - the POV character's immediate goal, `cadence_role`, any braided `subplot_threads`, and the active `relationship_checkpoints` state between participants at this chapter;
-- for `pressure_turn` scenes: active pressure and at least one **micro-friction beat** (a failed attempt, refusal, misdirection, interruption, or price escalation) before the turn lands;
+- for `pressure_turn` scenes: active pressure and a specific **micro-friction beat** or price at the turn itself, such as a truthful answer that exposes its speaker;
 - when the reader holds confirmed knowledge the POV does not (`dramatic_irony` gap from `fiction-knowledge` / `DraftPacket.json`), note how the scene stages that asymmetry in action, dialogue subtext, or close calls without leaking unlearned secrets;
 - when dialogue architecture materially shapes the scene, name the **conversation form** (for example interview, interrogation, briefing, examination, or purposeful cooperation) and its pressure source. State why direct answers or repeated confirmations serve the scene; do not use the label as a blanket exemption from checking actual stagnation;
 - concrete actions and selective physical anchors;
 - the turn: the line, discovery, refusal, choice, release, or act that changes the scene;
-- the consequence carried into the next scene (if a bond shifts here, append a new dated checkpoint entry to `## relationship_checkpoints` in both characters' `Wiki/Characters/<Name>.md` files and close the prior open span);
+- the consequence carried into the next scene (if a bond shifts here, append a new dated checkpoint entry to `## relationship_checkpoints` in both characters' `Wiki/Characters/<Name>.md` files with this book’s ID and the numeric `turn_scene`; keep the prior span through this chapter and distinguish each person’s incoming stance from what changes on the page);
 - the surface response and the truer interior movement;
-- a specific ending beat with forward pull (or earned quiet dwell when `aftermath_valley` / `payoff_catharsis`).
+- a specific ending beat: forward pull, earned quiet dwell, or closure. A final gesture can settle the question in full.
 
 Worldbuilding belongs inside decisions and consequences. Keep lists selective. A single load-bearing object or transaction usually carries more story than an inventory.
 
@@ -96,12 +96,13 @@ Adapt to the project's neighboring files. A useful default is:
 # Chapter [number]: [title]
 
 ## Chapter spine
-- **Want:** ...
+- **Movement:** [named movement or strand from the outline, when specified]
+- **Purpose or want:** ...
 - **Pressure:** ...
 - **Cadence role:** pressure_turn | aftermath_valley | payoff_catharsis | tonal_counterpoint
 - **Subplot threads:** [active B-plot / thematic thread braided here, if any]
-- **Decision:** ...
-- **Irreversible change:** ...
+- **Decision or change in understanding:** ...
+- **Consequence or payoff:** ...
 - **Why this chapter cannot be cut:** ...
 
 ## Scene 1
@@ -115,7 +116,7 @@ Adapt to the project's neighboring files. A useful default is:
 - **Conversation form / pressure source (when relevant):** ...
 ```
 
-Name one POV per scene when a chapter changes viewpoint or the book has several narrators. A single viewpoint declared for the chapter may cover each scene that inherits it. When using the series knowledge ledger, record the established integer **Story order:** and **Reader order:** under the relevant scene so the draft packet reads knowledge at the right moment.
+Name one POV per scene when a chapter changes viewpoint or the book has several narrators. A single viewpoint declared for the chapter may cover each scene that inherits it. When using the series knowledge ledger, record the established integer **Story order:** and **Reader order:** under the relevant scene so the draft packet reads knowledge and relationships at the right moment. If the series ledger uses a custom scene ID, include **Scene ID:** under its scene as well.
 
 Add continuity or fact-status notes only where the drafter could otherwise contradict canon. Do not append a generic recommendations section after the plan is already usable.
 
@@ -152,7 +153,7 @@ Before finishing, verify:
 
 - the plot gate passes;
 - background facts support the causal spine rather than compete with it;
-- the POV causes the irreversible change;
+- the chosen viewpoint contributes to the intended turn, consequence, or payoff;
 - allies have independent agendas without forced hostility;
 - no earlier chapter's decision or hook is merely repeated;
 - proposed facts remain labeled;

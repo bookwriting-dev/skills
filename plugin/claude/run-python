@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+storycraft_bundle=$(cd -P "$(dirname "$0")" && pwd)
+export PYTHONPATH="$storycraft_bundle/python${PYTHONPATH:+:$PYTHONPATH}"
+
+# A macOS desktop launch can omit Homebrew from PATH.
+for candidate in "${STORYCRAFT_PYTHON:-python3}" python /opt/homebrew/bin/python3 /usr/local/bin/python3; do
+    if "$candidate" -Bc 'import sys; sys.exit(sys.version_info < (3, 10))' 2>/dev/null; then
+        exec "$candidate" -B "$@"
+    fi
+    if [ -n "${STORYCRAFT_PYTHON:-}" ]; then
+        break
+    fi
+done
+echo 'Storycraft requires Python 3.10 or newer. Set STORYCRAFT_PYTHON to a compatible interpreter.' >&2
+exit 1

@@ -14,7 +14,7 @@
         "type": "object", "required": ["path", "kind"],
         "properties": {
           "path": {"type": "string"},
-          "kind": {"enum": ["file", "directory", "projection"]},
+          "kind": {"enum": ["file", "directory", "projection", "plugin-skill"]},
           "projection": {"enum": ["promises", "events", "decisions", "plan", "research"]},
           "sha256": {"type": ["string", "null"]},
           "files": {"type": "object"}

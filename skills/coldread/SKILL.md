@@ -1,9 +1,9 @@
 ---
 name: coldread
-description: Run a blind, read-only assessment of whether one complete chapter or section (fiction or non-fiction) delivers a claimed voice, viewpoint, narrator identity, age register, or register of authority on the page. Use for cold reads, blind reads, POV checks, or "does this sound like this character?" Do not use for rule-based style audits or automatic revision.
+description: Test a voice or viewpoint claim on one complete chapter or section, or ask an unprimed reader to characterize two anonymous narrator excerpts from one or two chapters. Use for cold reads, POV checks, and questions about telling narrators apart.
 metadata:
   author: Fiction Toolkit
-  version: "1.1.1"
+  version: "1.2.1"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -16,16 +16,16 @@ The value of this skill is isolation. If the reviewer receives the intended answ
 
 ## Establish the test
 
-1. Resolve one exact manuscript file and one stable snapshot. If multiple sources or versions plausibly match, stop and resolve source authority before reading.
-2. Establish one concise claim to test, such as `close third, eighteen-year-old apprentice` or `first-person narrator, sardonic but frightened`.
+1. Choose claim testing or unprimed recognition. For a claim test, resolve one exact manuscript file, a complete chapter or section, and one concise claim such as `first-person narrator, sardonic but frightened`.
+2. For unprimed recognition, select either a single unit or two excerpts from the same or different chapters. Choose passages that give each narrator room to notice, interpret, and respond. Freeze each source version. Keep the intended voices and distinguishing features with the coordinator until the reviewer returns their observations.
 3. Use the user's wording when they provide the claim. Otherwise, the coordinating agent may retrieve the minimum claim from the book's governing instructions or approved profile before creating the isolated review.
 4. Do not pass the source of the claim, style rules, character history, prior verdicts, suspected lines, or desired outcome to the cold reader.
 
 ## Preserve genuine isolation
 
-- Use one fresh, read-only reviewer for the complete unit when the host supports isolated agents or contexts. Do not split the prose across reviewers or sections; cumulative voice and viewpoint drift require one reader to hold the whole unit.
+- Give one fresh, read-only reviewer the complete claim-test unit or the entire recognition packet. In a paired test, the same reader compares both excerpts.
 - Do not prescribe a provider, model family, or named model. Use a reviewer capable of qualitative fiction judgment.
-- Give the reviewer access only to the exact manuscript snapshot and the concise claim.
+- Give the reviewer the exact snapshot. Include the concise claim only for claim testing.
 - If the host cannot provide a genuinely isolated context, disclose that limitation and call the result an informed assessment, not a blind read.
 
 Use this neutral assignment:
@@ -39,6 +39,10 @@ Report what convinced you, what weakened the impression, and brief anchored exam
 ```
 
 Do not add examples of failure modes to the assignment. Do not tell the reviewer that another pass cleared or criticized the prose.
+
+For **unprimed recognition**, ask the reader to describe who seems to be telling each passage, what they notice, misread, or leave unsaid, and which words led to that impression. For a pair, use neutral labels such as *Excerpt A* and *Excerpt B*. Ask where the voices differ or overlap and what remains uncertain. Keep the source filenames, author-selected anchors, narrator profiles, proposed identities and answer key with the coordinator.
+
+Preserve each passage's prose, including names spoken or mentioned in the story. Mask identifying chapter titles, POV headings, and metadata in the reader copy. Record each excerpt's label, original file path, source hash or revision, exact passage boundaries, and any heading or metadata masked. Seal the reader's response before opening the key. Verify each quotation against its excerpt and compare the reader's characterizations with the author's intended distinctions. Report when names in the prose supplied the answer or an alternative interpretation also fits.
 
 ## Evaluate the returned read
 
@@ -54,7 +58,7 @@ Report:
 2. What the prose successfully communicated.
 3. Every material point that weakened the claim, with a line, paragraph, or distinctive-text anchor.
 4. Any plain clarity problem the cold reader encountered because missing context could not be supplied automatically.
-5. The exact snapshot reviewed.
+5. The exact snapshot reviewed, or both source snapshots, passage boundaries, label mapping and masking for a paired read. For recognition, report the reader's own description of each voice and how distinguishable they found them.
 
 Treat an age-register judgment as a prose judgment, not a demographic stereotype. Ground it in attention, cognition, diction, assumed experience, emotional processing, and sentence behavior shown on the page.
 
@@ -68,4 +72,4 @@ Treat an age-register judgment as a prose judgment, not a demographic stereotype
 
 ## Current evidence and isolation boundary
 
-For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py): capture ONLY the chapter text being tested (and optional permitted reader-facing packaging) in the prepared inputs BEFORE reading, then record report metadata if those inputs still match. Do NOT preload `Wiki/` canon, outlines, style/review guides, ledgers, or `editorial-decisions.json` into a blind cold read — rule/preference reconciliation belongs in the separate coordinator pass afterward.
+For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py). Capture all source files being tested and any permitted packaging before reading. For excerpts from separate chapters, prepare both chapter paths as inputs and retain the exact masked packet with the private mapping. Finalize the report only if the source snapshots still match. Keep canon, outlines, editorial decisions, source mappings and voice profiles out of the reader's assignment.

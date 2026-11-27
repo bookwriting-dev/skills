@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.19.0"
+  version: "1.20.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -24,7 +24,7 @@ For a request limited to diction or clock notation, resolve the requested manusc
 2. **Quality Gate Status:**
    - Status of `_Edits/Book-N/Chapter-NNN_Gate.md` for each chapter: `PASS`, `WARN`, `FAIL`, or `UNCHECKED`, paired independently with freshness (`CURRENT`, `STALE`, or `UNKNOWN`).
 3. **Promise Ledger (`promises.yaml`):**
-   - Active setups, due chapters, overdue promises, and deferred series threads.
+   - Active setups, due chapters, overdue promises, and deferred series threads. The preflight packet uses [draft_promises.py](scripts/draft_promises.py) to surface obligations and verified setup passages.
 4. **Editorial & Review Reports:**
    - Persona review coverage: `reader-persona-review` drafts and its `_synthesis.md` consensus live under `_Edits/Book-N/reviews/`; `review-panel` files under `Wiki/Review/`.
    - Unapplied revision items: unresolved stable finding IDs in saved reports, using the disposition ledger; legacy resolution is `UNKNOWN`.

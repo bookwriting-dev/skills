@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "storycraft-state": {
+      "type": "stdio",
+      "command": "${CLAUDE_PLUGIN_ROOT}/run-python",
+      "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/storycraft_mcp.py"]
+    }
+  }
+}

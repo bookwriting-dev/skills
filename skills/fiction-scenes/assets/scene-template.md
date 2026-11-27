@@ -12,6 +12,7 @@
 **Temperature/Mood**: [Hot, cold, humid, oppressive, peaceful]
 
 ## Chapter Driver
+**Movement:** [Named movement or strand, when specified]
 [One sentence: What changes by the end of this chapter?]
 
 ## Chapter Beats
@@ -19,7 +20,7 @@
 - [Development]: [Conflict builds, information revealed]
 - [Escalation]: [Stakes rise, tension peaks]
 - [Turn]: [The change happens - decision made, revelation hits]
-- **Hook**: [Hook type] - [What pulls reader to next chapter]
+- **Ending**: [What the reader anticipates, understands, or sees resolved]
 
 ## Characters Present
 **[Protagonist]**: [Role in this scene, what they want]

@@ -4,6 +4,8 @@ Use these prompts when developing each beat. Focus on internal conflict: desire 
 
 ---
 
+These prompts illustrate one positive transformation in three acts. Use them only for the parts of that form the author chose. A steadfast arc, a witness account, or a five-part tragedy has different turns.
+
 ## ACT 1
 
 ### Hook: Introduction to Protagonist's Inner Conflict
@@ -174,7 +176,7 @@ This doesn't mean they win the external battle or things turn out exactly as hop
 
 ### Resolution: Wrapping Up Loose Ends
 
-Tie up all loose ends. The reader should have no missing information or silent questions. For a series, you may want a cliffhanger instead of a victory beat. For a standalone, make sure all questions are answered by the final page.
+Resolve the specific obligations the book established. An interpretive question or the future of a secondary character may stay open after a complete dramatic ending.
 
 **Ask yourself:**
 - Where will my protagonist go from here?

@@ -93,9 +93,9 @@ Reader asks: Will he ever say it? Is it too late?
 
 ---
 
-## Hook Strength Levels
+## When to use each ending
 
-### Cliffhanger (Strongest)
+### Cliffhanger
 Immediate danger or revelation, demands continuation.
 
 > "The gun fired."
@@ -107,7 +107,7 @@ Clear tension, reader wants to know what happens.
 
 > "She had three days. After that, the deal was off."
 
-Standard ending for most chapters.
+Useful when the next scene depends on a decision under pressure.
 
 ### Soft Hook
 Subtle pull, reader curious but not desperate.
@@ -116,12 +116,12 @@ Subtle pull, reader curious but not desperate.
 
 Good for quieter moments, transition chapters.
 
-### Dead Stop (Usually Revise)
-Everything resolved, character at rest.
+### Accidental stop or earned closure
+A character comes to rest. Check what the scene has delivered.
 
 > "She went to bed satisfied. Tomorrow would be a new day."
 
-This often kills momentum unless closure itself is the intended structural effect.
+If a promised decision never takes place, identify what was lost. If the sisters have settled the house and the key has changed hands, the reader can rest with them.
 
 ---
 

@@ -3,7 +3,7 @@ name: gate-check
 description: "Run comprehensive chapter gate checks combining mechanical linting, canon integrity assertions, Chekhov setup validation, and prose quality checklists to determine chapter production readiness. Use when user says 'gate check', 'is chapter ready', 'run chapter gate', 'validate chapter', or 'check chapter continuity'. The lighter checklist gate over the same pillars as fiction-reviewchapter's full review — this is the one chapter-pipeline runs."
 metadata:
   author: Storycraft Skills
-  version: "1.13.0"
+  version: "1.14.0"
   bundled-dependencies: book-status, litrpg-audit
   category: fiction-editing
 ---
@@ -22,7 +22,7 @@ Every gate run systematically evaluates up to 7 pillars:
    - Timeline: chronological continuity with preceding chapters and series timeline.
 2. **Scene Contract, Cadence Role & Beat Fulfillment:**
    - Evaluates drafted prose against `Wiki/Outline/Book-N/Chapter_NN_Scene.md` or scene plan.
-   - All mandatory narrative beats, emotional shifts, and turning points must be present and dramatized (no back-half summary compression). For `pressure_turn` scenes (default), verify at least one micro-friction resistance beat (failed tactic, deflection, or raised cost) before the turn; for declared `aftermath_valley`, `payoff_catharsis`, or `tonal_counterpoint` scenes, allow earned stillness, vulnerability, intimacy, or comic respite without demanding forced bickering.
+   - All mandatory narrative beats, emotional shifts, and turning points must be present and dramatized (no back-half summary compression). For `pressure_turn` scenes (default), verify what made the outcome consequential: a failed tactic, resistance, or the price of success at the turn itself; for declared `aftermath_valley`, `payoff_catharsis`, or `tonal_counterpoint` scenes, allow earned stillness, vulnerability, intimacy, or comic respite without demanding forced bickering.
 3. **Chekhov & Promise Maintenance:**
    - Any clues, objects, or dramatic setups introduced in this chapter must be registered in `promises.yaml` via `fiction-promises`.
    - Any setups resolved here must be correctly retired.
@@ -36,9 +36,9 @@ Every gate run systematically evaluates up to 7 pillars:
    - "Not X but Y" negation density.
    - Em-dash clusters (>10 in a scene, or narrative em-dashes when `tight-thriller` forbids them).
    - Paragraph-closing aphorisms.
-   - Stock sensory repetitions (dust, paper must, brass warmth, creaking wood) and trailing 3-chapter `cooling_list` violations (reused somatic hotspots, repeated 3-grams/similes, or repeated chapter opener/closer formulas from `project_state.py draft-packet`).
+   - Stock sensory repetitions (dust, paper must, brass warmth, creaking wood) and trailing three-chapter `cooling_list` candidates. Read the occurrences; quote where the repeated gesture, phrase, simile, or opening loses effect. Preserve established terms, character idioms, refrains, and motif returns whose meaning develops. Counts alone do not warrant a warning.
 6. **Closing Beat & Transition:**
-   - Chapter ending leaves a distinct forward momentum or deliberate unresolved hook (avoiding homogeneous quiet-tea reflective resolutions on 100% of chapters).
+   - Identify the intended closing effect from the plan or the prose: forward pull, quiet aftereffect or complete closure. Quote what earns it. If an ending stalls, identify the missing payoff, repeated beat, or unsupported turn. A settled final image can pass without a new hook.
 7. **LitRPG & Numeric Continuity (Conditional Gate):**
    - When the project defines a system (`Wiki/World/Systems/`) or is classified as LitRPG / Progression Fantasy:
    - Run `python3 .agents/skills/litrpg-audit/scripts/stat_audit.py Chapters/Book-N/Chapter-NNN.md`.
@@ -103,7 +103,10 @@ Gate check produces a timestamped run report saved to:
 ### 5. Cadence & Lint Flags: [PASS / WARN]
 - [Flagged sentences with exact quotes and line numbers]
 
-### 6. LitRPG Progression Audit: [PASS / WARN / FAIL / N/A]
+### 6. Closing Beat & Transition: [PASS / WARN / FAIL]
+- [Intended effect, closing evidence and any specific missing payoff]
+
+### 7. LitRPG Progression Audit: [PASS / WARN / FAIL / N/A]
 - [Stat math, skill checks, and status box findings from stat_audit.py]
 
 ## Action Verdict & Routing

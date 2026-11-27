@@ -3,7 +3,7 @@ name: fiction-full-editor
 description: Default comprehensive fiction editing pass combining AIism detection, prose craft mechanics, and line editing into a single scan. Preferred over individual single-layer scanners (line-editor, prose-editor, aiism-editor). Uses paragraph- and scene-aware contextual packets. Use when user says "full edit", "edit chapter", "line edit", "check prose", "polish writing", or asks for general sentence-level editing.
 metadata:
   author: Fiction Toolkit
-  version: "1.7.0"
+  version: "1.8.0"
   bundled-dependencies: book-status, fiction-aiism-editor, fiction-prose-editor, fiction-line-editor
   category: fiction-editing
 ---
@@ -23,6 +23,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 3. Search for the project's review guide (`**/review_guide.md`), style guide (`**/style_guide.md`), and scoped `editorial-memory` records (`Wiki/Style/editorial-decisions.json`). Use whichever exist, and load applicable active editorial decisions before proposing style repairs (preserving deliberate choices within their stated scope while keeping correctness checks binding; never generalize a local rejection).
 4. Resolve chapter identity/path through the project resolver when present. Read the complete chapter and identify paragraph, scene, verse, quotation, and literal-block boundaries. If both legacy style-guide names exist and conflict, preserve both and report the authority conflict rather than choosing silently.
 5. For a saved report, follow [state-contract.md](../book-status/references/state-contract.md) using [project_state.py](../book-status/scripts/project_state.py) (`prepare`): capture inputs BEFORE review, including every consumed chapter, plan, canon/style reference, relevant ledger, active editorial decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic passes still never edit source prose.)
+6. Resolve the narrator for each target from its manuscript marker and scene plan. Read its private voice prompt and the shared contrast index when present. Give each worker the relevant author-selected anchor passage, its stated effect, and the contrast note for its narrator. Record every consumed voice file with saved evidence. `review-begin --type FullEdit` tracks the chapter’s voice files; pass `--extra-path PATH` for an original anchor source or additional voice file you actually open.
 
 ## Step 2: Read All Criteria
 
@@ -51,6 +52,7 @@ Launch all chunks in parallel when the host supports workers; otherwise process 
 > 2. Read the style guide at: {style_guide_path} (if it exists)
 > 3. Read the source revision {subject_sha256}. Target passage IDs and exact zero-based half-open Unicode code-point offsets: {target_passages}. Context before/after is read-only: {context_passages}.
 > 4. Apply this scoped author-decision block, including intentional KEEP examples: {applicable_editorial_decisions}. Do not generalize it beyond scope.
+>    Use {scene_voice_anchor_and_contrast} to identify what the intended voice achieves. Before revising its rhythm, diction or distance, name the specific clarity or voice problem and check that the proposed line retains the effect the author selected.
 >
 > 5. Check every line against ALL of the following criteria:
 >

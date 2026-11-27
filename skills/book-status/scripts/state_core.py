@@ -21,6 +21,12 @@ import project_manifest
 import reader_text
 
 VERSION = 1
+PLUGIN_SKILL_INPUT = 'plugin-skill'
+_BUNDLE = Path(__file__).resolve().parents[3]
+_PLUGIN_DIGESTS_FILE = _BUNDLE / 'review-skill-digests.json'
+_PLUGIN_DIGESTS = (json.loads(_PLUGIN_DIGESTS_FILE.read_text(encoding='utf-8'))
+                   if _PLUGIN_DIGESTS_FILE.is_file() else {})
+PLUGIN_VERSION = (_BUNDLE / 'VERSION').read_text(encoding='utf-8').strip() if _PLUGIN_DIGESTS else None
 
 
 def now():
@@ -110,6 +116,13 @@ def evidence(root, paths):
             item['sha256'] = digest(p)
         out.append(item)
     return out
+
+
+def plugin_skill_input(name):
+    """Describe the review skill from the running desktop bundle, independent of its install path."""
+    if name not in _PLUGIN_DIGESTS:
+        return None
+    return {'path': name, 'kind': PLUGIN_SKILL_INPUT, 'sha256': _PLUGIN_DIGESTS[name]}
 
 
 def source_valid(root, item):

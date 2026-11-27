@@ -1,0 +1,198 @@
+{
+  "schema_version": 1,
+  "corpus_status": "provisional-needs-author-review",
+  "cases": [
+    {
+      "id": "novel-scale-keep",
+      "category": "novel-scale",
+      "rules": "The author wants a full-length novel about an interpreter in a town that is about to relocate. Assess the proposed premise for its ability to sustain that length.",
+      "source": "Ina publishes a bilingual map so every neighborhood can claim its moving allowance. Both names for her block appear on the rolls. When the council freezes all dual-name claims, her father starts burning old signs to make the map look fraudulent and save the neighbors from eviction.",
+      "protected_spans": [
+        "Both names for her block appear on the rolls. When the council freezes all dual-name claims, her father starts burning old signs to make the map look fraudulent and save the neighbors from eviction."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "novel-scale-fix",
+      "category": "novel-scale",
+      "rules": "The author wants a full-length novel about an interpreter in a town that is about to relocate. Assess the proposed premise for its ability to sustain that length.",
+      "source": "Ina publishes a bilingual map so every neighborhood can claim its moving allowance. A vendor calls a bridge by a different name. They walk over together, ask the keeper, and add the second name. Everyone receives the money that afternoon.",
+      "protected_spans": [],
+      "defect_spans": [
+        "They walk over together, ask the keeper, and add the second name. Everyone receives the money that afternoon."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "questions-keep",
+      "category": "questions",
+      "rules": "Read this planned ending of a family novel. The author wants readers to know who sent the letter and to disagree about the sender’s duty.",
+      "source": "Dramatic question: Who sent the letter withdrawing the adoption application? Thematic question: What may a daughter withhold to protect her mother? Ending: A receipt in the daughter’s name settles authorship. Her mother folds it into the envelope and sets a second cup on the tray.",
+      "protected_spans": [
+        "A receipt in the daughter’s name settles authorship. Her mother folds it into the envelope and sets a second cup on the tray."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "questions-fix",
+      "category": "questions",
+      "rules": "Read this planned ending of a family novel. The author wants readers to know who sent the letter and to disagree about the sender’s duty.",
+      "source": "Dramatic question: What may a daughter withhold to protect her mother? Thematic question: What may a daughter withhold to protect her mother? Ending: They decide honesty is important. The sender’s identity disappears from the story.",
+      "protected_spans": [],
+      "defect_spans": [
+        "The sender’s identity disappears from the story."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "steadfast-middle-keep",
+      "category": "steadfast-middle",
+      "rules": "The mill owner wants to reopen her village school throughout the book. Her sister wants to secure a safe wage for the ferrymen. Judge the middle of the outline against those commitments.",
+      "source": "When the mill owner leases the spare classroom, morning shifts switch to the early crossing. Her sister calls the ferry vote before the first shift, withholds the boat, and makes the owner choose between paying a safe crew or seeing the empty room on opening day.",
+      "protected_spans": [
+        "Her sister calls the ferry vote before the first shift, withholds the boat, and makes the owner choose between paying a safe crew or seeing the empty room on opening day."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "steadfast-middle-fix",
+      "category": "steadfast-middle",
+      "rules": "The mill owner wants to reopen her village school throughout the book. Her sister wants to secure a safe wage for the ferrymen. Judge the middle of the outline against those commitments.",
+      "source": "When the mill owner leases the spare classroom, morning shifts switch to the early crossing. Her sister waits for her to finish. Next the owner visits three more landlords and tells each of them she wants a school.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Her sister waits for her to finish. Next the owner visits three more landlords and tells each of them she wants a school."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "braided-form-keep",
+      "category": "braided-form",
+      "rules": "This novel alternates transcribed hearings and private postcards. The postcards should gradually make the clerk’s entirely truthful testimony look different. The witness never gains power over the proceedings.",
+      "source": "Hearing I records the time on the stopped station clock. The first postcard asks for help resetting it. Hearing II records a delayed train arriving by that clock. The second postcard thanks the clerk for leaving the hands exactly where they were.",
+      "protected_spans": [
+        "The second postcard thanks the clerk for leaving the hands exactly where they were."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "braided-form-fix",
+      "category": "braided-form",
+      "rules": "This novel alternates transcribed hearings and private postcards. The postcards should gradually make the clerk’s entirely truthful testimony look different. The witness never gains power over the proceedings.",
+      "source": "Hearing I records the time on the stopped station clock. The first postcard asks for help resetting it. The second half abandons the letters: to provide a midpoint reversal the witness takes over the inquiry and publicly accuses the clerk.",
+      "protected_spans": [],
+      "defect_spans": [
+        "The second half abandons the letters: to provide a midpoint reversal the witness takes over the inquiry and publicly accuses the clerk."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "five-movements-keep",
+      "category": "five-movements",
+      "rules": "The approved five movements are Petition, Vote, Coronation, Recognition and Exile. Recognition falls well after the midpoint. Resolve the cost of the vote in Exile.",
+      "source": "Petition wins the grain levy. Vote gives the chair power to choose the recipients. Coronation seats the chair’s daughter. Recognition comes when the signed list strips the daughter of her own allotment. In Exile the chair travels to her village carrying a sack of his own grain.",
+      "protected_spans": [
+        "Recognition comes when the signed list strips the daughter of her own allotment. In Exile the chair travels to her village carrying a sack of his own grain."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "five-movements-fix",
+      "category": "five-movements",
+      "rules": "The approved five movements are Petition, Vote, Coronation, Recognition and Exile. Recognition falls well after the midpoint. Resolve the cost of the vote in Exile.",
+      "source": "Petition wins the grain levy. Vote gives the chair power to choose the recipients. Move Recognition before Coronation to place the reveal at the midpoint. Fold Exile into the daughter’s accession and close before the voted list is read.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Move Recognition before Coronation to place the reveal at the midpoint. Fold Exile into the daughter’s accession and close before the voted list is read."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "closed-ending-keep",
+      "category": "closed-ending",
+      "rules": "This is the final paragraph of a standalone. Two sisters have spent a week sorting their father’s estate. They agreed that June would hand Mae the only key if June decided to leave the house to her.",
+      "source": "Mae stood beside the door until June came out. June put the key in Mae’s palm and folded her fingers over it. For the first time all week, Mae let her sister’s cab drive away without writing down the number.",
+      "protected_spans": [
+        "June put the key in Mae’s palm and folded her fingers over it."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "closed-ending-fix",
+      "category": "closed-ending",
+      "rules": "This is the final paragraph of a standalone. Two sisters have spent a week sorting their father’s estate. They agreed that June would hand Mae the only key if June decided to leave the house to her.",
+      "source": "Mae stood beside the door until June came out. They talked all afternoon about keys and houses. Before either had decided, the cab departed. Many years passed.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Before either had decided, the cab departed. Many years passed."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "direct-dialogue-keep",
+      "category": "direct-dialogue",
+      "rules": "In a sworn hearing the clerk must establish possession, permission and the first person able to open the safe. Judge whether the consecutive direct answers serve the scene.",
+      "source": "“Who held the original?” “I did.” “With whose permission?” “My sister’s.” “Who else could have opened the safe?” “Nobody.” The clerk crossed the sister off the witness list and moved my chair inside the rail.",
+      "protected_spans": [
+        "“Who held the original?” “I did.” “With whose permission?” “My sister’s.” “Who else could have opened the safe?” “Nobody.”"
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "direct-dialogue-fix",
+      "category": "direct-dialogue",
+      "rules": "In a sworn hearing the clerk must establish possession, permission and the first person able to open the safe. Judge whether the consecutive direct answers serve the scene.",
+      "source": "“Who held the original?” “I did.” “So you held it?” “Yes.” “It was in your possession?” “It was.” “So you had it?” “Yes.” The clerk had learned nothing about permission or access.",
+      "protected_spans": [],
+      "defect_spans": [
+        "“So you held it?” “Yes.” “It was in your possession?” “It was.” “So you had it?” “Yes.”"
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "shared-task-keep",
+      "category": "shared-task",
+      "rules": "After the funeral, Ruth and Nell are clearing their mother’s kitchen. They spent years apart after Ruth chipped the blue bowl and Nell stopped trusting her with their mother’s things. This is the closing scene of the standalone. Judge how the shared task lands in light of the previous scene. In the previous scene Nell washed, dried, and put away every piece herself. When Ruth held out a tea towel for a plate, Nell set it on the draining board and waited for Ruth to leave.",
+      "source": "Nell lifted the blue bowl out of the water. Ruth had one hand on the tea towel. Nell turned the chipped place toward her and let go. Ruth dried the bowl. Together they put it back on the shelf.",
+      "protected_spans": [
+        "Nell lifted the blue bowl out of the water. Ruth had one hand on the tea towel. Nell turned the chipped place toward her and let go. Ruth dried the bowl. Together they put it back on the shelf."
+      ],
+      "defect_spans": [],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    },
+    {
+      "id": "shared-task-fix",
+      "category": "shared-task",
+      "rules": "After the funeral, Ruth and Nell are clearing their mother’s kitchen. They spent years apart after Ruth chipped the blue bowl and Nell stopped trusting her with their mother’s things. This is the closing scene of the standalone. Judge how the shared task lands in light of the previous scene. In the previous scene Nell passed the chipped blue bowl into Ruth’s tea towel for the first time in years. They dried it together and put it back on the shelf, then did the same with the remaining dishes. The closing scene takes place moments later in the same kitchen.",
+      "source": "Nell lifted the blue bowl out of the water. Ruth had one hand on the tea towel. Nell turned the chipped place toward her and let go. Ruth dried the bowl. Together they put it back on the shelf.",
+      "protected_spans": [],
+      "defect_spans": [
+        "Nell lifted the blue bowl out of the water. Ruth had one hand on the tea towel. Nell turned the chipped place toward her and let go. Ruth dried the bowl. Together they put it back on the shelf."
+      ],
+      "split": "calibration",
+      "label_status": "provisional-needs-author-review"
+    }
+  ]
+}

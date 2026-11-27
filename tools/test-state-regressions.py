@@ -336,6 +336,37 @@ class EditorialEvalVariants(unittest.TestCase):
 
 
 class Tier1VoiceAndPacketEnrichment(Base):
+    def test_braided_outline_delivers_only_current_strand_and_chapter(self):
+        self.write('Wiki/Outline/Book-1/surprise-ledger.md',
+                   '## Letters (chapters 1, 3, 5–6)\n'
+                   '- **Diverged:** ch 3 — the envelope comes back empty.\n'
+                   '- **Surprise inventory:** Changing postmarks.\n'
+                   '## Hearings (chapters 2, 4, 7–8)\n'
+                   '- **Chosen default:** ch 2 — the clerk admits the petition.\n'
+                   '- **Diverged:** ch 4 — the witness resigns, using the petition from ch 2.\n')
+        def entries(chapter):
+            packet = s.draft_packet(self.root, argparse.Namespace(book='Book-1', chapter=str(chapter),
+                                                                  window=3, output=None, key=None))
+            return packet['surprise_ledger']['acts']
+        first, = entries(1)
+        self.assertEqual(first['entries'], ['- **Surprise inventory:** Changing postmarks.'])
+        second, = entries(2)
+        self.assertIn('Hearings', second['act'])
+        self.assertEqual(second['entries'], ['- **Chosen default:** ch 2 — the clerk admits the petition.'])
+        third, = entries(3)
+        self.assertIn('Letters', third['act'])
+        self.assertIn('empty', third['entries'][0])
+
+    def test_new_and_legacy_theme_questions_keep_the_author_wording(self):
+        question = "What does a brother's silence cost?"
+        for key in ('central_question', 'thematic_question'):
+            with self.subTest(key=key):
+                self.write('Wiki/Story/theme.md', f'---\n{key}: "{question}"\n---\n')
+                packet = s.draft_packet(self.root, argparse.Namespace(book='Book-1', chapter='1',
+                                                                       window=3, output=None, key=None))
+                self.assertEqual(packet['theme']['thematic_question'], question)
+                self.assertEqual(packet['theme']['central_question'], question)
+
     def test_style_policy_resolves_register_presets_and_overrides(self):
         self.write('Wiki/Style/style_guide.md', '---\nregister_preset: lyrical-literary\n---\n\n## Style\nLyrical.\n')
         lyrical = s.style_policy(self.root, argparse.Namespace(book='Book-1', simile_count=12))
@@ -435,7 +466,7 @@ class Tier2ArchitectureAndBatchWorkflow(unittest.TestCase):
         subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',
                         'chapter-preflight', '--chapter', '1', '--spec', str(reg)], check=True, capture_output=True)
 
-        # Batch knowledge record: reader knows F01 while Mara does not -> dramatic irony
+        # Partial coverage: the reader knows F01, while Mara's state for it has no record.
         events_file = self.write('kevents.json', json.dumps([
             {
                 'id': 'KE-1', 'fact_id': 'key_burned', 'observer': 'reader', 'state': 'knows',
@@ -460,7 +491,8 @@ class Tier2ArchitectureAndBatchWorkflow(unittest.TestCase):
         pkt = json.loads(pkt_res.stdout)
         self.assertEqual(pkt['scenes'][0]['cadence_role'], 'aftermath_valley')
         self.assertEqual(pkt['scenes'][0]['subplot_threads'], ['Ledger theft', 'Salt tax'])
-        self.assertEqual([d['fact_id'] for d in pkt['scenes'][0]['dramatic_irony']], ['key_burned'])
+        self.assertEqual(pkt['scenes'][0]['dramatic_irony'], [])
+        self.assertEqual(pkt['scenes'][0]['knowledge_as_of']['reader']['state']['key_burned']['state'], 'knows')
 
         # Continuity claim + polish edit + reanchor
         src_res = subprocess.run([sys.executable, '-B', str(STATE), '--root', str(self.root), '--book', 'Book-1',

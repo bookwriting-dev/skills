@@ -1,0 +1,22 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "storycraft",
+  "description": "Use Storycraft with the active manuscript repository to plan, draft, review continuity, track promises, and check production readiness.",
+  "extensions": {
+    "com.openai": {
+      "requires_local_executor": true,
+      "onboardingSkill": "./skills/storycraft-workspace/SKILL.md",
+      "interface": {
+        "displayName": "Storycraft",
+        "shortDescription": "Book writing and editorial tools for local manuscript projects.",
+        "category": "Productivity",
+        "capabilities": ["Read", "Write"],
+        "defaultPrompt": [
+          "Show the current status and blockers for this book.",
+          "Run preflight for the next chapter in this book.",
+          "Audit this book's setups and outstanding payoffs."
+        ]
+      }
+    }
+  }
+}

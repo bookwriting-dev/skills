@@ -1,9 +1,9 @@
 ---
 name: fiction-story-sparks
-description: "Generate compact fiction prompts from a character, location, object or creature, disruptive event, optional twist, and optional ending. Use only when the user explicitly asks for a story spark, random prompt, card-style story idea, writing exercise, or invokes fiction-story-sparks. Do not activate for ordinary outlining or ongoing-book work."
+description: "Generate story sparks, writing exercises and batches of premises at the requested scale. Use for explicit requests such as 'give me novel ideas', 'brainstorm novel-length premises', a random prompt, or card-style story ideas. Keep ordinary outlining and ongoing-book work in their own workflows."
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -24,16 +24,16 @@ Every viable result must state all three before it can be presented:
 
 - **Premise:** the concrete unstable situation: who wants what, what has changed, and what resists them.
 - **Reader promise:** the specific experience and payoff the story undertakes to deliver. This is not mood alone.
-- **Central question:** the dramatic question created by the premise and answered through the protagonist's final choice. It is not a thematic abstraction.
+- **Dramatic question:** the concrete outcome the reader follows. A thematic question concerns the values this outcome puts in tension.
 
-The premise creates the question. The promise tells the reader why following that question will be satisfying. The ending answers the question and pays the promise. If those four parts describe different stories, discard or repair the spark.
+The premise creates the question. The promise tells the reader why following that question will be satisfying. The ending delivers what the question led the reader to expect, including deliberate ambiguity when the chosen form calls for it. If those four parts describe different stories, discard or repair the spark.
 
-Every generated component must complicate the central question, change the cost of answering it, or help deliver the promised experience. Cut decorative cards that do none of those things.
+Every generated component must complicate the dramatic question, change the cost of answering it, or help deliver the promised experience. Cut decorative cards that do none of those things.
 
 ## Choose the mode
 
 - **Card spread:** Default for a singular “spark,” card-style prompt, writing exercise, or surprise. Deal one compact combination.
-- **Short-premise batch:** Use when the user asks for ideas, premises, or a batch. Generate six unless the user specifies another count. Each must fit either a 3,000–7,500 word one-shot or a 10–12 chapter, 25,000–35,000 word novelette. Anything requiring more is identified as novel-scale and replaced, not quietly compressed.
+- **Premise batch:** Generate six ideas unless the user specifies a count. Use the requested scale. For a novel, keep premises that can sustain the middle: give the protagonist a plausible first solution, show the complication that solution causes, and give another character a reason to act on it. Name one later choice made harder by those decisions. For a one-shot or novelette, keep the existing short targets (3,000–7,500 or 25,000–35,000 words). When scale is unspecified, label each idea with its natural length.
 
 ## Deal the spread
 
@@ -71,34 +71,35 @@ How it ends: ...
 
 Premise: The concrete unstable situation.
 Reader promise: The experience and payoff this combination promises.
-Central question: The question the protagonist's final choice must answer.
+Dramatic question: The concrete outcome the reader follows.
 Answer and payoff: How the ending answers that question and fulfills the promise.
 ```
 
-Omit unrevealed optional cards rather than filling them with placeholders. If the user wants surprise, present the four core cards first and ask whether to reveal the twist or ending; if uninterrupted completion is preferred, reveal the full spread. The premise, promise, and central question are never optional, even when the twist or ending remains concealed.
+Omit unrevealed optional cards rather than filling them with placeholders. If the user wants surprise, present the four core cards first and ask whether to reveal the twist or ending; if uninterrupted completion is preferred, reveal the full spread. The premise, promise, and dramatic question are never optional, even when the twist or ending remains concealed.
 
-## Present a short-premise batch
+## Present a premise batch
 
 Each premise includes:
 
 ```markdown
 Title: ...
-Scale and target: one-shot (...) | novelette (...)
+Scale and target: one-shot (...) | novelette (...) | novel (author’s target if given)
 Genre: ...
 Logline: Who wants what, and what stands in the way.
 Premise: The concrete unstable situation in one or two sentences.
 Reader promise: The specific experience and payoff offered.
-Central question: The dramatic question the final choice answers.
-The turn: The consequential reversal, stated plainly.
+Dramatic question: The dramatic question the final choice answers.
+How the middle grows (novel): First solution, its consequence, and someone else’s independent move.
+The turn: A consequential change in the choices available.
 Final choice: The costly decision only this protagonist can make.
 Ending image: One concrete final image.
-Answer and payoff: How the choice answers the central question and pays the promise.
+Answer and payoff: How the choice answers the dramatic question and pays the promise.
 What changes permanently: ...
 Main risk: The most likely craft or scale failure.
 Why it ends: What makes the story finite.
 ```
 
-Across a batch, vary protagonist position, relationship dynamic, primary situation, reversal, final choice, ending shape, and at least three subgenres. Different names, species, eras, or props do not constitute different story engines. When prior ideas are available, compare against their premise, question, turn, final choice, and ending before presenting the batch.
+Across a batch, vary protagonist position, relationship dynamic, primary situation, reversal, final choice, and ending shape. Vary subgenres only within the author’s requested range. Different names, species, eras, or props do not constitute different story engines. When prior ideas are available, compare against their premise, question, turn, final choice, and ending before presenting the batch.
 
 Do not turn the result into a synopsis, outline, character sheet, or world package unless the user asks. When they choose one, the natural next step is `fiction-synopsis` for a new story or a bounded brainstorming note for an existing project.
 
@@ -111,10 +112,10 @@ Verify that:
 - the event forces a decision rather than merely decorating the situation;
 - the premise is concrete and unstable rather than a setting description;
 - the reader promise names an experience and payoff the ending can deliver;
-- the central question arises from the premise and can be answered by the final choice;
+- the dramatic question arises from the premise and can be answered by the final choice;
 - the location constrains action;
 - the object or creature matters to the conflict;
 - the twist reinterprets something already present;
-- the ending answers the central question, pays the reader promise, and uses the core cards;
+- the ending answers the dramatic question, pays the reader promise, and uses the core cards;
 - any invented proper name came from `name-generator`;
 - no new project or canon file was created without a direct request.

@@ -3,7 +3,7 @@ name: chapter-pipeline
 description: "Run a declared chapter production profile from scene/plan briefing through drafting, evidence reconciliation, review, and any authorized repair across fiction, non-fiction, and hybrid books. Use when the user asks to 'run chapter pipeline', 'do chapter start to finish', 'draft outline and gate chapter', or 'execute full pipeline on chapter N'."
 metadata:
   author: Storycraft Skills
-  version: "1.12.0"
+  version: "1.13.0"
   bundled-dependencies: book-status, nonfiction-research
   category: fiction-writing
 ---
@@ -32,9 +32,9 @@ The pipeline halts before downstream polish when:
 
 1. **Step 1: Scaffolding & Preflight (`FICTION` / `NONFICTION` / `HYBRID`)**
    - **Fiction (and narrative hybrid chapters):**
-     - Verifies existence of `Wiki/Outline/Book-N/Chapter_NN_Scene.md` (two-digit, zero-padded) or generates it from book outline beats using `fiction-scenes` (enforcing active `relationship_checkpoints` and micro-friction per scene).
+     - Verifies existence of `Wiki/Outline/Book-N/Chapter_NN_Scene.md` (two-digit, zero-padded) or generates it from book outline beats using `fiction-scenes` (resolving each scene’s entering relationship state and intended effect).
      - Verifies existence of `Wiki/Psych/Book-N/Chapter_NN_Psych.md` or generates it using `fiction-psych` so `what_they_wont_say` and `show_dont_tell_gaps` are mapped before drafting.
-     - When the scene plan includes substantial conversation, runs the `fiction-dialogue` preflight so speaker objectives, unequal knowledge, and anti-interview rules are locked.
+     - When the scene plan includes substantial conversation, runs the `fiction-dialogue` preflight to identify what each speaker wants, what they know, and what an answer, refusal, or agreement changes. Preserve purposeful cooperation and direct answers that earn their place.
    - **Non-Fiction (and expository/argument hybrid chapters):**
      - Verifies existence of the chapter's `## Chapter NN` section in `Wiki/Outline/Book-N/plan.md` (or generates/refreshes it using `nonfiction-chapter-plan`), locking rhetorical mode, central claim, evidence blocks, transitions, and explicit `evidence_needed` items.
      - Checks source and citation readiness in `Wiki/Research/` (`sources.yaml` + `claims-matrix.md`) using `nonfiction-research` so primary sources are inspected before drafting.
@@ -43,7 +43,7 @@ The pipeline halts before downstream polish when:
 2. **Step 2: Pre-Draft Packet & Drafting**
    - Register a new authorized target with `project_state.py --root ROOT --book Book-N register-chapters --spec SPEC.json` using the plan's ID, reading order, and destination. The draft packet resolves the canonical path and report stem. Use the scene-specific POV entry for fiction drafting.
    - Compiles `_Edits/Book-N/packets/Chapter-NNN_DraftPacket.json` via `project_state.py --root ROOT --book Book-N draft-packet --chapter N` (bundling POV-specific voice prompts or style authority, active relationship checkpoints, psych subtext constraints, confirmed knowledge state, active scoped `editorial-memory` decisions, and the rolling 3-chapter cooling list).
-   - **Fiction:** invokes `fiction-writechapter` with the compiled draft packet, scene brief, voice prompt(s) (`fiction-voiceprompt`), and preceding chapter context.
+   - **Fiction:** invokes `fiction-writechapter` with the compiled draft packet (including due payoffs and their setup sources), scene brief, voice prompt(s) (`fiction-voiceprompt`), and preceding chapter context.
    - **Non-Fiction:** invokes `nonfiction-writechapter` with the compiled draft packet, `Wiki/Outline/Book-N/plan.md` chapter section, `Wiki/Research/` source excerpts, and preceding chapter transition context.
    - **Hybrid:** invokes the skill matching the chapter's mode (or drafts narrative vs. expository sections under their respective authority files).
    - Outputs draft to `Chapters/Book-N/Chapter-NNN.md`.
@@ -59,7 +59,7 @@ The pipeline halts before downstream polish when:
    - `FactCheck` invokes `nonfiction-factcheck` against the inspected sources and `evidence.py`. When both checks are required, run it before `ClarityEdit`, which invokes `nonfiction-clarity-edit`.
    - Use the project's documented producer for a custom check. Mark it pending if the producer or current evidence is missing.
    - Refresh evidence from the exact final chapter after any authorized changes. Halts on `FAIL` or on canon/continuity/knowledge/factual/ledger `WARN`, reporting blockers with actionable fixes.
-   - After every **4 chapters** or at an **Act boundary**, trigger a lightweight **4-Chapter / Act Developmental Checkpoint** (`fiction-dev-editor` + `rhythm-map` + `drift-check` + `cast --gap 4 --through SELECTOR`) and refresh the board with `project_state.py --root ROOT --book Book-N kanban` before moving into the next block.
+   - After every **4 chapters** or at a boundary in the selected structure, trigger a lightweight **4-Chapter / Act Developmental Checkpoint** (`fiction-dev-editor` + `rhythm-map` + `drift-check` + `cast --gap 4 --through SELECTOR`) and refresh the board with `project_state.py --root ROOT --book Book-N kanban` before moving into the next block.
 
 5. **Step 5: Profile-specific editorial work**
    - For `draft_verified`, stop after reconciliation and the current gate(s). Do not silently add an edit pass or describe the result as fully line-edited.

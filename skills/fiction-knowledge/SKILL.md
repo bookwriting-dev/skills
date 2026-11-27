@@ -3,7 +3,7 @@ name: fiction-knowledge
 description: "Track who knows, suspects, or falsely believes each fact and when readers encounter it. Use when the user says track secrets, who knows what, audit reveals, knowledge continuity, or check premature knowledge."
 metadata:
   author: Storycraft Skills
-  version: "1.1.0"
+  version: "1.2.0"
   category: fiction-editing
   bundled-dependencies: book-status
 ---
@@ -16,7 +16,7 @@ Identify book, chapter/scene range, and story chronology from the assigned manus
 
 ## Harvest sourced events
 
-Read the chapter in scene order. Distinguish a fact's truth status (`true`, `false`, `unknown`) from an observer's belief. A statement can be false, disputed, unresolved, or deliberately unreliable. Record what a character witnessed, was told, inferred with support, suspected, disbelieved, or forgot. Reader exposure is separate from character knowledge. Do not infer that silence establishes ignorance.
+Read the chapter in scene order. Distinguish a fact's truth status (`true`, `false`, `unknown`) from an observer's belief. A statement can be false, disputed, unresolved, or deliberately unreliable. Record what a character witnessed, was told, inferred with support, suspected, disbelieved, or forgot. Reader exposure records what the page presented, including inaccurate testimony. A supported dramatic-irony cue needs a true fact the reader knows and current sourced evidence of the viewpoint’s opposing belief or forgetting. The packet keeps the quotes for each side. An exposed rumor or missing character record stays in the evidence without turning into a staging instruction. Do not infer that silence establishes ignorance.
 
 Assign stable `fact_id`, event `id`, and `event_kind`. Record `observer`, epistemic `state`, `truth_status`, exact `source` quote and `source_sha256`, `confidence`/reason, and `confirmed` status. Positions are nonnegative integer `story_order` and `reader_order` values: `story_order` follows in-world chronology; `reader_order` follows manuscript order. Flashbacks can therefore occur earlier in `story_order` and later in `reader_order`. Keep proposed uncertain events `confirmed: false` until checked. If revising an event, create a new sourced event with `supersedes`; preserve the old entry as evidence history. Link promise IDs only when there is an actual setup/payoff obligation.
 

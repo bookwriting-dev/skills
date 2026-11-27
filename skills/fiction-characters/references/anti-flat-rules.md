@@ -4,7 +4,7 @@ Dynamic characters drive dynamic stories. These rules prevent flat, predictable 
 
 ---
 
-## Every Character Must Have
+## Prompts for a protagonist
 
 ### 1. WANT (External Goal)
 What they're actively pursuing. This drives their behavior and creates conflict when wants clash.
@@ -23,9 +23,9 @@ Something they're hiding OR something they know that others don't. Secrets creat
 
 ---
 
-## Antagonist Requirements
+## When the book has a personal antagonist
 
-The antagonist is NOT pure evil. They MUST have:
+Use these prompts for a person whose actions oppose the lead. An impersonal source of pressure can carry the story on its own.
 
 ### Legitimate Grievance or Motivation
 They want something reasonable, or have been genuinely wronged. The reader should be able to see their point.
@@ -33,7 +33,7 @@ They want something reasonable, or have been genuinely wronged. The reader shoul
 **Weak**: "Wants power because evil"
 **Strong**: "Wants power because their family was destroyed by the current system"
 
-### At Least One Sympathetic Quality
+### What makes their position intelligible
 Something that makes the reader understand them:
 - Love for family
 - Loyalty to a cause
@@ -45,12 +45,10 @@ From their perspective, their actions make sense. They have justified their choi
 
 ---
 
-## Ally Requirements
+## When a secondary character drives a strand
 
-At least ONE ally must have:
-
-### Conflicting Agenda
-Their goals partially conflict with the protagonist's. This creates natural tension within the team.
+### Independent move
+Show what they do in pursuit of their own aim, with or without the lead’s request, and whose options change as a result. Their goals can align with the protagonist’s or pull against them.
 
 **Example**: Ally wants to rescue the kingdom, but also wants revenge on a specific person the protagonist needs alive.
 

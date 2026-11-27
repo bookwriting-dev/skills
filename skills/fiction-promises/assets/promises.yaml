@@ -28,6 +28,8 @@ promises:
     promise: ""
     # Where it was made (chapter/section). e.g. ch3, sec2.1, 3.2, 12
     introduced_ch: ""
+    # Optional exact text from the introducing chapter, verified when drafting.
+    setup_quote: ""
     # Kind of promise.
     # Fiction: object | skill | threat | question | debt | relationship | mystery | prophecy | rule
     # Non-fiction: thesis-thread | tension | forward-ref | counterargument | definition | concept | example | open-question | other

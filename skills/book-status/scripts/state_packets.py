@@ -1,7 +1,9 @@
 """Pre-draft packet compiler, style policy, and psych/checkpoint parsers."""
 import argparse
 import re
+from collections import Counter, defaultdict
 
+from draft_promises import promise_context
 from state_core import (
     VERSION, chapter_format_module, digest, document, ledger_store_module, locked,
     manuscript_texts, path_at, project_manifest_module, write,
@@ -33,18 +35,21 @@ STOP_WORDS = {
 }
 
 
-def prose_lines(path):
+def prose_lines(path, scene_break='* * *'):
     """Extract clean prose lines, stripping headings, fences, > callouts, rules, and checkboxes."""
     lines = []
     in_fence = False
-    for raw in path.read_text(encoding='utf-8').splitlines():
+    source = path.read_text(encoding='utf-8')
+    _, slots = chapter_format_module().metadata(source, scene_break)
+    markers = {marker[0] for _, marker in slots if marker}
+    for number, raw in enumerate(source.splitlines(), 1):
         line = raw.strip()
-        if not line:
+        if not line or number in markers:
             continue
         if line.startswith('```'):
             in_fence = not in_fence
             continue
-        if in_fence or line.startswith('#') or line.startswith('>') or line in ('---', '***'):
+        if in_fence or line.startswith('#') or line.startswith('>') or line in ('---', '***', '* * *', scene_break):
             continue
         if re.match(r'^[-*] \[', line):
             continue
@@ -52,7 +57,7 @@ def prose_lines(path):
     return lines
 
 
-def parse_checkpoints(path, chapter_num, *, book=None, unscoped_ok=True, skipped=None):
+def parse_checkpoints(path, chapter_num, *, book=None, book_id=None, unscoped_ok=True, skipped=None):
     """Return active relationship_checkpoints for chapter_num from a character Markdown file."""
     text = path.read_text(encoding='utf-8')
     m = re.search(r'^##\s+relationship_checkpoints\b(.*?)(?=^##\s+|\Z)', text, re.M | re.S)
@@ -68,50 +73,90 @@ def parse_checkpoints(path, chapter_num, *, book=None, unscoped_ok=True, skipped
         other = sub.group(1).strip()
         entries = []
         current = {}
+        fields = []
         for line in sub.group(2).splitlines():
             kv = re.match(r'^\s*[-*]\s*(?:\*\*)?([a-z_]+)(?:\*\*)?:(?:\*\*)?\s*(.+)$', line.strip(), re.I)
             if kv:
-                k, v = kv.group(1).lower(), kv.group(2).strip()
-                if k in current:
-                    entries.append(current)
-                    current = {}
-                current[k] = v
+                fields.append((kv.group(1).lower(), kv.group(2).strip()))
+        for index, (key, value) in enumerate(fields):
+            # Scoped entries begin with book, including when appended to an older
+            # unscoped entry. A book label inside an unfinished entry belongs to it.
+            next_key = fields[index + 1][0] if index + 1 < len(fields) else None
+            new_book = (key in ('book', 'book_id') and 'chapter_end' in current and next_key in current)
+            if key in current or new_book:
+                entries.append(current)
+                current = {}
+            current[key] = value
         if current:
             entries.append(current)
+        declared_books = {(row.get('book') or row.get('book_id')).casefold() for row in entries
+                          if row.get('book') or row.get('book_id')}
+        first_book_aliases = {'book-1'}
+        if unscoped_ok and book_id:
+            first_book_aliases.add(book_id.casefold())
+        ambiguous_legacy = bool(declared_books - first_book_aliases)
         for entry in entries:
-            entry_book = entry.get('book') or entry.get('book_id')
-            if book is not None:
-                if entry_book:
-                    if entry_book.strip().lower() != str(book).strip().lower():
-                        continue
-                elif not unscoped_ok:
-                    if skipped is not None:
-                        skipped.append({
-                            'character': char_name,
-                            'other_character': other,
-                            'reason': 'unscoped checkpoint skipped for ' + str(book),
-                            'source': path,
-                        })
-                    continue
             start_m = re.search(r'\d+', str(entry.get('chapter_start', '1')))
             start = int(start_m.group(0)) if start_m else 1
             end_raw = str(entry.get('chapter_end', '(open)')).strip().lower()
             end_m = re.search(r'\d+', end_raw)
             end = None if ('open' in end_raw or not end_m) else int(end_m.group(0))
-            if start <= chapter_num and (end is None or chapter_num <= end):
-                item = {
-                    'character': char_name,
-                    'other_character': other,
-                    'link_type': entry.get('link_type', ''),
-                    'chapter_start': start,
-                    'chapter_end': 'open' if end is None else end,
-                    'notes': entry.get('notes', ''),
-                    'source': path,
-                }
+            if start > chapter_num or (end is not None and chapter_num > end):
+                continue
+            entry_book = entry.get('book') or entry.get('book_id')
+            if book is not None:
                 if entry_book:
-                    item['book'] = entry_book.strip()
-                active.append(item)
+                    accepted_books = {label.casefold() for label in (book, book_id) if label}
+                    if entry_book.casefold() not in accepted_books:
+                        continue
+                elif ambiguous_legacy or not unscoped_ok:
+                    if skipped is not None:
+                        skipped.append({
+                            'character': char_name,
+                            'other_character': other,
+                            'chapter_start': start,
+                            'reason': ('ambiguous book for unscoped checkpoint in this pair; supply book or book_id'
+                                       if ambiguous_legacy else 'unscoped checkpoint skipped for ' + str(book)),
+                            'source': path,
+                        })
+                    continue
+            item = {
+                'character': char_name, 'other_character': other, 'link_type': entry.get('link_type', ''),
+                'chapter_start': start, 'chapter_end': 'open' if end is None else end,
+                'notes': entry.get('notes', ''), 'source': path,
+            }
+            if entry_book:
+                item['book'] = entry_book
+            if 'turn_scene' in entry:
+                value = entry['turn_scene'].strip()
+                match = re.fullmatch(r'(?:scene[- ]?)?([1-9]\d*)', value, re.I)
+                item['turn_scene'] = int(match[1]) if match else value.casefold()
+            active.append(item)
     return active
+
+
+def relationship_checkpoints_at_scene(checkpoints, chapter, scene_number):
+    """A turn changes the planned stance after the scene that earns it."""
+    incoming = {}
+    turns = []
+    unresolved = []
+    for point in checkpoints:
+        start = point['chapter_start']
+        turn = point.get('turn_scene')
+        if start == chapter:
+            if turn == scene_number:
+                turns.append(point)
+                continue
+            if isinstance(turn, int) and turn > scene_number:
+                continue
+            if (turn is None and start > 1) or (isinstance(turn, str) and turn != 'opening'):
+                unresolved.append(point)
+                continue
+        pair = (point['character'], point['other_character'])
+        order = (start, turn if isinstance(turn, int) else 0)
+        if pair not in incoming or incoming[pair][0] < order:
+            incoming[pair] = (order, point)
+    return [point for _, point in incoming.values()], turns, unresolved
 
 
 def _section_map(text, level=2):
@@ -321,7 +366,10 @@ def parse_theme(root):
     if not p.is_file():
         return None
     text = p.read_text(encoding='utf-8')
-    cq = re.search(r'^central_question:[ \t]*["\']?([^"\'\n]+)["\']?', text, re.M)
+    questions = dict(re.findall(r'^(thematic_question|central_question):[ \t]*(.+)$', text, re.M))
+    question = (questions.get('thematic_question') or questions.get('central_question') or '').strip()
+    if len(question) >= 2 and question[0] in "'\"" and question[-1] == question[0]:
+        question = question[1:-1].replace("''", "'") if question[0] == "'" else question[1:-1]
     motifs = []
     motif_sec = _section_map(text, level=2).get('motifs', '')
     for sub in re.finditer(r'^###[ \t]+([^\n]+)\n(.*?)(?=^###[ \t]+|\Z)', motif_sec, re.M | re.S):
@@ -334,7 +382,8 @@ def parse_theme(root):
     return {
         'path': 'Wiki/Story/theme.md',
         'sha256': digest(p),
-        'central_question': cq.group(1).strip() if cq else None,
+        'thematic_question': question or None,
+        'central_question': question or None,  # Legacy packet consumers.
         'motifs': motifs,
     }
 
@@ -348,17 +397,66 @@ def parse_surprise_ledger(root, book, ch_num):
     for sub in re.finditer(r'^##[ \t]+([^\n]+)\n(.*?)(?=^##[ \t]+|\Z)', text, re.M | re.S):
         heading = sub.group(1).strip()
         body = sub.group(2)
-        span = re.search(r'(\d+)\s*[–-]\s*(\d+)', heading)
-        if ch_num is not None and span and not (int(span.group(1)) <= ch_num <= int(span.group(2))):
-            continue
+        chapters = re.search(r'\bchapters?\s+([\d,\s–—-]+)', heading, re.I)
+        if chapters is None:  # Older headings may only give a bare range.
+            chapters = re.search(r'(\d+\s*[–-]\s*\d+)', heading)
+        if ch_num is not None and chapters:
+            ranges = re.findall(r'(\d+)(?:\s*[–—-]\s*(\d+))?', chapters[1])
+            if not any(int(first) <= ch_num <= int(last or first) for first, last in ranges):
+                continue
         lines = [line.strip() for line in body.splitlines() if line.strip().startswith('-')]
         if ch_num is not None:
-            ch_lines = [line for line in lines if re.search(rf'\bch(?:apter)?\.?\s*0*{ch_num}\b', line, re.I)
-                        or 'surprise inventory' in line.lower()]
-            lines = ch_lines or lines
+            selected = []
+            for line in lines:
+                # The first chapter after the entry label owns the turn. A later
+                # reference can point back to a setup in a different chapter.
+                target = re.match(r'^-\s*(?:\*{0,2}[^:*\n]+:\*{0,2}\s*)?ch(?:apter)?\.?\s*(\d+)\b',
+                                  line, re.I)
+                if target is None or int(target[1]) == ch_num:
+                    selected.append(line)
+            lines = selected
         if lines:
             entries.append({'act': heading, 'entries': lines})
     return {'path': str(p.relative_to(root)), 'sha256': digest(p), 'acts': entries} if entries else None
+
+
+def voice_roster(style_path):
+    roster = []
+    multi = False
+    if style_path and style_path.is_file():
+        sg_text = style_path.read_text(encoding='utf-8')
+        names = re.findall(r'^pov_\d+:[ \t]*["\']?([^"\'\n]+)', sg_text, re.M)
+        roster = list(dict.fromkeys(name.strip() for name in names if name.strip().lower() not in ('', 'none')))
+        multi = len(roster) > 1 or bool(re.search(r'^pov_mode:[ \t]*["\']?(?:dual|multi)\b', sg_text, re.M | re.I))
+    return roster, multi
+
+
+def voice_sources(root, pov_names, multi, roster):
+    voice_prompts = []
+    style_dir = root / 'Wiki' / 'Style'
+    watched = []
+    known_names = {name.casefold() for name in [*pov_names, *roster]}
+    first_names = Counter(name.split()[0] for name in known_names)
+    for pov in pov_names:
+        slug_full = re.sub(r'\s+', '_', pov.strip())
+        slug_first = slug_full.split('_')[0]
+        candidates = [slug_full, slug_full.lower()]
+        if first_names[slug_first.casefold()] == 1:
+            candidates.extend((slug_first, slug_first.lower()))
+        for slug in dict.fromkeys(candidates):
+            vp = path_at(root, style_dir / f'voice_prompt_{slug}.md')
+            watched.append(str(vp.relative_to(root)))
+            if vp.is_file():
+                voice_prompts.append({'pov': pov, 'path': str(vp.relative_to(root)), 'sha256': digest(vp)})
+                break
+    default_vp = style_dir / 'voice_prompt.md'
+    contrast_index = None
+    if multi and default_vp.is_file():
+        contrast_index = {'path': str(default_vp.relative_to(root)), 'sha256': digest(default_vp)}
+    if not multi and default_vp.is_file():
+        voice_prompts.append({'pov': 'default', 'path': str(default_vp.relative_to(root)), 'sha256': digest(default_vp)})
+    watched.append('Wiki/Style/voice_prompt.md')
+    return voice_prompts, contrast_index, list(dict.fromkeys(watched))
 
 
 def parse_voice_lenses(root, voice_prompts):
@@ -370,12 +468,14 @@ def parse_voice_lenses(root, voice_prompts):
         sections = _section_map(p.read_text(encoding='utf-8'), level=2)
         notice = sections.get('what they notice', '').strip()
         firewall = sections.get('language firewall', '').strip()
-        if notice or firewall:
+        anchors = sections.get('author-selected voice anchors', '').strip()
+        if notice or firewall or anchors:
             lenses.append({
                 'pov': vp['pov'],
                 'path': vp['path'],
                 'what_they_notice': notice[:600],
                 'language_firewall': firewall[:600],
+                'author_selected_anchors': anchors,
             })
     return lenses
 
@@ -436,6 +536,9 @@ def scene_contexts(text, psych_povs, roster, multi):
             'subplot_threads': ([t.strip() for t in thr_m.group(1).split(',') if t.strip()]
                                 if thr_m else ch_threads),
         }
+        ledger_id = re.search(r'^[ \t]*(?:- )?(?:\*\*)?scene id:(?:\*\*)?[ \t]*([^\n]+)', body, re.M | re.I)
+        if ledger_id:
+            scope['ledger_scene_id'] = ledger_id[1].strip()
         for field in ('story_order', 'reader_order'):
             label = field.replace('_', ' ')
             match = re.search(rf'^[ \t]*(?:-[ \t]+)?(?:\*\*)?{label}:(?:\*\*)?[ \t]*(\d+)[ \t]*$',
@@ -475,6 +578,82 @@ def scene_knowledge(root, book, chapter_num, scene, args, *, global_ledger, lega
         if known:
             result[observer] = known
     return result
+
+
+def repetition_candidates(root, trail_chapters, window, style_path, scene_break):
+    keeps = []
+    if style_path and style_path.is_file():
+        section = _section_map(style_path.read_text(encoding='utf-8')).get('cooling list keeps', '')
+        keeps = [line[2:].strip() for line in section.splitlines() if line.startswith('- ') and line[2:].strip()]
+    # Literal project phrases and multiword names break candidate spans.
+    protected = [r'(?<!\w)' + re.escape(phrase) + r'(?!\w)' for phrase in keeps]
+    names = r"\b[A-Z][\w’'-]*(?:[ \t]+[A-Z][\w’'-]*)+\b"
+    protected_pattern = re.compile('|'.join([*(f'(?i:{phrase})' for phrase in protected), names]))
+    counts = {kind: Counter() for kind in ('somatic_hotspots', 'repeated_ngrams', 'repeated_similes')}
+    examples = {kind: defaultdict(list) for kind in counts}
+    openers, closers = [], []
+
+    def record(kind, key, chapter_path, context):
+        counts[kind][key] += 1
+        samples = examples[kind][key]
+        sample = {'path': chapter_path, 'quote': context}
+        if len(samples) < 2 and sample not in samples:
+            samples.append(sample)
+
+    for chapter in trail_chapters:
+        path = path_at(root, chapter['path'])
+        if not path.is_file():
+            continue
+        lines = prose_lines(path, scene_break)
+        location = {'chapter': chapter.get('display_label', chapter['id']), 'chapter_id': chapter['id']}
+        sentences = [sentence.strip() for line in lines for sentence in re.split(r'(?<=[.!?])\s+', line)
+                     if sentence.strip()]
+        substantive = [sentence for sentence in sentences if len(sentence.split()) >= 3]
+        if substantive:
+            openers.append({**location, 'opener': ' '.join(substantive[0].split()[:6])})
+            closers.append({**location, 'closer': substantive[-1]})
+        for sentence in sentences:
+            for span in protected_pattern.split(sentence):
+                tokens = re.findall(r"[^\W\d_]+(?:[’'][^\W\d_]+)*", span.casefold())
+                for word in tokens:
+                    if word in SOMATIC_TOKENS:
+                        record('somatic_hotspots', word, chapter['path'], sentence)
+                for i in range(len(tokens) - 2):
+                    triple = tokens[i:i + 3]
+                    if sum(word not in STOP_WORDS for word in triple) >= 2:
+                        record('repeated_ngrams', ' '.join(triple), chapter['path'], sentence)
+                for match in re.finditer(r'\b(?:like\s+(?:a|an|the)\s+[a-z]+\s+[a-z]+|as\s+if\s+[a-z]+\s+[a-z]+\s+[a-z]+)', span.casefold()):
+                    record('repeated_similes', ' '.join(match[0].split()), chapter['path'], sentence)
+    result = {'window_chapters': window, 'recent_openers': openers, 'recent_closers': closers}
+    for kind, label, cap in [('somatic_hotspots', 'word', None), ('repeated_ngrams', 'ngram', 20),
+                             ('repeated_similes', 'phrase', 15)]:
+        ordered = sorted(counts[kind].items(), key=lambda pair: (-pair[1], pair[0]))
+        result[kind] = [{label: key, 'count': count, 'examples': examples[kind][key]}
+                        for key, count in ordered if count >= 2][:cap]
+    return result
+
+
+def supported_irony(knowledge_by_observer, pov):
+    """Keep confirmed differences distinct from exposure and incomplete ledger coverage."""
+    def observed(observer):
+        entry = knowledge_by_observer.get(observer, {})
+        if entry.get('status') == 'CHRONOLOGY_UNRESOLVED':
+            return {}
+        # Series events sit under state. Legacy per-book ledgers return a fact map.
+        return entry.get('state', entry)
+
+    reader, character = observed('reader'), observed(pov)
+    differences = []
+    for fact_id, event in sorted(reader.items()):
+        if not isinstance(event, dict) or event.get('state') != 'knows' or event.get('truth_status') != 'true':
+            continue
+        opposing = character.get(fact_id)
+        if not isinstance(opposing, dict) or opposing.get('state') not in ('disbelieves', 'forgets'):
+            continue
+        differences.append({'fact_id': fact_id, 'reader_state': event['state'], 'truth_status': event['truth_status'],
+                            'pov_state': opposing['state'], 'source': event['source'], 'quote': event['quote'],
+                            'pov_source': opposing['source'], 'pov_quote': opposing['quote']})
+    return differences
 
 
 def draft_packet(root, args):
@@ -536,47 +715,31 @@ def draft_packet(root, args):
 
     style_authority = project_manifest_module().resolve_style_guide(root, book)
     style_path = path_at(root, style_authority['path']) if style_authority.get('status') == 'RESOLVED' else None
-    roster = []
-    multi = False
-    if style_path and style_path.is_file():
-        sg_text = style_path.read_text(encoding='utf-8')
-        names = re.findall(r'^pov_\d+:[ \t]*["\']?([^"\'\n]+)', sg_text, re.M)
-        roster = list(dict.fromkeys(name.strip() for name in names if name.strip().lower() not in ('', 'none')))
-        multi = len(roster) > 1 or bool(re.search(r'^pov_mode:[ \t]*["\']?(?:dual|multi)\b', sg_text, re.M | re.I))
+    roster, multi = voice_roster(style_path)
     scenes = scene_contexts(stext, psych_povs, roster, multi)
     pov_names = list(dict.fromkeys(scene['pov'] for scene in scenes if scene['pov']))
     multi = multi or len(pov_names) > 1
     if scene_info:
         scene_info.update(scene_count=len(scenes), pov_characters=pov_names)
-    voice_prompts = []
-    seen_vp = set()
-    style_dir = root / 'Wiki' / 'Style'
-    for pov in pov_names:
-        slug_full = re.sub(r'\s+', '_', pov.strip())
-        slug_first = slug_full.split('_')[0]
-        for cand_name in (f'voice_prompt_{slug_full}.md', f'voice_prompt_{slug_first}.md',
-                          f'voice_prompt_{slug_full.lower()}.md', f'voice_prompt_{slug_first.lower()}.md'):
-            vp = path_at(root, style_dir / cand_name)
-            if vp.is_file() and vp not in seen_vp:
-                seen_vp.add(vp)
-                voice_prompts.append({'pov': pov, 'path': str(vp.relative_to(root)), 'sha256': digest(vp)})
-                break
-    default_vp = style_dir / 'voice_prompt.md'
-    if not multi and default_vp.is_file() and default_vp not in seen_vp:
-        voice_prompts.append({'pov': 'default', 'path': str(default_vp.relative_to(root)), 'sha256': digest(default_vp)})
+    voice_prompts, contrast_index, _ = voice_sources(root, pov_names, multi, roster)
 
     checkpoints = []
+    skipped_checkpoints = []
     char_dir = root / 'Wiki' / 'Characters'
     if char_dir.is_dir() and ch_num is not None:
         unscoped_ok = book.strip().lower() == 'book-1'
         for cf in sorted(char_dir.glob('*.md')):
             if cf.stem.endswith('_sheet'):
                 continue
-            for cp in parse_checkpoints(cf, ch_num, book=book, unscoped_ok=unscoped_ok):
+            for cp in parse_checkpoints(cf, ch_num, book=book, book_id=book_record['id'],
+                                        unscoped_ok=unscoped_ok, skipped=skipped_checkpoints):
                 cp['source'] = str(cf.relative_to(root))
                 cp['source_sha256'] = digest(cf)
                 checkpoints.append(cp)
+    for item in skipped_checkpoints:
+        item['source'] = str(item['source'].relative_to(root))
 
+    scene_break = book_record.get('chapter_format', {}).get('scene_break', '* * *')
     continuity_tail = None
     predecessor_id = resolver.predecessor(book_record, chapter_record)
     predecessor = next((item for item in book_chapters if item.get('id') == predecessor_id), None)
@@ -587,7 +750,7 @@ def draft_packet(root, args):
     if predecessor_path:
         prev_ch = path_at(root, predecessor_path)
         if prev_ch.is_file():
-            plines = prose_lines(prev_ch)
+            plines = prose_lines(prev_ch, scene_break)
             all_words = ' '.join(plines).split()
             tail_words = ' '.join(all_words[-400:]) if all_words else ''
             closing_sentence = ''
@@ -603,78 +766,8 @@ def draft_packet(root, args):
                 'closing_sentence': closing_sentence,
             }
 
-    somatic_counts = {}
-    ngram_counts = {}
-    simile_counts = {}
-    recent_openers = []
-    recent_closers = []
     trail_chapters = book_chapters[max(0, chapter_index - window):chapter_index]
-    for trail in trail_chapters:
-        t_path = path_at(root, trail['path'])
-        if not t_path.is_file():
-            continue
-        t_lines = prose_lines(t_path)
-        if not t_lines:
-            continue
-        first_w = []
-        for l in t_lines:
-            w = re.findall(r"[A-Za-z][A-Za-z']+", l)
-            if len(w) >= 3:
-                first_w = w[:6]
-                break
-        if first_w:
-            recent_openers.append({'chapter': trail.get('display_label', trail['id']), 'chapter_id': trail['id'],
-                                   'opener': ' '.join(first_w)})
-        last_s = ''
-        for l in reversed(t_lines):
-            sents = [s.strip() for s in re.split(r'(?<=[.!?])\s+', l) if len(s.split()) >= 3]
-            if sents:
-                last_s = sents[-1]
-                break
-        if last_s:
-            recent_closers.append({'chapter': trail.get('display_label', trail['id']), 'chapter_id': trail['id'],
-                                   'closer': last_s})
-
-        prose_blob = ' '.join(t_lines)
-        tokens = [w.lower() for w in re.findall(r"[A-Za-z][A-Za-z']+", prose_blob)]
-        ch_somatic = {}
-        for tok in tokens:
-            if tok in SOMATIC_TOKENS:
-                ch_somatic[tok] = ch_somatic.get(tok, 0) + 1
-                somatic_counts[tok] = somatic_counts.get(tok, 0) + 1
-        for tok, c in ch_somatic.items():
-            if c >= 2 and somatic_counts[tok] < 3:
-                somatic_counts[tok] = 3
-
-        for i in range(len(tokens) - 2):
-            tri = tokens[i:i + 3]
-            if sum(1 for w in tri if w not in STOP_WORDS) >= 2:
-                key = ' '.join(tri)
-                ngram_counts[key] = ngram_counts.get(key, 0) + 1
-
-        for sm in re.finditer(r'\b(?:like\s+(?:a|an|the)\s+[a-z]+\s+[a-z]+|as\s+if\s+[a-z]+\s+[a-z]+\s+[a-z]+)', prose_blob.lower()):
-            phrase = re.sub(r'\s+', ' ', sm.group(0).strip())
-            simile_counts[phrase] = simile_counts.get(phrase, 0) + 1
-
-    cooling_list = {
-        'window_chapters': window,
-        'somatic_hotspots': [
-            {'word': k, 'count': v}
-            for k, v in sorted(somatic_counts.items(), key=lambda x: (-x[1], x[0]))
-            if v >= 3
-        ],
-        'repeated_ngrams': [
-            {'ngram': k, 'count': v}
-            for k, v in sorted(ngram_counts.items(), key=lambda x: (-x[1], x[0]))
-            if v >= 2
-        ][:20],
-        'repeated_similes': [
-            {'phrase': k, 'count': v}
-            for k, v in sorted(simile_counts.items(), key=lambda x: (-x[1], x[0]))
-        ][:15],
-        'recent_openers': recent_openers,
-        'recent_closers': recent_closers,
-    }
+    cooling_list = repetition_candidates(root, trail_chapters, window, style_path, scene_break)
 
     ledger_store = ledger_store_module()
     global_knowledge = ledger_store.load_ledger(root, 'Wiki/Story/knowledge-events.json') is not None
@@ -689,24 +782,11 @@ def draft_packet(root, args):
                              global_ledger=global_knowledge,
                              legacy_ledger=legacy_knowledge, first=index == 0)
         scene['knowledge_as_of'] = kn
-        scene['dramatic_irony'] = []
-        pov = scene.get('pov')
-        if pov and isinstance(kn.get('reader'), dict) and isinstance(kn.get(pov), dict):
-            r_state = kn['reader'].get('state', kn['reader']) if 'state' in kn['reader'] and isinstance(kn['reader'].get('state'), dict) else {}
-            p_state = kn[pov].get('state', kn[pov]) if 'state' in kn[pov] and isinstance(kn[pov].get('state'), dict) else {}
-            for fact_id, r_ev in sorted(r_state.items()):
-                if not isinstance(r_ev, dict) or r_ev.get('state') not in ('knows', 'exposed'):
-                    continue
-                p_ev = p_state.get(fact_id)
-                p_val = p_ev.get('state') if isinstance(p_ev, dict) else 'unknown'
-                if p_val in ('unknown', 'disbelieves', 'forgets'):
-                    scene['dramatic_irony'].append({
-                        'fact_id': fact_id,
-                        'reader_state': r_ev.get('state'),
-                        'pov_state': p_val,
-                        'quote': r_ev.get('quote', ''),
-                        'note': 'Stage active dramatic tension without letting POV prematurely deduce or state this secret.',
-                    })
+        scene['dramatic_irony'] = supported_irony(kn, scene['pov']) if scene['pov'] else []
+        scene_number = int(scene['id'].removeprefix('scene-'))
+        current, turns, uncertain = relationship_checkpoints_at_scene(checkpoints, ch_num, scene_number)
+        scene.update(relationship_checkpoints=current, relationship_turns=turns,
+                     relationship_timing_unresolved=uncertain)
         scene['editorial_decisions'] = [item for item in decisions
                                         if decision_applies(item, book_ids, chapter_ids, scene['pov'],
                                                             chapter_path=chapter_record['path'])]
@@ -714,14 +794,18 @@ def draft_packet(root, args):
     relationship_as_of = []
     relationship_events = ledger_store.load_ledger(root, 'Wiki/Story/relationship-events.json')
     if relationship_events is not None:
-        if getattr(args, 'story_order', None) is None:
-            relationship_as_of = [{'status': 'CHRONOLOGY_UNRESOLVED', 'reason':
-                                   'relationship event records exist but this packet has no explicit story order'}]
-        else:
-            for pov in pov_names:
-                query = argparse.Namespace(action='as-of', observer=pov, other=None,
-                                           position=args.story_order, scene_id=getattr(args, 'scene_id', None))
-                relationship_as_of.append(relationship_state(root, query))
+        for index, scene in enumerate(scenes):
+            position = scene.get('story_order', getattr(args, 'story_order', None) if index == 0 else None)
+            if position is None or scene['pov'] is None:
+                result = {'status': 'CHRONOLOGY_UNRESOLVED', 'reason': 'scene needs a viewpoint and story order'}
+            else:
+                query = argparse.Namespace(action='as-of', observer=scene['pov'], other=None, position=position,
+                                           scene_id=scene.get('ledger_scene_id') or
+                                           (getattr(args, 'scene_id', None) if index == 0 else None) or scene['id'],
+                                           book_ids=book_ids)
+                result = relationship_state(root, query)
+            scene['relationship_state_as_of'] = result
+            relationship_as_of.append(result)
 
     formatting = chapter_format_module().audit(book_record, texts, selected=chapter_record['id'])
     keys = (scene_info or {}).get('continuity_keys', []) + (getattr(args, 'key', None) or [])
@@ -745,11 +829,14 @@ def draft_packet(root, args):
         'style_policy': style_policy(root, policy_ns),
         'voice_prompts': voice_prompts,
         'pov_lenses': parse_voice_lenses(root, voice_prompts),
+        'voice_contrast_index': contrast_index,
         'relationship_checkpoints': checkpoints,
+        'unscoped_relationship_checkpoints': skipped_checkpoints,
         'relationship_state_as_of': relationship_as_of,
         'continuity_tail': continuity_tail,
         'chapter_format': formatting['contract'],
         'continuity': continuity_report(root, book_record, texts, chapter=chapter_record, keys=keys),
+        'promises': promise_context(root, book_record, chapter_record),
         'knowledge_as_of': scenes[0]['knowledge_as_of'],
         'editorial_decisions': list({item['id']: item for scene in scenes
                                      for item in scene['editorial_decisions']}.values()),

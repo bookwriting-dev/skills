@@ -1,0 +1,12 @@
+{
+  "name": "storycraft-local",
+  "interface": {"displayName": "Storycraft Local"},
+  "plugins": [
+    {
+      "name": "storycraft",
+      "source": {"source": "local", "path": "./storycraft"},
+      "policy": {"installation": "AVAILABLE", "authentication": "ON_INSTALL"},
+      "category": "Productivity"
+    }
+  ]
+}

@@ -368,7 +368,7 @@
       ],
       "defect_spans": [],
       "rationale": "Preserve asymmetric dialogue deflection where a question is answered with pressure instead of compliance.",
-      "rules": "Dialogue is action under pressure; avoid 3+ consecutive cooperative question-answer interview pairs.",
+      "rules": "The ledger is sensitive. Evaluate what each answer costs the speaker or changes for the listener.",
       "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
@@ -380,8 +380,8 @@
       "defect_spans": [
         "\u201cWhat is the code?\u201d \u201cFour-nine-two.\u201d \u201cWhy tell me?\u201d \u201cBecause you asked.\u201d"
       ],
-      "rationale": "Repair three consecutive cooperative Q&A pairs that flatten speaker stakes into an interview.",
-      "rules": "Dialogue is action under pressure; avoid 3+ consecutive cooperative question-answer interview pairs.",
+      "rationale": "The speaker gives away the code with no established reason to grant access.",
+      "rules": "The ledger is sensitive. Evaluate what each answer costs the speaker or changes for the listener.",
       "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
@@ -394,7 +394,7 @@
       ],
       "defect_spans": [],
       "rationale": "Preserve earned micro-friction where the turn costs a concrete price before access is granted.",
-      "rules": "Every scene turn requires micro-friction (a failed tactic, deflection, or raised cost) rather than instant cooperative concession.",
+      "rules": "The parties have competing interests. Assess what changes to make access possible in this encounter.",
       "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
@@ -407,7 +407,7 @@
         "immediately handed it over with a helpful explanation of his plan"
       ],
       "rationale": "Repair un-earned cooperative concession that bypasses scene resistance.",
-      "rules": "Every scene turn requires micro-friction (a failed tactic, deflection, or raised cost) rather than instant cooperative concession.",
+      "rules": "The parties have competing interests. Assess what changes to make access possible in this encounter.",
       "split": "calibration",
       "label_status": "provisional-needs-author-review"
     },
@@ -492,7 +492,7 @@
         "\u201cWho holds the key?\u201d \u201cThe clerk.\u201d \u201cWill he open it?\u201d \u201cYes.\u201d",
         "which was the exact secret he had sworn never to mention."
       ],
-      "rationale": "Flag ungrammatical fragment, three consecutive cooperative Q&A pairs creating an interview exchange, and flat narration of an unsaid secret.",
+      "rationale": "Flag ungrammatical fragment, an unsupported assurance that the clerk will grant access, and flat narration of an unsaid secret.",
       "rules": "Close limited POV (Ren); repair broken fragments, inert Q&A interviews, and narrated exposition of What they won't say secrets.",
       "split": "held_out",
       "label_status": "provisional-needs-author-review"

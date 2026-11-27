@@ -1,9 +1,11 @@
 {
   "title": "Working title",
   "premise": "2-3 sentences: who the protagonists are, what brings them together, what each wants from the arrangement, and the central irony or collision",
-  "central_question": "The question the story asks through its events — stated as a question",
+  "dramatic_question": "The concrete outcome the reader follows",
+  "thematic_question": "The question about values that the outcome explores",
+  "structure_form": "The book’s chosen organization, such as three acts, five movements or alternating letters and hearings",
   "reader_promise": "1-2 spoiler-light sentences: the emotional and genre experience promised, the sustaining tension, and the satisfaction the ending owes",
-  "story_answer": "1-2 spoiler-containing sentences: how the protagonist's final choice and the outcome answer the central question",
+  "story_answer": "One or two spoiler-containing sentences: the outcome or experience delivered, its cost, and any deliberately open interpretation",
   "trope_payoff_plan": {
     "snake_case_trope_identifier": {
       "role": "Role copied from the genre file",
@@ -23,20 +25,13 @@
     "how_the_deal_forms": "What each party believes they are getting",
     "what_each_is_hiding": "The information or intent each conceals from the other at the start"
   },
-  "act_1": {
-    "shape": "What happens across the first act. Tone, what each character is doing, what is being withheld. 3-5 sentences.",
-    "ends_with": "The exact state of play at the act break — what each character knows, has, and wants. 1-2 sentences."
-  },
-  "act_2": {
-    "shape": "What happens across the second act. Escalation, complication, what changes. 3-5 sentences.",
-    "midpoint": "The specific event that reframes everything — what shifts and why it can't be undone. 1-2 sentences.",
-    "ends_with": "State of play at the act break. 1-2 sentences."
-  },
-  "act_3": {
-    "shape": "What happens in the final act. How the antagonist falls, how the relationship resolves, what is chosen. 3-5 sentences.",
-    "payoff": "The concrete climax or resolution that fulfills the reader promise and demonstrates the story answer. 1-2 sentences.",
-    "ends_with": "The final image or state. Where each character is, what has changed. 1-2 sentences."
-  },
+  "movements": [
+    {
+      "name": "Use the movement’s name in the chosen form",
+      "shape": "Whose act or observation changes the situation or the reader’s understanding",
+      "ends_with": "What this contributes to the next movement or the ending"
+    }
+  ],
   "open_threads": [
     "Unresolved element that carries into a sequel or sits at the edge of the story's resolution"
   ],

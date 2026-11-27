@@ -64,6 +64,8 @@ For manuscript prose, follow the book’s established voice, `register_preset`, 
 
 There are two doors into a book project:
 
+For a batch of novel-length premises, ask `fiction-story-sparks` for novel-scale ideas.
+
 ### Try an opening scene
 
 “Try my opening scene” routes to the trial mode of `fiction-writechapter`. Use the premise, viewpoint, and difficult choice to write one sample in `_Intake/Book-N/`. An explicit request to promote the sample starts normal chapter planning and review.
@@ -78,14 +80,14 @@ For novellas or discovery writers who want prose on the page before a 13-step bi
 2. Run the planning skills in order. They check `_Intake/` first and pre-populate context rather than interrogating you in a vacuum:
    1. `fiction-genre` → `Wiki/Style/genre.md`
    2. `fiction-audience` → `Wiki/Style/audience.md`
-   3. `fiction-theme` → `Wiki/Story/theme.md`
-   4. `fiction-synopsis` → `Wiki/Story/synopsis.md`
+   3. `fiction-theme` → `Wiki/Story/theme.md` (the question readers can debate)
+   4. `fiction-synopsis` → `Wiki/Story/synopsis.md` (the concrete dramatic question, its outcome, and the author’s chosen structure)
    5. `fiction-series-outline` → `Wiki/Story/series-arc.md` (at series inception; refresh before planning each later book)
    6. `fiction-characters` → `Wiki/Characters/`
    7. `fiction-world` (uses `Wiki/World/{Places,Factions,Systems,Events}/`, plus `fiction-places` / `fiction-factions` / `fiction-polities` / `fiction-religions` as needed)
    8. `litrpg-system` → `Wiki/World/Systems/` + character sheets + `ledger.yaml` (if writing LitRPG or Progression Fantasy)
    9. `fiction-style` + `fiction-voiceprompt` (sets `register_preset` + writes `style_guide.md`, `review_guide.md`, `voice_prompt.md`, and per-POV `voice_prompt_<Name>.md` files before scene/interior planning)
-   10. `fiction-outline` → `Wiki/Outline/Book-N/outline.md` (supports `--from-chapter K` mid-book re-outlining)
+   10. `fiction-outline` → `Wiki/Outline/Book-N/outline.md` (plan consequential moves by key supporting characters within the chosen structure. Supports `--from-chapter K` mid-book re-outlining)
    11. `fiction-divergence` → beat-the-defaults pass over the outline, plus the per-act `surprise-ledger.md`
    12. `fiction-scenes` → chapter beat plans (assigning `cadence_role`, `subplot_threads`, `dramatic_irony` leverage, and slicing active `relationship_checkpoints`)
    13. `fiction-psych` → `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (interior costs aligned to each scene's beats and POV voice prompt)
@@ -157,7 +159,7 @@ Route editing and review tasks using this decision tree:
 - **Chapter gate (default review):** `fiction-reviewchapter` for a full review of a finished draft; `gate-check` for the lighter checklist gate over the same pillars — and it is the one `chapter-pipeline` runs. Both cover canon assertions, Chekhov setups, character consistency, prose rules, and (for LitRPG) progression continuity.
 - **LitRPG progression / stat continuity:** `litrpg-audit`. Deterministic mechanical check of stat point math, level curves, and skill unlocks against `ledger.yaml`. Also runs inside `gate-check`.
 - **Dialogue-only failure (samey, interview-like, expository):** `fiction-dialogue`. Diagnose conversation architecture and speaker stakes before diction.
-- **Blind POV / voice test:** `coldread`. Read-only, run in isolation before rule-loaded review so house rules do not prime the reader.
+- **Blind POV / voice test:** `coldread`. For recognition, give the reader unlabeled excerpts. Seal their characterizations and the words that suggested them before revealing the intended voices.
 - **Loose ends and unpaid setups:** `fiction-promises`. Audits the per-book Chekhov ledger (`promises.yaml`).
 - **Sentence-level revision (default):** `fiction-full-editor`. Scans micro-level craft, AI-isms, and line edits in one pass. Use layer-specific scanners (`fiction-line-editor`, `fiction-prose-editor`, `fiction-aiism-editor`) only when specifically targeting that single layer.
 - **Applying approved review/edit fixes:** `fiction-revise`. Applies user-approved items from `_Edits/` reports in place with strict quote verification, minimal perturbation, and a change ledger.

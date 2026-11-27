@@ -3,7 +3,7 @@ name: fiction-psych
 description: "Generate a chapter-level psychological interior pass (start state, beat-by-beat interior cost, end state, show-don't-tell gaps) saved to Wiki/Psych/Book-N/Chapter_[NN]_Psych.md from scene plans, outline beats, and POV voice/character files. Use after fiction-style, fiction-voiceprompt, and fiction-scenes, or to refresh interior layers."
 metadata:
   author: Fiction Toolkit
-  version: "2.3.0"
+  version: "2.4.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -28,11 +28,11 @@ Find the project's `Wiki/` folder by searching for `**/Wiki/Outline/**/outline.m
 
 All inputs come from the project's `Wiki/` folder. Read:
 
-- The resolved book outline (`Wiki/Outline/Book-N/outline.md`): chapter entries with `what_must_happen`, `premise_movement`, `question_pressure`, `cadence_role`, and `ends_with`
+- The resolved book outline (`Wiki/Outline/Book-N/outline.md`): chapter entries in the chosen movements or strands, with `what_must_happen`, `premise_movement`, `question_pressure`, `cadence_role`, and `ends_with`
 - The chapter's scene plan (`Wiki/Outline/Book-N/Chapter_[NN]_Scene.md`, if present): per-scene POV assignments, beats, turns, and interior targets
 - `Wiki/Characters/*.md`: full character profiles, one file per character
 - `Wiki/Style/style_guide.md` and `Wiki/Style/voice_prompt*.md` (also accept legacy `Wiki/Style/Style Guide.md`): craft rules, `register_preset`, and POV perceptual lens / expression boundaries
-- `Wiki/Story/theme.md`: motifs, central question
+- `Wiki/Story/theme.md`: motifs, thematic question (legacy central_question)
 
 Create the `Wiki/Psych/Book-N/` folder if it doesn't exist.
 

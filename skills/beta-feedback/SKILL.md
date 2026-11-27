@@ -1,16 +1,16 @@
 ---
 name: beta-feedback
-description: "Build reader-specific changed-scene reread packets and import comments returned by real beta readers from a Storycraft beta DOCX or pasted notes. Use when a writer asks to import beta-reader comments, review returned Word comments, group beta feedback, or turn selected beta feedback into revision tasks."
+description: "Import real beta readers' Word comments and pasted notes, including book-wide reactions, chapter ranges and strengths. Use for reader-specific changed-scene rereads, beta feedback summaries, and author-selected diagnoses or passage repairs."
 metadata:
   author: Storycraft Skills
-  version: "1.4.0"
-  bundled-dependencies: book-status, compile-manuscript, revision-campaign
+  version: "1.5.0"
+  bundled-dependencies: book-status, compile-manuscript, fiction-dev-editor, revision-campaign
   category: cross-cutting
 ---
 
 # Beta Feedback
 
-Match real reader feedback to the archived beta edition they saw. Keep reader comments verbatim and carry their origin and exact quoted passage into any selected revision task.
+Match each real reader's feedback to the archived beta edition they saw. Keep their words, edition and stated scope together. A reader can describe losing interest across an act without supplying a line number.
 
 ## Resolve the edition
 
@@ -18,14 +18,35 @@ Use the book, returned DOCX, or notes named by the writer. Open the frozen reade
 
 ## Import and report
 
-Run [beta_feedback.py](scripts/beta_feedback.py) with Python 3 and the arguments --root ROOT --book Book-N --export ID. For returned Word comments add --docx FILE. A bookmarked DOCX supplies its own ID if --export is omitted. For pasted notes copy the original quoted text and comment into a JSON file with schema_version 1, reader, and a notes array. Each note has comment and may have quote, chapter, and an explicit anchor. Put this input file in a temporary directory and pass --notes FILE. To list saved notes, use the edition ID alone.
+Run [beta_feedback.py](scripts/beta_feedback.py) with Python 3 and the arguments `--root ROOT --book Book-N --export ID`. For returned Word comments add `--docx FILE`. A bookmarked DOCX supplies its own ID if `--export` is omitted. For pasted notes, copy the original comment and any quoted text into a temporary JSON file and pass `--notes FILE`. Use the edition ID alone to list saved notes.
 
-The helper updates the book's feedback record and groups anchored comments by passage. Summarize recurring reactions with the source chapter and feedback IDs. Preserve individual disagreements. Report general observations and unresolved or ambiguous locations with their reader's words. Ask for a chapter, longer quote, or returned copy only when it would resolve an ambiguous anchor.
+```json
+{
+  "schema_version": 1,
+  "reader": "Nora",
+  "notes": [
+    {"comment": "I forgot why the sisters still needed each other."},
+    {"chapter_range": ["Chapter 8", "Chapter 14"], "comment": "I kept waiting for Nell to make a different choice."},
+    {"chapter": "Chapter 20", "kind": "strength", "comment": "I loved that they washed the dishes together."},
+    {"chapter": "Chapter 8", "quote": "Clara locked the door.", "comment": "Which door is this?"}
+  ]
+}
+```
+
+An unquoted observation may cover the book, one chapter, or a contiguous range. Use chapter IDs, display labels, filenames without extensions, or project-relative chapter paths from the archived edition. The [scope resolver](scripts/feedback_scope.py) uses that edition's reading order. An explicit `"scope": "book"` or `chapter_range` can accompany a supporting `quote` or `anchor`. A quote must resolve uniquely or match its bookmark. Keep unresolved evidence visible and ask for clarification when it would help locate it.
+
+Report recurring reactions and disagreements using the verbatim comments, reader names and feedback IDs. The CLI returns `groups` for passages and `scope_groups` for broader observations. Readers who comment on the same section may have different reactions there. Identify the successful passages or effects readers want to keep.
 
 ## Hand off selected feedback
 
-Use --campaign RUN --select FEEDBACK_ID, repeating --select for each item the writer selected. The helper checks the anchor against the current manuscript and creates pending chapter tasks for [revision-campaign](../revision-campaign/SKILL.md). Report the task IDs and any passage requiring reconciliation. Apply edits only when the writer authorizes the revision itself.
+Use `--campaign RUN` and repeat the relevant selection flag for each comment the writer chose.
+
+- `--select FEEDBACK_ID` creates a pending, read-only [developmental diagnosis](../fiction-dev-editor/SKILL.md) for a book, chapter, or range observation. Read those chapters in order, cite the scene that sets up the expectation and the later choice or payoff, and check whether the current edition still produces that effect. Return the possible repair and the passages worth keeping. For a verified passage observation, selection plans a local repair and rechecks the quotation if the chapter has changed.
+- `--diagnose FEEDBACK_ID` lets the writer select a margin comment for broader investigation. The investigation uses the note's stated scope or the whole book for a passage-only comment. Add `--chapter-range FIRST LAST` to give these diagnoses a specific range. The original margin anchor and reader's words stay attached.
+- `--preserve FEEDBACK_ID` carries the comment into the campaign as a strength. Selecting a note already marked `"kind": "strength"` does the same. Quote what worked and protect that effect when considering a repair.
+
+Report the planned [revision-campaign](../revision-campaign/SKILL.md) tasks and preservation constraints. Overlapping passage repairs follow the structural diagnosis. Selection authorizes planning. Author approval of a diagnosis allows reading and reporting. Apply a proposed manuscript change when the writer authorizes that revision.
 
 ## Returning beta readers
 
-For each recipient, run the helper with --export EARLIER_ID --reread-to REVISED_ID --reader "Name". [reread.py](scripts/reread.py) compares the two frozen full-book beta exports. Share the resulting reread.docx or reread.epub. Keep the passage map and manifest with the coordinator. The packet includes every new or revised scene, explains moves or removals, and quotes that recipient's earlier comments verbatim. When an excerpt links to an omitted passage, the packet identifies its location in the full beta. Uncertain scene matches and unlocated notes retain their labels. For a returned Word packet use --docx FILE. For pasted EPUB comments use --export PACKET_ID --notes FILE. The importer saves the reaction against the archived revised manuscript edition, including when drafting has continued.
+For each recipient, run the helper with `--export EARLIER_ID --reread-to REVISED_ID --reader "Name"`. [reread.py](scripts/reread.py) compares the two frozen full-book beta exports. Share the resulting reread.docx or reread.epub. Keep the passage map and manifest with the coordinator. The packet includes every new or revised scene, explains moves or removals, and quotes that recipient's earlier comments and strengths with their passage or broader scope. When an excerpt links to an omitted passage, the packet identifies its location in the full beta. Uncertain scene matches and unlocated notes retain their labels. For a returned Word packet use `--docx FILE`. For pasted EPUB comments use `--export PACKET_ID --notes FILE`. The importer saves the reaction against the archived revised manuscript edition with the packet ID. Describe the input as changed-scene excerpts when reporting what that reader reread.

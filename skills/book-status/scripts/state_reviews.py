@@ -4,10 +4,12 @@ from pathlib import Path
 import re
 
 import editions
+from chapter_format import DEFAULT_SCENE_BREAK, metadata as chapter_metadata
+from state_packets import pov_labels, voice_roster, voice_sources
 import state_projections as projections
 from state_core import (
-    VERSION, digest, evidence, load, locked, manuscript_texts, now, path_at,
-    project_manifest_module, write,
+    PLUGIN_SKILL_INPUT, PLUGIN_VERSION, VERSION, digest, evidence, load, locked, manuscript_texts, now,
+    path_at, plugin_skill_input, project_manifest_module, write,
 )
 
 
@@ -69,6 +71,9 @@ def freshness(root, meta):
     reasons = []
     for item in m['inputs']:
         if projections.current_input(root, item) != item:
+            if item.get('kind') == PLUGIN_SKILL_INPUT:
+                reasons.append('changed plugin review skill: ' + item['path'])
+                continue
             label = f" ({item['projection']} as of chapter)" if item.get('kind') == projections.PROJECTION else ''
             reasons.append('changed input: ' + item['path'] + label)
     if digest(path_at(root, m['report'])) != m.get('report_sha256'):
@@ -356,6 +361,7 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
         ])
     plan_candidates.append(f'Wiki/Outline/{book_label}/plan.md')
     plan_path = plan_candidates[-1]
+    chapter_plan = None
     for cand in plan_candidates:
         if path_at(root, cand).is_file():
             if cand == plan_path:
@@ -363,6 +369,7 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
                 projected.append(projections.make(root, 'plan', cand, chapter_number=chapter_number))
             else:
                 paths.append(cand)
+                chapter_plan = path_at(root, cand)
             break
 
     psych_candidates = ([chapter_record['psych_path']] if chapter_record.get('psych_path') else [])
@@ -379,6 +386,19 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
     style_auth = resolver.resolve_style_guide(root, book_label)
     if style_auth.get('status') == 'RESOLVED':
         paths.append(style_auth['path'])
+    if review_type in ('FullEdit', 'LineEdit'):
+        style_path = path_at(root, style_auth['path']) if style_auth.get('status') == 'RESOLVED' else None
+        roster, multi = voice_roster(style_path)
+        scene_break = book_record.get('chapter_format', {}).get('scene_break', DEFAULT_SCENE_BREAK)
+        _, slots = chapter_metadata(chapter_text, scene_break)
+        names = [marker[3] for _, marker in slots if marker and marker[3]]
+        if chapter_plan:
+            names.extend(pov_labels(chapter_plan.read_text(encoding='utf-8')))
+        if not names and len(roster) == 1:
+            names = roster
+        names = list(dict.fromkeys(names))
+        _, _, voice_paths = voice_sources(root, names, multi or len(names) > 1, roster)
+        paths.extend(voice_paths)
     for rg in ('Wiki/Style/review_guide.md', 'Wiki/Style/Review Guide.md'):
         if path_at(root, rg).is_file():
             paths.append(rg)
@@ -396,20 +416,26 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
     skill_name = REVIEW_TYPE_SKILLS.get(review_type)
     if review_type == 'DevEdit' and resolver.workflow(root, book_record, chapter=chapter_record)['project_type'] == 'NONFICTION':
         skill_name = REVIEW_TYPE_SKILLS['NonfictionDevEdit']
-    if skill_name and path_at(root, f'.agents/skills/{skill_name}').is_dir():
+    plugin_input = plugin_skill_input(skill_name) if skill_name else None
+    if skill_name and plugin_input is None and path_at(root, f'.agents/skills/{skill_name}').is_dir():
         paths.append(f'.agents/skills/{skill_name}')
 
     for ep in extra_paths or []:
         paths.append(ep)
 
+    inputs = evidence(root, paths) + sorted(projected, key=lambda i: (i['path'], i['projection']))
+    if plugin_input is not None:
+        inputs.append(plugin_input)
     spec = {
         'schema_version': VERSION,
         'book_id': book_label,
         'report': report_rel,
         'verdict': 'WARN',
         'subject_paths': [chapter_record['path']],
-        'inputs': evidence(root, paths) + sorted(projected, key=lambda i: (i['path'], i['projection'])),
+        'inputs': inputs,
     }
+    if plugin_input is not None:
+        spec['storycraft_version'] = PLUGIN_VERSION
     out_rel = output or f'_Edits/{book_label}/{stem}_{review_type}.prepared.json'
     out_path = path_at(root, out_rel)
     write(out_path, spec)

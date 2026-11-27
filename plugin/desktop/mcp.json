@@ -1,0 +1,11 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/mcp.schema.json",
+  "mcpServers": {
+    "storycraft-state": {
+      "type": "stdio",
+      "command": "./run-python",
+      "args": ["${PLUGIN_ROOT}/mcp/storycraft_mcp.py"],
+      "cwd": "${PLUGIN_ROOT}"
+    }
+  }
+}

@@ -3,7 +3,7 @@ name: fiction-reviewchapter
 description: "Review chapters against style guide, characters, and world for actionable edits. Use when the writer asks to review a chapter, check a chapter, or suggest changes. Applying numbered fixes goes through fiction-revise. The full seven-pillar review of a finished draft; gate-check is the lighter checklist gate over the same pillars."
 metadata:
   author: Fiction Toolkit
-  version: "2.15.0"
+  version: "2.16.1"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
@@ -88,7 +88,7 @@ You are reviewing the most recently written chapter for revision opportunities.
 - `{{STYLE_PATH}}` - POV, voice, character voices (for context only)
 - `{{CHARACTERS_DIR}}` and `{{WIKI_DIR}}` - search the entire book Wiki for the proper nouns and canon claims actually present in the chapter or scene plan; read the supporting files, not every file by default
 - `{{OUTLINE_PATH}}` - chapter purposes, and the reviewed chapter's `trope_obligations` entry: which tropes this specific chapter owes and in which treatment
-- `{{SURPRISE_LEDGER_PATH}}` - planned divergences and chosen defaults per act (if found)
+- `{{SURPRISE_LEDGER_PATH}}` - planned divergences and chosen defaults per movement (if found)
 - `{{SCENE_PATH}}` - required choices, consequences, emotional movement, motifs, arc movement, genre beats, and other chapter-specific obligations
 - `{{PSYCH_PATH}}` - interior cost, `What they won't say`, `Show-Don't-Tell Gaps`, and `Bottom Line`
 - `{{VOICE_PROMPTS}}` - POV-matched voice prompts and language firewalls
@@ -102,7 +102,7 @@ You are reviewing the most recently written chapter for revision opportunities.
   - `## Reader Expectations` — especially the Resolution field (HEA/HFN requirement, tragic ending rule, etc.)
   If one of these headings is absent, extract the same content from whatever heading carries it — projects rename these sections (e.g. `## Trope Commitments` for core tropes). A renamed heading is not a missing genre contract.
 - `{{SYNOPSIS_PATH}}` — if not "not found", read it and extract `## Trope Payoff Plan` (each trope's role and its setup/development/payoff). Older projects may carry the same contract under `## Genre Architecture` with Contract Validation / Mandatory Beat Sequence / Twist Map tables — read whatever section carries the trope contract.
-- `{{SURPRISE_LEDGER_PATH}}` — if not "not found", read the act entries covering this chapter: planned divergences (and chosen defaults) are this project's twist schedule.
+- `{{SURPRISE_LEDGER_PATH}}` — if not "not found", read the movement or strand entries covering this chapter (older ledgers use acts): planned divergences (and chosen defaults) are this project's twist schedule.
 
 Store everything extracted from these files as the **genre contract** for this review. If `{{GENRE_PATH}}` is "not found", genre compliance checking is skipped.
 
@@ -141,15 +141,15 @@ Read:
 
 ### Step 4: Evaluate Against 10 Criteria
 
-1. **POV Voice, Subtext & Agency** - Is voice present and matched to `voice_prompt_<POV>.md` / `voice_prompt.md`? Are they active? Does the chapter honor `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (`What they won't say` kept unsaid; `Show-Don't-Tell Gaps` rendered via a fitting channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—without forcing bodily cues)?
-2. **Scene-Plan Delivery, Micro-Friction & Plot Advancement** - Are the required choices, micro-friction resistance beats (at least one deflection, failed tactic, or raised cost before each turn), consequences, chapter-specific obligations, and ending movement present without back-half summary compression?
+1. **POV Voice, Subtext & Agency** - Is voice present and matched to `voice_prompt_<POV>.md` / `voice_prompt.md`? What do their choices or perceptions let the reader experience? Does the chapter honor `Wiki/Psych/Book-N/Chapter_NN_Psych.md` (`What they won't say` kept unsaid; `Show-Don't-Tell Gaps` rendered via a fitting channel—action, perception, thought, speech, memory, omission, object, or purposeful emotional naming—without forcing bodily cues)?
+2. **Scene-Plan Delivery, Micro-Friction & Plot Advancement** - Read the chosen form, chapter purpose and planned cadence. For a pressure turn, identify what changes the stakes, including the cost of a direct answer. For a witness chapter, aftermath, or final payoff, quote the perception, gesture or action that earns the shift or closure. Flag an unsupported turn or missing payoff with evidence. Silence, rest or a closed ending can be the promised effect.
 3. **Continuity Check** - Flows from previous? No contradictions?
-4. **Character & Relationship Checkpoint Authenticity** - Voices match? Do interactions match the active `## relationship_checkpoints` span for this chapter (`chapter_start <= N <= chapter_end`) in `Wiki/Characters/`, and does dialogue avoid 3+ consecutive interview-style Q&A pairs (`fiction-dialogue`)?
+4. **Character & Relationship Checkpoint Authenticity** - Voices match? Do interactions match the incoming `relationship_checkpoints` for each scene, change at the planned turn, and carry its cost afterward? For serial questions and direct answers, check the conversation form against the effect of each exchange on knowledge, risk, permission, status or commitment. Flag exact lines where the exchange stalls. Preserve direct testimony, cooperation and plain speech that achieve their purpose.
 5. **Reader Appeal & Genre Fit** - Meets expectations? Right pacing?
 6. **Plot Logic** - No holes? Decisions make sense?
 7. **Sensory Atmosphere** - Setting present? Physical sensation?
 8. **World-Building Accuracy** - Locations correct? Rules followed?
-9. **Style Guide & Cooling List Compliance** - No forbidden phrases? Format correct? No trailing 3-chapter `cooling_list` violations (repeated somatic hotspots, repeated 3-grams/similes, or repeated chapter opener/closer formulas)?
+9. **Style guide and repeated language** - Check forbidden phrases and format against the book’s style guide. Read the cited occurrences of each relevant `cooling_list` candidate in context. Quote where repetition dulls the effect before proposing a change. Preserve names, terminology, refrains, or returning images that do distinct work.
 10. **Genre Compliance** - See detailed instructions below.
 
 #### Criterion 10: Genre Compliance
@@ -162,11 +162,11 @@ Check each of the following:
 
 **B. Chapter trope obligations**: Check the reviewed chapter's `trope_obligations` entry in the outline (each trope the outline assigns to this chapter, with its treatment — setup / development / payoff / texture / subversion). Determine whether the chapter delivers each assigned obligation fully, partially, or not at all. Flag missing or partial obligations.
 
-**C. Genre craft rule violations**: Check the chapter against every rule in `## Genre-Specific Craft Notes`. Flag each violation specifically — quote the offending passage and name the rule broken.
+**C. Genre craft and form**: Use the approved book-level craft notes and selected structure. Give evidence of their intended effect, such as a sentence whose observation reveals a social distinction. Distinguish a convention suggested in a genre reference from an obligation the author chose. Evaluate alternating strands, closed endings, and continuing prose qualities on their own terms.
 
-**D. Resolution trajectory**: If the genre requires HEA or HFN (from `## Reader Expectations`) and this is the final chapter, verify it delivers. If the genre forbids a tragic ending and this chapter ends tragically, flag it as a contract breach.
+**D. Resolution trajectory**: If the genre requires HEA or HFN (from `## Reader Expectations`) and this is the final chapter, verify it delivers. Evaluate an ending against the book’s agreed resolution and chosen form. A tragic chapter inside a hopeful novel can serve that eventual payoff.
 
-**E. Scheduled divergence**: If the surprise ledger plans a divergence for this chapter or its act, check whether the chapter delivers it and whether it lands with sufficient setup. Older projects may carry a `### Twist Map` table in the synopsis instead; use whichever exists.
+**E. Scheduled divergence**: If the surprise ledger plans a divergence for this chapter or its named movement, check whether the chapter delivers it and whether it lands with sufficient setup. Older projects may carry a `### Twist Map` table in the synopsis instead; use whichever exists.
 
 Output this section in the review report using the following format:
 

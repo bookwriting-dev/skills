@@ -10,10 +10,10 @@ Record:
 - Exit state: what must be different when the exchange ends.
 - Practical pressure: what people are physically doing or waiting on.
 - Setting pressure: how access, privacy, acoustics, movement, observers, or usable objects constrain the exchange.
-- Emotional pressure: what makes direct speech expensive.
+- Emotional stakes: what makes an honest answer difficult, relieving, welcome, or urgent.
 - Information pressure: what must be learned, concealed, corrected, or left uncertain.
 
-If the scene only transfers facts, decide who resists the transfer and why. If nobody resists and no relationship changes, compress the exchange or move the information into action.
+When people exchange facts, identify the person who needs them and the choice the answers change. A willing speaker can make a scene turn by answering plainly. Two siblings arranging care for their father might settle every practical question in order. The consequential answer may be “I’ll take Sundays,” spoken by the sibling who has never turned up. Preserve a functional sequence. Compress an exchange that repeats shared information and leaves the participants and reader in the same place.
 
 ## 2. Build a speaker card from canon
 
@@ -24,11 +24,11 @@ Speaker:
 Immediate objective:
 First attention: what this person notices first in this scene
 Knowledge: known / assumed / misunderstood / unknown
-Withheld material:
+Withheld material, if any:
 Social strategy: direct, soften, joke, test, deflect, lecture, bargain, withdraw, etc.
 Sentence behavior: length, completion, vocabulary source, tolerance for abstraction
 Pressure leak: how speech changes under stress
-Avoidance: what this person will not say plainly
+Directness: what this person will say plainly, or has reason to avoid
 Relationship variant: how this listener changes the voice
 Humor permission: none / initiates / responds once / sustained banter
 Canon anchors: 2-5 recent lines or exchanges, used for calibration rather than copying
@@ -49,9 +49,9 @@ For every consequential topic, distinguish:
 
 Knowledge changes language only when it affects what a character chooses, hides, tests, or misunderstands. Do not use dialogue to restate shared facts for the reader.
 
-## 4. Map pressure moves, not lines
+## 4. Map what the speakers do
 
-Sketch the exchange as actions before wording it. A useful shape is uneven:
+Sketch the exchange as actions before wording it. Use the characters’ objectives and any conversation form and pressure source established in the plan. When the characters’ interests diverge, an exchange might develop this way:
 
 ```text
 A probes for commitment.
@@ -78,9 +78,9 @@ Before keeping a joke, ask:
 
 Cut the joke when its main purpose is to keep the exchange entertaining.
 
-## 6. Draft with nonresponse available
+## 6. Choose the response this speaker would give
 
-At every question, consider at least one alternative to a clean answer:
+Use a direct answer when the speaker wants the listener to understand, decide, or act. Where the speaker has a competing need, options include:
 
 - answer only the dangerous noun
 - correct the premise
@@ -98,8 +98,8 @@ Choose the behavior supported by the speaker card and scene pressure. Do not int
 Draft only after you can answer:
 
 - Why does each major speaker participate?
-- What would each prefer not to discuss?
+- What will each volunteer, and what would they prefer to leave unsaid?
 - Who is allowed to be funny here?
 - What does the setting permit, expose, interrupt, or prevent?
-- Where can the conversation fail to cooperate?
-- What changes by the end besides the reader's knowledge?
+- Why do they cooperate, disagree, or withhold information here?
+- What can someone understand, feel, decide, or do afterward? If the effect belongs to the reader, identify what earlier action or relationship the exchange makes them see differently.

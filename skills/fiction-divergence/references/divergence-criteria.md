@@ -60,8 +60,7 @@ twist the reader will resent, and dies here.
 
 ## Genre-default template slots
 
-These are the slots where convergence concentrates. For each, the outline either
-diverges or records a chosen-default reason:
+These examples apply to a three-act genre plot. For a different form, use its actual hinges, including a changed interpretation between documents or a quiet reconciliation. Skip absent slots.
 
 - **Inciting incident**: personal loss that forces the premise into motion; the call
   the protagonist refuses once.
@@ -82,12 +81,11 @@ Structure-level defaults worth checking once per outline:
 
 ## What a surprise ledger entry needs
 
-One line per act: what this act contains that a genre-standard version would not. Valid
+One line per named movement or strand: what it contains that a genre-standard version would not. Valid
 contents: a structural choice (a default slot filled differently), a domain collision
 (two spheres the genre keeps separate, meeting), an image that recurs with changed
 meaning, a payoff arriving materially earlier than convention, a scene type this genre
-rarely attempts. An act with no entry is running on defaults — the finding, not a
-formality.
+rarely attempts. A movement may also deliberately fulfil an expectation, with a note on the intended reader effect.
 
 ## Anti-patterns
 

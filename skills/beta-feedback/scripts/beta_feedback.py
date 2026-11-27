@@ -28,6 +28,7 @@ state = bundled('storycraft_state', 'book-status/scripts/project_state.py')
 WORD = exchange.WORD
 sys.path.insert(0,str(Path(__file__).resolve().parents[2] / 'compile-manuscript/scripts'))
 import reread
+import feedback_scope
 
 normal = exchange.normal
 
@@ -97,7 +98,17 @@ def pasted_notes(path):
         for field in ('chapter', 'quote', 'anchor'):
             if field in entry and not isinstance(entry[field], str):
                 raise ValueError(f'{field} in a pasted note must be a string')
-        note = {key: entry[key] for key in ('chapter', 'quote', 'comment') if key in entry}
+        if 'kind' in entry and entry['kind'] not in ('observation', 'strength'):
+            raise ValueError('feedback kind must be observation or strength')
+        if 'scope' in entry and entry['scope'] != 'book':
+            raise ValueError('use scope "book", chapter, or chapter_range for a pasted note')
+        if sum(key in entry for key in ('scope', 'chapter', 'chapter_range')) > 1:
+            raise ValueError('choose one of scope, chapter, or chapter_range')
+        if 'chapter_range' in entry:
+            bounds = entry['chapter_range']
+            if not isinstance(bounds, list) or len(bounds) != 2 or not all(isinstance(s, str) and s.strip() for s in bounds):
+                raise ValueError('chapter_range requires two nonempty chapter references in reading order')
+        note = {key: entry[key] for key in ('chapter', 'chapter_range', 'scope', 'kind', 'quote', 'comment') if key in entry}
         note.update(reader=reader.strip(), origin='pasted', anchors=[entry['anchor']] if entry.get('anchor') else [])
         yield note
 
@@ -109,15 +120,21 @@ def location(note, version):
     sections = {item['bookmark']: item for item in version['sections']}
     paragraphs = version['word_passages'] or version.get('text_passages', {})
     chapter = note.get('chapter')
-    allowed = {key for key, item in sections.items() if not chapter or chapter.casefold() in {
-        str(item.get('label', '')).casefold(), str(item.get('chapter_id', '')).casefold(),
-        item['path'].casefold(), Path(item['path']).stem.casefold()}}
+    scope = None
+    allowed = {key for key, item in sections.items() if not chapter or feedback_scope.matches(item, chapter)}
+    if not (anchors or quote) or 'chapter_range' in note or 'scope' in note:
+        try:
+            scope, covered = feedback_scope.resolve(note, version)
+        except ValueError as exc:
+            return {'status': 'UNRESOLVED', 'reason': str(exc)}
+        allowed = {s['bookmark'] for s in covered}
     if chapter and len(allowed) != 1:
         return {'status': 'UNRESOLVED', 'reason': 'chapter reference is missing or ambiguous'}
 
     def binding(section, paragraph_ids, text):
         content = sections[section]
-        return {'status': 'ANCHORED', 'chapter_id': content['chapter_id'], 'chapter': content['label'],
+        return {**({'scope': scope} if scope else {}),
+                'status': 'ANCHORED', 'chapter_id': content['chapter_id'], 'chapter': content['label'],
                 'path': content['path'], 'source_sha256': content['source_sha256'],
                 'passages': paragraph_ids, 'anchor_text': text}
 
@@ -140,7 +157,7 @@ def location(note, version):
         return binding(section, ordered, text)
 
     if not quote:
-        return {'status': 'GENERAL', 'chapter': chapter, 'reason': 'feedback has no quoted passage'}
+        return {'status': 'GENERAL', 'scope': scope, 'chapter': chapter, 'reason': 'feedback has no quoted passage'}
     matches = [(anchor, item) for anchor, item in paragraphs.items()
                if item['section'] in allowed and quote in item['text']]
     if matches:
@@ -183,39 +200,98 @@ def summarize(document):
             for (path, passage), items in groups.items()]
 
 
-def draft_campaign(root, book, campaign_id, document, choice):
-    records = {item['id']: item for item in document['feedback']}
-    by_file = {}
-    for identifier in dict.fromkeys(choice):
-        item = records.get(identifier)
-        if item is None:
-            raise ValueError(f'unknown feedback {identifier}')
-        place = item['location']
-        if place['status'] != 'ANCHORED' or not place.get('chapter_id'):
-            raise ValueError(f'{identifier} needs an anchored chapter passage before revision')
-        name = place['path']
-        file = state.path_at(root, name)
-        if not file.is_file():
-            raise ValueError(f'{identifier}: chapter moved or is missing; reconcile the feedback anchor')
-        raw = file.read_bytes()
-        current = exchange.sha256(raw)
+def scope_groups(document, edition):
+    groups = {}
+    for note in document['feedback']:
+        place = note['location']
+        if place['status'] == 'UNRESOLVED':
+            continue
+        scope = place.get('scope')
+        if not scope and place['status'] == 'GENERAL':
+            try:
+                scope, _ = feedback_scope.resolve(note, edition)
+            except ValueError:
+                # A legacy note may name front matter or another non-chapter unit.
+                continue
+        if scope:
+            key = (scope['kind'], tuple(scope['chapter_ids']))
+            group = groups.setdefault(key, {'scope': scope, 'feedback_ids': [], 'readers': set()})
+            group['feedback_ids'].append(note['id'])
+            group['readers'].add(note['reader'])
+    return [{'scope': group['scope'], 'feedback_ids': group['feedback_ids'], 'reader_count': len(group['readers'])}
+            for group in groups.values()]
+
+
+def inputs(sections):
+    return sorted(({'path': s['path'], 'kind': 'file', 'sha256': s['source_sha256']} for s in sections),
+                  key=lambda entry: entry['path'])
+
+
+def planned_task(item, edition, archived, current, diagnosis, bounds):
+    place = item['location']
+    scoped = place['status'] == 'GENERAL' or place.get('scope')
+    if scoped or diagnosis:
+        intent = item if scoped else {}
+        if diagnosis and bounds:
+            intent = {'chapter_range': bounds}
+        scope, old = feedback_scope.resolve(intent, edition)
+    else:
+        if not place.get('chapter_id') or place['chapter_id'] not in archived:
+            raise ValueError(f"{item['id']} needs an anchored chapter passage before revision")
+        scope, old = None, [archived[place['chapter_id']]]
+    if any(s['chapter_id'] not in current for s in old):
+        raise ValueError(f"{item['id']}: a chapter in the reader edition is missing; reconcile the scope")
+    live = [current[s['chapter_id']] for s in old]
+    task = {'files': [s['path'] for s in live], 'depends_on': [], 'feedback': [],
+            'archived_inputs': inputs(old), 'expected_inputs': inputs(live)}
+    if scope:
+        task.update(kind='developmental-diagnosis', reader_scope=scope,
+                    scope=f"{scope['label']}. Read-only diagnosis with fiction-dev-editor.",
+                    acceptance=['Read the selected scope in order and compare the archived edition with current prose.',
+                                'Cite the setup and later effect, contrary evidence, and strengths. '
+                                'Return a diagnosis and any proposed repair for the writer to consider.'])
+    else:
         quote = normal(item.get('quote') or place['anchor_text'])
-        if current != place['source_sha256'] and normal(raw.decode('utf-8')).count(quote) != 1:
-            raise ValueError(f'{identifier}: quoted passage changed or is ambiguous in the current chapter')
-        target = by_file.setdefault(name, {'sha256': current, 'notes': []})
-        if target['sha256'] != current:
-            raise ValueError(f'{name} changed while resolving selected feedback')
-        target['notes'].append(item)
-    tasks = []
-    for index, (name, target) in enumerate(by_file.items(), 1):
-        tasks.append({'id': f'beta-{index}', 'files': [name], 'depends_on': [], 'kind': 'prose-repair',
-                      'acceptance': ['Address the selected reader observations and verify the resulting chapter.'],
-                      'scope': 'Selected observations and their quoted passages.',
-                      'feedback': target['notes'],
-                      'expected_inputs': [{'path': name, 'kind': 'file', 'sha256': target['sha256']}]})
+        if live[0]['source_sha256'] != place['source_sha256'] and normal(live[0]['reader_text']).count(quote) != 1:
+            raise ValueError(f"{item['id']}: quoted passage changed or is ambiguous in the current chapter")
+        task.update(kind='prose-repair', scope='Selected observations and their quoted passages.',
+                    acceptance=['Address the selected reader observations and verify the resulting chapter.'])
+    return task
+
+
+def draft_campaign(root, book, campaign_id, document, edition, selected, preserve, diagnose, bounds):
+    records = {item['id']: item for item in document['feedback']}
+    archived = {s['chapter_id']: s for s in edition['sections'] if s.get('chapter_id')}
+    current = {s['chapter_id']: s for s in state.editions.current(root, book, allow_empty=True)['sections']}
+    groups = {}
+    strengths = []
+    choices = list(dict.fromkeys([*selected, *diagnose, *preserve]))
+    for identifier in choices:
+        if identifier not in records:
+            raise ValueError(f'unknown feedback {identifier}')
+        item = records[identifier]
+        place = item['location']
+        if place['status'] == 'UNRESOLVED':
+            raise ValueError(f"{identifier}: {place['reason']}")
+        if identifier in preserve or item.get('kind') == 'strength':
+            strengths.append(item)
+            if identifier not in diagnose:
+                continue
+        task = planned_task(item, edition, archived, current, identifier in diagnose, bounds)
+        key = (task['kind'], task['scope'], tuple(task['files']))
+        if key not in groups:
+            task['id'] = f'beta-{len(groups)+1}'
+            groups[key] = task
+        groups[key]['feedback'].append(item)
+    tasks = list(groups.values())
+    # A structural diagnosis must see the selected text before an overlapping repair changes it.
+    for task in tasks:
+        if task['kind'] == 'prose-repair':
+            task['depends_on'] = [other['id'] for other in tasks if other['kind'] == 'developmental-diagnosis'
+                                  and set(task['files']).intersection(other['files'])]
     spec = {'schema_version': 1, 'outcome': 'Address selected beta-reader feedback',
-            'authorization': 'Selected for revision planning: ' + ', '.join(dict.fromkeys(choice)),
-            'preserve': [], 'tasks': tasks}
+            'authorization': 'Selected for revision planning: ' + ', '.join(choices),
+            'preserve': strengths, 'tasks': tasks}
     with tempfile.TemporaryDirectory() as tmp:
         path = Path(tmp) / 'campaign.json'
         state.write(path, spec)
@@ -234,6 +310,12 @@ def main():
     source.add_argument('--reread-to', metavar='TARGET_EDITION')
     parser.add_argument('--reader', help='recipient of a changed-scene reread packet')
     parser.add_argument('--select', action='append', default=[], metavar='FEEDBACK_ID')
+    parser.add_argument('--preserve', action='append', default=[], metavar='FEEDBACK_ID',
+                        help='retain a selected reader success as a campaign constraint')
+    parser.add_argument('--diagnose', action='append', default=[], metavar='FEEDBACK_ID',
+                        help='plan developmental diagnosis of a selected note, including a Word margin comment')
+    parser.add_argument('--chapter-range', nargs=2, metavar=('FIRST', 'LAST'),
+                        help='archived scope for notes selected with --diagnose')
     args = parser.parse_args()
     if not args.export and args.docx:
         with zipfile.ZipFile(args.docx) as archive:
@@ -242,8 +324,12 @@ def main():
             args.export = next(iter(marks))
     if not re.fullmatch(r'[\w-]+', args.book) or not re.fullmatch(r'[a-f0-9]{24}', args.export or ''):
         parser.error('use a book identifier and the ID from its beta export')
-    if bool(args.campaign) != bool(args.select) or (args.campaign and not re.fullmatch(r'[\w-]+', args.campaign)):
-        parser.error('--campaign requires a safe run ID and one or more --select feedback IDs')
+    if bool(args.campaign) != bool(args.select or args.preserve or args.diagnose) or (args.campaign and not re.fullmatch(r'[\w-]+', args.campaign)):
+        parser.error('--campaign requires a safe run ID and selected feedback')
+    if args.chapter_range and not args.diagnose:
+        parser.error('--chapter-range requires --diagnose')
+    if set(args.preserve) & set(args.diagnose):
+        parser.error('choose preservation or diagnosis for each feedback ID')
     root = args.root.resolve()
     version = open_export(root, args.book, args.export)
     if args.reread_to or args.reader:
@@ -269,11 +355,12 @@ def main():
         document = state.document(path, 'feedback')
         count = 0
     if args.campaign:
-        print(json.dumps(draft_campaign(root, args.book, args.campaign, document, args.select),
+        print(json.dumps(draft_campaign(root, args.book, args.campaign, document, target, args.select,
+                                        args.preserve, args.diagnose, args.chapter_range),
                          indent=2, ensure_ascii=False))
     else:
         print(json.dumps({'export_id': target['export_id'], 'added': count, 'feedback': document['feedback'],
-                          'groups': summarize(document)},
+                          'groups': summarize(document), 'scope_groups': scope_groups(document, target)},
                          indent=2, ensure_ascii=False))
 
 

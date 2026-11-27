@@ -10,13 +10,13 @@ Expanded guidance for each review criterion.
 - Is the POV character's voice present throughout?
 - Does their internal monologue drive the narrative?
 - Do emotions, opinions, and goals inform decisions?
-- Are they ACTIVE (making choices) or PASSIVE (things happen to them)?
+- Who acts and what can the chosen viewpoint witness, misunderstand or newly reveal?
 - Does voice match style guide specifications?
 
 ### Red Flags
 - Generic narration that could be anyone
 - Character observing but not reacting
-- Decisions made for them by circumstances
+- A choice promised by the scene never materializes
 - Internal thought missing in key moments
 - Voice shifts inconsistently
 
@@ -31,20 +31,20 @@ Expanded guidance for each review criterion.
 ### What to Check
 - What concrete story progress happens?
 - Does chapter have clear purpose beyond filling space?
-- Is there hook ending pulling readers forward?
+- Does the ending deliver its intended forward pull, aftereffect or complete resolution?
 - Plot threads: introduced, advanced, or resolved?
 - Does chapter fulfill outline purpose?
 
 ### Red Flags
 - Characters discuss but don't act
 - No new information or change
-- Chapter ends without momentum
+- Chapter cuts away before a promised event or repeats its prior landing
 - Purpose unclear even after reading
 - Retreads ground from earlier chapters
 
 ### Example Fix
 **Weak ending**: "She went to bed, tired from the day's events."
-**Strong ending**: "She went to bed. The letter stayed on the table, unopened. It could wait until morning. It couldn't be that important."
+**Earned closure**: After the family has argued over who will keep a dead father’s house, his daughter hangs the key on her sister’s nail by the door. A new threat would interrupt the settlement.
 
 ---
 

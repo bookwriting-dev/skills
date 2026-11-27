@@ -20,7 +20,7 @@ import hashlib
 import json
 import re
 
-from state_core import digest, ledger_store_module, path_at
+from state_core import PLUGIN_SKILL_INPUT, digest, evidence, ledger_store_module, path_at, plugin_skill_input
 
 PROJECTION = 'projection'
 CANON_DIRS = ('Wiki/Characters', 'Wiki/World', 'Wiki/Locations', 'Wiki/Organizations', 'Wiki/Systems', 'Wiki/Events')
@@ -43,13 +43,15 @@ def _ledger_bytes(root, logical):
         return None
 
 
-def _promise_entries(raw):
+def promise_entries(raw):
     try:
         import yaml
-        data = yaml.safe_load(raw.decode('utf-8')) or {}
+        text = raw.decode('utf-8')
+        data = yaml.safe_load(text)
     except Exception:
         return None
-    if not data:
+    if data is None and all(not line.strip() or line.lstrip().startswith('#') or line.strip() in ('---', '...')
+                            for line in text.splitlines()):
         return []
     entries = data.get('promises', None) if isinstance(data, dict) else None
     if not isinstance(entries, list) or not all(isinstance(entry, dict) for entry in entries):
@@ -83,7 +85,7 @@ def _promises(root, item):
     raw = _ledger_bytes(root, item['path'])
     if raw is None:
         return _hash([])
-    entries = _promise_entries(raw)
+    entries = promise_entries(raw)
     if entries is None:
         return hashlib.sha256(raw).hexdigest()
     return _hash(promises_view(entries, item['chapter_number']))
@@ -191,10 +193,11 @@ def make(root, kind, path, **params):
 
 
 def current_input(root, item):
-    """Re-evaluate one recorded review input: a plain file/directory record or a projection."""
+    """Re-evaluate a project input or the installed desktop review skill."""
+    if item.get('kind') == PLUGIN_SKILL_INPUT:
+        return plugin_skill_input(item['path'])
     if item.get('kind') == PROJECTION:
         return dict(item, sha256=PROJECTORS[item['projection']](root, item))
-    from state_core import evidence
     return evidence(root, [item['path']])[0]
 
 

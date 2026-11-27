@@ -1,6 +1,6 @@
 # Dynamic Spine Guide
 
-The spine captures the story's essential tensions and dynamics. Add this after the prose synopsis.
+Use this example for a transformational arc driven by a false belief. For a steadfast character, trace the rising price of a consistent goal; for a braid, trace the change in meaning where strands meet. The synopsis owns the chosen form. Use only the applicable prompts.
 
 ---
 

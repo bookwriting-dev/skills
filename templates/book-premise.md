@@ -21,9 +21,11 @@ Use this document to stage ideas, conflict drivers, and seeds specific to this b
 
 ---
 
-## 3. Key Turning Points / Anchor Scenes in Mind
+## 3. Form and turning points
 *Any specific set-pieces, midpoint revelations, or climactic confrontations you already envision.*
 
+- **Preferred structure (if any):**
+- **Thematic question the ending can leave open:**
 - **Opening image / scene concept:** 
 - **Midpoint shift concept:** 
 - **Climax / Dark night concept:** 

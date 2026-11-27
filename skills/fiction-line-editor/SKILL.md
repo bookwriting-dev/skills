@@ -3,7 +3,7 @@ name: fiction-line-editor
 description: Focused sentence-level line editing for fiction prose (voice, cliches, repetition, POV violations, awkward constructions). Use fiction-full-editor for general sentence editing; use this skill only when isolating the line-craft and voice layer without running full craft/AIism checks. Uses focused workers for 40-line chunk scanning.
 metadata:
   author: Fiction Toolkit
-  version: "5.6.0"
+  version: "5.7.0"
   bundled-dependencies: book-status
   category: fiction-editing
 ---
@@ -23,6 +23,7 @@ The request argument is a chapter reference (e.g., "5", "Chapter-5", "Chapter-5.
 3. Search for the project's review guide (`**/review_guide.md`), style guide (`**/style_guide.md`), and scoped `editorial-memory` records (`Wiki/Style/editorial-decisions.json`). Load applicable active editorial decisions before proposing repairs (preserving deliberate choices within their stated scope while keeping correctness checks binding).
 4. Get the chapter's line count using the host's available file or line-count operation.
 5. For a saved report, capture input evidence BEFORE review using [project_state.py](../book-status/scripts/project_state.py) (`prepare`) per [state-contract.md](../book-status/references/state-contract.md), including the chapter, style/review references, active editorial decision file (including its absence), and this skill's rules. (No sidecar is required for a conversational verdict; diagnostic passes never edit source prose.)
+6. Match each target to its scene narrator using manuscript markers and the plan. Read the narrator’s private voice prompt and any shared contrast index. Send each worker the author-selected passage and intended effect for its scene; mark the handoff if its lines cross viewpoints. Capture both voice sources in saved evidence. `review-begin --type LineEdit` tracks the chapter’s voice files; add `--extra-path PATH` for an original anchor or additional voice source opened during review.
 
 ## Step 2: Read Criteria
 
@@ -49,6 +50,7 @@ Launch all chunks in parallel when the host supports workers; otherwise process 
 > 1. Read the review/style guide at: {guide_path} — note project-specific rules, forbidden words, POV requirements, character voice patterns. If the file is not found, use general fiction craft principles.
 > 2. Read the chapter using offset={start - 1} and limit=40: {chapter_path}
 > 3. Apply this scoped author-decision block, including intentional KEEP examples: {applicable_editorial_decisions}. Do not generalize local decisions beyond their stated scope.
+>    Read {scene_voice_anchor_and_contrast}. Identify the specific effect of a proposed voice edit and whether it preserves the narrator’s characteristic attention, rhythm and judgment.
 > 4. Check every line against ALL of the following criteria:
 >
 > {paste the full contents of agent-instructions.md here}

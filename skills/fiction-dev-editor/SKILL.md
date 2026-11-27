@@ -3,7 +3,7 @@ name: fiction-dev-editor
 description: "Diagnose or repair fiction at the story level: plot movement, scene purpose, motivation, pacing, tension, redundancy, setup, and payoff. Use for developmental edits, plot checks, structure questions, or requests to fix background-heavy chapters; do not use for sentence-level prose editing. Also use for similar cast names, long-absent characters, hypothetical scene cuts or disputed geography."
 metadata:
   author: Fiction Toolkit
-  version: "2.4.1"
+  version: "2.5.1"
   bundled-dependencies: book-status, drift-check
   category: fiction-editing
 ---
@@ -39,14 +39,14 @@ Use the project's required semantic search or canon source before broad text sea
 
 Before discussing pacing or worldbuilding, identify:
 
-1. **Active want:** What does the POV character try to accomplish in this chapter?
+1. **Purpose:** In the book’s chosen form, what does this chapter’s viewpoint, letter, episode, or action contribute? For an active pursuit, name the want.
 2. **Pressure:** What prevents an easy success? This need not be an enemy; uncertainty, incompatible duties, time, cost, or withheld knowledge can drive a scene.
 3. **Causal turn:** What decision, discovery, refusal, or reversal changes the course of action?
-4. **Agency:** What does the POV character cause rather than merely observe or explain?
-5. **Irreversible consequence:** What future action, relationship, resource, risk, or understanding is different at the end?
+4. **Agency or witnessing:** Who acts for their own reasons? In a witness account, what change in the reader’s understanding depends on this specific observer?
+5. **Consequence or closure:** What action, relationship, resource, risk or interpretation changes, or what promise finishes here?
 6. **Cut test:** What would the story lose if the chapter vanished?
 
-A theory, emotional realization, faction introduction, shopping trip, meeting, travel sequence, or status update is not plot by itself. It becomes plot when it changes a consequential choice or launches an action that later chapters must honor.
+A theory, emotional realization, faction introduction, shopping trip, meeting, travel sequence, or status update is not plot by itself. Test whether the reader gains a consequence, recognition, or emotional resolution that would disappear if the scene were cut.
 
 If the chapter fails the plot test, say so plainly. Find the strongest latent causal spine in the existing material and recommend or implement the minimum change that activates it. Do not add an unrelated attack, villain, leak, or argument merely to manufacture conflict.
 
@@ -79,7 +79,7 @@ Check only what the assigned scope supports:
 - Does the ending repeat a decision already launched in an adjacent chapter?
 - Are setups attached to a future obligation or merely named?
 - Does the chapter end after its true turn, or continue into extra business?
-- Across a range, do intensity and driver types vary enough to avoid narrative stasis?
+- Across a range, can one consequential choice be traced into the next? Check what a secondary character does for their own sake and where that action changes the lead’s options. In a braid or episodic cycle, trace the accumulated change in interpretation or relationship.
 
 Read [dev-edit-criteria.md](references/dev-edit-criteria.md) for a full report or a difficult structural diagnosis. Do not load it for a simple edit or verdict when the tests above are sufficient.
 
@@ -88,7 +88,7 @@ Read [dev-edit-criteria.md](references/dev-edit-criteria.md) for a full report o
 When authorized to edit:
 
 1. State the chapter's causal spine privately before changing the file.
-2. Center one active objective and one irreversible result.
+2. Center the choice, change in understanding, or final payoff that belongs to this chapter’s form.
 3. Rebuild scenes around cause and effect.
 4. Demote worldbuilding, logistics, cast updates, and future threads to support or texture unless they produce decisions.
 5. Preserve user-supplied dialogue, character intent, and canon unless the user asks to reconsider them.
@@ -132,7 +132,7 @@ Consult applicable active editorial-memory decisions before proposing style repa
 
 ## Cast, scene removal and geography
 
-At act boundaries or 4-chapter checkpoints, run `project_state.py --root ROOT --book Book-N rhythm-map --markdown`, [drift.py](../drift-check/scripts/drift.py) across the drafted chapters, and [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N cast` after any requested blind read has been sealed. Audit the window against the **4-Chapter / Act Developmental Checkpoint** criteria in [dev-edit-criteria.md](references/dev-edit-criteria.md): (a) causal escalation vs lateral wheel-spinning, (b) emotional velocity across `relationship_checkpoints` (catching sudden leaps without earned scenes), (c) Chapters 1–2 exposition/worldbuilding load, (d) chapter-ending hook honesty across seams (catching false cliffhangers deflated on page 1 of `Chapter-(N+1)`), and (e) cast bloat or role duplication. The `cast` tool finds nearby appearances of distinct characters with similar or shared first names and returns after four intervening narrative chapters by default (`--gap 4`). Use `--through SELECTOR` for an act ending and `--gap N` for the author's interval. For each candidate quote both appearances and explain what a reader might misattribute. Check canonical aliases, intentional family names and the identifying cue in the return paragraph or its immediate neighbors. If the cue works, keep it. Suggest the smallest identifying detail for a confusing return. Never rename characters automatically.
+At boundaries of the chosen movements or 4-chapter checkpoints, run `project_state.py --root ROOT --book Book-N rhythm-map --markdown`, [drift.py](../drift-check/scripts/drift.py) across the drafted chapters, and [editorial_tools.py](../book-status/scripts/editorial_tools.py) with `--root . --book Book-N cast` after any requested blind read has been sealed. Audit the window against the **4-Chapter / Act Developmental Checkpoint** criteria in [dev-edit-criteria.md](references/dev-edit-criteria.md): (a) consequential choices, including a secondary character’s independent action and the later decision it changes, (b) emotional velocity across `relationship_checkpoints` (catching sudden leaps without earned scenes), (c) Chapters 1–2 exposition/worldbuilding load, (d) chapter-ending hook honesty across seams (catching false cliffhangers deflated on page 1 of `Chapter-(N+1)`), and (e) cast bloat or role duplication. The `cast` tool finds nearby appearances of distinct characters with similar or shared first names and returns after four intervening narrative chapters by default (`--gap 4`). Use `--through SELECTOR` for an act ending and `--gap N` for the author's interval. For each candidate quote both appearances and explain what a reader might misattribute. Check canonical aliases, intentional family names and the identifying cue in the return paragraph or its immediate neighbors. If the cue works, keep it. Suggest the smallest identifying detail for a confusing return. Never rename characters automatically.
 
 For a proposed cut or a disputed layout, run the same script with `scene --chapter SELECTOR --scene N`. Scene numbers start at one. In a hypothetical cut, identify what the scene changes, then read forward to its first dependent action, clue, decision or emotional turn. Quote the setup and the payoff with their locations. Search every earlier scene for a surviving alternate setup. Use chapter and scene when citing a quotation. Check its physical source line if giving a line number. The packet’s start_line identifies the first line of the entire scene. Report whether the cut holds, creates a specific gap, or has insufficient evidence. Include the smallest repair and any payoff worth preserving. Leave the manuscript untouched during the simulation.
 

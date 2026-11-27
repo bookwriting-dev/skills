@@ -8,7 +8,7 @@ Theme is the invisible question your story asks through its events. It is not a 
 **Theme as moral (WRONG)**: "Love conquers all."
 **Theme as message (WRONG)**: "We should forgive those who hurt us."
 
-The question form works because it creates tension. The story explores the question. The plot demonstrates an answer. But the answer is shown through action, never stated through dialogue.
+The question form works because it creates tension. The story explores the question. The plot gives the reader evidence for an answer or for competing readings. A character can speak their conviction without settling the question for everyone.
 
 ## The Central Question
 
@@ -16,7 +16,7 @@ The question form works because it creates tension. The story explores the quest
 
 1. **Start with what the protagonist wants** (their conscious goal)
 2. **Identify what they actually need** (their unconscious need, often the opposite)
-3. **The gap between want and need IS the thematic question**
+3. **Look for competing values** in that gap or between people with equally defensible aims.
 
 Example:
 - Want: Power to protect the people I love
@@ -27,7 +27,7 @@ Example:
 
 - **It's genuinely arguable.** Reasonable people could disagree. If everyone agrees on the answer, it's not a question worth a novel.
 - **It has no clean answer.** The story explores the complexity, not delivers a verdict.
-- **It can be embodied by characters.** Each major character represents a different answer.
+- **It can be embodied by characters.** Choices can reveal different stakes in a shared belief.
 - **It's tested by the plot.** The events of the story put the question under increasing pressure.
 - **It connects to universal human experience.** Not "Should we terraform Mars?" but "How far should we go to build a new home?"
 
@@ -50,14 +50,14 @@ Example:
 
 ## The Thematic Argument
 
-The thematic argument is what the story ultimately demonstrates through its events. It is the answer the plot reaches, but it must be earned by the plot, not stated by a character.
+The ending can imply an argument or leave two readings in productive tension. The book can settle whether the letter was sent while leaving open whether sending it was an act of kindness.
 
 ### How to Build It
 
 1. Take your central question
 2. Let the plot events push the protagonist through multiple possible answers
-3. The climax forces a final, irrevocable choice
-4. That choice IS the argument
+3. Look at the final choice, image, or juxtaposition in the book’s chosen form.
+4. Identify the reading it supports and what another reader might still contest.
 
 Example:
 - Question: "Can you hold onto who you are when power changes you?"
@@ -87,13 +87,11 @@ For every scene, ask: "Does this scene put the central question under pressure?"
 
 For every significant character, ask: "What answer does this character represent to the central question?"
 
-If two characters represent the same answer, one of them is redundant.
+Two characters can share a belief and make different choices when keeping it costs them different things. Test what each contributes.
 
 ### The Climax Test
 
-Ask: "Is the climax ABOUT the central question?"
-
-If the central question is about power and identity, the climax must force the protagonist to choose between power and identity. Not between two armies. Not between two romantic interests (unless that choice IS the thematic choice). The external conflict must be an expression of the internal thematic question.
+Read the final choice, image, or pair of passages in the chosen form. What happens with the dramatic question? What does the outcome reveal about the thematic question, and what still admits more than one interpretation? A witness may observe someone else’s decision. Two accounts may leave the same decision looking generous in one and coercive in the other.
 
 ## Making Theme Invisible
 

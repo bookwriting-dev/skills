@@ -41,7 +41,7 @@ TOOLS = [
     },
     {
         'name': 'storycraft_draft_packet',
-        'description': 'Compile the deterministic pre-draft packet (scene plan, psych, theme, surprise ledger, voice prompts, checkpoints, knowledge, dramatic irony, cooling list).',
+        'description': 'Compile the deterministic pre-draft packet (scene plan, psych, theme, surprise ledger, voice anchors and contrasts, scene relationship turns, knowledge, dramatic irony, due payoffs and repetition examples).',
         'inputSchema': {
             'type': 'object',
             'properties': {
@@ -230,7 +230,8 @@ def _call_tool(name: str, args: dict):
     book = args.get('book', 'Book-1')
 
     if name == 'storycraft_dashboard':
-        return ps.dashboard(root, book)
+        return dict(ps.dashboard(root, book), storycraft_version=SERVER_VERSION,
+                    skills_dir=str(ROOT_REPO / 'skills'))
     if name == 'storycraft_draft_packet':
         ns = argparse.Namespace(
             book=book, chapter=args.get('chapter', '1'),
@@ -264,7 +265,8 @@ def _call_tool(name: str, args: dict):
             ledger_p = ps.path_at(root, args['ledger'])
             cmd.extend(['--ledger', str(ledger_p)])
         proc = subprocess.run(cmd, cwd=root, capture_output=True, text=True, check=False)
-        return {'returncode': proc.returncode, 'stdout': proc.stdout, 'stderr': proc.stderr}
+        return {'returncode': proc.returncode, 'stdout': proc.stdout, 'stderr': proc.stderr,
+                'storycraft_version': SERVER_VERSION}
     if name == 'storycraft_compile':
         script = ROOT_REPO / 'skills' / 'compile-manuscript' / 'scripts' / 'compile_manuscript.py'
         cmd = [sys.executable, str(script), '--root', str(root), '--book', book,
@@ -291,7 +293,7 @@ def _call_tool(name: str, args: dict):
         pkt = ps.draft_packet(root, ns)
         book_rec, ch_rec = resolver.resolve_chapter(root, book, args.get('chapter', '1'), allow_new=True)
         wf = resolver.workflow(root, book_rec, chapter=ch_rec)
-        return {'workflow': wf, 'draft_packet': pkt}
+        return {'workflow': wf, 'draft_packet': pkt, 'storycraft_version': SERVER_VERSION}
     if name == 'storycraft_chapter_finalize':
         resolver = ps.project_manifest_module()
         book_rec, ch_rec = resolver.resolve_chapter(root, book, args.get('chapter', '1'))

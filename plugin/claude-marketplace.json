@@ -1,0 +1,12 @@
+{
+  "name": "storycraft-local",
+  "description": "Storycraft skills and manuscript tools for Claude Code.",
+  "owner": {"name": "Storycraft Skills"},
+  "plugins": [
+    {
+      "name": "storycraft",
+      "source": "./plugins/storycraft",
+      "description": "Writing, editorial review and production tools for fiction, nonfiction and hybrid books."
+    }
+  ]
+}

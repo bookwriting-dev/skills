@@ -3,7 +3,7 @@ name: fiction-style
 description: "Generate Wiki/Style/style_guide.md and Wiki/Style/review_guide.md for a fiction project. Use when user says 'create style guide', 'define the voice', 'establish prose rules', or when the plan-the-book sequence reaches the style + voice step (after scene plans, alongside fiction-voiceprompt)."
 metadata:
   author: Fiction Toolkit
-  version: "7.5.0"
+  version: "7.6.0"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -23,7 +23,7 @@ Create the `Wiki/Style/` folder if it does not exist. If a legacy alternate name
 All inputs come from the project's `Wiki/` folder. The project may live in a subfolder of the working directory, so search for files such as `**/Wiki/Story/synopsis.md`. If multiple projects match, ask the user which one.
 
 - `Wiki/Story/synopsis.md`: required. For: title, genre, tone, POV, protagonist names.
-- `Wiki/Story/theme.md`: optional. For: central_question, tone, motifs.
+- `Wiki/Story/theme.md`: optional. For: thematic_question (legacy central_question), tone, motifs.
 - `Wiki/Style/audience.md`: optional. For: content boundaries, tone_variant, vocabulary and complexity calibration.
 - `Wiki/Style/genre.md`: optional. For: subgenre, flavor, tropes.
 - `Wiki/Characters/*.md`: optional. For: personality and dialogue_style per POV character (feeds voice_checks).
@@ -94,7 +94,7 @@ Use [references/review-guide-schema.json](references/review-guide-schema.json) a
 
 - **forbidden_phrases**: pull all entries from the project's forbidden-phrases file if it exists, plus universal craft rules
 - **voice_checks**: one entry per POV character, derived from their personality and dialogue_style in `Wiki/Characters/<Name>.md` (if those files exist) or from the synopsis protagonist descriptions
-- **thematic_checklist**: derived from the theme file's motifs and central_question if available; otherwise from the synopsis
+- **thematic_checklist**: derived from the theme file's motifs and thematic question if available; otherwise from the synopsis
 - All other fields: use the universal rules in the schema as the base; adjust for this project's genre and tone
 
 Preserve author-set punctuation and simile fields during regeneration. A simile limit may be a nonnegative integer or `unlimited`. Record a KEEP example only when the author supplied or approved it.

@@ -3,7 +3,7 @@ name: fiction-characters
 description: "Generate one Wiki/Characters/[Name].md file per character with full profiles. Personality and dialogue_style are WRITING INSTRUCTIONS, not descriptions. Use when user says 'create characters', 'generate cast', 'build character profiles', or after running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.3.0"
+  version: "3.4.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -64,24 +64,16 @@ Also read [references/anti-flat-rules.md](references/anti-flat-rules.md): these 
 
 One character per name in the synopsis's characters_in_play. Add any others who are clearly implied by the plot.
 
-**Required (every story):**
-1. Protagonist
-2. Antagonist (with LEGITIMATE motivation)
+Start with the protagonist or ensemble established in the synopsis. Add a personal antagonist when someone actively opposes them. Pressure can also come from weather, illness, time, an institution, or incompatible duties. Keep that pressure in the situation when the book has no individual antagonist.
 
-**Add as needed:**
-3. Deuteragonist / Love Interest
-4. Ally / Confidant (with their own agenda)
-5. Mentor
-6. Supporting cast
-
-**Match cast size to story scope.** A 10-scene one-shot needs 2-3 characters. A 30-chapter novel needs 6-10.
+Add a deuteragonist, love interest, ally, confidant, mentor or supporting character when the story calls for them. Match the cast size to the book’s scope and viewpoint.
 
 ### Rules
 
 **Role types:**
 - `protagonist`: use core protagonist fields (`physical_description`, `personality`, `dialogue_style`, `backstory`, `want`, `need`, `flaw`, `secret`, `internal_monologue`, `relationship_dynamics`); add `chemistry_with_protagonist`, `romantic_obstacles`, and `shared_history` only when the book has a romantic pairing or central duo dynamic.
 - `antagonist`: use antagonist fields: motivations, methods, power_resources, relationship_to_protagonist
-- `supporting`: use supporting fields: personality, skills_or_resources, role_in_story, relationship_to_protagonist
+- `supporting`: use supporting fields: personality, skills_or_resources, role_in_story, relationship_to_protagonist. Add optional `independent_move` for a consequential secondary character: what they do for their own reasons, and how it changes another character’s options. A walk-on generally needs no such field.
 - Add `also_known_as` to any character known by multiple names
 
 **Physical description**: Specific and visual. Not a catalog of features: the two or three things that a stranger would register, that another character would notice first, that carry the character's status or history in their body.
@@ -96,7 +88,7 @@ One character per name in the synopsis's characters_in_play. Add any others who 
 
 **relationship_dynamics**: Per named relationship in the story. How this character reads each important person: what they see, what they miss, what they won't say, what they observe and file away.
 
-**Antagonist motivations**: Never "evil for evil's sake." The antagonist must have a coherent reason that makes sense from inside their worldview. State it plainly.
+**Antagonist motivations**: For a personal antagonist, state what they seek and why that choice makes sense to them.
 
 **Field constraints:**
 - Max 120 words per field
@@ -112,8 +104,8 @@ One character per name in the synopsis's characters_in_play. Add any others who 
 
 Every character must pass before saving:
 - [ ] Has WANT, NEED, FLAW, SECRET (protagonists at minimum)
-- [ ] Antagonist has legitimate motivation and a sympathetic quality
-- [ ] At least one ally has a conflicting agenda
+- [ ] Each personal antagonist present acts from an intelligible motive
+- [ ] Where a secondary character drives a strand, their own choice changes what happens, through cooperation or conflict
 - [ ] No two characters sound the same (untagged dialogue test)
 - [ ] Personality is a writing instruction, not a description
 
@@ -123,7 +115,7 @@ Write one file per character to `[wiki root]/Characters/<Character_Name>.md`, re
 
 **File format:**
 - YAML frontmatter carries the scalar fields: `name`, `role`, `age`, `pronouns`, and `also_known_as` / `ai_invented` when applicable. Frontmatter is plain, conservative YAML: block lists one item per line, never inline `[a, b]`; quote any string containing a colon.
-- The Markdown body carries the prose fields, one `##` section each, snake_case headings matching the schema field names: `## physical_description`, `## personality`, `## dialogue_style`, `## backstory`, `## want`, `## need`, `## flaw`, `## secret`, `## chemistry_with_protagonist`, `## romantic_obstacles`, `## shared_history`, `## internal_monologue`, `## relationship_dynamics`, and for antagonists `## motivations`, `## methods`, `## power_resources`, `## relationship_to_protagonist`, and for supporting cast `## skills_or_resources`, `## role_in_story`, `## relationship_to_protagonist`.
+- The Markdown body carries the prose fields, one `##` section each, snake_case headings matching the schema field names: `## physical_description`, `## personality`, `## dialogue_style`, `## backstory`, `## want`, `## need`, `## flaw`, `## secret`, `## chemistry_with_protagonist`, `## romantic_obstacles`, `## shared_history`, `## internal_monologue`, `## relationship_dynamics`, and for antagonists `## motivations`, `## methods`, `## power_resources`, `## relationship_to_protagonist`, and for supporting cast `## skills_or_resources`, `## role_in_story`, `## relationship_to_protagonist`, and `## independent_move` when applicable.
 - Under `## relationship_dynamics`, use one `### <Other Character Name>` sub-heading per named relationship so the entries stay grep-able.
 
 Return: "Character files written to Wiki/Characters/" plus a one-line summary of the cast (roles and names).
@@ -138,14 +130,15 @@ After the cast files are written, seed the **chapter-1** state for each meaningf
 ## relationship_checkpoints
 
 ### <Other Character Name>
-- **book:** Book-1
+- **book:** [selected book ID or display label, e.g. Book-2]
 - **link_type:** romantic | ally | family | rival | friend | antagonist
 - **chapter_start:** 1
+- **turn_scene:** opening
 - **chapter_end:** (open)
 - **notes:** one-line, spoiler-safe state of this bond at the story's start
 ```
 
-Only author pairs with real history or a defined dynamic at the opening; unlinked pairs fall back to the first-meeting directive automatically. Later turns in a relationship are appended as new dated entries under the same `###` heading during `fiction-outline` and `fiction-scenes`, not here; when adding a later checkpoint, close the prior open span by setting its `chapter_end` to the chapter before the new checkpoint. Seeding at chapter 1 with an open end is always safe.
+Only author pairs with real history or a defined dynamic at the opening; unlinked pairs fall back to the first-meeting directive automatically. Later turns in a relationship are appended as new dated entries under the same `###` heading during `fiction-outline` and `fiction-scenes`, not here; record the selected book on every entry. A change earned on the page uses its chapter and `turn_scene` number. Keep the previous span active through that chapter so the writer knows what the characters bring into the turn. Use `opening` only for a state already established when the chapter begins. A legacy pair with Book 1 history only can keep its unscoped entries. When that pair also has a later-book entry, the packet withholds each unscoped checkpoint and reports the character, source, and starting chapter so the writer can assign its book.
 
 ---
 

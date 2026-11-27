@@ -1,6 +1,7 @@
 {
   "chapter_number": "[Integer or decimal/interlude identifier matching the project]",
   "chapter_title": "[Authoritative chapter title]",
+  "movement": "[Movement or strand when specified]",
   "scenes": [
     {
       "scene_id": "[Project scene-ID convention; preserve decimal/interlude identity]",
@@ -16,7 +17,7 @@
         "[Organization, system, or event name — match the project's authoritative world source]"
       ],
       "items": [],
-      "hook": "[The specific final action, line, image, decision, or emotional aftereffect that creates forward pull or resonance.]"
+      "hook": "[The specific final action, line, image, decision, or emotional aftereffect that creates forward pull, resonance or closure.]"
     },
     {
       "scene_id": "[Next scene ID under the project's convention]",

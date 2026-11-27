@@ -8,7 +8,7 @@ Every novel makes a promise. The question is whether the author makes it intenti
 
 ## The Promise Statement Formula
 
-A strong promise can be distilled to one sentence:
+For a transformational arc, one possible promise statement is:
 
 > "This is a story about **[character type]** who **[faces what]** and discovers **[thematic truth]** at the cost of **[sacrifice]**."
 
@@ -71,7 +71,7 @@ The scale of conflict established early tells the reader what to expect.
 You can ESCALATE stakes. Starting personal and going global works. You cannot DEFLATE. Starting with "the world is ending" and narrowing to "one person's feelings" feels like a letdown.
 
 ### Satisfaction Promise
-Genre determines what "satisfying" means:
+The following examples illustrate common sources of satisfaction. Use the reader contract established for this book:
 
 | Genre | Satisfaction Type | What Readers Expect |
 |-------|-------------------|---------------------|
@@ -119,7 +119,7 @@ The promise statement contains the theme in miniature:
 > "This is a story about [character] who [faces conflict] and discovers **[thematic truth]** at the cost of **[sacrifice]**."
 
 The thematic truth IS the answer to the central question.
-The sacrifice IS the cost of arriving at that answer.
+
 
 If your promise statement and your central question don't align, one of them is wrong.
 
@@ -137,6 +137,6 @@ If your promise statement and your central question don't align, one of them is 
 Once you have your promise statement, it becomes a decision-making tool:
 
 1. **Scene selection**: Does this scene advance the promise? Keep it. Does it wander away from the promise? Cut it or find the connection.
-2. **Character arc**: Does the protagonist's journey move toward discovering the thematic truth? If not, recalibrate.
-3. **Ending design**: Does the ending deliver the thematic truth at the specified cost? If the ending doesn't echo the promise, something drifted.
+2. **Character arc**: Which choices, perceptions or encounters sharpen the values in tension?
+3. **Ending design**: Can the reader identify what the book settled or delivered? Which interpretations does its final action or image still support?
 4. **Pacing decisions**: The promise tells you what readers are waiting for. Don't make them wait too long for the thing you promised.

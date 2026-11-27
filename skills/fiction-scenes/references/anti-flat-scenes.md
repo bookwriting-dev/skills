@@ -6,7 +6,7 @@ Scenes go flat when nothing meaningful happens. These rules prevent empty chapte
 
 ## The Three Tests
 
-Every scene must pass ALL THREE:
+Read each scene in its chosen form and test its effect:
 
 ### 1. The Change Test
 **Question**: What is different at the end of this scene than at the beginning?
@@ -31,7 +31,7 @@ Acceptable agency:
 - Chooses between options (even bad ones)
 - Refuses to act (and faces consequences)
 
-**If the protagonist only reacts, witnesses, or feels, look for the choice their reaction produces or consider merging the scene.**
+A witness may be powerless to act and still transform the reader’s understanding. Name the detail that only this viewpoint could supply. If observation adds nothing or repeats an established conclusion, suggest the smallest repair.
 
 ### 3. The Necessity Test
 **Question**: What would be lost if this scene were cut?
@@ -40,7 +40,7 @@ Acceptable necessities:
 - Plot information that can't be delivered elsewhere
 - Character moment that defines who they are
 - Relationship beat essential to later payoff
-- Atmosphere/tone establishment (opening only)
+- Atmosphere or tone that accumulates meaning or delivers a payoff
 - Setup for later reversal
 
 **If the scene can be cut without loss, it is likely flat or redundant.**
@@ -65,10 +65,8 @@ Big event just happened. Characters discuss their feelings about it.
 **The Problem**: Reaction without action.
 
 **The Fix**:
-- Processing must lead to a decision
-- Conversation must reveal conflict or new information
-- Physical action anchors the emotional beat
-- Character must DO something as a result of processing
+- Identify the new understanding, emotional cost or release that reaches the reader.
+- Cut a repeated explanation when an earlier gesture already carries it.
 
 ### The Setup Chapter
 This chapter exists only to position characters for the next one.
@@ -109,7 +107,7 @@ Same emotional beat as the previous chapter.
 ### The Witness
 Protagonist watches things happen.
 
-**Fix**: Make them a participant. Their presence must matter.
+**Test**: What can the reader see from here that would otherwise be lost? Preserve a witness who supplies that perspective.
 
 ### The Passenger
 Protagonist is carried along by others' decisions.
@@ -119,7 +117,7 @@ Protagonist is carried along by others' decisions.
 ### The Feeler
 Protagonist has emotions about events.
 
-**Fix**: Emotions must drive action. Feel, then DO.
+**Test**: Is the passage giving the reader a new understanding or space to experience what has happened? Where it repeats an earlier beat, tighten the repetition.
 
 ### The Explainer
 Protagonist's role is to receive or deliver information.
@@ -135,7 +133,7 @@ Things happen TO the protagonist.
 
 ## The Momentum Check
 
-Every scene should create forward pull. Check for:
+When the intended ending promises forward pull, check for:
 
 ### Hooks
 - Unanswered question raised
@@ -144,12 +142,8 @@ Every scene should create forward pull. Check for:
 - Anticipation for upcoming event
 - Character in motion toward goal
 
-### Anti-Hooks (avoid)
-- Everything wrapped up neatly
-- Character at rest with no pending action
-- Question answered without new question raised
-- Threat eliminated without new stakes
-- Pause in action without tension
+### Closure and aftermath
+A scene can finish what it came to do. Check how the closing image, act, or silence delivers a payoff established earlier. If the prose simply stops before the promised emotional or dramatic event, identify where that event was owed.
 
 ---
 

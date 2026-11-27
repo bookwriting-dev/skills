@@ -10,6 +10,7 @@ import tempfile
 import beta_exchange
 import editions
 import epub_navigation
+import feedback_scope
 import project_state as state
 
 
@@ -107,8 +108,12 @@ def build(root, book, old, target_id, reader):
     feedback = state.path_at(root,f'_Edits/{book}/beta-feedback/{old["export_id"]}.json')
     notes = [n for n in state.document(feedback,'feedback')['feedback'] if n['reader']==reader]
     by_scene = defaultdict(list)
+    broader = []
     for n in notes:
-        by_scene[note_scene(n,old['sections'])].append(n)
+        if n['location']['status'] == 'GENERAL' or n['location'].get('scope'):
+            broader.append(n)
+        else:
+            by_scene[note_scene(n,old['sections'])].append(n)
     comparison = editions.compare(old,target)
     parts, attrs, hashes, origins = [], {}, {}, {}
     sections = {editions.section_id(s):s for s in target['sections']}
@@ -126,6 +131,8 @@ def build(root, book, old, target_id, reader):
     def prior(rows):
         for n in rows:
             block = 'Your previous comment\n\n' + quote_block(n['comment'])
+            if n.get('kind') == 'strength':
+                block = 'What you wanted to keep\n\n' + quote_block(n['comment'])
             if n.get('quote'):
                 block += '\n\nPrevious selection\n\n' + quote_block(n['quote'])
             append(block,'Previous comment')
@@ -162,6 +169,15 @@ def build(root, book, old, target_id, reader):
         else:
             append('## Earlier comments without a unique scene match','Unmatched comments')
         prior(rows)
+    for note in broader:
+        scope = note['location'].get('scope')
+        if not scope:
+            try:
+                scope, _ = feedback_scope.resolve(note, old)
+            except ValueError:
+                scope = {'label': note.get('chapter') or 'Unlocated'}
+        append('## Earlier feedback on ' + scope['label'], 'Earlier feedback')
+        prior([note])
     if not counts:
         append('The two editions have the same reader scenes.','Comparison')
     # A note definition can live in an unchanged scene at the end of the chapter.
@@ -229,7 +245,21 @@ def build(root, book, old, target_id, reader):
 
 def remap(note, packet, target, locate):
     """Translate only anchored packet manuscript passages to the archived target."""
-    binding = locate(note,packet)
+    if not note.get('anchors') and not note.get('quote'):
+        return locate(note, target)
+    explicit = any(key in note for key in ('scope', 'chapter_range', 'chapter'))
+    scoped_note = {k: v for k, v in note.items() if k not in ('scope', 'chapter_range', 'chapter')}
+    if explicit:
+        origins = [s for s in packet['sections'] if s.get('origin')]
+        selected = [s for s in origins if note.get('chapter') and feedback_scope.matches(s, note['chapter'])]
+        if not selected:
+            try:
+                scope, _ = feedback_scope.resolve(note, target)
+            except ValueError as exc:
+                return {'status': 'UNRESOLVED', 'reason': str(exc)}
+            selected = [s for s in origins if s['origin']['chapter_id'] in scope['chapter_ids']]
+        packet = dict(packet, sections=selected)
+    binding = locate(scoped_note, packet)
     if binding['status']!='ANCHORED':
         return binding
     section = next(s for s in packet['sections'] if s['path']==binding['path'])
@@ -256,9 +286,14 @@ def remap(note, packet, target, locate):
             if len(hits)==len(positions) and len(within)==1:
                 anchors.append(hits[within[0]])
     if anchors and len(anchors)==len(binding['passages']):
-        return locate(dict(note,anchors=anchors,chapter=source['chapter_id'] or source['path']),target)
+        result = locate(dict(scoped_note, anchors=anchors, chapter=source['chapter_id'] or source['path']), target)
+        if result['status'] == 'ANCHORED' and ('scope' in note or 'chapter_range' in note):
+            result['scope'] = scope
+        return result
     quote = note.get('quote') or binding.get('anchor_text','')
     if quote and quote in beta_exchange.normal(source['reader_text'][origin['start']:origin['end']]):
+        if 'scope' in note or 'chapter_range' in note:
+            binding['scope'] = scope
         return dict(binding,chapter_id=source['chapter_id'],chapter=source['label'],path=source['path'],
                     source_sha256=source['source_sha256'],passages=[],scene=origin['scene']+1)
     return {'status':'UNRESOLVED','reason':'returned selection cannot be matched to the archived target scene'}

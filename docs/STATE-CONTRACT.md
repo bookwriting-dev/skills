@@ -8,6 +8,8 @@ Report verdict and freshness are independent. CURRENT evidence establishes which
 
 The runtime is an explicit bundled dependency, declared as metadata.bundled-dependencies in consuming skills and checked by lint. Full scaffolded libraries contain it. Individually copied skills without that dependency must report incomplete installation and UNKNOWN evidence. All new records use JSON schema_version 1; existing promise YAML remains owned by the existing ledger skills.
 
+The ChatGPT desktop and Claude Code plugins record the release version and a `plugin-skill` input for the review skill, shared runtime and declared bundled dependencies. Both builders hash the same files using the original desktop release's rendering before substituting host-specific command paths. Either host can check or finalize the saved evidence from the other. A change to a captured input makes the review stale. Version-only updates and moving the install preserve freshness.
+
 Example saved-review lifecycle (prefer the ergonomic `review-begin` / `review-finish` commands, or use raw `--spec` files via `prepare` / `snapshot`):
 
 1. `project_state.py --root ROOT --book Book-1 review-begin --chapter 1 --type Gate` (auto-resolves chapter, predecessor, plan, style/review guides, ledgers, `AGENTS.md`, and skill dir into `_Edits/Book-1/Chapter-001_Gate.prepared.json`).

@@ -14,8 +14,8 @@ Frequent problems and how to fix them.
 - After: "Silk curtains framed three tall windows, and even the chair legs were gilded—the kind of room meant to make a debtor ask for less than she was owed."
 
 ### Passive Protagonist
-**Issue**: Character observes and reacts but never makes a cost-bearing choice.
-**Fix**: Force a concrete decision or tactic under pressure—don't excuse passivity as "gathering information" when the scene stalls.
+**Issue**: The planned choice never occurs, or a witness’s observations add nothing to the reader’s understanding.
+**Fix**: Restore the specific choice or reveal the detail that gives the witness’s perspective its purpose.
 **Example**:
 - Before: "The argument continued around her."
 - After: "She slid the ledger across the table and laid her key on top of it. Either they settled the split now, or she walked out with the manifest."
@@ -36,9 +36,9 @@ Frequent problems and how to fix them.
 **Issue**: Key scene resolves too quickly.
 **Fix**: Slow down. Add physical sensation. Let moments land.
 
-### No Hook Ending
-**Issue**: Chapter stops rather than ends.
-**Fix**: End on question, decision, or shift. Create pull forward.
+### A chapter stops short
+**Issue**: The ending abandons its promised event or repeats a feeling the scene has already delivered.
+**Fix**: Restore the missing turn or end on the image that pays it. A final closure or aftermath can allow the reader to rest.
 **Example**:
 - Before: "She went home and went to bed."
 - After: "She went home. The light in her apartment was already on."
@@ -59,8 +59,8 @@ Frequent problems and how to fix them.
 - After: "She shrugged. 'I don't know.'"
 
 ### No Subtext
-**Issue**: Characters say exactly what they mean.
-**Fix**: Add gap between what's said and what's meant.
+**Issue**: Dialogue repeats established information without altering anyone’s position or the reader’s understanding.
+**Fix**: Locate the redundant exchange. Preserve an honest answer that transfers permission, establishes cost or changes the relationship.
 
 ---
 
@@ -140,7 +140,7 @@ Frequent problems and how to fix them.
 Before submitting edits:
 - [ ] Forbidden phrases removed
 - [ ] Voice consistent throughout
-- [ ] Hook ending present
+- [ ] Closing beat delivers its intended tension, aftermath or closure
 - [ ] Setting grounded
 - [ ] Continuity verified
 - [ ] Character voices distinct

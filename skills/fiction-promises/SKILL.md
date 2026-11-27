@@ -3,7 +3,7 @@ name: fiction-promises
 description: "Track and audit the fiction Chekhov ledger at Wiki/Story/Book-N/promises.yaml, reporting overdue, due, and undated setups. Use when checking promises, loose ends, unresolved setups, 'chekhov', or closing a book. Runs with fiction-reviewchapter; non-fiction and hybrid projects use promise-tracker instead."
 metadata:
   author: Fiction Toolkit
-  version: "1.3.2"
+  version: "1.4.0"
   category: fiction-writing
   output-format: yaml
 ---
@@ -68,7 +68,7 @@ Record each in the ledger with:
 
 - **promise**: what the reader now expects, written from the reader's side — "the locked
   drawer in Elena's study", not "foreshadowing".
-- **introduced_ch**: the chapter where it was made.
+- **introduced_ch**: the chapter where it was made. When the setup has a distinctive passage, record its exact words in optional `setup_quote`. The draft packet resolves the chapter path and includes the quote only while it still matches the manuscript.
 - **kind**: object | skill | threat | question | debt | relationship | mystery | prophecy | rule
 - **weight**: how loudly the text made it — `whisper` (subordinate clause), `plain`
   (normal scene weight), `loud` (chapter title, climactic beat, repeated mention).
@@ -106,7 +106,7 @@ script is a convenience, not the skill.
 - **Overdue** → the reader is already owed this. Either pay it in the next chapter or
   deliberately re-plan the payoff and move the date, with a note in `notes` saying why.
   Silently moving a deadline is how a promise stays permanently eighteen chapters away.
-- **Due this chapter or next** → surface these to the drafting brief. A payoff lands
+- **Due this chapter or next** → the standard draft packet surfaces these in `promises.items` alongside overdue obligations and payoffs already on the target page. Read the setup passage when deciding how this scene can change its meaning. A payoff lands
   best when the reader has stopped consciously expecting it but the debt is still warm.
 - **Undated** → date it now, or defer it to the series map now. Leaving it undated is
   how the bucket grows.

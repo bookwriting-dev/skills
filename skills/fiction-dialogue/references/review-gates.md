@@ -12,11 +12,9 @@ Run a blind-speaker test on representative lines. Remove names and tags. If mult
 
 ## Gate 2: Turn-taking and echo
 
-Mark sequences where each line directly acknowledges, answers, reframes, or tops the immediately preceding line.
+Read a run of replies in context. What does the second speaker do with the first speaker’s words? An acknowledgment can accept blame, grant permission, offer comfort, or commit someone to act. Two people can achieve this through speech alone.
 
-Fail when the exchange could be diagrammed primarily as A to B to A to B with no physical task, silence, setting pressure, third-party pressure, delayed answer, or change in conversational target.
-
-Preserve necessary operational calls and intentional refrains. For other failures, delete acknowledgments, allow nonresponse, or change which pressure controls the next beat.
+Flag an echo when the later line repeats information or sentiment and removing it preserves what the speakers understand, feel, and can do. Quote the repeated beat and describe the effect of the cut. Preserve operational confirmations, purposeful refrains, and quiet agreement when their function is audible on the page.
 
 ## Gate 3: Comeback scaffolding
 
@@ -24,17 +22,13 @@ For every punchline or sharp retort, test the preceding line on its own.
 
 Fail when a line exists mainly to feed another speaker a comeback. Delete the setup line first, then decide whether the joke still belongs.
 
-Flag chains in which three or more consecutive speakers are witty. Unless the scene is explicitly sustained banter among characters canonically capable of it, retain at most the line that does the most character or relationship work.
+When several speakers are witty, identify who owns each joke, what it costs to make it, and how the others hear it. Flag a joke if the exchange requires someone to abandon an established motive or adopt another speaker’s voice to supply the setup.
 
 ## Gate 4: Interview sequencing
 
-Mark direct questions and whether the next beat supplies a clean answer.
+Read the question-and-answer sequence through its first consequence. Identify who needs the answer, why this person gives it now, and what it enables or costs. Preserve consecutive direct answers when they change knowledge, options, risk, permission, trust, or commitment. Apply the same test in a formal interview and in an ordinary conversation, including when the plan gives the exchange no special label.
 
-Two consecutive question-answer pairs are a warning. Three are a failure unless the scene's form is deliberately an interrogation, briefing, examination, or interview.
-
-Repair by combining questions, refusing one, answering incompletely, moving information into action, letting one answer create a practical consequence, or allowing the subject to remain unresolved.
-
-Do not merely replace question marks with declarative prompts. The failure is cooperative information delivery, not punctuation.
+In a hearing, asking for a known fact may place it on record and put the witness’s reputation at stake. Flag repetition or information gathering when the scene gives it no such purpose and you can show where the exchange loses pace or credibility. Quote the first beat where that happens. Combine redundant questions or put the useful answer where someone can act on it. A refusal, interruption, or evasion needs a motive the scene supports.
 
 ## Gate 5: Distributed conversational intelligence
 
@@ -71,7 +65,7 @@ Repair through narrower experience, misreading, incomplete explanation, a bounda
 
 For every dialogue block, state what each speaker wants and what changes by the end: knowledge, trust, status, permission, risk, intimacy, commitment, or available action.
 
-Fail lines that neither pursue an objective nor create resistance, relationship evidence, choice, or consequence. "Characterful" surface texture is not sufficient.
+Assess the exchange at the scale of the beat. An apparently small reply can prepare the next disclosure or let an earlier one be believed. Flag expendable lines when you can show what their removal preserves and where the exchange gains pace or force.
 
 ## Gate 9: Speakability and restraint
 

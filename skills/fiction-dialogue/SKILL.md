@@ -3,14 +3,14 @@ name: fiction-dialogue
 description: Draft, diagnose, or revise substantial fiction dialogue when speaker fidelity, unequal knowledge, subtext, or conversation architecture matters. Use for dialogue-heavy scenes or speech that feels samey, interview-like, over-clever, expository, or generically AI-written. Do not use for ordinary copyedits.
 metadata:
   author: Fiction Toolkit
-  version: "1.2.0"
+  version: "1.3.0"
   bundled-dependencies: book-status
   category: fiction-writing
 ---
 
 # Fiction Dialogue
 
-Treat conversation as characters acting under pressure, not as alternating lines that acknowledge and answer one another.
+Treat conversation as characters doing something with words. Identify why each person speaks and what becomes possible, understood, or felt through the exchange.
 
 Project and book instructions, canon, approved reader promise, beats, preservation limits, and required editorial passes remain authoritative. This skill adds a dialogue preflight before drafting and a dialogue-architecture gate before line polish. It does not authorize developmental rewrites or manuscript edits the user did not request.
 
@@ -40,7 +40,7 @@ Character sheets are inputs, not proof of compliance. Convert them into scene-sp
 - Do not distribute wit evenly. One person may drive humor in a beat; everyone else does not need to match them.
 - Banter is opt-in. A warm, tense, operational, grieving, intimate, or culturally difficult scene does not become banter because two characters know each other.
 - Do not make all speakers equally articulate, perceptive, concise, sarcastic, or emotionally literate.
-- A question does not automatically earn an answer, but direct answers may be exactly right. Carry the scene plan's conversation form and pressure-source exception into drafting and review. Interviews, interrogations, briefings, examinations, and purposeful cooperation may use consecutive direct answers; inspect whether the exchange changes knowledge, risk, permission, status, commitment, or available action. A form label is not blanket immunity from stagnation, and arbitrary evasion/interruption inserted to satisfy a count is not useful resistance.
+- Carry the planned conversation form and source of pressure into drafting and review. Consecutive direct answers can change knowledge, risk, permission, trust, commitment, or available action. Preserve them wherever the text earns that effect, including in ordinary cooperation. Cite the specific question, answer, or unexplored consequence when a sequence stalls.
 - Do not turn cultural, moral, or political friction into a tidy contemporary lesson. Let characters hesitate, misread, limit the explanation, or leave discomfort unresolved.
 - Do not make alien, aristocratic, technical, or formal speakers generate a stream of aphorisms. Formality is a social strategy, not constant eloquence.
 - Operational acknowledgments may be direct and repetitive when safety or coordination requires them. Do not force subtext into functional calls.
@@ -48,19 +48,19 @@ Character sheets are inputs, not proof of compliance. Convert them into scene-sp
 
 ## Conversation architecture
 
-For each exchange, track what changes in at least one of these states: objective, knowledge, trust, status, permission, risk, intimacy, commitment, or available action. Lines that only keep the conversational ball moving are candidates for deletion. If the plan names a form/exception, preserve its exact rationale in the drafting brief and the review report; if the plan is silent, do not invent a special exception to excuse a genuinely inert exchange.
+For each exchange, track what changes in at least one of these states: objective, knowledge, trust, status, permission, risk, intimacy, commitment, or available action. Lines that only keep the conversational ball moving are candidates for deletion. If the plan names a conversation form, preserve its rationale in the drafting brief and review report. When no form is named, judge what the exchange accomplishes on the page.
 
-Prefer asymmetry. One character probes while another avoids. One talks while another works. A physical or environmental interruption can replace an answer. A later observation can continue an earlier conflict without restating it.
+Follow the speakers’ interests. People with a shared purpose may cooperate immediately and take on different obligations. When interests diverge, one speaker may probe while another avoids, answers an earlier concern, or leaves a question open.
 
 Subtext is not universal evasiveness. A line has subtext when the speaker's chosen wording, omission, timing, or action serves a motive beyond its literal information.
 
 ## Drafting rule
 
-Draft the scene from the preflight's objectives, knowledge gaps, response tendencies, setting pressures, and pressure leaks. Do not draft from generic personality adjectives. Keep only lines that this speaker would choose now, with this listener, to obtain or avoid something.
+Draft from each speaker’s purpose, what each already knows, their relationship, and the pressures established in this scene. Do not draft from generic personality adjectives. Keep only lines that this speaker would choose now, with this listener, to obtain or avoid something.
 
 ## Review rule
 
-Run the architecture gates before polishing diction. If a scene fails for interview sequencing, comeback scaffolding, distributed wit, over-cooperation, or shared conversational intelligence, restructure the exchange. Rewording individual lines cannot repair a synthetic conversation pattern.
+Run the architecture gates before polishing diction. When a sequence merely repeats settled facts, feeds a comeback, or gives characters an implausibly shared voice, identify where it goes slack and repair that beat. Rewording individual lines cannot repair a synthetic conversation pattern.
 
 When reporting findings, identify the location, failure mode, speaker-specific cause, and smallest structural repair. Do not merely label dialogue "stiff" or "AI-like."
 

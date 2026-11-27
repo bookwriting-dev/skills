@@ -3,7 +3,7 @@ name: fiction-genre
 description: "Select genre, subgenre, flavor, tone, and tropes for a new fiction project. Use when user says 'pick a genre', 'what genre', 'start a new book', 'genre selection', or before running fiction-synopsis."
 metadata:
   author: Fiction Toolkit
-  version: "3.4.0"
+  version: "3.5.0"
   category: fiction-writing
   output-format: markdown
 ---
@@ -56,7 +56,7 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 
 **tone_notes**: One paragraph informed by the subgenre's tone and reader expectations. Define the story's authentic emotional register (whether earnest, austere, lyrical, sardonic, eerie, comedic, or warm), its underlying tension, and what world texture is load-bearing. Specific to this story, not a generic genre blurb.
 
-**tropes**: List of snake_case strings. Start with the subgenre's mandatory tropes. Add the user's stated preferences. Add only optional tropes that materially strengthen the intended experience; do not copy the reference's entire catalog. Every selected trope is a commitment that downstream planning must either fulfill or deliberately subvert.
+**tropes**: List of snake_case strings. Start with the reader contract the author has chosen and their stated preferences. Use the subgenre list to distinguish a promised outcome (such as a fair-play solution) from an available plot device (a false accusation) and a continuing craft quality (observational precision). Keep a device when the author selected it or it earns a role in this book. Record ongoing qualities in Genre-Specific Craft Notes with an example of the desired reader experience. Every selected trope is a commitment that downstream planning must either fulfill or deliberately subvert.
 
 **trope_commitments**: In the body, give every selected trope its own heading and record:
 
@@ -64,9 +64,9 @@ Cover every field in [references/json-schema.json](references/json-schema.json) 
 - **reader_expectation:** the recognizable experience, progression, scene type, or payoff the trope leads a reader to expect;
 - **planning_obligation:** what the synopsis and outline must establish, develop, and pay off, or what a deliberate subversion must replace with equal satisfaction.
 
-**Genre-Specific Craft Notes & Reader Expectations**: Extract the subgenre reference file's concrete chapter-length range, pacing conventions, cliffhanger/ending cadence, and resolution rules (e.g., HEA/HFN, grim cost, eerie ambiguity, fair-play reveal) into explicit `## Genre-Specific Craft Notes` and `## Reader Expectations` sections so `fiction-outline`, `fiction-writechapter`, and `fiction-reviewchapter` inherit them instead of losing reference knowledge after Step 2.
+**Genre-Specific Craft Notes & Reader Expectations**: Select the subgenre reference’s chapter length, pacing, ending cadence, and resolution guidance that fits the author’s form and book contract (e.g., HEA/HFN, grim cost, eerie ambiguity, fair-play reveal) into explicit `## Genre-Specific Craft Notes` and `## Reader Expectations` sections so `fiction-outline`, `fiction-writechapter`, and `fiction-reviewchapter` inherit them instead of losing reference knowledge after Step 2.
 
-Mandatory subgenre tropes are normally `genre_contract` or `structural_engine`. Use `supporting_texture` only when recurrence matters but a discrete payoff does not. Use `deliberate_subversion` only when the user requested or approved the subversion. Keep these obligations genre-level; do not invent the story's plot before the synopsis exists.
+Use `genre_contract` or `structural_engine` for a commitment this particular book makes. For example, an epic fantasy can follow a single viewpoint if that is the promised form. “Prose as Art” belongs in craft notes; the quality of a sentence can be assessed on the page. Use `supporting_texture` only when recurrence matters but a discrete payoff does not. Use `deliberate_subversion` only when the user requested or approved the subversion. Keep these obligations genre-level; do not invent the story's plot before the synopsis exists.
 
 ## Step 4: Save and Confirm
 

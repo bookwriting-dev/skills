@@ -3,7 +3,7 @@ name: fiction-voiceprompt
 description: "Generate or refresh a compact protagonist voice_prompt.md from character, style, theme, audience, genre, and synopsis files. Use when user says voice prompt, protagonist voice, refresh voice, or robotic prose prevention."
 metadata:
   author: Fiction Toolkit
-  version: "2.3.0"
+  version: "2.4.1"
   bundled-dependencies: book-status
   category: fiction-writing
   output-format: markdown
@@ -38,7 +38,7 @@ Read:
 2. Style guide
 3. Every POV character file in full, plus any key non-POV deuteragonist/antagonist files needed for relationship voice
 4. Theme, audience, genre, and review guide if present
-5. Existing voice prompt(s) if present, to preserve useful project-specific rules
+5. Existing voice prompt(s) and their author-selected anchors. When available, also consult the writer’s marked passages from an opening trial, a prior chapter, or an approved reverse-analysis report. A model-selected example becomes an author anchor only when the writer selects it.
 
 ## Step 3: Build the Voice Prompt(s)
 
@@ -74,6 +74,9 @@ Compose each POV character's voice prompt using this structure:
 ## Relationship Voice
 [How narration changes around key characters without violating POV.]
 
+## Author-selected voice anchors
+[Optional. When the author has suitable existing prose, invite them to select a paragraph with this narrator at ease and another under pressure. Use whatever they have already chosen, including a single passage. Beside each exact quotation, record its source and the author’s intended effect. Identify what the narrator notices or evades and how sentence rhythm changes when something costs them. If no passage has been selected, omit this section and continue. Retain approved passages on refresh. Keep generated illustrations in the sections below.]
+
 ## Direct Thought Examples
 [10-20 short thought lines the protagonist might actually think.]
 
@@ -103,7 +106,7 @@ Avoid:
 
 ## Step 5: Save and Report
 
-Write the full voice prompt Markdown to `Wiki/Style/voice_prompt.md` in the project (create the `Wiki/Style/` folder if it is missing). For dual or multi-POV books, also write `Wiki/Style/voice_prompt_<Character_Name>.md` for each POV protagonist and keep `Wiki/Style/voice_prompt.md` as the cross-POV contrast and routing index. If a legacy voice prompt exists under another name or at the project root, still write the canonical path(s); downstream skills (`fiction-writechapter`, `project_state.py draft-packet`) read the canonical paths. Overwrite on refresh; the files are safe to regenerate.
+Write the full voice prompt Markdown to `Wiki/Style/voice_prompt.md` in the project (create the `Wiki/Style/` folder if it is missing). For dual or multi-POV books, also write `Wiki/Style/voice_prompt_<Character_Name>.md` for each POV protagonist and keep `Wiki/Style/voice_prompt.md` as the cross-POV contrast and routing index. If a legacy voice prompt exists under another name or at the project root, still write the canonical path(s); downstream skills (`fiction-writechapter`, `project_state.py draft-packet`) read the canonical paths. On refresh preserve selected passages and their provenance verbatim, including author comments on what to keep.
 
 Return only:
 

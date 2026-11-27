@@ -3,7 +3,7 @@ name: fiction-writechapter
 description: "Draft or continue a fiction chapter from an established scene plan, book voice, continuity, and book-specific Wiki canon. Use when the user asks to write a chapter or continue writing; use fiction-scenes when the chapter's causal beats are not yet settled. Also use for an explicit request to try an opening scene, draft a sample opening, or promote an opening-scene trial."
 metadata:
   author: Fiction Toolkit
-  version: "4.13.0"
+  version: "4.14.0"
   bundled-dependencies: book-status, fiction-dialogue
   category: fiction-writing
   output-format: markdown
@@ -47,6 +47,8 @@ The packet resolves the target scene plan, full `Chapter_NN_Psych.md` interior m
 
 Use the packet's `chapter_format` for the heading label, source scene breaks, and POV marks. Check `continuity.claims` for the scene plan's referenced keys. Query other keys or find the earlier passage directly when a clock, object, designation, or inventory count matters and the packet has incomplete coverage. See [book continuity review](../book-status/references/continuity-review.md).
 
+Consult `promises.items` for this chapter’s obligations and approaching payoffs. Open the cited setup when its wording or meaning matters. Deliver a payoff only where the scene plan earns it.
+
 Use [evidence that a scene depends on](../book-status/references/evidence-chain.md) for technical attributes, calendar windows, evidence transfers, and the limits of a character's deductions. When an earlier claim carries a support finding, inspect the sources before using it as an established premise.
 
 Save to the packet's resolved chapter path. New chapters in numbered projects without an explicit manifest use `Chapters/Book-N/Chapter-NNN.md`. Never create `[WorkingTitle]_Chapters` or another independently editable copy.
@@ -69,9 +71,10 @@ Read, in this order:
 
 1. The relevant scene entry from the compiled draft packet, plus the applicable shared continuity tail, relationship checkpoints, full `psych` block (`bottom_line`, `start_state`, `beat_interior_costs`, `end_state`, `what_they_wont_say`, `show_dont_tell_gaps`), `theme` motifs, `surprise_ledger` commitments, `style_policy`, `pov_lenses`, knowledge state, editorial decisions, and cooling list.
 2. Relevant current-status and continuity sections from `active-context.md`.
-3. The target scene plan or beats. When a scene involves substantial conversation, also apply [dialogue preflight](../fiction-dialogue/references/preflight.md) (unequal speaker stakes, subtext, avoiding interview Q&A chains).
+3. The target scene plan or beats. When a scene involves substantial conversation, also apply [dialogue preflight](../fiction-dialogue/references/preflight.md) to identify each speaker’s purpose and the effect of their response. Preserve a run of direct answers when it earns a decision, trust, a cost, or another planned consequence.
 4. The target outline entry only when the scene plan does not fully state the required outcome.
 5. The style guide and every POV-matched voice prompt (`voice_prompt_<POV>.md` and/or `voice_prompt.md`) listed in the draft packet. Treat the stricter book-specific rule as binding.
+   When `voice_contrast_index` is present, read its contrast notes as well as the scene’s own voice file. Read the author-selected passage and its effect if supplied. Carry the habits of attention, sentence movement, and self-deception into the new situation without echoing its wording.
 6. The optional psych document for any extra scene nuance not captured in `packet.psych`, without copying its analytical language.
 
 Do not load the entire synopsis, review guide, character directory, or world directory by default. Retrieve additional Wiki context only when a scene beat, continuity question, or proper noun requires it.
@@ -80,11 +83,11 @@ Before drafting, extract a compact working brief:
 
 - POV, tense, `style_policy` (`register_preset` + `clock_mode`), and voice constraints (including `pov_lenses` perceptual obsessions and cross-POV contrast rules when switching POVs across scenes). Apply [diction and clock time](../book-status/references/diction-and-time.md) honoring the book's `clock_mode` (`digits` vs `words`) and dialogue voice;
 - opening physical and emotional state, plus the previous chapter's closing seam;
-- active `relationship_checkpoints` for this chapter (do not revert to Chapter 1 dynamics or jump ahead to a future checkpoint);
-- required scene outcomes, `cadence_role` (`pressure_turn` [default] requires a failed tactic, deflection, or raised cost before the turn; `aftermath_valley`, `payoff_catharsis`, and `tonal_counterpoint` allow earned grief, sanctuary, tenderness, or humor without artificial bickering), `dramatic_irony` asymmetries from the draft packet (stage tension where the reader knows what the POV does not without leaking unlearned secrets), and ending movement;
+- incoming `scenes[].relationship_checkpoints` and confirmed `relationship_state_as_of.established`; a planned turn belongs inside its named scene and takes effect afterward. Resolve `relationship_timing_unresolved` against the source plan before using that bond. Consult `unscoped_relationship_checkpoints` for legacy rows whose book the packet could not establish; ask for the book only when the scene depends on that stance. Keep each character’s perspective distinct;
+- the intended scene outcome and `cadence_role`. A `pressure_turn` can draw its force from resistance or the cost of succeeding on the first attempt. For `aftermath_valley`, `payoff_catharsis`, and `tonal_counterpoint`, identify the act or perception that earns grief, sanctuary, tenderness, humor, or closure. Use supported `dramatic_irony` when it affects this scene’s choice. A rumor remains a claim and missing POV evidence leaves the character’s knowledge unknown;
 - any scene-plan conversation form/pressure-source rationale; preserve purposeful direct answers and do not add artificial evasions or interruptions to satisfy a numeric rule;
 - `what_they_wont_say` thoughts that must remain subtext and `show_dont_tell_gaps` with their suggested expression channels; bodily rendering is optional;
-- the **Cooling List** tokens/phrases/opener shapes from the trailing 3 chapters to avoid repeating;
+- prior phrase examples from the **Cooling List**. Preserve a proper name, technical term, purposeful refrain, or recurring image when its return earns a different effect;
 - named participants, places, organizations, systems, objects, events, and other canon terms that the scene expects.
 
 The scene plan has already decided plot architecture. Honor its required outcomes, choices, consequences, and chapter-specific obligations. You may shape connective action, dialogue, sensory detail, and local choreography, but do not replace the plan with a new one.
@@ -106,14 +109,14 @@ The book's own Wiki is the only research authority for proper nouns (except insi
 Use the book's requested length; otherwise aim for roughly 2,000–3,000 words. Follow the project's chapter-heading and scene-break conventions.
 
 When the scene plan has multiple scenes or a word floor $\ge 2,500$ words, draft **scene by scene in sequence** so back-half scenes are never compressed into summary ("summary skid"):
-1. Draft Scene 1 through its physical grounding, resistance beat (at least one deflection, failed tactic, or raised cost for `pressure_turn` scenes; authentic emotional dwell for valley/catharsis/counterpoint scenes), and concrete scene-ending turn.
+1. Ground Scene 1 in the viewpoint and carry it through the planned effect. Put consequential resistance or the price of the choice on the page for a `pressure_turn`. Give grief, recognition, relief, or quiet closure the space the plan calls for.
 2. Draft each subsequent scene from the trailing seam of the previous scene, giving the final scene full dramatic weight on the page rather than summarizing its resolution.
 
 In a multi-POV chapter, mark every scene break with the POV character of the section that follows, using the book's marker convention, switch to that POV character's `voice_prompt_<POV>.md` firewall, and make sure the chapter's head marker names the POV that actually opens the chapter. An unmarked break or a head marker naming the wrong POV is a defect, not a style choice: continuity maps, narration passes, and audio tooling parse these markers mechanically.
 
 When the book's instructions set a per-chapter word floor, treat a first draft landing under it as under-built: expand with substantive material inside the planned beats — added scene work, texture that earns its place, or a canon-consistent subplot when the plan offers nothing left to deepen — and check the next chapter's scene plan first so the addition does not steal its beats. Never pad, and never cut a planned beat, image, or texture hit as a length measure. In a revision pass, mandated redundancy cuts may take a chapter below the floor; report the honest count and leave it rather than re-adding padding to clear the number.
 
-Keep the prose inside the POV character's perception, judgment, body, and immediate thought. Match established dialogue voices, active `relationship_checkpoints` for this chapter, knowledge limits, setting rules, time, injuries, possessions, and unresolved promises. End with the forward movement required by the scene plan.
+Keep the prose inside the POV character's perception, judgment, body, and immediate thought. Match established dialogue voices, active `relationship_checkpoints` for this chapter, knowledge limits, setting rules, time, injuries, possessions, and unresolved promises. End on the scene plan’s intended effect. It may send someone into action, settle an obligation, or give the reader time to recognize what has changed.
 
 Do not turn planning language into narration. Terms such as beat, arc, motif, reversal, false belief, or chapter function belong in planning documents, not the character's lived experience. Do not force a motif or genre beat into conspicuous prose merely to satisfy a tracker; deliver the planned effect through natural action, choice, image, dialogue, or consequence.
 
@@ -121,13 +124,13 @@ Do not turn planning language into narration. Terms such as beat, arc, motif, re
 
 Perform a focused completion check, not a full editorial review:
 
-1. Confirm every required scene outcome, micro-friction beat, and consequence is present without late-chapter summary compression.
+1. Confirm the planned scene outcome and its cause are present on the page, including any specified resistance, price at the turn, emotional recognition, or closure. Give the final scene enough space to deliver its intended effect.
 2. Confirm POV, tense, voice, chronology, physical continuity, active `relationship_checkpoints`, and knowledge boundaries — including that every scene break carries the correct POV marker per the book's convention.
 3. Scan the title and prose for every proper noun, including possessives and aliases. Search the entire book Wiki for each one and correct every unsupported or inconsistent use.
 4. Remove analytical drafting language and generic voice drift that clearly violates the style guide or voice prompt.
 5. Check subtext and cooling rules against the draft packet:
     - Confirm no character speaks aloud or narrates as flat exposition a thought listed in `what_they_wont_say`, and assess whether each `show_dont_tell_gaps` moment uses a fitting channel (action, perception, thought, speech, memory, omission, object, or purposeful naming). Do not mechanically require bodily action.
-   - Check the chapter opening, closing sentence, somatic vocabulary, and similes against the packet's `cooling_list`; replace any repeated trailing-window opener/closer formula, repeated 3-gram, or overused somatic tic.
+   - Check the chapter opening, closing sentence, somatic vocabulary, and similes against the packet's `cooling_list`; inspect the cited occurrences. Change a repetition when it distracts, restates a beat, or gives narrators the same rhythm. Where an echo changes meaning, keep it. A project can list exact protected phrases as bullet entries under `## Cooling List Keeps` in its effective style guide.
 6. Verify every exact count or duration the prose asserts ("four words," "two syllables," "six days") against the line on the page. Recast any assertion the page disproves; never adjust the page to fit the count. Check durations and dates against the chapter's own stated anchors, and recast any reference to a manuscript or chapter number into in-world terms.
 7. Scan for verbatim duplication: a sentence or block rendered twice in near-identical form, especially in adjacent paragraphs or across a scene seam. A deliberate echo varies its continuation; an artifact repeats. Cut the artifact copy.
 

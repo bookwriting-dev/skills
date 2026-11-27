@@ -2,6 +2,17 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-27.1 — Novel planning, drafting and developmental feedback
+
+- Draft packets distinguish rumors from confirmed dramatic irony, place relationship changes within their book and scene, report actual language repetitions, and retrieve due promises with verified setup passages.
+- Novel-scale premise batches, separate plot and thematic questions, author-selected forms, and independent supporting-character actions give writers more ways to build the middle and ending. Chapter and scene review evaluates purposeful cooperation and earned closure.
+- Author-selected prose examples and the shared narrator contrast guide inform drafting and edits. An unlabeled cold read can test how readers recognize a voice.
+- Book- and range-level beta reactions can become developmental diagnosis tasks. Selected strengths travel with revision plans. A matched drafting study produces blind reader copies and attributed ballots for three connected excerpts.
+
+## 2026-11-27 — Claude Code plugin
+
+- Added a local Claude Code marketplace for the Storycraft skills and manuscript MCP server. The Claude and ChatGPT desktop packages share review hashes so authors can resume a saved chapter review on either host. The marketplace test also checks that a changed editorial rule makes the affected reviews stale.
+
 ## 2026-11-25.3 — Tier 3 plugin/MCP packaging, MCP tool routing, taste flywheel & stricter linter
 
 - **Plugin & MCP server fixes (`plugin/mcp_config.json`, `Makefile`, `mcp/storycraft_mcp.py`, `book-status` 1.19.0):** Fixes `mcp_config.json` pathing to use `${CLAUDE_PLUGIN_ROOT}/mcp/storycraft_mcp.py`; renders `templates/AGENTS.md` cleanly in `make plugin-dist` instead of copying raw `__SERIES_TITLE__`/`__PROJECT_TYPE__`; adds blank-line skipping and arbitrary-order MIME headers (e.g. `Content-Type:` before `Content-Length:`) to `_read_message()` in `storycraft_mcp.py`; adds `output`/`story_order`/`reader_order`/`key` to `storycraft_draft_packet`; exposes `storycraft_kanban`, `storycraft_reanchor`, `storycraft_chapter_preflight`, and `storycraft_chapter_finalize` MCP tools; adds `project_state.py manifest --action preview|apply` so `book-status` no longer cites unshipped `tools/project-manifest.py`; and routes workflow skills to `storycraft_*` MCP tools first (`chapter-pipeline` 1.12.0, `gate-check` 1.13.0, `kanban-board` 1.4.0, `fiction-writechapter` 4.13.0, `nonfiction-writechapter` 1.7.0).
