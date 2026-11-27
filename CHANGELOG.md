@@ -2,6 +2,14 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-27.3 — Editor round trip for tracked changes
+
+- New `editor-return` skill reads a returned editor DOCX and lists tracked changes, edits made with tracking off, and comments. It reads the Word XML directly because Pandoc leaves formatting revisions unmarked and does not link the two halves of a move.
+- `--preview` places supported changes in the current Markdown and shows a diff. Each result is rendered again and must read as the editor intended; changes that touch markup or cannot be located are left for the author.
+- Authors accept or reject changes by ID or confirmed filter. `--apply` takes a token from the matching preview, writes each chapter all or nothing, keeps a copy of the earlier text, and restores it if the written chapter cannot be confirmed.
+- The MCP server adds `storycraft_editor_return`, `storycraft_editor_decide` and `storycraft_editor_apply`. Long lists are paged, and writing is a separate tool.
+- `beta-feedback` 1.6.0: Word comments whose selection includes tracked changes now anchor to the original text. They previously came back unresolved.
+
 ## 2026-11-27.2 — Review integrity and manuscript status
 
 - Each chapter review gets a separate prepared capture. Finish and status checks re-evaluate the chapter’s applicable plans, editorial guidance, and evidence when deciding whether its review is current.

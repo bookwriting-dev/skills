@@ -23,7 +23,7 @@ of `skills/` at `.agents/skills/` when scaffolded (a real `cp -R`, not a symlink
 every project versions its own library and can fork it freely. Changes here do not
 propagate to existing projects automatically — that is by design.
 
-Scale today: **78 skills** — 40 inherited from upstream at the fork point, 38 added
+Scale today: **79 skills** — 40 inherited from upstream at the fork point, 39 added
 since the fork. See the generated inventory for current category counts.
 
 ## Repository layout

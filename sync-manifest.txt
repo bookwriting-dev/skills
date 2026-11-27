@@ -29,6 +29,7 @@ skills/beta-feedback/SKILL.md
 skills/beta-feedback/scripts/beta_feedback.py
 skills/beta-feedback/scripts/feedback_scope.py
 skills/beta-feedback/scripts/reread.py
+skills/beta-feedback/scripts/revisions.py
 skills/book-packaging/SKILL.md
 skills/book-reverse-engineer/SKILL.md
 skills/book-reverse-engineer/scripts/epub_intake.py
@@ -73,6 +74,10 @@ skills/compile-manuscript/scripts/epub_navigation.py
 skills/drift-check/SKILL.md
 skills/drift-check/references/drift.py
 skills/drift-check/scripts/drift.py
+skills/editor-return/SKILL.md
+skills/editor-return/scripts/editor_apply.py
+skills/editor-return/scripts/editor_preview.py
+skills/editor-return/scripts/editor_return.py
 skills/editorial-memory/SKILL.md
 skills/editorial-memory/assets/decision.json
 skills/fantasy-settlement/SKILL.md
@@ -281,6 +286,7 @@ tools/test-desktop-plugin.py
 tools/test-draft-promises.py
 tools/test-drafting-study.py
 tools/test-edition-exchange.py
+tools/test-editor-return.py
 tools/test-editorial-milestones.py
 tools/test-novel-beta.py
 tools/test-novel-draft-packet.py

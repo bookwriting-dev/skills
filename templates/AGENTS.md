@@ -196,7 +196,7 @@ At an act boundary or whole-book review, route similar cast names and reintroduc
 
 Use `book-reverse-engineer` to preview the reading order of a reflowable EPUB or import its reviewed sections. For a returning beta reader, use `beta-feedback` to build that reader's changed-scene Word and EPUB packet from two archived editions. Use `compile-manuscript` to follow navigation and note links in the built EPUB ahead of publication.
 
-For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. Use `project_state.py --root ROOT --book Book-N workflow` for the reviews required by drafting, the board, and export. The scaffolded project type supplies defaults and the book manifest can override them. Use `beta-feedback` to import real reader comments against the beta export ID and plan selected revisions. Existing project conventions and current user instructions retain authority.
+For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. Use `project_state.py --root ROOT --book Book-N workflow` for the reviews required by drafting, the board, and export. The scaffolded project type supplies defaults and the book manifest can override them. Use `beta-feedback` to import real reader comments against the beta export ID and plan selected revisions. Use `editor-return` when an editor sends that DOCX back with tracked changes; it writes chapters only on the author's instruction. Existing project conventions and current user instructions retain authority.
 
 ## Skill index
 
@@ -237,6 +237,7 @@ For a reading-experience test, use `sequential-read`; private canon and future t
 
 **Publish & Package:**
 - Manuscript delivery and real reader feedback: `compile-manuscript`, `beta-feedback`
+- Editor tracked changes returned in Word: `editor-return`
 - Marketing & publishing kit: `book-packaging`
 - Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 
@@ -266,6 +267,7 @@ For a reading-experience test, use `sequential-read`; private canon and future t
 
 **Publish & Package:**
 - Manuscript delivery and real reader feedback: `compile-manuscript`, `beta-feedback`
+- Editor tracked changes returned in Word: `editor-return`
 - Marketing & publishing kit: `book-packaging`
 - Social media (Facebook, Instagram, TikTok) launch & ongoing marketing: `social-media-marketing`
 

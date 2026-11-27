@@ -228,8 +228,140 @@ TOOLS = [
             'required': ['root'],
         },
     },
+    {
+        'name': 'storycraft_editor_return',
+        'description': 'List an editor\'s tracked changes, untracked edits and comments in a returned beta DOCX, or preview them as Markdown diffs. Saves the report; never writes chapters.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string', 'description': 'Absolute path to the book project root.'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'docx': {'type': 'string', 'description': 'DOCX the editor returned, absolute or project-relative.'},
+                'export': {'type': 'string', 'description': 'Beta export ID, needed if the file lost its bookmark.'},
+                'view': {'type': 'string', 'enum': ['changes', 'preview', 'untracked', 'comments'], 'default': 'changes'},
+                'accepted': {'type': 'boolean', 'default': False,
+                             'description': 'With view=preview, show exactly what apply would write and return apply_token.'},
+                'changes': {'type': 'array', 'items': {'type': 'string'}, 'description': 'Preview only these change IDs.'},
+                'chapter': {'type': 'string', 'description': 'List only this chapter\'s changes, by ID, label or path.'},
+                'offset': {'type': 'integer', 'default': 0},
+                'limit': {'type': 'integer', 'default': 40},
+            },
+            'required': ['root', 'docx'],
+        },
+    },
+    {
+        'name': 'storycraft_editor_decide',
+        'description': 'Record the author\'s decision on editor changes, by ID or by filter. A filter first only shows its matches and a confirm token.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string', 'description': 'Absolute path to the book project root.'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'docx': {'type': 'string', 'description': 'DOCX the editor returned, absolute or project-relative.'},
+                'export': {'type': 'string', 'description': 'Beta export ID, needed if the file lost its bookmark.'},
+                'status': {'type': 'string', 'enum': ['accepted', 'rejected', 'pending']},
+                'changes': {'type': 'array', 'items': {'type': 'string'}},
+                'chapter': {'type': 'string'},
+                'author': {'type': 'string'},
+                'punctuation_only': {'type': 'boolean', 'default': False},
+                'confirm': {'type': 'string', 'description': 'Token from the filter preview the author approved.'},
+                'offset': {'type': 'integer', 'default': 0},
+                'limit': {'type': 'integer', 'default': 40},
+            },
+            'required': ['root', 'docx', 'status'],
+        },
+    },
+    {
+        'name': 'storycraft_editor_apply',
+        'description': 'Write accepted editor changes into chapters, keeping a copy of the earlier text. Needs apply_token from the accepted preview the author approved.',
+        'inputSchema': {
+            'type': 'object',
+            'properties': {
+                'root': {'type': 'string', 'description': 'Absolute path to the book project root.'},
+                'book': {'type': 'string', 'default': 'Book-1'},
+                'docx': {'type': 'string', 'description': 'DOCX the editor returned, absolute or project-relative.'},
+                'export': {'type': 'string', 'description': 'Beta export ID, needed if the file lost its bookmark.'},
+                'token': {'type': 'string'},
+            },
+            'required': ['root', 'docx', 'token'],
+        },
+    },
 ]
 
+
+def _page(items, args):
+    offset, limit = max(int(args.get('offset', 0)), 0), max(int(args.get('limit', 40)), 1)
+    end = offset + limit
+    return {'total': len(items), 'offset': offset, 'next_offset': end if end < len(items) else None,
+            'items': items[offset:end]}
+
+
+def _editor_tool(name: str, root: Path, args: dict):
+    """Run the editor-return script and page its output, which can cover a whole novel."""
+    script = ROOT_REPO / 'skills' / 'editor-return' / 'scripts' / 'editor_return.py'
+    cmd = [sys.executable, str(script), '--root', str(root)]
+
+    def option(flag, value):
+        cmd.append(f'{flag}={value}')  # one argument, so a value is never read as another option
+
+    option('--book', args.get('book', 'Book-1'))
+    option('--docx', args['docx'])
+    if args.get('export'):
+        option('--export', args['export'])
+    view = args.get('view', 'changes')
+    if name == 'storycraft_editor_apply':
+        option('--apply', args['token'])
+    elif name == 'storycraft_editor_decide':
+        option('--mark', args['status'])
+        for identifier in args.get('changes') or []:
+            option('--change', identifier)
+        for key, flag in (('chapter', '--chapter'), ('author', '--author'), ('confirm', '--confirm')):
+            if args.get(key):
+                option(flag, args[key])
+        if args.get('punctuation_only'):
+            cmd.append('--punctuation-only')
+    elif view == 'preview':
+        cmd.append('--preview')
+        if args.get('accepted'):
+            cmd.append('--accepted')
+        for identifier in args.get('changes') or []:
+            option('--change', identifier)
+    proc = subprocess.run(cmd, cwd=root, capture_output=True, text=True, check=False)
+    if proc.returncode != 0:
+        raise ValueError(proc.stderr.strip() or 'editor_return failed')
+    report = json.loads(proc.stdout)
+    changes = report['changes']
+    statuses = {}
+    for change in changes:
+        statuses[change['status']] = statuses.get(change['status'], 0) + 1
+    result = {key: report[key] for key in ('ledger', 'export_id', 'docx')}
+    result['summary'] = {'statuses': statuses, 'manual': sum(not c['supported'] for c in changes),
+                         'untracked': len(report['untracked']), 'comments': len(report['comments'])}
+    result['storycraft_version'] = SERVER_VERSION
+    if name == 'storycraft_editor_apply':
+        result['applied'] = report['applied']
+    elif name == 'storycraft_editor_decide':
+        decision = report['decision']
+        result['decision'] = dict(decision, changes=_page(decision['changes'], args))
+    elif view == 'preview':
+        preview = report['preview']
+        result['preview'] = dict(preview, files=_page(preview['files'], args))
+    elif view in ('untracked', 'comments'):
+        result[view] = _page(report[view], args)
+    else:
+        wanted = (args.get('chapter') or '').casefold()
+
+        def in_chapter(change):
+            location = change.get('location') or {}
+            path = location.get('path') or ''
+            names = (location.get('chapter_id'), location.get('chapter'), path, Path(path).stem)
+            return not wanted or any(n and n.casefold() == wanted for n in names)
+
+        fields = ('id', 'type', 'status', 'supported', 'reason', 'authors', 'before', 'after', 'paragraph_before')
+        result['changes'] = _page([
+            {key: c[key] for key in fields if key in c} | {'chapter': (c.get('location') or {}).get('chapter')}
+            for c in changes if in_chapter(c)], args)
+    return result
 
 def _call_tool(name: str, args: dict):
     root = Path(args['root']).resolve()
@@ -237,6 +369,8 @@ def _call_tool(name: str, args: dict):
         raise ValueError(f'project root does not exist: {root}')
     book = args.get('book', 'Book-1')
 
+    if name.startswith('storycraft_editor_'):
+        return _editor_tool(name, root, args)
     if name == 'storycraft_dashboard':
         return dict(ps.dashboard(root, book, view=args.get('view', 'full'), chapter=args.get('chapter')),
                     storycraft_version=SERVER_VERSION,

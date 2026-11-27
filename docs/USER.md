@@ -151,11 +151,11 @@ re-draft the chapter.
 
 Drafting and review load applicable editorial decisions and current knowledge evidence. After draft generation, reconcile promise and knowledge harvest before gating. All changed prose requires a fresh final gate after polish. Review reports capture input hashes before review and emit metadata only if those inputs still match afterward. Status and the board show CURRENT/STALE/UNKNOWN separately from PASS/WARN/FAIL. Legacy reports remain UNKNOWN until re-reviewed. Pending blocking findings or campaign work prevent Done.
 
-For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. The board and export use the project type to select required reviews. Fiction requires Gate, nonfiction requires FactCheck and ClarityEdit, and hybrid requires all three, with per-book overrides available. Use `beta-feedback` to import Word comments or pasted notes against the reader's beta export ID. It groups verified passage comments and broader observations from the same edition. Select a book or chapter range for developmental diagnosis, a quoted passage for local repair, or a strength to preserve. Existing project conventions and current user instructions retain authority.
+For a reading-experience test, use `sequential-read`; private canon and future text never enter reader packets. Prepare packets and report pending execution when isolated contexts are unavailable. For a coordinated change across chapters, use `revision-campaign`; inspect interrupted work before reuse. Compile a beta/submission/publication package with `compile-manuscript` after current checks. The board and export use the project type to select required reviews. Fiction requires Gate, nonfiction requires FactCheck and ClarityEdit, and hybrid requires all three, with per-book overrides available. Use `beta-feedback` to import Word comments or pasted notes against the reader's beta export ID. It groups verified passage comments and broader observations from the same edition. Select a book or chapter range for developmental diagnosis, a quoted passage for local repair, or a strength to preserve. When an editor returns that DOCX with tracked changes, use `editor-return` to review and apply them. Existing project conventions and current user instructions retain authority.
 
 ## Skill catalog
 
-All 78 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
+All 79 skills, grouped by role. "Say" gives a trigger phrase the agent will recognize.
 (A machine-generated, always-current version of this list — name, version, category,
 summary — lives in [SKILL-INVENTORY.md](SKILL-INVENTORY.md); `make check` keeps this
 hand-written catalog's versions honest against it.)
@@ -269,7 +269,8 @@ hand-written catalog's versions honest against it.)
 | `reader-persona-review` 1.2.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
 | `compile-manuscript` 1.9.3 | Builds staged delivery packages, respects per-chapter `HYBRID` mode checks, checks expected chapters, and records beta passage maps. |
-| `beta-feedback` 1.5.0 | Imports real Word/pasted reactions, locates passages and chapter ranges, and hands selected diagnoses, repairs and strengths to a revision campaign. |
+| `beta-feedback` 1.6.0 | Imports real Word/pasted reactions, locates passages and chapter ranges, and hands selected diagnoses, repairs and strengths to a revision campaign. |
+| `editor-return` 1.0.0 | Reviews a returned editor DOCX: lists tracked changes, previews them as Markdown diffs, records your decisions and applies accepted ones. |
 | `book-packaging` 1.3.0 | Generates marketing kits at `Wiki/Story/Book-N/packaging.md` verified against manuscript word counts and export manifests: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.2 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
 | `promise-tracker` 1.3.1 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |
@@ -318,6 +319,7 @@ Phrases that map to skills (the agent routes on them):
 - "Run reader persona review on chapter 2" → `reader-persona-review`
 - "Try my opening scene" → `fiction-writechapter` → `_Intake/Book-N/opening-scene.md`
 - "Compile manuscript for export" → `compile-manuscript`
+- "What did my editor change?" or "accept my editor's punctuation fixes" → `editor-return`. Lists and previews a returned DOCX's tracked changes, and writes only the changes you accept and ask to apply.
 - "Group my beta feedback" or "diagnose why readers lost interest across chapters 8–12" → `beta-feedback`. Select reader observations for developmental diagnosis and mark strengths to preserve.
 - "Can you tell my narrators apart?" → `coldread` with unlabeled excerpts.
 - "Write back-cover blurb and query letter" → `book-packaging`

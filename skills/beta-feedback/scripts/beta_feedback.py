@@ -29,6 +29,8 @@ WORD = exchange.WORD
 sys.path.insert(0,str(Path(__file__).resolve().parents[2] / 'compile-manuscript/scripts'))
 import reread
 import feedback_scope
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import revisions
 
 normal = exchange.normal
 
@@ -52,35 +54,51 @@ def word_notes(path, edition, passages):
         raise ValueError('returned DOCX belongs to a different beta export')
     ranges = {}
     active = set()
+    # Quotes describe the text the editor received; tracked changes also yield a revised quote.
+    inserted, deleted = set(), set()
+    for wrapper in document.iter():
+        if wrapper.tag in revisions.INSERTED:
+            inserted.update(wrapper.iter())
+        elif wrapper.tag in revisions.DELETED:
+            deleted.update(wrapper.iter())
+    previous = None
     for paragraph in document.iter(WORD + 'p'):
         ids = {exchange.bookmark_name(node) for node in paragraph.iter(WORD + 'bookmarkStart')}
         ids &= passages.keys()
+        mark = None if previous is None else revisions.paragraph_mark(previous)
+        previous = paragraph
         for identifier in active:
-            ranges[identifier]['quote'].append('\n')
+            if mark is None or mark.tag not in revisions.INSERTED:
+                ranges[identifier]['quote'].append('\n')
+            if mark is None or mark.tag not in revisions.DELETED:
+                ranges[identifier]['revised'].append('\n')
             ranges[identifier]['anchors'].update(ids)
         for node in paragraph.iter():
             tag = node.tag
             identifier = node.get(WORD + 'id')
             if tag in (WORD + 'commentRangeStart', WORD + 'commentReference'):
-                entry = ranges.setdefault(identifier, {'quote': [], 'anchors': set()})
+                entry = ranges.setdefault(identifier, {'quote': [], 'revised': [], 'anchors': set()})
                 entry['anchors'].update(ids)
                 if tag == WORD + 'commentRangeStart':
                     active.add(identifier)
             elif tag == WORD + 'commentRangeEnd':
                 active.discard(identifier)
-            elif tag in (WORD + 't', WORD + 'br', WORD + 'tab', WORD + 'cr'):
-                value = (node.text or '') if tag == WORD + 't' else ' '
+            elif tag in revisions.TEXT:
                 for active_id in active:
-                    ranges[active_id]['quote'].append(value)
+                    if node not in inserted:
+                        ranges[active_id]['quote'].append(revisions.value(node))
+                    if node not in deleted:
+                        ranges[active_id]['revised'].append(revisions.value(node))
     notes = []
     for comment in comments.iter(WORD + 'comment'):
         identifier = comment.get(WORD + 'id')
-        entry = ranges.get(identifier, {'quote': [], 'anchors': set()})
+        entry = ranges.get(identifier, {'quote': [], 'revised': [], 'anchors': set()})
         content = '\n'.join(exchange.paragraph_text(p) for p in comment.iter(WORD + 'p')).strip()
         if not content:
             continue
+        quote, revised = (normal(''.join(entry[key])) for key in ('quote', 'revised'))
         notes.append({'reader': comment.get(WORD + 'author') or 'Unknown reader', 'comment': content,
-                      'quote': normal(''.join(entry['quote'])),
+                      'quote': quote, **({'revised_quote': revised} if revised != quote else {}),
                       'anchors': sorted(entry['anchors']), 'origin': 'word',
                       'comment_id': identifier, 'date': comment.get(WORD + 'date')})
     return notes

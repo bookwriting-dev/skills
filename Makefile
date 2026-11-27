@@ -63,6 +63,7 @@ eval:
 	$(PYTHON) tools/test-novel-draft-packet.py
 	$(PYTHON) tools/test-draft-promises.py
 	$(PYTHON) tools/test-novel-beta.py
+	$(PYTHON) tools/test-editor-return.py
 	$(PYTHON) tools/test-drafting-study.py
 	$(PYTHON) tools/test-storycraft-improvements.py
 	$(PYTHON) tools/test-edition-exchange.py

@@ -3,7 +3,7 @@ name: beta-feedback
 description: "Import real beta readers' Word comments and pasted notes, including book-wide reactions, chapter ranges and strengths. Use for reader-specific changed-scene rereads, beta feedback summaries, and author-selected diagnoses or passage repairs."
 metadata:
   author: Storycraft Skills
-  version: "1.5.0"
+  version: "1.6.0"
   bundled-dependencies: book-status, compile-manuscript, fiction-dev-editor, revision-campaign
   category: cross-cutting
 ---
@@ -36,6 +36,12 @@ Run [beta_feedback.py](scripts/beta_feedback.py) with Python 3 and the arguments
 An unquoted observation may cover the book, one chapter, or a contiguous range. Use chapter IDs, display labels, filenames without extensions, or project-relative chapter paths from the archived edition. The [scope resolver](scripts/feedback_scope.py) uses that edition's reading order. An explicit `"scope": "book"` or `chapter_range` can accompany a supporting `quote` or `anchor`. A quote must resolve uniquely or match its bookmark. Keep unresolved evidence visible and ask for clarification when it would help locate it.
 
 Report recurring reactions and disagreements using the verbatim comments, reader names and feedback IDs. The CLI returns `groups` for passages and `scope_groups` for broader observations. Readers who comment on the same section may have different reactions there. Identify the successful passages or effects readers want to keep.
+
+Word comment quotes describe the text the reader received. When tracked changes fall inside the selection, `revised_quote` shows the proposed wording.
+
+## Editor tracked changes
+
+For an editor's returned DOCX with tracked changes to list, accept or apply, use [editor-return](../editor-return/SKILL.md).
 
 ## Hand off selected feedback
 

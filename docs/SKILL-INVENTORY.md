@@ -2,7 +2,7 @@
 
 Generated from each skill's `SKILL.md` frontmatter by `tools/gen-inventory.py` (`make inventory`). **Do not edit by hand** — `make check` fails if this file is out of date.
 
-Total: **78 skills**. The hand-written workflow guide is [USER.md](USER.md); this file is the machine-checked roster.
+Total: **79 skills**. The hand-written workflow guide is [USER.md](USER.md); this file is the machine-checked roster.
 
 ## Fiction — writing (25)
 
@@ -85,16 +85,17 @@ Total: **78 skills**. The hand-written workflow guide is [USER.md](USER.md); thi
 | `nonfiction-dev-editor` | 1.4.0 | Diagnose argument architecture, thesis scaffolding, chapter-level conceptual progression, cognitive load, and evidence density in non-fiction drafts before prose edits. Use when user says 'nonfiction developmental edit', 'review argument flow', 'check thesis structure', 'audit conceptual progression', or 'nonfiction dev editor'. Also use for fresh-reader walkthroughs of nonfiction exercises. |
 | `nonfiction-factcheck` | 1.6.1 | Verify every claim, quote, statistic, date, and proper noun in a non-fiction chapter against the book's research corpus and cited sources. Flag unsupported, contradicted, misattributed, and imprecise assertions. Use when user says 'fact check', 'verify', 'check citations', 'are the sources right', or after drafting a non-fiction chapter. Output goes to _Edits/Book-N/. |
 
-## Cross-cutting (13)
+## Cross-cutting (14)
 
 | Skill | Version | Summary |
 |---|---|---|
-| `beta-feedback` | 1.5.0 | Import real beta readers' Word comments and pasted notes, including book-wide reactions, chapter ranges and strengths. Use for reader-specific changed-scene rereads, beta feedback summaries, and author-selected diagnoses or passage repairs. |
+| `beta-feedback` | 1.6.0 | Import real beta readers' Word comments and pasted notes, including book-wide reactions, chapter ranges and strengths. Use for reader-specific changed-scene rereads, beta feedback summaries, and author-selected diagnoses or passage repairs. |
 | `book-packaging` | 1.3.0 | Generate professional publishing and marketing packaging kits including back-cover blurb copy, query letters, loglines, Amazon retail metadata, and artist cover design briefs. Use when user says 'write book blurb', 'query letter', 'generate cover brief', 'create book metadata', or 'package book for publication'. Also use for narrator pronunciation sheets and audiobook pronunciations. |
 | `book-reverse-engineer` | 1.5.0 | Reverse-engineer an existing finished or undisciplined draft manuscript into Storycraft canon (Wiki/), scene outlines, Chekhov promises, voice profile, and defect findings. Use when user says 'reverse engineer', 'retrofit book', 'import manuscript', 'preview an EPUB', 'bring existing book into storycraft', 'analyze existing draft', 'rebuild undisciplined book', or 'audit raw manuscript'. |
 | `book-status` | 1.21.0 | Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times. |
 | `canon-guard` | 1.2.0 | Safeguard locked canon files during writing, execute impact analysis scans across drafted chapters before intentional canon updates, and safely reconcile world, character, or timeline revisions. Use when user says 'update canon', 'change world rule', 'canon conflict', 'character change impact', or 'modify canon safely'. |
 | `compile-manuscript` | 1.9.3 | Compile and stitch drafted chapter files into a delivery package with customizable front matter, scene breaks, table of contents, and export formatting. Structural conversion does not imply rendered, author, or publication approval. Use when user says 'compile manuscript', 'export book', 'stitch chapters', 'generate full book file', or 'create publication draft'. |
+| `editor-return` | 1.0.0 | Review a Word manuscript an editor returned with tracked changes: list every change and untracked edit, preview Markdown diffs, record the author's accept or reject decisions, and apply accepted changes to chapters. Use for 'what did my editor change', 'accept my editor's punctuation fixes', or 'apply the tracked changes'. For beta readers' comments and notes use beta-feedback. |
 | `editorial-memory` | 1.1.0 | Remember explicit author editing preferences with scoped decisions and supersession. Use when the user says remember this editorial choice, show my editing preferences, stop flagging this for this character, or retire that preference. |
 | `kanban-board` | 1.4.0 | Render a per-book Kanban board at Wiki/Story/Book-N/kanban.md (Backlog, Ready, Drafting, Review, Done) mechanically from outlines, scene plans, drafts, and gate reports. Read-only diagnostic except for the board file; works for fiction and non-fiction. Use for 'kanban', 'show the board', 'what is in progress', or 'where am I in this book'. |
 | `promise-tracker` | 1.3.1 | Track and audit reader promises (Chekhov setups, thesis threads, unresolved tensions, promised counterarguments) in Wiki/Story/Book-N/promises.yaml and report overdue, due, or undated entries. Use when checking promises, loose ends, or closing a book. Non-fiction and hybrid projects own this; fiction-only projects may use fiction-promises. |
