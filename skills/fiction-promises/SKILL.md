@@ -3,7 +3,7 @@ name: fiction-promises
 description: "Track and audit the fiction Chekhov ledger at Wiki/Story/Book-N/promises.yaml, reporting overdue, due, and undated setups. Use when checking promises, loose ends, unresolved setups, 'chekhov', or closing a book. Runs with fiction-reviewchapter; non-fiction and hybrid projects use promise-tracker instead."
 metadata:
   author: Fiction Toolkit
-  version: "1.4.0"
+  version: "1.4.1"
   category: fiction-writing
   output-format: yaml
 ---

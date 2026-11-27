@@ -3,7 +3,7 @@ name: book-status
 description: "Inspect manuscript health, chapter progress, gate results, word counts, open promises, and stylistic drift. Use for 'book status', 'manuscript dashboard', 'how far along is the book', 'what needs attention', 'show project status', personal read-through bookmarks, passages changed since an author's read, or a targeted manuscript scan for dated wording and spelled-out clock times."
 metadata:
   author: Storycraft Skills
-  version: "1.20.0"
+  version: "1.21.0"
   bundled-dependencies: nonfiction-research
   category: cross-cutting
 ---
@@ -11,6 +11,8 @@ metadata:
 # Book Status Dashboard
 
 Provides an executive summary of manuscript health, drafting completeness, gate checks, promise debts, and stylistic health across the entire book or series.
+
+For “what needs my attention?”, call `storycraft_dashboard` with `view="compact"` or run `project_state.py --root ROOT --book Book-N dashboard --view compact`. Read the draft and review counts, earliest chapter blocker, outstanding campaigns, and personal reading progress. Pass a chapter ID, label, or path in `chapter` (CLI `--chapter`) to inspect that chapter’s checks. The full view includes every chapter by default.
 
 For the per-chapter workflow view — where each chapter sits between scene plan, draft, gate, and done — run `project_state.py --root ROOT --book Book-N kanban` (backed by [kanban.py](scripts/kanban.py)) or `kanban-board`, which derives `Wiki/Story/Book-N/kanban.md` deterministically from the same on-disk state this skill reads. When the host exposes `storycraft_*` MCP tools (`storycraft_dashboard`, `storycraft_draft_packet`, `storycraft_kanban`, `storycraft_rhythm_map`, `storycraft_sync_edits`, `storycraft_review_begin`, `storycraft_review_finish`, `storycraft_record_disposition`, `storycraft_reanchor`, `storycraft_chapter_preflight`, `storycraft_chapter_finalize`, `storycraft_promises`, `storycraft_compile`), prefer them before falling back to shell calls to [project_state.py](scripts/project_state.py). Otherwise use `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, `reanchor --chapter N`, `--events`, and `--dispositions` batch modes to run preflight, ledger updates, re-anchoring after prose edits, and finalization in minimal round-trips.
 
@@ -24,7 +26,7 @@ For a request limited to diction or clock notation, resolve the requested manusc
 2. **Quality Gate Status:**
    - Status of `_Edits/Book-N/Chapter-NNN_Gate.md` for each chapter: `PASS`, `WARN`, `FAIL`, or `UNCHECKED`, paired independently with freshness (`CURRENT`, `STALE`, or `UNKNOWN`).
 3. **Promise Ledger (`promises.yaml`):**
-   - Active setups, due chapters, overdue promises, and deferred series threads. The preflight packet uses [draft_promises.py](scripts/draft_promises.py) to surface obligations and verified setup passages.
+   - Active setups, due chapters, overdue promises, and deferred series threads. The board, rhythm map, and preflight use the committed [promise ledger](scripts/promise_ledger.py). The preflight packet uses [draft_promises.py](scripts/draft_promises.py) to surface obligations and verified setup passages.
 4. **Editorial & Review Reports:**
    - Persona review coverage: `reader-persona-review` drafts and its `_synthesis.md` consensus live under `_Edits/Book-N/reviews/`; `review-panel` files under `Wiki/Review/`.
    - Unapplied revision items: unresolved stable finding IDs in saved reports, using the disposition ledger; legacy resolution is `UNKNOWN`.

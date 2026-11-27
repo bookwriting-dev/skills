@@ -36,7 +36,8 @@ help:
 
 # CI runs this target — keep the recipe here the single source of the gate, so
 # the Makefile can never drift out of sync with what CI actually enforces.
-check: lint inventory-check compile eval smoke
+check:
+	$(UV) run --no-project --with 'PyYAML==6.0.3' $(MAKE) lint inventory-check compile eval smoke
 
 lint:
 	$(PYTHON) tools/lint-skills.py
@@ -54,6 +55,11 @@ eval:
 	bash tools/eval-skills.sh
 	$(PYTHON) tools/test-storycraft-state.py
 	$(PYTHON) tools/test-state-regressions.py
+	$(PYTHON) tools/test-review-captures.py
+	$(PYTHON) tools/test-review-inputs.py
+	$(PYTHON) tools/test-report-parity.py
+	$(PYTHON) tools/test-book-aliases.py
+	$(PYTHON) tools/test-compact-dashboard.py
 	$(PYTHON) tools/test-novel-draft-packet.py
 	$(PYTHON) tools/test-draft-promises.py
 	$(PYTHON) tools/test-novel-beta.py
@@ -83,14 +89,9 @@ export-eval:
 status-projects:
 	$(PYTHON) tools/update-project.py --scan-dir "$(BOOKS_DIR)"
 
+PLUGIN_DIST_DIR ?= $(CURDIR)/dist/storycraft-skills
 plugin-dist:
-	@rm -rf dist/storycraft-skills
-	@mkdir -p dist/storycraft-skills/rules dist/storycraft-skills/mcp
-	@cp plugin/plugin.json plugin/mcp_config.json dist/storycraft-skills/
-	@cp mcp/storycraft_mcp.py dist/storycraft-skills/mcp/
-	@sed -e 's|__SERIES_TITLE__|Storycraft Suite|g' -e 's|__PROJECT_TYPE__|FICTION, NONFICTION, or HYBRID|g' templates/AGENTS.md > dist/storycraft-skills/rules/AGENTS.md
-	@$(PYTHON) -c "import shutil; shutil.copytree('skills', 'dist/storycraft-skills/skills', ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.pyo'))"
-	@echo "Built plugin bundle at dist/storycraft-skills"
+	$(UV) run --no-project --with 'PyYAML==6.0.3' python tools/plugin_bundle.py "$(PLUGIN_DIST_DIR)"
 
 desktop-plugin:
 	$(UV) run --no-project --with 'PyYAML==6.0.3' python tools/build-desktop-plugin.py "$(DESKTOP_PLUGIN_DIR)/storycraft"

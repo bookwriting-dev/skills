@@ -12,13 +12,14 @@ _SCRIPTS = Path(__file__).resolve().parent
 if str(_SCRIPTS) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS))
 
+from draft_promises import promise_context
 from state_core import locked, path_at, project_manifest_module
 from state_packets import pov_labels, prose_lines
 from state_reviews import dashboard
 
 
 def _outline_entries(root, book_label, project_type):
-    """Return {chapter_num: title} from outline.md (fiction/hybrid) or plan.md (nonfiction)."""
+    """Index numbered headings and named manifest chapters by their complete label."""
     out = {}
     files = ([path_at(root, f'Wiki/Outline/{book_label}/plan.md'),
               path_at(root, f'Wiki/Outline/{book_label}/outline.md')]
@@ -28,33 +29,15 @@ def _outline_entries(root, book_label, project_type):
     for p in files:
         if not p.is_file():
             continue
-        for m in re.finditer(r'^#{1,3}[ \t]+Chapter[ \t]+0*(\d+)(?:[ \t]*[:.–—-][ \t]*([^\n]+))?',
-                             p.read_text(encoding='utf-8'), re.M | re.I):
-            num = int(m.group(1))
-            if num not in out:
-                out[num] = (m.group(2) or '').strip()
+        for heading in re.findall(r'^#{1,3}[ \t]+([^\n]+)', p.read_text(encoding='utf-8'), re.M):
+            numbered = re.fullmatch(r'Chapter[- ]+(\d+)(?:\s*(?:[:–—-]|\.(?!\d))\s*(.*))?',
+                                    heading.strip(), re.I)
+            if numbered:
+                out.setdefault(int(numbered[1]), (numbered[2] or '').strip())
+            else:
+                parts = re.split(r'\s*[:—–]\s*|\s+-\s+', heading.strip(), maxsplit=1)
+                out.setdefault(parts[0].casefold(), parts[1].strip() if len(parts) > 1 else '')
     return out
-
-
-def _overdue_promises(root, book_label, highest_ch):
-    p = path_at(root, f'Wiki/Story/{book_label}/promises.yaml')
-    if not p.is_file() or highest_ch < 1:
-        return 0
-    try:
-        import yaml
-        data = yaml.safe_load(p.read_text(encoding='utf-8')) or {}
-    except Exception:
-        return 0
-    overdue = 0
-    for item in data.get('promises') or []:
-        if not isinstance(item, dict) or not str(item.get('promise') or '').strip():
-            continue
-        if str(item.get('paid_in_ch') or '').strip() or item.get('deferred_to_series'):
-            continue
-        m = re.search(r'\d+', str(item.get('payoff_by_ch') or ''))
-        if m and int(m.group(0)) < highest_ch:
-            overdue += 1
-    return overdue
 
 
 def render_kanban(root, book_id, *, write_board=True):
@@ -73,26 +56,40 @@ def render_kanban(root, book_id, *, write_board=True):
         if hm and not hm.group(1).startswith('__'):
             series_title = hm.group(1).strip()
 
-    by_num = {}
-    for ch in dash['chapters']:
-        m = re.search(r'\d+', ch.get('report_stem') or ch.get('display_label') or '')
-        num = int(m.group(0)) if m else None
-        if num is not None:
-            by_num[num] = ch
-    all_nums = sorted(set(outline) | set(by_num))
+    chapters = {ch['chapter_id']: ch for ch in dash['chapters']}
+    rows = []
+    numbered_chapters = set()
+    for record in book_record['chapters']:
+        order = record['reading_order']
+        numbered = re.fullmatch(r'Chapter[- ](\d+)', record.get('display_label', ''), re.I)
+        number = int(numbered[1]) if numbered else None
+        if number is not None:
+            numbered_chapters.add(number)
+        rows.append((order, number, record))
+    if book_record.get('chapter_order') == 'conventional':
+        rows.extend((number, number, None) for number in outline
+                    if isinstance(number, int) and number not in numbered_chapters)
 
     columns = {'Backlog': [], 'Ready': [], 'Drafting': [], 'Review': [], 'Done': []}
-    highest_draft = 0
-    for num in all_nums:
-        ch = by_num.get(num)
-        scene_p = path_at(root, f'Wiki/Outline/{book_label}/Chapter_{num:02d}_Scene.md')
-        has_plan = (num in outline) if project_type == 'NONFICTION' else scene_p.is_file()
+    highest_draft = None
+    for order, num, record in sorted(rows, key=lambda row: row[0]):
+        ch = chapters[record['id']] if record else None
+        keys = [num]
+        if record:
+            keys.extend([record.get('display_label', record['id']).casefold(), record['id'].casefold()])
+        outline_key = next((key for key in keys if key in outline), None)
+        scene_path = record.get('scene_plan_path') if record else None
+        if not scene_path and num is not None:
+            scene_path = f'Wiki/Outline/{book_label}/Chapter_{num:02d}_Scene.md'
+        scene_p = path_at(root, scene_path) if scene_path else None
+        has_scene = scene_p is not None and scene_p.is_file()
+        has_plan = (outline_key is not None or has_scene) if project_type == 'NONFICTION' else has_scene
         draft_p = path_at(root, ch['chapter']) if ch else None
-        has_draft = bool(ch and ch['draft_exists'] and draft_p and draft_p.is_file())
+        has_draft = bool(ch and ch['draft_exists'])
         if has_draft:
-            highest_draft = max(highest_draft, num)
+            highest_draft = order
 
-        title = outline.get(num) or ''
+        title = outline.get(outline_key, '')
         pov = ''
         words = 0
         if has_draft:
@@ -103,7 +100,7 @@ def render_kanban(root, book_id, *, write_board=True):
                 title = hm.group(1).strip()
             povs = pov_labels(raw[:800])
             pov = povs[0] if povs else ''
-        elif scene_p.is_file():
+        elif has_scene:
             stext = scene_p.read_text(encoding='utf-8', errors='replace')
             hm = re.search(r'^#[ \t]+Chapter[ \t]+0*\d+(?:[ \t]*[:.–—-][ \t]*([^\n]+))?', stext, re.M | re.I)
             if hm and hm.group(1) and not title:
@@ -111,9 +108,8 @@ def render_kanban(root, book_id, *, write_board=True):
             povs = pov_labels(stext)
             pov = povs[0] if povs else ''
 
-        title = title or 'untitled'
         flags = []
-        if num not in outline:
+        if outline_key is None:
             flags.append('no-outline-entry')
         if has_draft and not has_plan and project_type != 'NONFICTION':
             flags.append('no-scene-plan')
@@ -141,7 +137,12 @@ def render_kanban(root, book_id, *, write_board=True):
             col = 'Backlog'
             verdict_str = ''
 
-        parts = [f'{num:03d}', title]
+        if num is None:
+            parts = [ch['display_label']]
+            if title:
+                parts.append(title)
+        else:
+            parts = [f'{num:03d}', title or 'untitled']
         if pov:
             parts.append(f'POV: {pov}')
         if has_draft:
@@ -151,7 +152,12 @@ def render_kanban(root, book_id, *, write_board=True):
         line = '- `' + ' — '.join(parts) + '`' + ((' [' + ', '.join(flags) + ']') if flags else '')
         columns[col].append(line)
 
-    overdue = _overdue_promises(root, book_label, highest_draft or (max(all_nums) if all_nums else 0))
+    horizon = highest_draft if highest_draft is not None else max((row[0] for row in rows), default=0)
+    promises = promise_context(root, book_record, {'reading_order': horizon})
+    overdue = None
+    if promises['status'] == 'available':
+        overdue = sum(item['status'] == 'overdue' for item in promises['items'])
+    overdue_label = overdue if overdue is not None else promises['status']
     counts = {k: len(v) for k, v in columns.items()}
     today = date.today().isoformat()
     book_num_m = re.search(r'\d+', book_label)
@@ -161,7 +167,7 @@ def render_kanban(root, book_id, *, write_board=True):
         '',
         (f"Refreshed {today} — Backlog {counts['Backlog']} · Ready {counts['Ready']} · "
          f"Drafting {counts['Drafting']} · Review {counts['Review']} · "
-         f"Done {counts['Done']} · Overdue promises {overdue}"),
+         f"Done {counts['Done']} · Overdue promises {overdue_label}"),
         '',
     ]
     for col in ('Backlog', 'Ready', 'Drafting', 'Review', 'Done'):
@@ -183,6 +189,7 @@ def render_kanban(root, book_id, *, write_board=True):
         'refreshed': today,
         'counts': counts,
         'overdue_promises': overdue,
+        'promise_ledger_status': promises['status'],
         'markdown': markdown,
     }
 

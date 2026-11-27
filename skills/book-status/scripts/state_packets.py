@@ -835,6 +835,11 @@ def draft_packet(root, args):
         'relationship_state_as_of': relationship_as_of,
         'continuity_tail': continuity_tail,
         'chapter_format': formatting['contract'],
+        'chapter_format_check': {
+            'status': ('PENDING' if chapter_record['path'] not in texts else
+                       'FAIL' if formatting['findings'] else 'PASS'),
+            'findings': formatting['findings'],
+        },
         'continuity': continuity_report(root, book_record, texts, chapter=chapter_record, keys=keys),
         'promises': promise_context(root, book_record, chapter_record),
         'knowledge_as_of': scenes[0]['knowledge_as_of'],

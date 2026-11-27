@@ -24,6 +24,8 @@ from sync_edits import sync_edits  # noqa: E402
 
 _VERSION_FILE = ROOT_REPO / 'VERSION'
 SERVER_VERSION = _VERSION_FILE.read_text(encoding='utf-8').strip() if _VERSION_FILE.is_file() else '1.1.0'
+PDF_ENGINES = ['context', 'groff', 'latexmk', 'lualatex', 'pagedjs-cli', 'pdflatex', 'pdfroff',
+               'prince', 'tectonic', 'typst', 'weasyprint', 'wkhtmltopdf', 'xelatex']
 
 
 TOOLS = [
@@ -35,6 +37,9 @@ TOOLS = [
             'properties': {
                 'root': {'type': 'string', 'description': 'Absolute path to the book project root.'},
                 'book': {'type': 'string', 'default': 'Book-1'},
+                'view': {'type': 'string', 'enum': ['full', 'compact'], 'default': 'full',
+                         'description': 'Use compact for counts and the first blocker in reading order.'},
+                'chapter': {'type': 'string', 'description': 'Show details for a chapter by ID, label or path.'},
             },
             'required': ['root'],
         },
@@ -157,6 +162,9 @@ TOOLS = [
                 'book': {'type': 'string', 'default': 'Book-1'},
                 'profile': {'type': 'string', 'enum': ['beta', 'submission', 'publication'], 'default': 'beta'},
                 'formats': {'type': 'array', 'items': {'type': 'string', 'enum': ['md', 'docx', 'epub', 'pdf']}},
+                'config': {'type': 'string', 'description': 'Project-relative path to an export configuration JSON file.'},
+                'pdf_engine': {'type': 'string',
+                               'description': 'Installed Pandoc PDF engine name or absolute executable path, e.g. typst. Overrides pdf_engine in the export config.'},
                 'check': {'type': 'boolean', 'default': True},
             },
             'required': ['root'],
@@ -230,7 +238,8 @@ def _call_tool(name: str, args: dict):
     book = args.get('book', 'Book-1')
 
     if name == 'storycraft_dashboard':
-        return dict(ps.dashboard(root, book), storycraft_version=SERVER_VERSION,
+        return dict(ps.dashboard(root, book, view=args.get('view', 'full'), chapter=args.get('chapter')),
+                    storycraft_version=SERVER_VERSION,
                     skills_dir=str(ROOT_REPO / 'skills'))
     if name == 'storycraft_draft_packet':
         ns = argparse.Namespace(
@@ -271,7 +280,23 @@ def _call_tool(name: str, args: dict):
         script = ROOT_REPO / 'skills' / 'compile-manuscript' / 'scripts' / 'compile_manuscript.py'
         cmd = [sys.executable, str(script), '--root', str(root), '--book', book,
                '--profile', args.get('profile', 'beta')]
-        for fmt in args.get('formats') or ['md']:
+        formats = args.get('formats') or ['md']
+        engine = args.get('pdf_engine')
+        if 'config' in args:
+            if Path(args['config']).is_absolute():
+                raise ValueError('config must be a project-relative path')
+            config = ps.path_at(root, args['config'])
+            cmd.extend(['--config', str(config)])
+            if 'pdf' in formats and engine is None:
+                engine = ps.load(config).get('pdf_engine')
+        if 'pdf' in formats and engine is None:
+            raise ValueError('PDF requires an installed pdf_engine in the tool arguments or export config')
+        if engine is not None:
+            engine_path = Path(engine)
+            if engine_path.name not in PDF_ENGINES or (engine != engine_path.name and not engine_path.is_absolute()):
+                raise ValueError('pdf_engine must be a supported Pandoc engine name or its absolute executable path')
+            cmd.extend(['--pdf-engine', engine])
+        for fmt in formats:
             cmd.extend(['--format', fmt])
         if args.get('check', True):
             cmd.append('--check')

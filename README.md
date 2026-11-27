@@ -43,13 +43,13 @@ tools/update-project.sh ~/Projects/Books/my-series --apply    # copy it in, rewr
 
 ### Dual Distribution: Native Plugin + Local MCP Server
 
-Alongside project-local pinning, you can build a toggleable plugin bundle containing `skills/`, `rules/AGENTS.md`, `plugin.json`, `mcp_config.json`, and the zero-dependency stdio MCP server ([mcp/storycraft_mcp.py](mcp/storycraft_mcp.py)):
+Run the following command with `uv` installed to build the generic plugin. It includes the skills, rendered project rules, stdio MCP server, release version, PyYAML, and review skill digests. The installed bundle needs Python 3.10 or newer. Set `STORYCRAFT_PYTHON` to select an interpreter.
 
 ```bash
 make plugin-dist   # builds dist/storycraft-skills/
 ```
 
-The `storycraft-state` MCP server exposes typed tools (`storycraft_dashboard`, `storycraft_draft_packet`, `storycraft_review_begin`, `storycraft_review_finish`, `storycraft_record_disposition`, `storycraft_rhythm_map`, `storycraft_sync_edits`, `storycraft_promises`, `storycraft_compile`) over stdio JSON-RPC.
+The `storycraft-state` MCP server exposes its typed tools through `tools/list`. To preflight a PDF with `storycraft_compile`, pass `formats: ["pdf"]` and an installed Pandoc engine such as `pdf_engine: "typst"`. Pass `config` with a project-relative export JSON file to use its title, front and back matter, or `pdf_engine`. A tool argument overrides the configured engine. Set `check: false` to build the package.
 
 ### Personal ChatGPT Desktop plugin
 
@@ -77,7 +77,7 @@ For the implementation sequence and acceptance criteria, see the [novel-writing 
 
 ## Development
 
-The library has its own gate. Run it before committing:
+Run `make check` before committing. It uses `uv` with the same pinned PyYAML version as the plugin builds.
 
 ```bash
 make check     # lint frontmatter/paths/doc-drift + verify inventory + syntax-check all scripts + behavior eval + scaffold smoke test

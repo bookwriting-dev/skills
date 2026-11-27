@@ -1,5 +1,6 @@
-"""Build both Storycraft plugin payloads and their shared review evidence."""
+"""Build the Storycraft plugin payloads and their shared review evidence."""
 
+import argparse
 from contextlib import contextmanager
 import fcntl
 import hashlib
@@ -129,7 +130,16 @@ def build(output, host='desktop'):
     with tempfile.TemporaryDirectory(prefix='.storycraft-build-', dir=output.parent) as temp:
         package = Path(temp) / 'bundle'
         shutil.copytree(ROOT / 'plugin' / 'shared', package)
-        shutil.copytree(ROOT / 'plugin' / host, package, dirs_exist_ok=True)
+        if host == 'generic':
+            for filename in ('plugin.json', 'mcp_config.json'):
+                shutil.copy2(ROOT / 'plugin' / filename, package)
+            rules = (ROOT / 'templates/AGENTS.md').read_text(encoding='utf-8')
+            rules = rules.replace('__SERIES_TITLE__', 'Storycraft Suite')
+            rules = rules.replace('__PROJECT_TYPE__', 'FICTION, NONFICTION, or HYBRID')
+            (package / 'rules').mkdir()
+            (package / 'rules/AGENTS.md').write_text(rules, encoding='utf-8')
+        else:
+            shutil.copytree(ROOT / 'plugin' / host, package, dirs_exist_ok=True)
         version = (ROOT / 'VERSION').read_text(encoding='utf-8').strip()
         manifest_path = package / ('.claude-plugin/plugin.json' if host == 'claude' else 'plugin.json')
         manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
@@ -154,7 +164,7 @@ def build(output, host='desktop'):
                         ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '*.pyo', '.DS_Store'))
         records = load_skills()
         # The original desktop release hashed this rendering. Use the same bytes for
-        # existing reviews on both hosts, before substituting Claude's path variables.
+        # existing reviews across packages, before substituting Claude's path variables.
         adapt_desktop_commands(skills, records)
         write_json(package / 'review-skill-digests.json', review_digests(skills, records))
         if host == 'claude':
@@ -197,3 +207,9 @@ def build_marketplace(output, catalog_path, template, host):
                 write_json(updated, catalog)
                 updated.replace(catalog_path)
     return catalog['name']
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Build the generic Storycraft plugin bundle.')
+    parser.add_argument('output', type=Path)
+    build(parser.parse_args().output.absolute(), 'generic')

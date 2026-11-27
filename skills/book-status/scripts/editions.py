@@ -65,9 +65,12 @@ def open_beta(root, book, edition, *, with_directory=False):
     import project_state as state
     if not re.fullmatch(r'[a-f0-9]{24}', edition):
         raise ValueError('expected a beta edition ID')
-    directory = state.path_at(root, f'Chapters/{book}/export')
-    packets = state.path_at(root, f'_Edits/{book}/beta-rereads')
-    for path in (directory / 'beta', *sorted(directory.glob('beta.previous-*')), packets / edition):
+    resolver = state.project_manifest_module()
+    record = resolver.artifact_book(root, book)
+    label = resolver.artifact_book_label(root, record)
+    directory = state.path_at(root, f'Chapters/{label}/export')
+    packet = resolver.edit_artifact(root, record, f'beta-rereads/{edition}/export-manifest.json')
+    for path in (directory / 'beta', *sorted(directory.glob('beta.previous-*')), packet.parent):
         manifest = state.path_at(root, path / 'export-manifest.json')
         if not manifest.is_file():
             continue
@@ -380,8 +383,8 @@ def reading_status(root, book, log, base, target):
 
 def author_read(root, args):
     import project_state as state
-    base = state.path_at(root, f'_Edits/{args.book}/author-read')
-    path = base / 'progress.json'
+    path = state.project_manifest_module().edit_artifact(root, args.book, 'author-read/progress.json')
+    base = path.parent
     with state.locked(path):
         log = state.load(path) if path.exists() else {'schema_version': 1, 'marks': {}}
         if args.action == 'start':

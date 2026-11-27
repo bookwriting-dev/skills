@@ -660,7 +660,7 @@ class Tier3PluginMcpAndTasteFlywheel(unittest.TestCase):
         p.write_text(text, encoding='utf-8')
         return p
 
-    def test_harvest_eval_cases_manifest_cli_and_plugin_dist_rendering(self):
+    def test_harvest_eval_cases_and_manifest_cli(self):
         self.write('AGENTS.md', '# Salt Ledger\n\nThis project is: **FICTION**\n')
         self.write('Wiki/Style/style_guide.md', '---\nregister_preset: lyrical-literary\n---\n')
         self.write('Chapters/Book-1/Chapter-001.md',
@@ -693,12 +693,6 @@ class Tier3PluginMcpAndTasteFlywheel(unittest.TestCase):
         self.assertGreaterEqual(len(corpus['cases']), 1)
         self.assertIn('Too late.', corpus['cases'][0]['protected_spans'])
         self.assertEqual(corpus['category_tolerances']['fragment']['max_harmful_edit_rate'], 0.0)
-
-        # Test Makefile plugin-dist renders AGENTS.md without raw __PLACEHOLDERS__
-        subprocess.run(['make', 'plugin-dist'], cwd=ROOT, check=True, capture_output=True)
-        dist_agents = (ROOT / 'dist/storycraft-skills/rules/AGENTS.md').read_text(encoding='utf-8')
-        self.assertNotIn('__SERIES_TITLE__', dist_agents)
-        self.assertNotIn('__PROJECT_TYPE__', dist_agents)
 
 
 if __name__ == '__main__':

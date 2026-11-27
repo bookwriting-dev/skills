@@ -1,47 +1,11 @@
 """Whole-book pacing, POV distribution, promise density, and character-absence matrix."""
+from collections import Counter
 import re
 import statistics
 
+from promise_ledger import PromiseChapters, read_entries
 from state_core import path_at, project_manifest_module
 from state_packets import pov_labels, prose_lines
-
-
-def _load_promises(root, book_label):
-    p = path_at(root, f'Wiki/Story/{book_label}/promises.yaml')
-    if not p.is_file():
-        return []
-    text = p.read_text(encoding='utf-8')
-    try:
-        import yaml
-        data = yaml.safe_load(text) or {}
-        return [item for item in (data.get('promises') or []) if isinstance(item, dict) and str(item.get('promise') or '').strip()]
-    except ImportError:
-        pass
-    # Minimal stdlib fallback parser for simple YAML promises lists
-    entries = []
-    current = None
-    for raw in text.splitlines():
-        line = raw.strip()
-        if not line or line.startswith('#'):
-            continue
-        if line.startswith('- '):
-            if current and str(current.get('promise') or '').strip():
-                entries.append(current)
-            current = {}
-            line = line[2:].strip()
-        if current is not None and ':' in line:
-            k, v = line.split(':', 1)
-            current[k.strip()] = v.strip().strip('"\'')
-    if current and str(current.get('promise') or '').strip():
-        entries.append(current)
-    return entries
-
-
-def _first_int(val):
-    if val is None:
-        return None
-    m = re.search(r'\d+', str(val))
-    return int(m.group(0)) if m else None
 
 
 def _character_roster(root):
@@ -66,7 +30,10 @@ def rhythm_map(root, book_id, *, gap_threshold=4, markdown=False):
     resolver = project_manifest_module()
     book_record = resolver.resolve_book(root, book_id)
     book_label = book_record.get('display_label', book_record['id'])
-    promises = _load_promises(root, book_label)
+    ledger_status, promises = read_entries(root, f'Wiki/Story/{book_label}/promises.yaml')
+    positions = PromiseChapters(book_record)
+    opened = Counter(positions.position(p.get('introduced_ch')) for p in promises or [])
+    paid = Counter(positions.position(p.get('paid_in_ch')) for p in promises or [])
     roster = _character_roster(root)
 
     rows = []
@@ -89,26 +56,24 @@ def rhythm_map(root, book_id, *, gap_threshold=4, markdown=False):
         povs = pov_labels(raw[:800]) or ['unspecified']
         primary_pov = povs[0]
 
-        ch_num = _first_int(ch.get('display_label') or ch.get('id')) or idx
-        opened = sum(1 for pr in promises if _first_int(pr.get('introduced_ch')) == ch_num)
-        paid = sum(1 for pr in promises if _first_int(pr.get('paid_in_ch')) == ch_num)
-
         mentioned = []
         for name, terms in roster:
             if any(re.search(rf'\b{re.escape(term)}\b', raw) for term in terms):
                 mentioned.append(name)
-                char_appearances[name].append(idx)
+                char_appearances[name].append(len(rows))
 
         entry = {
             'chapter': ch.get('display_label', ch['id']),
+            'chapter_id': ch['id'],
+            'reading_order': ch['reading_order'],
             'path': ch['path'],
             'order': idx,
             'words': words,
             'scenes': scenes,
             'dialogue_ratio': dialogue_ratio,
             'pov': povs,
-            'promises_opened': opened,
-            'promises_paid': paid,
+            'promises_opened': opened[ch['reading_order']] if promises is not None else None,
+            'promises_paid': paid[ch['reading_order']] if promises is not None else None,
             'characters': mentioned,
         }
         rows.append(entry)
@@ -129,8 +94,8 @@ def rhythm_map(root, book_id, *, gap_threshold=4, markdown=False):
             if gap > gap_threshold:
                 absence_gaps.append({
                     'character': name,
-                    'from_chapter': rows[a - 1]['chapter'],
-                    'to_chapter': rows[b - 1]['chapter'],
+                    'from_chapter': rows[a]['chapter'],
+                    'to_chapter': rows[b]['chapter'],
                     'chapters_absent': gap,
                 })
 
@@ -163,6 +128,7 @@ def rhythm_map(root, book_id, *, gap_threshold=4, markdown=False):
     result = {
         'book': book_label,
         'chapter_count': len(rows),
+        'promise_ledger_status': ledger_status,
         'total_words': total_words,
         'median_words': median_words,
         'chapters': rows,
@@ -181,9 +147,10 @@ def rhythm_map(root, book_id, *, gap_threshold=4, markdown=False):
             '|---|---:|---:|---:|---|---|---|',
         ]
         for r in rows:
+            promise_counts = f"+{r['promises_opened']} / {r['promises_paid']}" if promises is not None else ledger_status
             lines.append(
                 f"| {r['chapter']} | {r['words']} | {r['scenes']} | {r['dialogue_ratio']:.0%} | "
-                f"{', '.join(r['pov'])} | +{r['promises_opened']} / {r['promises_paid']} | {', '.join(r['characters']) or '—'} |"
+                f"{', '.join(r['pov'])} | {promise_counts} | {', '.join(r['characters']) or '—'} |"
             )
         if absence_gaps or word_count_outliers or dialogue_streaks:
             lines.extend(['', '## Macro Alerts', ''])

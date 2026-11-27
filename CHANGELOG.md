@@ -2,6 +2,13 @@
 
 Our changes to the library, newest first. Skill versions live in each SKILL.md's frontmatter and bump with every change; entries here record the why.
 
+## 2026-11-27.2 — Review integrity and manuscript status
+
+- Each chapter review gets a separate prepared capture. Finish and status checks re-evaluate the chapter’s applicable plans, editorial guidance, and evidence when deciding whether its review is current.
+- Kanban and rhythm reports use the committed promise ledger. Manifest IDs and display labels lead to the same book evidence, and titled chapters appear on the board in reading order.
+- Chapter preflight returns heading and POV findings. The compact dashboard gives chapter counts, the first blocker, campaign status, and personal reading progress, with optional detail for a selected chapter.
+- MCP exports accept a project export config and PDF engine. The generic plugin now ships the same release version, YAML runtime, and review-skill digests as the desktop and Claude packages.
+
 ## 2026-11-27.1 — Novel planning, drafting and developmental feedback
 
 - Draft packets distinguish rumors from confirmed dramatic irony, place relationship changes within their book and scene, report actual language repetitions, and retrieve due promises with verified setup passages.

@@ -46,7 +46,7 @@ def pipeline_listing(root, journal):
 
 
 def record_pipeline_step(root, book, run, action, item=None):
-    p = path_at(root, f'_Edits/{book}/pipeline/{run}.json')
+    p = project_manifest_module().edit_artifact(root, book, f'pipeline/{run}.json')
     with locked(p):
         d = document(p, 'steps')
         if action == 'record':
@@ -149,8 +149,8 @@ def record_pipeline_step(root, book, run, action, item=None):
 
 
 def campaign(root, args):
-    base = path_at(root, f'_Edits/{args.book}/campaigns/{args.run}')
-    p = base / 'campaign.json'
+    p = project_manifest_module().edit_artifact(root, args.book, f'campaigns/{args.run}/campaign.json')
+    base = p.parent
     if args.action == 'init':
         with locked(p):
             if p.exists():
@@ -288,8 +288,8 @@ def campaign(root, args):
 
 
 def reading(root, args):
-    base = path_at(root, f'_Edits/{args.book}/reading/{args.run}')
-    p = base / 'run.json'
+    p = project_manifest_module().edit_artifact(root, args.book, f'reading/{args.run}/run.json')
+    base = p.parent
     with locked(p):
         if args.action == 'init':
             if p.exists():
@@ -398,7 +398,7 @@ def step_complete(root, book_id, *, run, step_id, output_paths, transform_paths=
     resolver = project_manifest_module()
     book_record = resolver.resolve_book(root, book_id)
     book_label = book_record.get('display_label', book_record['id'])
-    p = path_at(root, f'_Edits/{book_label}/pipeline/{run}.json')
+    p = resolver.edit_artifact(root, book_record, f'pipeline/{run}.json')
     d = load_journal_raw(p)
     existing = next((step for step in d['steps'] if step.get('id') == step_id), None)
     if not existing or existing.get('status') != 'running':

@@ -28,7 +28,7 @@ from state_packets import (
 from state_reviews import (
     REVIEW_TYPE_SKILLS, chapter_report_paths, current_inputs, dashboard, freshness,
     operation_profile_blockers, pipeline_step_reusable, readiness,
-    record_disposition, record_dispositions_batch, review_begin, review_finish,
+    record_disposition, record_dispositions_batch, review_begin, review_finish, review_input_changes,
 )
 from state_workflows import (
     campaign, reading, record_pipeline_step, step_complete, step_start,
@@ -67,10 +67,12 @@ def main():
         p.add_argument('--scene-id')
         p.add_argument('--run', default='default')
         p.add_argument('--task')
-        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity', 'author-read', 'workflow') else '1')
+        p.add_argument('--chapter', default=None if cmd in ('chapter-format', 'continuity', 'author-read', 'workflow', 'dashboard') else '1')
         p.add_argument('--window', type=int, default=3)
         if cmd in ('continuity', 'draft-packet', 'chapter-preflight'):
             p.add_argument('--key', action='append')
+        if cmd == 'dashboard':
+            p.add_argument('--view', choices=('full', 'compact'), default='full')
         if cmd == 'author-read':
             p.add_argument('--edition')
             p.add_argument('--quote')
@@ -117,7 +119,7 @@ def main():
             p.add_argument('--markdown', action='store_true')
     a = ap.parse_args()
     root = a.root.resolve()
-    if not re.fullmatch(r'[\w-]+', a.book) or not re.fullmatch(r'[\w-]+', a.run):
+    if not a.book or Path(a.book).name != a.book or a.book in ('.', '..') or not re.fullmatch(r'[\w-]+', a.run):
         raise ValueError('invalid book or run ID')
     if a.command == 'prepare':
         spec = load(Path(a.spec))
@@ -128,7 +130,7 @@ def main():
         result = spec
     elif a.command == 'snapshot':
         spec = load(Path(a.spec))
-        if not spec.get('inputs') or current_inputs(root, spec['inputs']) != spec['inputs']:
+        if not spec.get('inputs') or review_input_changes(root, spec):
             raise ValueError('review inputs changed or pre-review evidence missing')
         report = path_at(root, spec['report'])
         if not report.is_file() or spec['verdict'] not in ('PASS', 'WARN', 'FAIL'):
@@ -217,16 +219,16 @@ def main():
         result = knowledge_event_state(root, argparse.Namespace(action=a.action, spec=a.spec, events=a.events,
             observer=a.observer, story_order=a.story_order, reader_order=a.reader_order))
     elif a.command == 'dashboard':
-        result = dashboard(root, a.book)
+        result = dashboard(root, a.book, view=a.view, chapter=a.chapter)
     elif a.command == 'validate':
         result = []
-        for m in sorted((root / '_Edits' / a.book).rglob('*.meta.json')):
+        for m in project_manifest_module().edit_files(root, a.book, '**/*.meta.json'):
             result.append(dict(path=str(m.relative_to(root)), **freshness(root, m)))
     elif a.command == 'disposition':
         item = load(Path(a.spec))
         if item.get('disposition') not in ('applied', 'rejected', 'deferred', 'superseded') or not item.get('finding_id') or not item.get('report') or not item.get('report_sha256'):
             raise ValueError('invalid finding disposition')
-        p = path_at(root, f'_Edits/{a.book}/decisions.jsonl')
+        p = project_manifest_module().edit_artifact(root, a.book, 'decisions.jsonl')
         with locked(p):
             with p.open('a') as f:
                 f.write(json.dumps(dict(item, created_at=now())) + '\n')

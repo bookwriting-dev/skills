@@ -5,6 +5,14 @@
   "required": ["schema_version", "report", "report_sha256", "inputs", "verdict"],
   "properties": {
     "schema_version": {"const": 1},
+    "capture_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "review_selection": {
+      "type": "object", "required": ["book", "chapter", "review_type", "extra_paths"],
+      "properties": {
+        "book": {"type": "string"}, "chapter": {"type": "string"}, "review_type": {"type": "string"},
+        "extra_paths": {"type": "array", "items": {"type": "string"}}
+      }
+    },
     "report": {"type": "string", "minLength": 1},
     "report_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "verdict": {"enum": ["PASS", "WARN", "FAIL"]},

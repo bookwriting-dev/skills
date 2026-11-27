@@ -12,12 +12,12 @@ The ChatGPT desktop and Claude Code plugins record the release version and a `pl
 
 Example saved-review lifecycle (prefer the ergonomic `review-begin` / `review-finish` commands, or use raw `--spec` files via `prepare` / `snapshot`):
 
-1. `project_state.py --root ROOT --book Book-1 review-begin --chapter 1 --type Gate` (auto-resolves chapter, predecessor, plan, style/review guides, ledgers, `AGENTS.md`, and skill dir into `_Edits/Book-1/Chapter-001_Gate.prepared.json`).
+1. Run `project_state.py --root ROOT --book Book-1 review-begin --chapter 1 --type Gate` to capture the chapter, predecessor, plan, style and review guides, ledgers, project rules, and review skill. Keep the `prepared` path returned by this call. Every begin creates a separate manifest under `_Edits/Book-1/review-captures/`.
 2. Read and review those captured inputs. Persist a normal Markdown report at `_Edits/Book-1/Chapter-001_Gate.md` with stable finding IDs and exact quotes.
-3. `project_state.py --root ROOT --book Book-1 review-finish --prepared _Edits/Book-1/Chapter-001_Gate.prepared.json --verdict PASS` (optionally passing `--finding '{"id":"G1","blocking":true}'`) verifies inputs did not drift, hashes the report, and writes `_Edits/Book-1/Chapter-001_Gate.meta.json`.
+3. Pass the `prepared` path from step 1 as `CAPTURE` to `project_state.py --root ROOT --book Book-1 review-finish --prepared CAPTURE --verdict PASS`. It verifies the inputs, hashes the report, and writes `_Edits/Book-1/Chapter-001_Gate.meta.json`. Record a blocking finding with `--finding '{"id":"G1","blocking":true}'`.
 4. `project_state.py --root ROOT --book Book-1 record-disposition --report _Edits/Book-1/Chapter-001_Gate.md --finding-id G1 --disposition applied --reason "Fixed"` records finding dispositions without hand-writing a JSON spec.
 5. `step-start` / `step-complete` wrap schema-v2 `pipeline` journal steps with automatic subject hashing and `before`/`after` transformation lineage.
 6. `project_state.py --root ROOT check --meta _Edits/Book-1/Chapter-001_Gate.meta.json`.
-7. `project_state.py --root ROOT dashboard` returns check freshness, unresolved blocking finding IDs, and campaign state. The agent renders board/status views from this evidence and configured completion requirements.
+7. `project_state.py --root ROOT dashboard` returns check freshness, unresolved blocking finding IDs, and campaign state. Use `dashboard --view compact` for counts, the first affected chapter in reading order, campaign blockers, and personal read-through counts. Add `--chapter SELECTOR` for that chapter’s checks.
 
 Input evidence must be collected before substantive review; retroactively wrapping an old review with today's hashes is invalid. Unsupported schemas are rejected, preserving files. Exclusive lock conflicts fail rather than overwriting another writer. Inspect a lock owner's PID and pending files before removing an abandoned lock.

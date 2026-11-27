@@ -1,7 +1,7 @@
 {
   "mcpServers": {
     "storycraft-state": {
-      "command": "python3",
+      "command": "${CLAUDE_PLUGIN_ROOT}/run-python",
       "args": ["${CLAUDE_PLUGIN_ROOT}/mcp/storycraft_mcp.py"],
       "env": {
         "PYTHONDONTWRITEBYTECODE": "1"

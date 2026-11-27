@@ -270,7 +270,8 @@ def memory(root, args):
 
 
 def knowledge(root, args):
-    p = path_at(root, f'Wiki/Story/{args.book}/knowledge.json')
+    label = project_manifest_module().artifact_book_label(root, args.book)
+    p = path_at(root, f'Wiki/Story/{label}/knowledge.json')
     if args.action == 'record':
         event = load(Path(args.spec))
         for key in ('id', 'fact_id', 'observer', 'state', 'story_position', 'reader_position', 'confirmed'):

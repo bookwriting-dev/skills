@@ -151,15 +151,26 @@ def _plan(root, item):
     return _hash({'header': header, 'section': section})
 
 
-def _research(root, item):
+def selected_plan(root, path, chapter_number):
+    """A later chapter's first section alone does not introduce instructions for earlier reviews."""
+    header, section = plan_section(path_at(root, path).read_text(encoding='utf-8'), chapter_number)
+    # Ignore a conventional document title alone. Other shared text, including instructions in headings, applies.
+    title_only = re.fullmatch(r'#[ \t]+(?:(?:book|chapter)[ \t]+)?plan', header.strip(), re.I)
+    if section is None and (not header.strip() or title_only):
+        return None
+    return {'path': path, 'kind': PROJECTION, 'projection': 'plan', 'chapter_number': chapter_number,
+            'sha256': _hash({'header': header, 'section': section})}
+
+
+def _research_parts(root, item):
     directory = path_at(root, item['path'])
     record = path_at(root, item['record_path'])
     if not directory.is_dir():
-        return _hash(None)
+        return None
     files = sorted(f for f in directory.rglob('*') if f.is_file())
     if not record.is_file():
         # Without the chapter's evidence record nothing says which sources it used.
-        return _hash({f.relative_to(directory).as_posix(): digest(f) for f in files})
+        return {f.relative_to(directory).as_posix(): digest(f) for f in files}
     needle = record.read_text(encoding='utf-8')
     plan = path_at(root, item['plan_path'])
     if plan.is_file():
@@ -180,7 +191,20 @@ def _research(root, item):
                 parts[rel] = hashlib.sha256(raw).hexdigest()
         elif rel in needle or file.name in needle:
             parts[rel] = digest(file)
-    return _hash(parts)
+    return parts
+
+
+def _research(root, item):
+    return _hash(_research_parts(root, item))
+
+
+def selected_research(root, record_path, plan_path, chapter_number):
+    item = {'path': 'Wiki/Research', 'kind': PROJECTION, 'projection': 'research',
+            'record_path': record_path, 'plan_path': plan_path, 'chapter_number': chapter_number}
+    parts = _research_parts(root, item)
+    if not parts or not any(parts.values()):
+        return None
+    return dict(item, sha256=_hash(parts))
 
 
 PROJECTORS = {'promises': _promises, 'events': _events, 'decisions': _decisions, 'plan': _plan, 'research': _research}
@@ -190,6 +214,11 @@ def make(root, kind, path, **params):
     item = {'path': path, 'kind': PROJECTION, 'projection': kind, **params}
     item['sha256'] = PROJECTORS[kind](root, item)
     return item
+
+
+def selected_events(root, path, sources):
+    item = make(root, 'events', path, sources=sources)
+    return item if item['sha256'] != _hash([]) else None
 
 
 def current_input(root, item):

@@ -23,6 +23,7 @@ plugin/desktop/mcp.json
 plugin/desktop/plugin.json
 plugin/mcp_config.json
 plugin/plugin.json
+plugin/shared/run-python
 plugin/shared/skills/storycraft-workspace/SKILL.md
 skills/beta-feedback/SKILL.md
 skills/beta-feedback/scripts/beta_feedback.py
@@ -47,6 +48,7 @@ skills/book-status/scripts/epub_publication.py
 skills/book-status/scripts/kanban.py
 skills/book-status/scripts/project_manifest.py
 skills/book-status/scripts/project_state.py
+skills/book-status/scripts/promise_ledger.py
 skills/book-status/scripts/prose_style.py
 skills/book-status/scripts/reader_text.py
 skills/book-status/scripts/rhythm_map.py
@@ -272,7 +274,9 @@ tools/plugin_test_support.py
 tools/skill_lib.py
 tools/smoke-new-book.sh
 tools/test-author-read.py
+tools/test-book-aliases.py
 tools/test-claude-plugin.py
+tools/test-compact-dashboard.py
 tools/test-desktop-plugin.py
 tools/test-draft-promises.py
 tools/test-drafting-study.py
@@ -280,6 +284,9 @@ tools/test-edition-exchange.py
 tools/test-editorial-milestones.py
 tools/test-novel-beta.py
 tools/test-novel-draft-packet.py
+tools/test-report-parity.py
+tools/test-review-captures.py
+tools/test-review-inputs.py
 tools/test-state-regressions.py
 tools/test-storycraft-improvements.py
 tools/test-storycraft-mcp.py

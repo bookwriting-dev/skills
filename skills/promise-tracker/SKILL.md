@@ -3,7 +3,7 @@ name: promise-tracker
 description: "Track and audit reader promises (Chekhov setups, thesis threads, unresolved tensions, promised counterarguments) in Wiki/Story/Book-N/promises.yaml and report overdue, due, or undated entries. Use when checking promises, loose ends, or closing a book. Non-fiction and hybrid projects own this; fiction-only projects may use fiction-promises."
 metadata:
   author: Storycraft Skills
-  version: "1.3.0"
+  version: "1.3.1"
   category: cross-cutting
   output-format: yaml
 ---

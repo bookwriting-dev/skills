@@ -76,13 +76,12 @@ def main():
     a = ap.parse_args()
     s = state_module()
     root = a.root.resolve()
-    if not re.fullmatch(r'Book-\d+', a.book):
-        raise ValueError('invalid book')
     cfg = s.load(a.config) if a.config else {'schema_version': 1}
     config_sha256 = hashlib.sha256(a.config.read_bytes()).hexdigest() if a.config else None
     resolver = manifest_module()
     manifest_hash = s.digest(s.path_at(root, resolver.MANIFEST_PATH))
     book_record = resolver.resolve_book(root, a.book)
+    book_label = resolver.artifact_book_label(root, book_record)
     missing = resolver.missing_chapters(root, book_record)
     missing_paths = {item['path'] for item in missing if 'path' in item}
     chapters = []
@@ -110,7 +109,7 @@ def main():
     for _, p, chapter_record in chapters:
         ch_required = resolver.workflow(root, book_record, cfg.get('required_checks'), chapter=chapter_record)['required_checks']
         for check in ch_required:
-            meta = s.chapter_report_paths(root, a.book, chapter_record, check)[0]
+            meta = s.chapter_report_paths(root, book_label, chapter_record, check)[0]
             required_meta.append(meta)
             status = s.readiness(root, meta, [str(p.relative_to(root))], profile=cfg.get('completion_profile', 'draft_verified'))
             review_results.append({'chapter': chapter_record['id'], 'check': check,
@@ -126,13 +125,13 @@ def main():
     for campaign in dash['campaigns']:
         if not campaign['current']:
             warnings.append('campaign verification stale or incomplete: ' + campaign['path'])
-    for cp in (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'):
+    for cp in resolver.edit_files(root, book_record, 'campaigns/*/campaign.json'):
         cdata = s.load(cp)
         if cdata.get('sealed') or cdata.get('cancelled'):
             continue
         if any(t['status'] != 'complete' for t in cdata['tasks']):
             warnings.append('unfinished campaign: ' + str(cp.relative_to(root)))
-    import_dir = f'Chapters/{a.book}'
+    import_dir = f'Chapters/{book_label}'
     import_receipt = f'{import_dir}/.storycraft-import.json'
     imported_front = f'{import_dir}/FrontMatter.md'
     receipt = s.path_at(root, import_receipt)
@@ -166,10 +165,10 @@ def main():
             meta_record = s.load(meta_path)
             if isinstance(meta_record.get('report'), str):
                 validation_names.append(meta_record['report'])
-    disposition_path = f'_Edits/{a.book}/decisions.jsonl'
+    disposition_path = resolver.edit_artifact(root, book_record, 'decisions.jsonl').relative_to(root).as_posix()
     validation_names.append(disposition_path)
     validation_names.extend(str(p.relative_to(root)) for p in
-                            (root / '_Edits' / a.book / 'campaigns').glob('*/campaign.json'))
+                            resolver.edit_files(root, book_record, 'campaigns/*/campaign.json'))
     validation_names = sorted(set(validation_names))
     validation_before = s.evidence(root, validation_names)
     source_texts = s.manuscript_texts(root, book_record)
@@ -249,7 +248,7 @@ def main():
     if a.check:
         print(json.dumps(plan, indent=2))
         return
-    out = s.path_at(root, f'Chapters/{a.book}/export/{a.profile}')
+    out = s.path_at(root, f'Chapters/{book_label}/export/{a.profile}')
     out.parent.mkdir(parents=True, exist_ok=True)
     with s.locked(out):
         with tempfile.TemporaryDirectory(dir=out.parent) as tmp:

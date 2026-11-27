@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import re
+from uuid import uuid4
 
 import editions
 from chapter_format import DEFAULT_SCENE_BREAK, metadata as chapter_metadata
@@ -68,14 +69,7 @@ def freshness(root, meta):
     m = load(meta)
     if not m.get('inputs') or not m.get('report'):
         raise ValueError('review metadata requires inputs and report')
-    reasons = []
-    for item in m['inputs']:
-        if projections.current_input(root, item) != item:
-            if item.get('kind') == PLUGIN_SKILL_INPUT:
-                reasons.append('changed plugin review skill: ' + item['path'])
-                continue
-            label = f" ({item['projection']} as of chapter)" if item.get('kind') == projections.PROJECTION else ''
-            reasons.append('changed input: ' + item['path'] + label)
+    reasons = review_input_changes(root, m)
     if digest(path_at(root, m['report'])) != m.get('report_sha256'):
         reasons.append('report body changed')
     return {'freshness': 'STALE' if reasons else 'CURRENT', 'reasons': reasons,
@@ -122,7 +116,7 @@ def operation_profile_blockers(root, meta, profile, subject_paths):
     if not book_id:
         parts = Path(subject_paths[0]).parts if subject_paths else ()
         book_id = parts[1] if len(parts) > 1 and parts[0] == 'Chapters' else 'Book-1'
-    journal_path = path_at(root, f"_Edits/{book_id}/pipeline/{operation_id}.json")
+    journal_path = project_manifest_module().edit_artifact(root, book_id, f'pipeline/{operation_id}.json')
     if not journal_path.is_file():
         return ['required operation journal is missing']
     journal = load(journal_path)
@@ -241,30 +235,38 @@ def readiness(root, meta_path, subject_paths=None, profile='draft_verified'):
     return {
         'profile': profile, 'subject': required_subjects,
         'execution': 'COMPLETE', 'verdict': fresh.get('verdict', 'UNKNOWN'),
+        'freshness_reasons': fresh['reasons'],
         'freshness': fresh['freshness'], 'readiness': 'ELIGIBLE' if eligible else 'INELIGIBLE',
         'blocking_reasons': reasons, 'blocking_findings': blockers, 'conditions': [],
         'evidence': [str(meta_path.relative_to(root))],
     }
 
 
-def dashboard(root, book):
+def dashboard(root, book, *, view='full', chapter=None):
+    if view not in ('full', 'compact'):
+        raise ValueError('dashboard view must be full or compact')
     resolver = project_manifest_module()
-    book_record = resolver.resolve_book(root, book)
+    if chapter is None:
+        book_record, selected = resolver.resolve_book(root, book), None
+    else:
+        book_record, selected = resolver.resolve_chapter(root, book, chapter)
+    book_label = book_record.get('display_label', book_record['id'])
     workflow = resolver.workflow(root, book_record)
     chapters = []
-    for chapter in sorted(book_record['chapters'], key=lambda item: item['reading_order']):
+    roster = [selected] if selected and view == 'full' else book_record['chapters']
+    for chapter in sorted(roster, key=lambda item: item['reading_order']):
         draft = path_at(root, chapter['path'])
-        reports = chapter_report_paths(root, book, chapter)
+        reports = chapter_report_paths(root, book_label, chapter)
         ch_workflow = resolver.workflow(root, book_record, chapter=chapter)
-        required = [chapter_report_paths(root, book, chapter, check)[0]
+        required = [chapter_report_paths(root, book_label, chapter, check)[0]
                     for check in ch_workflow['required_checks']]
         checks = []
         for meta in sorted(set(reports + required)):
             result = readiness(root, meta, [chapter['path']])
-            status = freshness(root, meta) if meta.is_file() else {
-                'freshness': 'UNKNOWN', 'verdict': 'UNKNOWN', 'reasons': result['blocking_reasons']}
             checks.append(dict(path=str(meta.relative_to(root)), blocking=result.get('blocking_findings', []),
-                               required=meta in required, readiness=result['readiness'], **status))
+                               required=meta in required, readiness=result['readiness'], verdict=result['verdict'],
+                               freshness=result['freshness'], blocking_reasons=result['blocking_reasons'],
+                               reasons=result.get('freshness_reasons', result['blocking_reasons'])))
         chapters.append(dict(chapter=chapter['path'], chapter_id=chapter['id'],
                              display_label=chapter.get('display_label', chapter['id']),
                              report_stem=resolver.report_stem(chapter), draft_exists=draft.is_file(),
@@ -272,7 +274,7 @@ def dashboard(root, book):
                                                            for item in checks if item['required'])
                              and not any(item['blocking'] for item in checks), checks=checks))
     campaigns = []
-    for p in (root / '_Edits' / book / 'campaigns').glob('*/campaign.json'):
+    for p in resolver.edit_files(root, book_record, 'campaigns/*/campaign.json'):
         d = load(p)
         sealed, cancelled = bool(d.get('sealed')), bool(d.get('cancelled'))
         if sealed or cancelled:
@@ -290,16 +292,52 @@ def dashboard(root, book):
                    all(t['status'] == 'complete' for t in d['tasks']) and checks_ready)
         campaigns.append(dict(path=str(p.relative_to(root)), current=current, sealed=False,
                               cancelled=False, tasks=d['tasks']))
-    base = path_at(root, f'_Edits/{book}/author-read')
-    progress = base / 'progress.json'
+    progress = resolver.edit_artifact(root, book_record, 'author-read/progress.json')
+    base = progress.parent
     author = {'personally_read': 0, 'reported_complete': 0}
     if progress.is_file():
         log = load(progress)
         if log.get('marks'):
             report = editions.reading_status(root, book, log, base, editions.current(root, book, allow_empty=True))
             author = {key: report[key] for key in ('personally_read', 'reported_complete', 'bookmark')}
-    return dict(chapters=chapters, campaigns=campaigns, author_read=author, **workflow,
-                missing_chapters=resolver.missing_chapters(root, book_record))
+    missing = resolver.missing_chapters(root, book_record)
+    if view == 'full':
+        return dict(chapters=chapters, campaigns=campaigns, author_read=author, **workflow, missing_chapters=missing)
+    return compact_dashboard(book_record, workflow, chapters, missing, campaigns, author, selected)
+
+
+def compact_dashboard(book, workflow, chapters, missing, campaigns, author, selected):
+    drafted = sum(row['draft_exists'] for row in chapters)
+    ready = sum(row['ready'] for row in chapters)
+    missing_count = sum(group.get('count', 1) for group in missing)
+    counts = dict(expected=drafted + missing_count, drafted=drafted, ready=ready,
+                  needs_review=drafted - ready, missing_drafts=missing_count)
+
+    first = None
+    first_missing = min(missing, key=lambda group: group['reading_order'], default=None)
+    rows = {row['chapter_id']: row for row in chapters}
+    for record in sorted(book['chapters'], key=lambda item: item['reading_order']):
+        if first_missing and first_missing['reading_order'] <= record['reading_order']:
+            break
+        row = rows[record['id']]
+        if row['ready']:
+            continue
+        check = next(check for check in row['checks']
+                     if check['blocking'] or (check['required'] and check['readiness'] != 'ELIGIBLE'))
+        first = dict(chapter_id=row['chapter_id'], label=row['display_label'], path=row['chapter'],
+                     check=check['path'], reason=check['blocking_reasons'][0])
+        break
+    if first is None and first_missing:
+        first = dict(first_missing, reason='expected draft is missing')
+    outstanding = [item for item in campaigns if not item['current']]
+    summary = dict(view='compact', book=book.get('display_label', book['id']), book_id=book['id'],
+                   counts=counts, first_blocker=first, **workflow,
+                   campaigns={'count': len(campaigns), 'needs_attention': len(outstanding),
+                              'first_blocker': outstanding[0]['path'] if outstanding else None},
+                   author_read={key: author[key] for key in ('personally_read', 'reported_complete')})
+    if selected:
+        summary['chapter'] = rows[selected['id']]
+    return summary
 
 
 REVIEW_TYPE_SKILLS = {
@@ -320,12 +358,10 @@ REVIEW_TYPE_SKILLS = {
 }
 
 
-def review_begin(root, book_id, chapter_selector, review_type, *, output=None, extra_paths=None):
+def _review_inputs(root, book_record, chapter_record, review_type, extra_paths):
     resolver = project_manifest_module()
-    book_record, chapter_record = resolver.resolve_chapter(root, book_id, chapter_selector)
     book_label = book_record.get('display_label', book_record['id'])
     stem = resolver.report_stem(chapter_record)
-    report_rel = f'_Edits/{book_label}/{stem}_{review_type}.md'
     chapter_text = path_at(root, chapter_record['path']).read_text(encoding='utf-8', errors='replace')
     paths = [chapter_record['path'], 'AGENTS.md']
     ordered = sorted(book_record['chapters'], key=lambda c: c['reading_order'])
@@ -342,8 +378,9 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
                          chapter_path=chapter_record['path']),
     ]
     legacy_knowledge = f'Wiki/Story/{book_label}/knowledge.json'
-    if path_at(root, legacy_knowledge).is_file():
-        projected.append(projections.make(root, 'events', legacy_knowledge, sources=through))
+    legacy_events = projections.selected_events(root, legacy_knowledge, through)
+    if legacy_events:
+        projected.append(legacy_events)
     paths.extend(projections.canon_files(root, chapter_text))
 
     predecessor_id = resolver.predecessor(book_record, chapter_record)
@@ -365,8 +402,9 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
     for cand in plan_candidates:
         if path_at(root, cand).is_file():
             if cand == plan_path:
-                # The shared book-level plan: only this chapter's section is a review input.
-                projected.append(projections.make(root, 'plan', cand, chapter_number=chapter_number))
+                shared_plan = projections.selected_plan(root, cand, chapter_number)
+                if shared_plan:
+                    projected.append(shared_plan)
             else:
                 paths.append(cand)
                 chapter_plan = path_at(root, cand)
@@ -384,6 +422,8 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
             break
 
     style_auth = resolver.resolve_style_guide(root, book_label)
+    if style_auth.get('status') == 'CONFLICT':
+        raise ValueError('conflicting style guides: ' + ', '.join(style_auth['paths']))
     if style_auth.get('status') == 'RESOLVED':
         paths.append(style_auth['path'])
     if review_type in ('FullEdit', 'LineEdit'):
@@ -407,9 +447,10 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
         ev_file = f'_Edits/{book_label}/evidence/{stem}.json'
         if path_at(root, 'Wiki/Concept').is_dir():
             paths.append('Wiki/Concept')
-        if path_at(root, 'Wiki/Research').is_dir():
-            projected.append(projections.make(root, 'research', 'Wiki/Research', record_path=ev_file,
-                                              plan_path=plan_path, chapter_number=chapter_number))
+        research_plan = chapter_plan.relative_to(root).as_posix() if chapter_plan else plan_path
+        research = projections.selected_research(root, ev_file, research_plan, chapter_number)
+        if research:
+            projected.append(research)
         if path_at(root, ev_file).is_file():
             paths.append(ev_file)
 
@@ -420,25 +461,108 @@ def review_begin(root, book_id, chapter_selector, review_type, *, output=None, e
     if skill_name and plugin_input is None and path_at(root, f'.agents/skills/{skill_name}').is_dir():
         paths.append(f'.agents/skills/{skill_name}')
 
-    for ep in extra_paths or []:
-        paths.append(ep)
+    paths.extend(extra_paths)
 
     inputs = evidence(root, paths) + sorted(projected, key=lambda i: (i['path'], i['projection']))
     if plugin_input is not None:
         inputs.append(plugin_input)
+    return inputs
+
+
+def _legacy_review_selection(spec):
+    subjects = spec.get('subject_paths', [])
+    if len(subjects) != 1 or not spec.get('book_id'):
+        return None
+    inputs = spec['inputs']
+    # The scoped decisions projection identifies an ergonomic chapter capture even when the
+    # author supplied a custom report name. Raw prepare/snapshot records use explicit paths.
+    if not any(item.get('projection') == 'decisions' and item.get('chapter_path') == subjects[0]
+               for item in inputs):
+        return None
+    skills = {item['path'] for item in inputs if item.get('kind') == PLUGIN_SKILL_INPUT}
+    if not skills:
+        skills = {Path(item['path']).name for item in inputs if item.get('kind') == 'directory'
+                  and Path(item['path']).parent == Path('.agents/skills')}
+    matches = [name for name, skill in REVIEW_TYPE_SKILLS.items() if skill in skills]
+    suffix = Path(spec.get('report', '')).stem.rsplit('_', 1)[-1]
+    review_type = suffix if suffix in REVIEW_TYPE_SKILLS else None
+    if len(matches) == 1:
+        review_type = matches[0]
+    # An unknown check still consumed the rules, guides, plans, and canon shared by chapter reviews.
+    return {'book': spec['book_id'], 'chapter': subjects[0], 'review_type': review_type}
+
+
+def review_input_changes(root, spec):
+    """Resolve the chapter's applicable evidence again, including sources introduced after capture."""
+    previous = spec['inputs']
+    selection = spec.get('review_selection') or _legacy_review_selection(spec)
+
+    def key(item):
+        return item['path'], item.get('projection', ''), item.get('kind') == PLUGIN_SKILL_INPUT
+
+    before = {key(item): item for item in previous}
+    current = {}
+    if selection is not None:
+        try:
+            book, chapter = project_manifest_module().resolve_chapter(root, selection['book'], selection['chapter'])
+            selected = _review_inputs(root, book, chapter, selection['review_type'], selection.get('extra_paths', []))
+            current = {key(item): item for item in selected}
+        except (OSError, ValueError) as exc:
+            return ['cannot resolve review inputs: ' + str(exc)]
+    if 'review_selection' not in spec:
+        # Raw snapshots use explicit paths. Old chapter reviews may also have included manual extra paths.
+        for name, item in before.items():
+            if name not in current:
+                # An old shared-plan projection was selected automatically. If its applicable
+                # section still exists but another plan supersedes it, preserving the old file
+                # as an extra input would hide the change in authority.
+                if (selection and item.get('projection') == 'plan' and path_at(root, item['path']).is_file()
+                        and projections.selected_plan(root, item['path'], item['chapter_number'])):
+                    continue
+                current[name] = projections.current_input(root, item)
+
+    changes = []
+    for name in sorted(before.keys() | current.keys()):
+        old, new = before.get(name), current.get(name)
+        if old == new:
+            continue
+        item = old or new
+        if item.get('kind') == PLUGIN_SKILL_INPUT:
+            changes.append('changed plugin review skill: ' + item['path'])
+        else:
+            label = f" ({item['projection']} as of chapter)" if item.get('kind') == projections.PROJECTION else ''
+            changes.append('changed input: ' + item['path'] + label)
+    return changes
+
+
+def review_begin(root, book_id, chapter_selector, review_type, *, output=None, extra_paths=None):
+    resolver = project_manifest_module()
+    book_record, chapter_record = resolver.resolve_chapter(root, book_id, chapter_selector)
+    book_label = book_record.get('display_label', book_record['id'])
+    stem = resolver.report_stem(chapter_record)
+    report_rel = f'_Edits/{book_label}/{stem}_{review_type}.md'
+    extras = sorted({path_at(root, path).relative_to(root.resolve()).as_posix() for path in extra_paths or []})
+    inputs = _review_inputs(root, book_record, chapter_record, review_type, extras)
     spec = {
         'schema_version': VERSION,
         'book_id': book_label,
+        'review_selection': {'book': book_record['id'], 'chapter': chapter_record['id'],
+                             'review_type': review_type, 'extra_paths': extras},
         'report': report_rel,
         'verdict': 'WARN',
         'subject_paths': [chapter_record['path']],
         'inputs': inputs,
     }
-    if plugin_input is not None:
+    if any(item.get('kind') == PLUGIN_SKILL_INPUT for item in inputs):
         spec['storycraft_version'] = PLUGIN_VERSION
-    out_rel = output or f'_Edits/{book_label}/{stem}_{review_type}.prepared.json'
+    capture_id = uuid4().hex
+    spec['capture_id'] = capture_id
+    out_rel = output or f'_Edits/{book_label}/review-captures/{stem}_{review_type}.{capture_id}.prepared.json'
     out_path = path_at(root, out_rel)
-    write(out_path, spec)
+    with locked(out_path):
+        if out_path.exists():
+            raise ValueError(f'review capture already exists: {out_rel}; choose a new output path')
+        write(out_path, spec)
     return {'prepared': str(out_path.relative_to(root)), **spec}
 
 
@@ -447,8 +571,9 @@ def review_finish(root, prepared_path, verdict, *, report=None, output=None, fin
     if not prep_p.is_absolute():
         prep_p = path_at(root, prepared_path)
     spec = load(prep_p)
-    if not spec.get('inputs') or current_inputs(root, spec['inputs']) != spec['inputs']:
-        raise ValueError('review inputs changed or pre-review evidence missing')
+    changes = review_input_changes(root, spec) if spec.get('inputs') else ['missing pre-review evidence']
+    if changes:
+        raise ValueError('review inputs changed or pre-review evidence missing: ' + ', '.join(changes))
     report_rel = report or spec.get('report')
     if not report_rel:
         raise ValueError('missing report path')
@@ -464,6 +589,8 @@ def review_finish(root, prepared_path, verdict, *, report=None, output=None, fin
     spec.update(report_sha256=digest(report_path), created_at=now())
     out_rel = output or str(Path(spec['report']).with_suffix('.meta.json'))
     out_path = path_at(root, out_rel)
+    if out_path == prep_p.resolve():
+        raise ValueError('review metadata and prepared capture must have different paths')
     with locked(out_path):
         write(out_path, spec)
     return {'meta': str(out_path.relative_to(root)), **spec}
@@ -505,7 +632,7 @@ def record_dispositions_batch(root, book_id, *, report, items):
             elif opt == 'after_sha256' and raw.get('after_sha') is not None:
                 entry[opt] = raw['after_sha']
         records.append(entry)
-    p = path_at(root, f'_Edits/{book_id}/decisions.jsonl')
+    p = project_manifest_module().edit_artifact(root, book_id, 'decisions.jsonl')
     with locked(p):
         p.parent.mkdir(parents=True, exist_ok=True)
         with p.open('a', encoding='utf-8') as f:
@@ -538,7 +665,7 @@ def record_disposition(root, book_id, *, report, finding_id, disposition, reason
         item['before_sha256'] = before_sha256
     if after_sha256 is not None:
         item['after_sha256'] = after_sha256
-    p = path_at(root, f'_Edits/{book_id}/decisions.jsonl')
+    p = project_manifest_module().edit_artifact(root, book_id, 'decisions.jsonl')
     with locked(p):
         p.parent.mkdir(parents=True, exist_ok=True)
         with p.open('a', encoding='utf-8') as f:

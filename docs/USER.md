@@ -209,7 +209,7 @@ hand-written catalog's versions honest against it.)
 | `litrpg-audit` 1.2.1 | Deterministic numeric audit: checks stat point math, level curves, skill prerequisites, and status boxes against `ledger.yaml`. |
 | `fiction-dev-editor` 2.5.1 | Story-level diagnosis, 4-Chapter / Act Developmental Checkpoints (`rhythm-map`, `drift.py`, `cast --gap 4`), causal escalation, hook honesty, and cast bloat checks. |
 | `coldread` 1.2.1 | Blind, read-only test of one chapter or section (fiction or non-fiction): does it deliver the claimed voice, viewpoint, register? Run it *before* rule-loaded review. |
-| `fiction-promises` 1.4.0 | The Chekhov ledger reads committed generations and routes managed promise/related-ledger writes through atomic transactions. |
+| `fiction-promises` 1.4.1 | The Chekhov ledger reads committed generations and routes managed promise/related-ledger writes through atomic transactions. |
 | `fiction-knowledge` 1.2.0 | Sourced character beliefs, secret acquisition, and reader exposure in story/reading order (`Wiki/Story/knowledge-events.json`). |
 | `review-panel` 1.3.1 | Persona review panel for fiction and non-fiction (built per series in `Wiki/Review/`): each persona is a stake + a way of being wrong about THIS book; every quoted line is grep-verified before filing. |
 | `drift-check` 1.4.2 | Book-level drift audit — pet words, formula openers/closers, construction density, specifics thinning; non-fiction claim/evidence metrics too. Diagnostic only; never edits. |
@@ -260,7 +260,7 @@ hand-written catalog's versions honest against it.)
 | `book-reverse-engineer` 1.5.0 | **Retrofit & rebuild**: analyzes Markdown/text/EPUB/`.docx` drafts, reconstructs `Wiki/Style/style_guide.md` + `review_guide.md`, scene outlines, promises, and `findings.yaml`. |
 | `chapter-pipeline` 1.13.0 | Profiled chapter workflow (`FICTION`, `NONFICTION`, per-chapter `HYBRID` modes; `storycraft_*` MCP tools preferred) with Act / 4-chapter checkpoints and batch state commands. |
 | `gate-check` 1.14.0 | Comprehensive chapter readiness & continuity gate honoring scene `cadence_role`, `storycraft_*` MCP tools, and pre-gate continuity recording. |
-| `book-status` 1.20.0 | Manifest-resolved draft packets (`storycraft_*` MCP tools when connected), `manifest`, `project_state.py kanban`, `reanchor`, `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, batch `--events`/`--dispositions`, `sync-edits`, and `rhythm-map`. |
+| `book-status` 1.21.0 | Manifest-resolved draft packets (`storycraft_*` MCP tools when connected), `manifest`, `project_state.py kanban`, `reanchor`, `project_state.py chapter-preflight`, `project_state.py chapter-finalize`, batch `--events`/`--dispositions`, `sync-edits`, and `rhythm-map`. |
 | `kanban-board` 1.4.0 | Per-book production board (`Wiki/Story/Book-N/kanban.md`) rendered deterministically via `storycraft_kanban` / `project_state.py kanban` / `kanban.py`. |
 | `canon-guard` 1.2.0 | Safeguards canon from drift; semantic, knowledge, and continuity impact scan before deliberate world/character edits, handing multi-chapter repairs to `revision-campaign`. |
 | `editorial-memory` 1.1.0 | Explicit scoped author decisions; keep/reject history, `sync-edits` advisory preference candidates, and reusable preferences. |
@@ -268,11 +268,11 @@ hand-written catalog's versions honest against it.)
 | `series-continuity` 1.2.0 | Audits multi-book consistency across Book 1 through Book N using continuity, knowledge, relationship, and deferred-promise ledgers. |
 | `reader-persona-review` 1.2.0 | Qualitative reader feedback across diverse archetypes and panel presets with synthesis. |
 | `sequential-read` 1.0.0 | Ordered simulated reader run with fresh isolated contexts and sealed predictions. |
-| `compile-manuscript` 1.9.2 | Builds staged delivery packages, respects per-chapter `HYBRID` mode checks, checks expected chapters, and records beta passage maps. |
+| `compile-manuscript` 1.9.3 | Builds staged delivery packages, respects per-chapter `HYBRID` mode checks, checks expected chapters, and records beta passage maps. |
 | `beta-feedback` 1.5.0 | Imports real Word/pasted reactions, locates passages and chapter ranges, and hands selected diagnoses, repairs and strengths to a revision campaign. |
 | `book-packaging` 1.3.0 | Generates marketing kits at `Wiki/Story/Book-N/packaging.md` verified against manuscript word counts and export manifests: back-cover blurbs, query letters, retail keywords, cover art briefs. |
 | `social-media-marketing` 1.0.2 | Facebook, Instagram, and TikTok campaigns: launch plans, ongoing content calendars, scripts, captions; optional paid-ads plan → `Wiki/Marketing/`. |
-| `promise-tracker` 1.3.0 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |
+| `promise-tracker` 1.3.1 | Unified promise/claim ledger reads committed generations and routes managed writes through atomic transactions; owns non-fiction and hybrid projects. |
 | `kill-hedge` 1.1.2 | Removes hedges and qualifiers that weaken claims. |
 | `kill-passive` 1.1.1 | Converts passive to active for clarity and authority. |
 | `kill-acronym` 1.1.1 | Flags unexplained initialisms/acronyms on first use (strict case-sensitive matching). |
@@ -306,6 +306,7 @@ Phrases that map to skills (the agent routes on them):
 - "Reverse-engineer existing draft" → `book-reverse-engineer` → `_Edits/Book-N/reverse-analysis.md` + `findings.yaml`
 - "Review chapter 5" → `fiction-reviewchapter` (or `gate-check`) → `_Edits/Book-N/Chapter-005_Review.md`
 - "Run chapter pipeline on chapter 3" → `chapter-pipeline`
+- "What needs my attention?" → `book-status` compact dashboard with counts and the earliest chapter blocker. Ask for a named chapter to see its evidence.
 - "Show book status / dashboard" → `book-status`
 - "Show the board / what's in progress" → `kanban-board`
 - "Safely update character fact" → `canon-guard`

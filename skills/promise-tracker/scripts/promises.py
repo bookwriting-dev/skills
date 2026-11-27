@@ -11,15 +11,24 @@ unresolved tensions, etc.).
     python3 scripts/promises.py --book Book-2       pick ledger explicitly
     python3 scripts/promises.py --final             gate finished book
 
-Ledger lives at Wiki/Story/Book-N/promises.yaml; walks up from CWD to find Wiki/.
+Ledger lives at Wiki/Story/Book-N/promises.yaml; walks up from CWD to find Wiki/ or the committed ledger pointer.
 Exit status 1 under --final if anything unpaid and not deferred.
 """
 from __future__ import annotations
 
 import argparse
-import importlib.util
 import sys
 from pathlib import Path
+
+sys.dont_write_bytecode = True
+SHARED_SCRIPTS = Path(__file__).resolve().parents[2] / 'book-status' / 'scripts'
+if (SHARED_SCRIPTS / 'promise_ledger.py').is_file():
+    sys.path.insert(0, str(SHARED_SCRIPTS))
+    import ledger_store
+    import project_manifest
+    from promise_ledger import PromiseChapters, read_entries
+else:
+    ledger_store = None
 
 try:
     import yaml
@@ -51,63 +60,54 @@ def chapter_number(value) -> int | None:
     return int(digits) if digits else None
 
 
-def find_wiki_root() -> Path | None:
-    for candidate in (Path.cwd(), *Path.cwd().parents):
-        if (candidate / "Wiki").is_dir():
+def project_root(start: Path) -> Path | None:
+    for candidate in (start, *start.parents):
+        if ((candidate / 'Wiki').is_dir() or (candidate / '.storycraft/ledger-current.json').is_file()
+                or (candidate / '.storycraft/project.json').is_file()):
             return candidate
     return None
 
 
-def managed_ledger_paths(root: Path) -> set[str]:
-    store_path = Path(__file__).parents[2] / 'book-status' / 'scripts' / 'ledger_store.py'
-    if not store_path.is_file():
-        return set()
-    spec = importlib.util.spec_from_file_location('storycraft_promise_ledger_store', store_path)
-    store = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(store)
-    pointer = store.current_pointer(root)
-    return set(pointer.get('ledgers', {})) if pointer else set()
-
-
 def find_ledger(root: Path, book: str | None) -> tuple[Path | None, str | None]:
-    story = root / LEDGER_REL
-    managed = managed_ledger_paths(root)
     if book:
-        path = story / book / "promises.yaml"
-        logical = path.relative_to(root).as_posix()
-        return (path, None) if path.exists() or logical in managed else (None, f"no ledger at {path}")
-    candidates = sorted(set(story.glob("Book-*/promises.yaml")) |
-                        {root / item for item in managed if item.startswith('Wiki/Story/Book-') and item.endswith('/promises.yaml')})
+        return root / LEDGER_REL / book / 'promises.yaml', None
+    story = root / LEDGER_REL
+    candidates = set(story.glob('*/promises.yaml'))
+    if ledger_store is not None:
+        pointer = ledger_store.current_pointer(root) or {}
+        candidates.update(root / name for name in pointer.get('ledgers', {})
+                          if Path(name).match('Wiki/Story/*/promises.yaml'))
     if not candidates:
-        return None, ("no ledger found under Wiki/Story/Book-N/ — copy the skill's "
-                      "assets/promises.yaml there to start tracking")
+        return None, 'no ledger found under Wiki/Story/Book-N/'
     if len(candidates) > 1:
-        names = ", ".join(c.parent.name for c in candidates)
-        return None, f"several ledgers found ({names}) — pass --book to pick one"
-    return candidates[0], None
+        return None, 'several ledgers found; pass --book to pick one'
+    return candidates.pop(), None
 
 
 def load(ledger_path: Path) -> tuple[list[dict], str | None]:
     if yaml is None:
-        return [], "PyYAML not importable; cannot read ledger"
+        return [], 'PyYAML not importable; cannot read ledger'
+    path = ledger_path.resolve()
+    root = project_root(path.parent)
+    if root is not None and ledger_store is not None:
+        status, entries = read_entries(root, path.relative_to(root).as_posix())
+        if status == 'missing':
+            return [], f'no ledger at {path}'
+        if status == 'unreadable':
+            return [], f'{path} could not be parsed or verified'
+        return entries, None
+    if root is not None and (root / '.storycraft/ledger-current.json').is_file():
+        return [], 'committed ledger requires the book-status runtime'
+    if not path.is_file():
+        return [], f'no ledger at {path}'
     try:
-        resolved = ledger_path.resolve()
-        root = next((parent for parent in resolved.parents if (parent / 'Wiki').is_dir()), None)
-        raw = None
-        if root is not None:
-            store_path = Path(__file__).parents[2] / 'book-status' / 'scripts' / 'ledger_store.py'
-            if store_path.is_file():
-                spec = importlib.util.spec_from_file_location('storycraft_promise_ledger_store', store_path)
-                store = importlib.util.module_from_spec(spec)
-                spec.loader.exec_module(store)
-                relative = resolved.relative_to(root).as_posix()
-                raw = store.load_ledger_bytes(root, relative)
-        data = yaml.safe_load(raw.decode('utf-8') if raw is not None else
-                              ledger_path.read_text(encoding="utf-8")) or {}
-    except Exception as exc:
-        return [], f"{ledger_path} could not be parsed: {exc}"
-    promises = [p for p in (data.get("promises") or []) if isinstance(p, dict)]
-    return [p for p in promises if str(p.get("promise") or "").strip()], None
+        data = yaml.safe_load(path.read_text(encoding='utf-8')) or {}
+        entries = data['promises']
+        if not isinstance(entries, list) or not all(isinstance(p, dict) for p in entries):
+            raise ValueError('expected a promises array')
+        return [p for p in entries if str(p.get('promise') or '').strip()], None
+    except (ValueError, TypeError, KeyError, OSError, yaml.YAMLError) as exc:
+        return [], f'{path} could not be parsed: {exc}'
 
 
 def is_paid(promise: dict) -> bool:
@@ -118,12 +118,12 @@ def is_deferred(promise: dict) -> bool:
     return bool(promise.get("deferred_to_series"))
 
 
-def status(promise: dict, current: int | None) -> str:
+def status(promise: dict, current: int | None, position=chapter_number, next_order=None) -> str:
     if is_paid(promise):
         return "paid"
     if is_deferred(promise):
         return "deferred"
-    due = chapter_number(promise.get("payoff_by_ch"))
+    due = position(promise.get("payoff_by_ch"))
     if due is None:
         return "undated"
     if current is None:
@@ -132,7 +132,7 @@ def status(promise: dict, current: int | None) -> str:
         return "overdue"
     if due == current:
         return "due"
-    if due - current <= 1:
+    if due == (current + 1 if next_order is None else next_order):
         return "due soon"
     return "open"
 
@@ -155,14 +155,14 @@ def describe(promise: dict) -> str:
             f"       made {where} · owed by {due}")
 
 
-def report(promises: list[dict], current: int | None) -> str:
+def report(promises: list[dict], current: int | None, position=chapter_number, next_order=None) -> str:
     if not promises:
         return ("Promise tracker — empty.\n"
                 "  Nothing tracked. Every setup creating reader expectation is currently\n"
                 "  unbooked; harvest from the text to populate the ledger.")
     buckets: dict[str, list[dict]] = {}
     for promise in promises:
-        buckets.setdefault(status(promise, current), []).append(promise)
+        buckets.setdefault(status(promise, current, position, next_order), []).append(promise)
     paid = len(buckets.get("paid", []))
     out = [f"Promise tracker — {len(promises)} promise(s), {paid} paid"]
     for key, label in (
@@ -194,21 +194,32 @@ def main() -> None:
                         help="exit 1 if any promise unpaid and not deferred")
     args = parser.parse_args()
 
-    root = find_wiki_root()
+    start = args.ledger.resolve().parent if args.ledger else Path.cwd()
+    root = project_root(start)
+    book = args.book
+    if root and book and ledger_store is not None:
+        book = project_manifest.artifact_book_label(root, book)
     if args.ledger:
-        ledger_path = args.ledger
-        problem = None if ledger_path.exists() else f"no ledger at {ledger_path}"
+        ledger_path, problem = args.ledger.resolve(), None
     elif root is None:
-        ledger_path, problem = None, "no Wiki/ found above working directory"
+        ledger_path, problem = None, 'no Storycraft project or Wiki/ found above working directory'
     else:
-        ledger_path, problem = find_ledger(root, args.book)
+        ledger_path, problem = find_ledger(root, book)
 
     if problem:
         print(f"Promise tracker — {problem}.")
         raise SystemExit(0 if not args.final else 1)
 
     promises, problem = load(ledger_path)
-    current = chapter_number(args.chapter) if args.chapter else None
+    positions = None
+    if not problem and root and ledger_store is not None:
+        in_story = ledger_path.parent.parent == root / LEDGER_REL
+        book_label = ledger_path.parent.name if in_story else book
+        if book_label and project_manifest.find_book(project_manifest.load(root), book_label):
+            positions = PromiseChapters(project_manifest.resolve_book(root, book_label))
+    position = positions.position if positions else chapter_number
+    current = position(args.chapter) if args.chapter else None
+    next_order = positions.next_order(current) if positions else None
 
     if args.final:
         if problem:
@@ -227,7 +238,7 @@ def main() -> None:
     if problem:
         print(f"Promise tracker — {problem}.")
         return
-    print(report(promises, current))
+    print(report(promises, current, position, next_order))
 
 
 if __name__ == "__main__":

@@ -184,28 +184,90 @@ def find_book(manifest, book_id):
                if book['id'] == book_id or book.get('display_label') == book_id]
     if len(matches) == 1:
         return matches[0]
+    if len(matches) > 1:
+        raise ValueError(f'ambiguous book selector: {book_id}')
+
+
+def artifact_book(root, selector):
+    """Resolve the folder identity even for standalone journals without a manuscript."""
+    if isinstance(selector, dict):
+        return selector
+    if contained(root, MANIFEST_PATH).is_file():
+        record = find_book(load(root), selector)
+        if record:
+            return record
+    if re.fullmatch(r'book-[1-9]\d*', selector, re.I):
+        label = 'Book-' + selector.split('-')[1]
+        if selector == label or any(contained(root, f'{area}/{label}').is_dir()
+                                    for area in ('Chapters', 'Wiki/Story', 'Wiki/Outline', '_Intake')):
+            return conventional_book(label)
+    return {'id': selector, 'display_label': selector}
+
+
+def artifact_book_label(root, selector):
+    book = artifact_book(root, selector)
+    label = book.get('display_label', book['id'])
+    if not label or Path(label).name != label or label in ('.', '..'):
+        raise ValueError(f'invalid book artifact folder: {label}')
+    return label
+
+
+def edit_roots(root, book_record):
+    """Use the display-label folder first, followed by an existing pre-normalization ID folder."""
+    book = artifact_book(root, book_record)
+    label = artifact_book_label(root, book)
+    canonical = contained(root, f'_Edits/{label}')
+    identifier = book['id']
+    if identifier == label or Path(identifier).name != identifier or identifier in ('.', '..'):
+        return [canonical]
+    legacy = contained(root, f'_Edits/{identifier}')
+    if not legacy.is_dir() or (canonical.exists() and legacy.samefile(canonical)):
+        return [canonical]
+    if contained(root, MANIFEST_PATH).is_file():
+        for other in load(root)['books']:
+            if other['id'] != identifier:
+                owner_dir = contained(root, f'_Edits/{artifact_book_label(root, other)}')
+                if owner_dir.is_dir() and owner_dir.samefile(legacy):
+                    return [canonical]
+    return [canonical, legacy]
+
+
+def edit_artifact(root, book, relative):
+    """Continue an existing run in its original directory. New runs use the canonical label."""
+    candidates = [contained(root, base / relative) for base in edit_roots(root, book)]
+    return next((path for path in candidates if path.exists()), candidates[0])
+
+
+def edit_files(root, book, pattern):
+    by_name = {}
+    for base in edit_roots(root, book):
+        for path in base.glob(pattern):
+            by_name.setdefault(path.relative_to(base), path)
+    return [by_name[key] for key in sorted(by_name)]
 
 
 def resolve_book(root, book_id):
     manifest = load(root)
     book = find_book(manifest, book_id)
     saved = contained(root, MANIFEST_PATH).exists()
-    if saved and re.fullmatch(r'Book-[1-9]\d*', book_id):
-        imported = imported_chapters(root, book_id)
+    label = artifact_book_label(root, book) if book else book_id
+    if saved and re.fullmatch(r'Book-[1-9]\d*', label):
+        imported = imported_chapters(root, label)
         if imported is not None:
-            existing = book or conventional_book(book_id)
+            existing = book or conventional_book(label)
             registered = {c['path'] for c in existing['chapters']}
-            receipt = contained(root, f'Chapters/{book_id}/.storycraft-import.json')
+            receipt = contained(root, f'Chapters/{label}/.storycraft-import.json')
             retired = json.loads(receipt.read_text())['epub'].get('retired_paths',[])
             if registered - {c['path'] for c in imported} - set(retired):
                 raise ValueError('imported roster conflicts with registered chapters')
             by_path = {c['path']:c for c in existing['chapters']}
             return dict(existing, chapter_order='declared', chapters=[
                 {**by_path.get(c['path'],{}), **c} for c in imported])
-    if book is None and not saved and re.fullmatch(r'Book-[1-9]\d*', book_id):
-        if any(contained(root, f'{area}/{book_id}').is_dir()
+    if book is None and not saved and re.fullmatch(r'book-[1-9]\d*', book_id, re.I):
+        label = 'Book-' + book_id.split('-')[1]
+        if any(contained(root, f'{area}/{label}').is_dir()
                for area in ('_Intake', 'Wiki/Outline', 'Wiki/Story')):
-            return conventional_book(book_id)
+            return conventional_book(label)
     if book is None:
         raise ValueError(f'book must resolve uniquely through project manifest: {book_id}')
     if 'chapter_order' not in book and manifest.get('producer', {}).get('name') == 'storycraft-project-resolver':
@@ -214,10 +276,9 @@ def resolve_book(root, book_id):
         return book
     # Older adopted manifests may predate drafts saved manually in the conventional tree.
     current = propose(root)
-    observed = find_book(current['manifest'], book_id)
+    observed = find_book(current['manifest'], label)
     if observed is None:
         return book
-    label = book.get('display_label', book['id'])
     conflicts = [message for message in current['unresolved']
                  if f'/{label}/' in message or message.endswith(f' in {label}')]
     if conflicts:
@@ -390,7 +451,8 @@ def outline_paths(book):
 
 
 def missing_chapters(root, book):
-    missing = [{'label': chapter.get('display_label', chapter['id']), 'path': chapter['path']}
+    missing = [{'label': chapter.get('display_label', chapter['id']), 'path': chapter['path'],
+                'reading_order': chapter['reading_order'], 'chapter_id': chapter['id']}
                for chapter in sorted(book['chapters'], key=lambda item: item['reading_order'])
                if not contained(root, chapter['path']).is_file()]
     if book.get('chapter_order') != 'conventional':
@@ -407,9 +469,11 @@ def missing_chapters(root, book):
     label = book.get('display_label', book['id'])
     for before, after in zip([0, *orders], [*orders, last + 1]):
         if after == before + 2:
-            missing.append({'label': f'Chapter {before + 1}', 'path': f'Chapters/{label}/Chapter-{before + 1:03d}.md'})
+            missing.append({'label': f'Chapter {before + 1}', 'reading_order': before + 1,
+                            'path': f'Chapters/{label}/Chapter-{before + 1:03d}.md'})
         elif after > before + 2:
-            missing.append({'label': f'Chapters {before + 1} through {after - 1}'})
+            missing.append({'label': f'Chapters {before + 1} through {after - 1}',
+                            'reading_order': before + 1, 'count': after - before - 1})
     return missing
 
 
